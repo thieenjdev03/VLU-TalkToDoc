@@ -1,5 +1,4 @@
 import Iconify, { IconifyProps } from '../iconify';
-import Other from '../../sections/_examples/extra/animate-view/other/index';
 
 // ----------------------------------------------------------------------
 
