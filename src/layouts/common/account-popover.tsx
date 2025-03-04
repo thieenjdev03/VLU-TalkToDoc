@@ -24,15 +24,15 @@ import CustomPopover, { usePopover } from 'src/components/custom-popover';
 
 const OPTIONS = [
   {
-    label: 'Home',
+    label: 'Trang chủ',
     linkTo: '/',
   },
   {
-    label: 'Profile',
+    label: 'Thông tin cá nhân',
     linkTo: paths.dashboard.user.profile,
   },
   {
-    label: 'Settings',
+    label: 'Cài đặt tài khoản',
     linkTo: paths.dashboard.user.account,
   },
 ];
@@ -124,7 +124,7 @@ export default function AccountPopover() {
           onClick={handleLogout}
           sx={{ m: 1, fontWeight: 'fontWeightBold', color: 'error.main' }}
         >
-          Logout
+          Đăng xuất
         </MenuItem>
       </CustomPopover>
     </>

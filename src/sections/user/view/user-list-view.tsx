@@ -47,14 +47,14 @@ import UserTableFiltersResult from '../user-table-filters-result';
 
 // ----------------------------------------------------------------------
 
-const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...USER_STATUS_OPTIONS];
+const STATUS_OPTIONS = [{ value: 'all', label: 'Tất Cả' }, ...USER_STATUS_OPTIONS];
 
 const TABLE_HEAD = [
-  { id: 'name', label: 'Name' },
-  { id: 'phoneNumber', label: 'Phone Number', width: 180 },
+  { id: 'name', label: 'Họ & Tên' },
+  { id: 'phoneNumber', label: 'SĐT', width: 180 },
   { id: 'company', label: 'Company', width: 220 },
-  { id: 'role', label: 'Role', width: 180 },
-  { id: 'status', label: 'Status', width: 100 },
+  { id: 'role', label: 'Vị Trí', width: 180 },
+  { id: 'status', label: 'Trạng Thái', width: 100 },
   { id: '', width: 88 },
 ];
 
@@ -157,11 +157,11 @@ export default function UserListView() {
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
         <CustomBreadcrumbs
-          heading="List"
+          heading="Danh Sách Người Dùng"
           links={[
-            { name: 'Dashboard', href: paths.dashboard.root },
-            { name: 'User', href: paths.dashboard.user.root },
-            { name: 'List' },
+            { name: 'Trang Chủ', href: paths.dashboard.root },
+            { name: 'Quản Lý Người Dùng', href: paths.dashboard.user.root },
+            { name: 'Danh Sách' },
           ]}
           action={
             <Button
@@ -170,7 +170,7 @@ export default function UserListView() {
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
             >
-              New User
+              Người Dùng Mới
             </Button>
           }
           sx={{

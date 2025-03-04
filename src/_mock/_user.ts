@@ -5,10 +5,10 @@ import { _mock } from './_mock';
 // ----------------------------------------------------------------------
 
 export const USER_STATUS_OPTIONS = [
-  { value: 'active', label: 'Active' },
-  { value: 'pending', label: 'Pending' },
-  { value: 'banned', label: 'Banned' },
-  { value: 'rejected', label: 'Rejected' },
+  { value: 'active', label: 'Hoạt Động' },
+  // { value: 'pending', label: 'Pending' },
+  { value: 'banned', label: 'Đã Khoá' },
+  // { value: 'rejected', label: 'Rejected' },
 ];
 
 export const _userAbout = {
@@ -143,7 +143,7 @@ export const _userList = [...Array(20)].map((_, index) => ({
   zipCode: '85807',
   state: 'Virginia',
   city: 'Rancho Cordova',
-  role: _mock.role(index),
+  role: _mock.role(Math.floor(Math.random() * 4)), // Random 0 - 4
   email: _mock.email(index),
   address: '908 Jack Locks',
   name: _mock.fullName(index),
@@ -152,6 +152,5 @@ export const _userList = [...Array(20)].map((_, index) => ({
   country: countries[index + 1].label,
   avatarUrl: _mock.image.avatar(index),
   phoneNumber: _mock.phoneNumber(index),
-  status:
-    (index % 2 && 'pending') || (index % 3 && 'banned') || (index % 4 && 'rejected') || 'active',
+  status: (index % 2 && 'banned') || 'active',
 }));

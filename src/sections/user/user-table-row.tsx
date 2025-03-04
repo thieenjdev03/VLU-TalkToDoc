@@ -114,7 +114,7 @@ export default function UserTableRow({
           sx={{ color: 'error.main' }}
         >
           <Iconify icon="solar:trash-bin-trash-bold" />
-          Delete
+          Xoá
         </MenuItem>
 
         <MenuItem
@@ -124,7 +124,7 @@ export default function UserTableRow({
           }}
         >
           <Iconify icon="solar:pen-bold" />
-          Edit
+          Chỉnh Sửa
         </MenuItem>
       </CustomPopover>
 

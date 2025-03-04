@@ -1,8 +1,10 @@
 import { Navigate, useRoutes } from 'react-router-dom';
-
+import { lazy } from 'react';
 import MainLayout from 'src/layouts/main';
 
 // import { PATH_AFTER_LOGIN } from 'src/config-global';
+import { GuestGuard } from 'src/auth/guard';
+import AuthClassicLayout from 'src/layouts/auth/classic';
 import { authRoutes } from './auth';
 import { authDemoRoutes } from './auth-demo';
 import { HomePage, mainRoutes } from './main';
@@ -12,6 +14,8 @@ import { componentsRoutes } from './components';
 // ----------------------------------------------------------------------
 
 export default function Router() {
+  const JwtLoginPage = lazy(() => import('src/pages/auth/jwt/login'));
+  // const accessToken = JSON.parse(localStorage.getItem('accessToken'));
   return useRoutes([
     // SET INDEX PAGE WITH SKIP HOME PAGE
     // {
@@ -23,14 +27,23 @@ export default function Router() {
 
     // SET INDEX PAGE WITH HOME PAGE
     {
-      path: '/',
+      path: '/#/',
       element: (
         <MainLayout>
           <HomePage />
         </MainLayout>
       ),
     },
-
+    {
+      path: '/',
+      element: (
+        <GuestGuard>
+          <AuthClassicLayout>
+            <JwtLoginPage />
+          </AuthClassicLayout>
+        </GuestGuard>
+      ),
+    },
     // Auth routes
     ...authRoutes,
     ...authDemoRoutes,
@@ -43,7 +56,6 @@ export default function Router() {
 
     // Components routes
     ...componentsRoutes,
-
     // No match 404
     { path: '*', element: <Navigate to="/404" replace /> },
   ]);
