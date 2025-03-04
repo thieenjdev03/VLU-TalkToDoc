@@ -131,8 +131,8 @@ export function AuthProvider({ children }: Props) {
       email,
       password,
     };
-
-    const res = await axios.post(endpoints.auth.login, data);
+    const endPointForStag = 'https://api-dev-minimal-v510.vercel.app/api/auth/login';
+    const res = await axios.post(endPointForStag, data);
 
     const { accessToken, user } = res.data;
 

@@ -69,32 +69,32 @@ type StepIconProps = {
   completed: boolean;
 };
 
-function StepIcon({ active, completed }: StepIconProps) {
-  return (
-    <Stack
-      alignItems="center"
-      justifyContent="center"
-      sx={{
-        width: 24,
-        height: 24,
-        color: 'text.disabled',
-        ...(active && {
-          color: 'primary.main',
-        }),
-      }}
-    >
-      {completed ? (
-        <Iconify icon="eva:checkmark-fill" sx={{ color: 'primary.main' }} />
-      ) : (
-        <Box
-          sx={{
-            width: 8,
-            height: 8,
-            borderRadius: '50%',
-            backgroundColor: 'currentColor',
-          }}
-        />
-      )}
-    </Stack>
-  );
-}
+// function StepIcon({ active, completed }: StepIconProps) {
+//   return (
+//     <Stack
+//       alignItems="center"
+//       justifyContent="center"
+//       sx={{
+//         width: 24,
+//         height: 24,
+//         color: 'text.disabled',
+//         ...(active && {
+//           color: 'primary.main',
+//         }),
+//       }}
+//     >
+//       {completed ? (
+//         <Iconify icon="eva:checkmark-fill" sx={{ color: 'primary.main' }} />
+//       ) : (
+//         <Box
+//           sx={{
+//             width: 8,
+//             height: 8,
+//             borderRadius: '50%',
+//             backgroundColor: 'currentColor',
+//           }}
+//         />
+//       )}
+//     </Stack>
+//   );
+// }
