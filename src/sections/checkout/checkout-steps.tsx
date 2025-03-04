@@ -44,7 +44,7 @@ export default function CheckoutSteps({ steps, activeStep, sx, ...other }: Props
       }}
       {...other}
     >
-      {steps.map((label) => (
+      {/* {steps.map((label) => (
         <Step key={label}>
           <StepLabel
             StepIconComponent={StepIcon}
@@ -57,7 +57,7 @@ export default function CheckoutSteps({ steps, activeStep, sx, ...other }: Props
             {label}
           </StepLabel>
         </Step>
-      ))}
+      ))} */}
     </Stepper>
   );
 }
