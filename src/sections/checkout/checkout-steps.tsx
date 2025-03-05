@@ -2,6 +2,7 @@ import Box from '@mui/material/Box';
 import Step from '@mui/material/Step';
 import Stack from '@mui/material/Stack';
 import { styled } from '@mui/material/styles';
+import { StepIconProps } from '@mui/material/StepIcon';
 import Stepper, { StepperProps } from '@mui/material/Stepper';
 import StepLabel, { stepLabelClasses } from '@mui/material/StepLabel';
 import MuiStepConnector, { stepConnectorClasses } from '@mui/material/StepConnector';
@@ -44,7 +45,7 @@ export default function CheckoutSteps({ steps, activeStep, sx, ...other }: Props
       }}
       {...other}
     >
-      {/* {steps.map((label) => (
+      {steps.map((label) => (
         <Step key={label}>
           <StepLabel
             StepIconComponent={StepIcon}
@@ -57,44 +58,39 @@ export default function CheckoutSteps({ steps, activeStep, sx, ...other }: Props
             {label}
           </StepLabel>
         </Step>
-      ))} */}
+      ))}
     </Stepper>
   );
 }
 
 // ----------------------------------------------------------------------
 
-type StepIconProps = {
-  active: boolean;
-  completed: boolean;
-};
-
-// function StepIcon({ active, completed }: StepIconProps) {
-//   return (
-//     <Stack
-//       alignItems="center"
-//       justifyContent="center"
-//       sx={{
-//         width: 24,
-//         height: 24,
-//         color: 'text.disabled',
-//         ...(active && {
-//           color: 'primary.main',
-//         }),
-//       }}
-//     >
-//       {completed ? (
-//         <Iconify icon="eva:checkmark-fill" sx={{ color: 'primary.main' }} />
-//       ) : (
-//         <Box
-//           sx={{
-//             width: 8,
-//             height: 8,
-//             borderRadius: '50%',
-//             backgroundColor: 'currentColor',
-//           }}
-//         />
-//       )}
-//     </Stack>
-//   );
-// }
+function StepIcon({ active, completed }: StepIconProps) {
+  return (
+    <Stack
+      alignItems="center"
+      justifyContent="center"
+      sx={{
+        width: 24,
+        height: 24,
+        color: 'text.disabled',
+        ...(active && {
+          color: 'primary.main',
+        }),
+      }}
+    >
+      {completed ? (
+        <Iconify icon="eva:checkmark-fill" sx={{ color: 'primary.main' }} />
+      ) : (
+        <Box
+          sx={{
+            width: 8,
+            height: 8,
+            borderRadius: '50%',
+            backgroundColor: 'currentColor',
+          }}
+        />
+      )}
+    </Stack>
+  );
+}

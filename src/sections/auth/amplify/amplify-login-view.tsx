@@ -73,13 +73,13 @@ export default function AmplifyLoginView() {
 
   const renderHead = (
     <Stack spacing={2} sx={{ mb: 5 }}>
-      <Typography variant="h4">Sign in to Minimal</Typography>
+      <Typography variant="h4">Đăng nhập vào hệ thống</Typography>
 
       <Stack direction="row" spacing={0.5}>
-        <Typography variant="body2">New user?</Typography>
+        <Typography variant="body2">Đăng ký?</Typography>
 
         <Link component={RouterLink} href={paths.auth.amplify.register} variant="subtitle2">
-          Create an account
+          Tạo tài khoản
         </Link>
       </Stack>
     </Stack>

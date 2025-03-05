@@ -52,7 +52,7 @@ const STATUS_OPTIONS = [{ value: 'all', label: 'Tất Cả' }, ...USER_STATUS_OP
 const TABLE_HEAD = [
   { id: 'name', label: 'Họ & Tên' },
   { id: 'phoneNumber', label: 'SĐT', width: 180 },
-  { id: 'company', label: 'Company', width: 220 },
+  { id: 'company', label: 'Bệnh Viện', width: 220 },
   { id: 'role', label: 'Vị Trí', width: 180 },
   { id: 'status', label: 'Trạng Thái', width: 100 },
   { id: '', width: 88 },
