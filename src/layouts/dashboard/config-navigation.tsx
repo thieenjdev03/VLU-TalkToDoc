@@ -42,6 +42,8 @@ const ICONS = {
   ecommerce: icon('ic_ecommerce'),
   analytics: icon('ic_analytics'),
   dashboard: icon('ic_dashboard'),
+  drug: icon('ic_drug'),
+  medical: icon('ic_medical'),
 };
 
 // ----------------------------------------------------------------------
@@ -109,21 +111,21 @@ export function useNavData() {
             ],
           },
 
-          // // PRODUCT
-          // {
-          //   title: t('product'),
-          //   path: paths.dashboard.product.root,
-          //   icon: ICONS.product,
-          //   children: [
-          //     { title: t('list'), path: paths.dashboard.product.root },
-          //     {
-          //       title: t('details'),
-          //       path: paths.dashboard.product.demo.details,
-          //     },
-          //     { title: t('create'), path: paths.dashboard.product.new },
-          //     { title: t('edit'), path: paths.dashboard.product.demo.edit },
-          //   ],
-          // },
+          // PRODUCT
+          {
+            title: t('Quản Lý Thuốc'),
+            path: paths.dashboard.product.root,
+            icon: ICONS.medical,
+            children: [
+              { title: t('list'), path: paths.dashboard.product.root },
+              {
+                title: t('details'),
+                path: paths.dashboard.product.demo.details,
+              },
+              { title: t('create'), path: paths.dashboard.product.new },
+              { title: t('edit'), path: paths.dashboard.product.demo.edit },
+            ],
+          },
 
           // // ORDER
           // {
@@ -191,7 +193,7 @@ export function useNavData() {
           //   ],
           // },
 
-          // // FILE MANAGER
+          // FILE MANAGER
           // {
           //   title: t('file_manager'),
           //   path: paths.dashboard.fileManager,
