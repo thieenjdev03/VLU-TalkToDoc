@@ -1,7 +1,7 @@
 import { lazy } from 'react';
 import { Navigate, useRoutes } from 'react-router-dom';
-import MainLayout from 'src/layouts/main';
 
+import MainLayout from 'src/layouts/main';
 import { GuestGuard } from 'src/auth/guard';
 import AuthClassicLayout from 'src/layouts/auth/classic';
 

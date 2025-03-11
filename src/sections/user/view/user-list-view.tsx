@@ -1,5 +1,5 @@
 import isEqual from 'lodash/isEqual';
-import { useState, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
@@ -19,7 +19,8 @@ import { RouterLink } from 'src/routes/components';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { _roles, _userList, USER_STATUS_OPTIONS } from 'src/_mock';
+import { useGetUsers, useDeleteUser } from 'src/api/user';
+import { _userList, _specialties, USER_STATUS_OPTIONS } from 'src/_mock';
 
 import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
@@ -48,9 +49,9 @@ import UserTableFiltersResult from '../user-table-filters-result';
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'Tất Cả' }, ...USER_STATUS_OPTIONS];
-
-const TABLE_HEAD = [
-  { id: 'name', label: 'Họ & Tên' },
+console.log('check table user list data', _userList);
+const TABLE_HEAD_DEFAULT = [
+  { id: 'fullName', label: 'Họ & Tên' },
   { id: 'phoneNumber', label: 'SĐT', width: 180 },
   { id: 'company', label: 'Bệnh Viện', width: 220 },
   { id: 'role', label: 'Vị Trí', width: 180 },
@@ -58,15 +59,40 @@ const TABLE_HEAD = [
   { id: '', width: 88 },
 ];
 
+const TABLE_HEAD_DOCTOR = [
+  { id: 'fullName', label: 'Họ & Tên', width: 200 },
+  { id: 'hospitalId', label: 'Bệnh Viện', width: 220 },
+  { id: 'rank', label: 'Cấp Bậc', width: 180 },
+  { id: 'specialty', label: 'Chuyên Khoa', width: 200 },
+  { id: 'city', label: 'Thành Phố', width: 220 },
+  { id: 'phoneNumber', label: 'SĐT', width: 180 },
+  { id: 'experienceYears', label: 'Kinh Nghiệm (Năm)', width: 120 },
+  { id: 'licenseNo', label: 'Mã Giấy Phép', width: 180 },
+  { id: 'status', label: 'Trạng Thái', width: 100 },
+  { id: '', width: 88 },
+];
+
+const TABLE_HEAD_EMPLOYEE = [
+  { id: 'fullName', label: 'Họ & Tên' },
+  { id: 'phoneNumber', label: 'SĐT', width: 180 },
+  { id: 'hospitalId', label: 'Bệnh Viện', width: 220 },
+  { id: 'role', label: 'Vị Trí', width: 180 },
+  { id: 'specialty', label: 'Chuyên Khoa', width: 200 },
+  { id: 'status', label: 'Trạng Thái', width: 100 },
+  { id: '', width: 88 },
+];
+
 const defaultFilters: IUserTableFilters = {
-  name: '',
-  role: [],
+  fullName: '',
+  specialty: [],
   status: 'all',
 };
 
 // ----------------------------------------------------------------------
 
-export default function UserListView() {
+export default function UserListView(props: { typeUser: 'user' | 'doctor' | 'employee' }) {
+  const { typeUser } = props;
+
   const { enqueueSnackbar } = useSnackbar();
 
   const table = useTable();
@@ -77,7 +103,7 @@ export default function UserListView() {
 
   const confirm = useBoolean();
 
-  const [tableData, setTableData] = useState<IUserItem[]>(_userList);
+  const [tableData, setTableData] = useState<IUserItem[]>([]);
 
   const [filters, setFilters] = useState(defaultFilters);
 
@@ -86,6 +112,22 @@ export default function UserListView() {
     comparator: getComparator(table.order, table.orderBy),
     filters,
   });
+  const { users, usersLoading, usersError, usersValidating } = useGetUsers({ typeUser });
+  useEffect(() => {
+    if (users.length) {
+      setTableData(users);
+    }
+    if (usersLoading) {
+      setTableData([]);
+    }
+    if (usersError) {
+      setTableData([]);
+    }
+    if (usersValidating) {
+      setTableData([]);
+    }
+  }, [users, usersLoading, usersError, usersValidating]);
+  console.log('check dataFiltered', dataFiltered);
 
   const dataInPage = dataFiltered.slice(
     table.page * table.rowsPerPage,
@@ -99,11 +141,11 @@ export default function UserListView() {
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
   const handleFilters = useCallback(
-    (name: string, value: IUserTableFilterValue) => {
+    (fullName: string, value: IUserTableFilterValue) => {
       table.onResetPage();
       setFilters((prevState) => ({
         ...prevState,
-        [name]: value,
+        [fullName]: value,
       }));
     },
     [table]
@@ -112,29 +154,31 @@ export default function UserListView() {
   const handleResetFilters = useCallback(() => {
     setFilters(defaultFilters);
   }, []);
-
+  const { deleteDoctor } = useDeleteUser(); // ✅ Dùng Hook ở ngoài
   const handleDeleteRow = useCallback(
-    (id: string) => {
-      const deleteRow = tableData.filter((row) => row.id !== id);
-
-      enqueueSnackbar('Delete success!');
-
-      setTableData(deleteRow);
-
-      table.onUpdatePageDeleteRow(dataInPage.length);
+    async (id: string) => {
+      try {
+        await deleteDoctor(id); // ✅ Gọi API xóa doctor
+        enqueueSnackbar('Xoá người dùng thành công!', { variant: 'success' });
+        table.onUpdatePageDeleteRow(dataInPage.length);
+      } catch (error) {
+        console.error('Error deleting doctor:', error);
+        enqueueSnackbar('Không thể xoá người dùng!', { variant: 'error' });
+      }
     },
-    [dataInPage.length, enqueueSnackbar, table, tableData]
+    [dataInPage.length, enqueueSnackbar, table, deleteDoctor] // ✅ Thêm `deleteDoctor` vào dependency
   );
 
   const handleDeleteRows = useCallback(() => {
     const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
 
-    enqueueSnackbar('Delete success!');
+    enqueueSnackbar('Xoá người dùng thành công!');
 
     setTableData(deleteRows);
 
     table.onUpdatePageDeleteRows({
       totalRowsInPage: dataInPage.length,
+
       totalRowsFiltered: dataFiltered.length,
     });
   }, [dataFiltered.length, dataInPage.length, enqueueSnackbar, table, tableData]);
@@ -157,20 +201,32 @@ export default function UserListView() {
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
         <CustomBreadcrumbs
-          heading="Danh Sách Người Dùng"
+          heading={
+            {
+              user: 'Bệnh Nhân',
+              employee: 'Nhân Viên',
+              doctor: 'Bác Sĩ',
+            }[typeUser]
+          }
           links={[
             { name: 'Trang Chủ', href: paths.dashboard.root },
             { name: 'Quản Lý Người Dùng', href: paths.dashboard.user.root },
-            { name: 'Danh Sách' },
+            {
+              name: {
+                user: 'Bệnh Nhân',
+                employee: 'Nhân Viên',
+                doctor: 'Bác Sĩ',
+              }[typeUser],
+            },
           ]}
           action={
             <Button
               component={RouterLink}
-              href={paths.dashboard.user.new}
+              href={`${paths.dashboard.user.new}-${typeUser}`}
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
             >
-              Người Dùng Mới
+              Tạo mới
             </Button>
           }
           sx={{
@@ -218,7 +274,7 @@ export default function UserListView() {
             filters={filters}
             onFilters={handleFilters}
             //
-            roleOptions={_roles}
+            roleOptions={_specialties.map((item) => item.label)}
           />
 
           {canReset && (
@@ -232,7 +288,6 @@ export default function UserListView() {
               sx={{ p: 2.5, pt: 0 }}
             />
           )}
-
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
             <TableSelectedAction
               dense={table.dense}
@@ -245,7 +300,7 @@ export default function UserListView() {
                 )
               }
               action={
-                <Tooltip title="Delete">
+                <Tooltip title="Xoá">
                   <IconButton color="primary" onClick={confirm.onTrue}>
                     <Iconify icon="solar:trash-bin-trash-bold" />
                   </IconButton>
@@ -258,7 +313,13 @@ export default function UserListView() {
                 <TableHeadCustom
                   order={table.order}
                   orderBy={table.orderBy}
-                  headLabel={TABLE_HEAD}
+                  headLabel={
+                    {
+                      user: TABLE_HEAD_DEFAULT,
+                      doctor: TABLE_HEAD_DOCTOR,
+                      employee: TABLE_HEAD_EMPLOYEE,
+                    }[typeUser]
+                  }
                   rowCount={dataFiltered.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
@@ -278,12 +339,13 @@ export default function UserListView() {
                     )
                     .map((row) => (
                       <UserTableRow
-                        key={row.id}
+                        key={row._id}
                         row={row}
-                        selected={table.selected.includes(row.id)}
-                        onSelectRow={() => table.onSelectRow(row.id)}
-                        onDeleteRow={() => handleDeleteRow(row.id)}
+                        selected={table.selected.includes(row._id)}
+                        onSelectRow={() => table.onSelectRow(row._id)}
+                        onDeleteRow={() => handleDeleteRow(row._id)}
                         onEditRow={() => handleEditRow(row.id)}
+                        typeUser={typeUser}
                       />
                     ))}
 
@@ -297,7 +359,6 @@ export default function UserListView() {
               </Table>
             </Scrollbar>
           </TableContainer>
-
           <TablePaginationCustom
             count={dataFiltered.length}
             page={table.page}
@@ -314,10 +375,10 @@ export default function UserListView() {
       <ConfirmDialog
         open={confirm.value}
         onClose={confirm.onFalse}
-        title="Delete"
+        title="Xoá"
         content={
           <>
-            Are you sure want to delete <strong> {table.selected.length} </strong> items?
+            Bạn có chắc chắn muốn xoá <strong> {table.selected.length} </strong> người dùng?
           </>
         }
         action={
@@ -329,7 +390,7 @@ export default function UserListView() {
               confirm.onFalse();
             }}
           >
-            Delete
+            Xoá
           </Button>
         }
       />
@@ -348,7 +409,7 @@ function applyFilter({
   comparator: (a: any, b: any) => number;
   filters: IUserTableFilters;
 }) {
-  const { name, status, role } = filters;
+  const { fullName, status, specialty } = filters;
 
   const stabilizedThis = inputData.map((el, index) => [el, index] as const);
 
@@ -360,9 +421,9 @@ function applyFilter({
 
   inputData = stabilizedThis.map((el) => el[0]);
 
-  if (name) {
+  if (fullName) {
     inputData = inputData.filter(
-      (user) => user.name.toLowerCase().indexOf(name.toLowerCase()) !== -1
+      (user) => user.fullName.toLowerCase().indexOf(fullName.toLowerCase()) !== -1
     );
   }
 
@@ -370,8 +431,8 @@ function applyFilter({
     inputData = inputData.filter((user) => user.status === status);
   }
 
-  if (role.length) {
-    inputData = inputData.filter((user) => role.includes(user.role));
+  if (specialty.length) {
+    inputData = inputData.filter((user) => specialty.includes(user.role));
   }
 
   return inputData;

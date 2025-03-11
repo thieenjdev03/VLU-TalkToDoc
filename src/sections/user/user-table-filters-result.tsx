@@ -40,11 +40,11 @@ export default function UserTableFiltersResult({
 
   const handleRemoveRole = useCallback(
     (inputValue: string) => {
-      const newValue = filters.role.filter((item) => item !== inputValue);
+      const newValue = filters.specialty.filter((item) => item !== inputValue);
 
       onFilters('role', newValue);
     },
-    [filters.role, onFilters]
+    [filters.specialty, onFilters]
   );
 
   return (
@@ -52,7 +52,7 @@ export default function UserTableFiltersResult({
       <Box sx={{ typography: 'body2' }}>
         <strong>{results}</strong>
         <Box component="span" sx={{ color: 'text.secondary', ml: 0.25 }}>
-          results found
+          Kết quả tìm thấy
         </Box>
       </Box>
 
@@ -63,17 +63,17 @@ export default function UserTableFiltersResult({
           </Block>
         )}
 
-        {!!filters.role.length && (
+        {!!filters.specialty.length && (
           <Block label="Role:">
-            {filters.role.map((item) => (
+            {filters.specialty.map((item) => (
               <Chip key={item} label={item} size="small" onDelete={() => handleRemoveRole(item)} />
             ))}
           </Block>
         )}
 
-        {!!filters.name && (
+        {!!filters.fullName && (
           <Block label="Keyword:">
-            <Chip label={filters.name} size="small" onDelete={handleRemoveKeyword} />
+            <Chip label={filters.fullName} size="small" onDelete={handleRemoveKeyword} />
           </Block>
         )}
 
@@ -82,7 +82,7 @@ export default function UserTableFiltersResult({
           onClick={onResetFilters}
           startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
         >
-          Clear
+          Xoá lọc
         </Button>
       </Stack>
     </Stack>

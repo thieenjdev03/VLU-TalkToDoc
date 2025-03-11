@@ -1,12 +1,11 @@
 import { CustomFile } from 'src/components/upload';
-
 // ----------------------------------------------------------------------
 
 export type IUserTableFilterValue = string | string[];
 
 export type IUserTableFilters = {
-  name: string;
-  role: string[];
+  fullName: string;
+  specialty: string[];
   status: string;
 };
 
@@ -94,7 +93,8 @@ export type IUserCard = {
 
 export type IUserItem = {
   id: string;
-  name: string;
+  _id: string;
+  fullName: string;
   city: string;
   role: string;
   email: string;
@@ -104,9 +104,14 @@ export type IUserItem = {
   country: string;
   zipCode: string;
   company: string;
-  avatarUrl: string;
+  avatarUrl: CustomFile | string | null | undefined;
   phoneNumber: string;
   isVerified: boolean;
+  rank: string;
+  specialty: string[];
+  licenseNo: string;
+  experienceYears: string;
+  hospitalId: string;
 };
 
 export type IUserAccount = {

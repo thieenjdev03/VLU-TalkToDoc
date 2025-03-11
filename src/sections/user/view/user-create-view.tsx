@@ -9,13 +9,20 @@ import UserNewEditForm from '../user-new-edit-form';
 
 // ----------------------------------------------------------------------
 
-export default function UserCreateView() {
+export default function UserCreateView(props: { typeUser: 'user' | 'doctor' | 'employee' }) {
+  const { typeUser } = props;
   const settings = useSettingsContext();
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
       <CustomBreadcrumbs
-        heading="Tạo người dùng mới"
+        heading={`Tạo người dùng ${
+          {
+            doctor: 'Bác Sĩ',
+            employee: 'Nhân Viên',
+            user: 'Bệnh Nhân',
+          }[typeUser]
+        }`}
         links={[
           {
             name: 'Trang chủ',
@@ -31,8 +38,7 @@ export default function UserCreateView() {
           mb: { xs: 3, md: 5 },
         }}
       />
-
-      <UserNewEditForm />
+      <UserNewEditForm typeUser={typeUser} />
     </Container>
   );
 }

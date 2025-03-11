@@ -25,7 +25,6 @@ import { AuthProvider } from 'src/auth/context/jwt';
 // import { AuthProvider } from 'src/auth/context/amplify';
 // import { AuthProvider } from 'src/auth/context/firebase';
 // import { AuthProvider } from 'src/auth/context/supabase';
-
 // ----------------------------------------------------------------------
 
 export default function App() {

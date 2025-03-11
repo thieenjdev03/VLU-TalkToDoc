@@ -35,7 +35,7 @@ export default function UserTableToolbar({
 
   const handleFilterName = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      onFilters('name', event.target.value);
+      onFilters('fullName', event.target.value);
     },
     [onFilters]
   );
@@ -43,7 +43,7 @@ export default function UserTableToolbar({
   const handleFilterRole = useCallback(
     (event: SelectChangeEvent<string[]>) => {
       onFilters(
-        'role',
+        'specialty',
         typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
       );
     },
@@ -70,11 +70,11 @@ export default function UserTableToolbar({
             width: { xs: 1, md: 200 },
           }}
         >
-          <InputLabel>Role</InputLabel>
+          <InputLabel>Chuyên Khoa</InputLabel>
 
           <Select
             multiple
-            value={filters.role}
+            value={filters.specialty}
             onChange={handleFilterRole}
             input={<OutlinedInput label="Role" />}
             renderValue={(selected) => selected.map((value) => value).join(', ')}
@@ -86,7 +86,7 @@ export default function UserTableToolbar({
           >
             {roleOptions.map((option) => (
               <MenuItem key={option} value={option}>
-                <Checkbox disableRipple size="small" checked={filters.role.includes(option)} />
+                <Checkbox disableRipple size="small" checked={filters.specialty.includes(option)} />
                 {option}
               </MenuItem>
             ))}
@@ -96,9 +96,9 @@ export default function UserTableToolbar({
         <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
           <TextField
             fullWidth
-            value={filters.name}
+            value={filters.fullName}
             onChange={handleFilterName}
-            placeholder="Search..."
+            placeholder="Tìm kiếm..."
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">

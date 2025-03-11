@@ -139,18 +139,25 @@ export const _userPlans = [
 ];
 
 export const _userList = [...Array(20)].map((_, index) => ({
+  _id: _mock.id(index),
   id: _mock.id(index),
   zipCode: '85807',
   state: 'Virginia',
-  city: 'Rancho Cordova',
+  city: _mock.city(Math.floor(Math.random() * 4)),
   role: _mock.role(Math.floor(Math.random() * 4)), // Random 0 - 4
   email: _mock.email(index),
   address: '908 Jack Locks',
   name: _mock.fullName(index),
+  fullName: _mock.fullName(index),
   isVerified: _mock.boolean(index),
   company: _mock.companyName(index),
   country: countries[index + 1].label,
   avatarUrl: _mock.image.avatar(index),
   phoneNumber: _mock.phoneNumber(index),
-  status: (index % 2 && 'banned') || 'active',
+  status: (index % 2 && 'Hoạt Động') || 'Đã Khoá',
+  rank: _mock.rank(Math.floor(Math.random() * 4)),
+  specialty: _mock.specialty(Math.floor(Math.random() * 4)),
+  licenseNo: _mock.licenseNo(Math.floor(Math.random() * 4)),
+  experienceYears: _mock.experienceYears(Math.floor(Math.random() * 4)),
+  hospitalId: _mock.hospitalId(Math.floor(Math.random() * 4)),
 }));

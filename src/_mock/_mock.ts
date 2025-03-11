@@ -6,8 +6,10 @@ import {
   _id,
   _ages,
   _roles,
+  _ranks,
   _prices,
   _emails,
+  _cities,
   _ratings,
   _nativeS,
   _nativeM,
@@ -20,13 +22,17 @@ import {
   _tourNames,
   _jobTitles,
   _taskNames,
+  _specialty,
   _postTitles,
   _firstNames,
+  _licenseNos,
   _fullAddress,
+  _hospitalIds,
   _companyNames,
   _productNames,
   _descriptions,
   _phoneNumbers,
+  _experienceYears,
 } from './assets';
 
 // ----------------------------------------------------------------------
@@ -47,6 +53,12 @@ export const _mock = {
   // Contact
   email: (index: number) => _emails[index],
   phoneNumber: (index: number) => _phoneNumbers[index],
+  licenseNo: (index: number) => _licenseNos[index],
+  experienceYears: (index: number) => _experienceYears[index],
+  specialty: (index: number) => _specialty[index],
+  rank: (index: number) => _ranks[index],
+  city: (index: number) => _cities[index],
+  hospitalId: (index: number) => _hospitalIds[index],
   fullAddress: (index: number) => _fullAddress[index],
   // Name
   firstName: (index: number) => _firstNames[index],

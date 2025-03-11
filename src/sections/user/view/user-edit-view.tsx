@@ -40,7 +40,10 @@ export default function UserEditView({ id }: Props) {
         }}
       />
 
-      <UserNewEditForm currentUser={currentUser} />
+      <UserNewEditForm
+        currentUser={currentUser}
+        typeUser={currentUser?.role as 'user' | 'doctor' | 'employee'}
+      />
     </Container>
   );
 }

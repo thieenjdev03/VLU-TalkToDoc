@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import keyBy from 'lodash/keyBy';
 import useSWR, { mutate } from 'swr';
 
-import axios, { fetcher, endpoints } from 'src/utils/axios';
+import { fetcher, endpoints, axiosInstance } from 'src/utils/axios';
 
 import {
   IChatMessage,
@@ -102,7 +102,7 @@ export async function sendMessage(conversationId: string, messageData: IChatMess
    * Work on server
    */
   // const data = { conversationId, messageData };
-  // await axios.put(endpoints.chat, data);
+  // await axiosInstance.put(endpoints.chat, data);
 
   /**
    * Work in local
@@ -159,7 +159,7 @@ export async function createConversation(conversationData: IChatConversation) {
    * Work on server
    */
   const data = { conversationData };
-  const res = await axios.post(endpoints.chat, data);
+  const res = await axiosInstance.post(endpoints.chat, data);
 
   /**
    * Work in local
@@ -187,7 +187,7 @@ export async function clickConversation(conversationId: string) {
   /**
    * Work on server
    */
-  // await axios.get(URL, { params: { conversationId, endpoint: 'mark-as-seen' } });
+  // await axiosInstance.get(URL, { params: { conversationId, endpoint: 'mark-as-seen' } });
 
   /**
    * Work in local

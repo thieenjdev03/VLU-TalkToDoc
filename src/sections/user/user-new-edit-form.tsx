@@ -6,7 +6,6 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
 import Switch from '@mui/material/Switch';
 import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
@@ -18,9 +17,8 @@ import { useRouter } from 'src/routes/hooks';
 
 import { fData } from 'src/utils/format-number';
 
-import { countries } from 'src/assets/data';
-
 import Label from 'src/components/label';
+import { CustomFile } from 'src/components/upload';
 import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, {
   RHFSwitch,
@@ -35,51 +33,103 @@ import { IUserItem } from 'src/types/user';
 
 type Props = {
   currentUser?: IUserItem;
+  typeUser: 'user' | 'doctor' | 'employee';
 };
 
-export default function UserNewEditForm({ currentUser }: Props) {
+type FormValuesProps = {
+  fullName: string;
+  email: string;
+  phoneNumber: string;
+  status: string;
+  avatarUrl: CustomFile | string | null;
+  isVerified: boolean;
+  company?: string;
+  role?: string;
+  hospitalId?: string;
+  rank?: string;
+  specialty?: string[];
+  city?: string;
+  experienceYears?: string;
+  licenseNo?: string;
+};
+
+export default function UserNewEditForm({ currentUser, typeUser }: Props) {
   const router = useRouter();
 
   const { enqueueSnackbar } = useSnackbar();
 
   const NewUserSchema = Yup.object().shape({
-    name: Yup.string().required('Name is required'),
-    email: Yup.string().required('Email is required').email('Email must be a valid email address'),
-    phoneNumber: Yup.string().required('Phone number is required'),
-    address: Yup.string().required('Address is required'),
-    country: Yup.string().required('Country is required'),
-    company: Yup.string().required('Company is required'),
-    state: Yup.string().required('State is required'),
-    city: Yup.string().required('City is required'),
-    role: Yup.string().required('Role is required'),
-    zipCode: Yup.string().required('Zip code is required'),
-    avatarUrl: Yup.mixed<any>().nullable().required('Avatar is required'),
-    // not required
+    fullName: Yup.string().required('Họ & tên không được để trống'),
+    email: Yup.string().required('Email không được để trống').email('Email không hợp lệ'),
+    phoneNumber: Yup.string().required('Số điện thoại không được để trống'),
+    avatarUrl: Yup.mixed().nullable(),
     status: Yup.string(),
     isVerified: Yup.boolean(),
-  });
+    company:
+      typeUser === 'user'
+        ? Yup.string().required('Bệnh viện không được để trống')
+        : Yup.string().optional(),
+    role:
+      typeUser === 'user' || typeUser === 'employee'
+        ? Yup.string().required('Vị trí không được để trống')
+        : Yup.string().optional(),
+    hospitalId:
+      typeUser === 'doctor' || typeUser === 'employee'
+        ? Yup.string().required('Bệnh viện không được để trống')
+        : Yup.string().optional(),
+    rank:
+      typeUser === 'doctor'
+        ? Yup.string().required('Cấp bậc không được để trống')
+        : Yup.string().optional(),
+    specialty:
+      typeUser === 'doctor' || typeUser === 'employee'
+        ? Yup.array().of(Yup.string()).min(1, 'Chọn ít nhất một chuyên khoa')
+        : Yup.array().of(Yup.string()).optional(),
+    city:
+      typeUser === 'doctor'
+        ? Yup.string().required('Thành phố không được để trống')
+        : Yup.string().optional(),
+    experienceYears:
+      typeUser === 'doctor'
+        ? Yup.string().required('Số năm kinh nghiệm không được để trống')
+        : Yup.string().optional(),
+    licenseNo:
+      typeUser === 'doctor'
+        ? Yup.string().required('Mã giấy phép không được để trống')
+        : Yup.string().optional(),
+  }) as Yup.ObjectSchema<FormValuesProps>;
 
   const defaultValues = useMemo(
     () => ({
-      name: currentUser?.name || '',
-      city: currentUser?.city || '',
-      role: currentUser?.role || '',
+      fullName: currentUser?.fullName || '',
       email: currentUser?.email || '',
-      state: currentUser?.state || '',
-      status: currentUser?.status || '',
-      address: currentUser?.address || '',
-      country: currentUser?.country || '',
-      zipCode: currentUser?.zipCode || '',
-      company: currentUser?.company || '',
+      status: currentUser?.status || 'active',
       avatarUrl: currentUser?.avatarUrl || null,
       phoneNumber: currentUser?.phoneNumber || '',
       isVerified: currentUser?.isVerified || true,
+      ...(typeUser === 'user' && {
+        company: currentUser?.company || '',
+        role: currentUser?.role || '',
+      }),
+      ...(typeUser === 'doctor' && {
+        hospitalId: currentUser?.hospitalId || '',
+        rank: currentUser?.rank || '',
+        specialty: currentUser?.specialty || [],
+        city: currentUser?.city || '',
+        experienceYears: currentUser?.experienceYears || '',
+        licenseNo: currentUser?.licenseNo || '',
+      }),
+      ...(typeUser === 'employee' && {
+        hospitalId: currentUser?.hospitalId || '',
+        role: currentUser?.role || '',
+        specialty: currentUser?.specialty || [],
+      }),
     }),
-    [currentUser]
+    [currentUser, typeUser]
   );
 
-  const methods = useForm({
-    resolver: yupResolver(NewUserSchema),
+  const methods = useForm<FormValuesProps>({
+    resolver: yupResolver(NewUserSchema) as any,
     defaultValues,
   });
 
@@ -98,7 +148,7 @@ export default function UserNewEditForm({ currentUser }: Props) {
     try {
       await new Promise((resolve) => setTimeout(resolve, 500));
       reset();
-      enqueueSnackbar(currentUser ? 'Update success!' : 'Create success!');
+      enqueueSnackbar(currentUser ? 'Cập nhật thành công!' : 'Tạo mới thành công!');
       router.push(paths.dashboard.user.list);
       console.info('DATA', data);
     } catch (error) {
@@ -112,13 +162,102 @@ export default function UserNewEditForm({ currentUser }: Props) {
 
       const newFile = Object.assign(file, {
         preview: URL.createObjectURL(file),
-      });
+      }) as CustomFile;
 
       if (file) {
         setValue('avatarUrl', newFile, { shouldValidate: true });
       }
     },
     [setValue]
+  );
+
+  const renderBasicFields = (
+    <Box
+      rowGap={3}
+      columnGap={2}
+      display="grid"
+      gridTemplateColumns={{
+        xs: 'repeat(1, 1fr)',
+        sm: 'repeat(2, 1fr)',
+      }}
+    >
+      <RHFTextField name="name" label="Họ & Tên" />
+      <RHFTextField name="email" label="Email" />
+      <RHFTextField name="phoneNumber" label="Số điện thoại" />
+    </Box>
+  );
+
+  const renderUserFields = (
+    <Box
+      rowGap={3}
+      columnGap={2}
+      display="grid"
+      gridTemplateColumns={{
+        xs: 'repeat(1, 1fr)',
+        sm: 'repeat(2, 1fr)',
+      }}
+    >
+      {renderBasicFields}
+      <RHFTextField name="company" label="Bệnh viện" />
+      <RHFTextField name="role" label="Vị trí" />
+    </Box>
+  );
+
+  const renderDoctorFields = (
+    <Box
+      rowGap={3}
+      columnGap={2}
+      display="grid"
+      gridTemplateColumns={{
+        xs: 'repeat(1, 1fr)',
+        sm: 'repeat(2, 1fr)',
+      }}
+    >
+      {renderBasicFields}
+      <RHFTextField name="hospitalId" label="Bệnh viện" />
+      <RHFTextField name="rank" label="Cấp bậc" />
+      <RHFAutocomplete
+        name="specialty"
+        label="Chuyên khoa"
+        multiple
+        options={[
+          { value: 'CK001', label: 'Nội khoa' },
+          { value: 'CK002', label: 'Ngoại khoa' },
+          { value: 'CK003', label: 'Sản phụ khoa' },
+          { value: 'CK004', label: 'Nhi khoa' },
+        ]}
+      />
+      <RHFTextField name="city" label="Thành phố" />
+      <RHFTextField name="experienceYears" label="Kinh nghiệm (năm)" />
+      <RHFTextField name="licenseNo" label="Mã giấy phép" />
+    </Box>
+  );
+
+  const renderEmployeeFields = (
+    <Box
+      rowGap={3}
+      columnGap={2}
+      display="grid"
+      gridTemplateColumns={{
+        xs: 'repeat(1, 1fr)',
+        sm: 'repeat(2, 1fr)',
+      }}
+    >
+      {renderBasicFields}
+      <RHFTextField name="hospitalId" label="Bệnh viện" />
+      <RHFTextField name="role" label="Vị trí" />
+      <RHFAutocomplete
+        name="specialty"
+        label="Chuyên khoa"
+        multiple
+        options={[
+          { value: 'CK001', label: 'Nội khoa' },
+          { value: 'CK002', label: 'Ngoại khoa' },
+          { value: 'CK003', label: 'Sản phụ khoa' },
+          { value: 'CK004', label: 'Nhi khoa' },
+        ]}
+      />
+    </Box>
   );
 
   return (
@@ -155,8 +294,8 @@ export default function UserNewEditForm({ currentUser }: Props) {
                       color: 'text.disabled',
                     }}
                   >
-                    Allowed *.jpeg, *.jpg, *.png, *.gif
-                    <br /> max size of {fData(3145728)}
+                    Cho phép *.jpeg, *.jpg, *.png, *.gif
+                    <br /> dung lượng tối đa {fData(3145728)}
                   </Typography>
                 }
               />
@@ -183,10 +322,10 @@ export default function UserNewEditForm({ currentUser }: Props) {
                 label={
                   <>
                     <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-                      Banned
+                      Khóa tài khoản
                     </Typography>
                     <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                      Apply disable account
+                      Vô hiệu hóa tài khoản người dùng
                     </Typography>
                   </>
                 }
@@ -200,62 +339,27 @@ export default function UserNewEditForm({ currentUser }: Props) {
               label={
                 <>
                   <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-                    Email Verified
+                    Xác thực email
                   </Typography>
                   <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                    Disabling this will automatically send the user a verification email
+                    Tắt tính năng này sẽ tự động gửi email xác thực cho người dùng
                   </Typography>
                 </>
               }
               sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
             />
-
-            {currentUser && (
-              <Stack justifyContent="center" alignItems="center" sx={{ mt: 3 }}>
-                <Button variant="soft" color="error">
-                  Delete User
-                </Button>
-              </Stack>
-            )}
           </Card>
         </Grid>
 
         <Grid xs={12} md={8}>
           <Card sx={{ p: 3 }}>
-            <Box
-              rowGap={3}
-              columnGap={2}
-              display="grid"
-              gridTemplateColumns={{
-                xs: 'repeat(1, 1fr)',
-                sm: 'repeat(2, 1fr)',
-              }}
-            >
-              <RHFTextField name="name" label="Full Name" />
-              <RHFTextField name="email" label="Email Address" />
-              <RHFTextField name="phoneNumber" label="Phone Number" />
-
-              <RHFAutocomplete
-                name="country"
-                type="country"
-                label="Country"
-                placeholder="Choose a country"
-                fullWidth
-                options={countries.map((option) => option.label)}
-                getOptionLabel={(option) => option}
-              />
-
-              <RHFTextField name="state" label="State/Region" />
-              <RHFTextField name="city" label="City" />
-              <RHFTextField name="address" label="Address" />
-              <RHFTextField name="zipCode" label="Zip/Code" />
-              <RHFTextField name="company" label="Company" />
-              <RHFTextField name="role" label="Role" />
-            </Box>
+            {typeUser === 'user' && renderUserFields}
+            {typeUser === 'doctor' && renderDoctorFields}
+            {typeUser === 'employee' && renderEmployeeFields}
 
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>
               <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                {!currentUser ? 'Create User' : 'Save Changes'}
+                {!currentUser ? 'Tạo mới' : 'Lưu thay đổi'}
               </LoadingButton>
             </Stack>
           </Card>

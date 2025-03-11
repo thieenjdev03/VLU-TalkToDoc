@@ -1,6 +1,6 @@
 import { useMemo, useEffect, useReducer, useCallback } from 'react';
 
-import axios, { endpoints } from 'src/utils/axios';
+import { endpoints, axiosInstance } from 'src/utils/axios';
 
 import { AuthContext } from './auth-context';
 import { setSession, isValidToken } from './utils';
@@ -89,7 +89,7 @@ export function AuthProvider({ children }: Props) {
       if (accessToken && isValidToken(accessToken)) {
         setSession(accessToken);
 
-        const res = await axios.get(endpoints.auth.me);
+        const res = await axiosInstance.get(endpoints.auth.me);
 
         const { user } = res.data;
 
@@ -132,7 +132,7 @@ export function AuthProvider({ children }: Props) {
       password,
     };
     const endPointForStag = 'https://api-dev-minimal-v510.vercel.app/api/auth/login';
-    const res = await axios.post(endPointForStag, data);
+    const res = await axiosInstance.post(endPointForStag, data);
 
     const { accessToken, user } = res.data;
 
@@ -159,7 +159,7 @@ export function AuthProvider({ children }: Props) {
         lastName,
       };
 
-      const res = await axios.post(endpoints.auth.register, data);
+      const res = await axiosInstance.post(endpoints.auth.register, data);
 
       const { accessToken, user } = res.data;
 

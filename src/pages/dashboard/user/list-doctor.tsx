@@ -4,14 +4,14 @@ import { UserListView } from 'src/sections/user/view';
 
 // ----------------------------------------------------------------------
 
-export default function UserListPage() {
+export default function UserDoctorListPage() {
   return (
     <>
       <Helmet>
-        <title> Dashboard: Danh sách người dùng</title>
+        <title> Dashboard: Danh sách Bác Sĩ</title>
       </Helmet>
 
-      <UserListView typeUser="user" />
+      <UserListView typeUser="doctor" />
     </>
   );
 }

@@ -1,23 +1,20 @@
 import * as Yup from 'yup';
 import { useMemo } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Resolver } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 
 import Box from '@mui/material/Box';
-import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
-import MenuItem from '@mui/material/MenuItem';
 import LoadingButton from '@mui/lab/LoadingButton';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 
-import { countries } from 'src/assets/data';
-import { USER_STATUS_OPTIONS } from 'src/_mock';
+import { useUpdateDoctor } from 'src/api/user';
 
 import { useSnackbar } from 'src/components/snackbar';
-import FormProvider, { RHFSelect, RHFTextField, RHFAutocomplete } from 'src/components/hook-form';
+import FormProvider, { RHFTextField } from 'src/components/hook-form';
 
 import { IUserItem } from 'src/types/user';
 
@@ -27,42 +24,88 @@ type Props = {
   open: boolean;
   onClose: VoidFunction;
   currentUser?: IUserItem;
+  typeUser: 'doctor' | 'patient' | 'employee';
 };
 
-export default function UserQuickEditForm({ currentUser, open, onClose }: Props) {
+export default function UserQuickEditForm({ currentUser, open, onClose, typeUser }: Props) {
   const { enqueueSnackbar } = useSnackbar();
+  const { updateDoctor } = useUpdateDoctor();
 
-  const NewUserSchema = Yup.object().shape({
-    name: Yup.string().required('Name is required'),
-    email: Yup.string().required('Email is required').email('Email must be a valid email address'),
-    phoneNumber: Yup.string().required('Phone number is required'),
-    address: Yup.string().required('Address is required'),
-    country: Yup.string().required('Country is required'),
-    company: Yup.string().required('Company is required'),
-    state: Yup.string().required('State is required'),
-    city: Yup.string().required('City is required'),
-    role: Yup.string().required('Role is required'),
-  });
+  // 🛠 Xác định Schema Yup theo typeUser
+  const NewUserSchema = useMemo(() => {
+    switch (typeUser) {
+      case 'doctor':
+        return Yup.object().shape({
+          fullName: Yup.string().required('Name is required'),
+          email: Yup.string().required('Email is required').email('Invalid email address'),
+          phoneNumber: Yup.string().required('Phone number is required'),
+          specialty: Yup.array().min(1, 'At least one specialty is required'),
+          hospitalId: Yup.string().required('Hospital is required'),
+          rank: Yup.string().required('Rank is required'),
+          experienceYears: Yup.number().required('Experience is required'),
+          licenseNo: Yup.string().required('License No is required'),
+        });
+      case 'patient':
+        return Yup.object().shape({
+          fullName: Yup.string().required('Name is required'),
+          email: Yup.string().email('Invalid email address'),
+          phoneNumber: Yup.string().required('Phone number is required'),
+          address: Yup.string().required('Address is required'),
+          birthDate: Yup.string().required('Birth date is required'),
+          gender: Yup.string().required('Gender is required'),
+        });
+      case 'employee':
+        return Yup.object().shape({
+          fullName: Yup.string().required('Name is required'),
+          email: Yup.string().required('Email is required').email('Invalid email address'),
+          phoneNumber: Yup.string().required('Phone number is required'),
+          role: Yup.string().required('Role is required'),
+          hospitalId: Yup.string().required('Hospital is required'),
+        });
+      default:
+        return Yup.object().shape({});
+    }
+  }, [typeUser]);
 
-  const defaultValues = useMemo(
-    () => ({
-      name: currentUser?.name || '',
-      email: currentUser?.email || '',
-      phoneNumber: currentUser?.phoneNumber || '',
-      address: currentUser?.address || '',
-      country: currentUser?.country || '',
-      state: currentUser?.state || '',
-      city: currentUser?.city || '',
-      zipCode: currentUser?.zipCode || '',
-      status: currentUser?.status,
-      company: currentUser?.company || '',
-      role: currentUser?.role || '',
-    }),
-    [currentUser]
-  );
+  // 🛠 Default values dựa trên typeUser
+  const defaultValues = useMemo(() => {
+    switch (typeUser) {
+      case 'doctor':
+        return {
+          _id: currentUser?._id || '',
+          fullName: currentUser?.fullName || '',
+          email: currentUser?.email || '',
+          phoneNumber: currentUser?.phoneNumber || '',
+          specialtyIds: currentUser?.specialty || [],
+          hospitalId: currentUser?.hospitalId || '',
+          rank: currentUser?.rank || '',
+          experienceYears: currentUser?.experienceYears || 0,
+          licenseNo: currentUser?.licenseNo || '',
+        };
+      case 'patient':
+        return {
+          _id: currentUser?._id || '',
+          fullName: currentUser?.fullName || '',
+          email: currentUser?.email || '',
+          phoneNumber: currentUser?.phoneNumber || '',
+          address: currentUser?.address || '',
+        };
+      case 'employee':
+        return {
+          _id: currentUser?._id || '',
+          fullName: currentUser?.fullName || '',
+          email: currentUser?.email || '',
+          phoneNumber: currentUser?.phoneNumber || '',
+          role: currentUser?.role || '',
+          hospitalId: currentUser?.hospitalId || '',
+        };
+      default:
+        return {};
+    }
+  }, [currentUser, typeUser]);
 
   const methods = useForm({
-    resolver: yupResolver(NewUserSchema),
+    resolver: yupResolver(NewUserSchema) as Resolver<any>,
     defaultValues,
   });
 
@@ -75,6 +118,7 @@ export default function UserQuickEditForm({ currentUser, open, onClose }: Props)
   const onSubmit = handleSubmit(async (data) => {
     try {
       await new Promise((resolve) => setTimeout(resolve, 500));
+      await updateDoctor({ id: data?._id || '', data });
       reset();
       onClose();
       enqueueSnackbar('Update success!');
@@ -85,62 +129,40 @@ export default function UserQuickEditForm({ currentUser, open, onClose }: Props)
   });
 
   return (
-    <Dialog
-      fullWidth
-      maxWidth={false}
-      open={open}
-      onClose={onClose}
-      PaperProps={{
-        sx: { maxWidth: 720 },
-      }}
-    >
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
       <FormProvider methods={methods} onSubmit={onSubmit}>
-        <DialogTitle>Quick Update</DialogTitle>
+        <DialogTitle>Cập nhật thông tin người dùng</DialogTitle>
 
         <DialogContent>
-          <Alert variant="outlined" severity="info" sx={{ mb: 3 }}>
-            Account is waiting for confirmation
-          </Alert>
-
-          <Box
-            rowGap={3}
-            columnGap={2}
-            display="grid"
-            gridTemplateColumns={{
-              xs: 'repeat(1, 1fr)',
-              sm: 'repeat(2, 1fr)',
-            }}
-          >
-            <RHFSelect name="status" label="Status">
-              {USER_STATUS_OPTIONS.map((status) => (
-                <MenuItem key={status.value} value={status.value}>
-                  {status.label}
-                </MenuItem>
-              ))}
-            </RHFSelect>
-
-            <Box sx={{ display: { xs: 'none', sm: 'block' } }} />
-
-            <RHFTextField name="name" label="Full Name" />
+          <Box sx={{ display: 'grid', gap: 2, mt: 2 }}>
+            <RHFTextField name="fullName" label="Full Name" />
             <RHFTextField name="email" label="Email Address" />
             <RHFTextField name="phoneNumber" label="Phone Number" />
 
-            <RHFAutocomplete
-              name="country"
-              type="country"
-              label="Country"
-              placeholder="Choose a country"
-              fullWidth
-              options={countries.map((option) => option.label)}
-              getOptionLabel={(option) => option}
-            />
+            {typeUser === 'doctor' && (
+              <>
+                <RHFTextField name="specialty" label="Specialty IDs" />
+                <RHFTextField name="hospitalId" label="Hospital ID" />
+                <RHFTextField name="rank" label="Rank" />
+                <RHFTextField name="experienceYears" label="Experience Years" />
+                <RHFTextField name="licenseNo" label="License No" />
+              </>
+            )}
 
-            <RHFTextField name="state" label="State/Region" />
-            <RHFTextField name="city" label="City" />
-            <RHFTextField name="address" label="Address" />
-            <RHFTextField name="zipCode" label="Zip/Code" />
-            <RHFTextField name="company" label="Company" />
-            <RHFTextField name="role" label="Role" />
+            {typeUser === 'patient' && (
+              <>
+                <RHFTextField name="address" label="Address" />
+                <RHFTextField name="birthDate" label="Birth Date" />
+                <RHFTextField name="gender" label="Gender" />
+              </>
+            )}
+
+            {typeUser === 'employee' && (
+              <>
+                <RHFTextField name="role" label="Role" />
+                <RHFTextField name="hospitalId" label="Hospital ID" />
+              </>
+            )}
           </Box>
         </DialogContent>
 
@@ -148,7 +170,6 @@ export default function UserQuickEditForm({ currentUser, open, onClose }: Props)
           <Button variant="outlined" onClick={onClose}>
             Cancel
           </Button>
-
           <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
             Update
           </LoadingButton>

@@ -1,0 +1,15 @@
+.login-page-wrapper {
+  background-color: white;
+  padding: 30px;
+  color: black;
+  border-radius: 30px;
+}
+
+.login-button {
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 10px;
+  width: 50%;
+  background-color: #007bff;
+  color: white;
+}

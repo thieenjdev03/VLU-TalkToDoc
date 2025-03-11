@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 
+import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
@@ -21,6 +22,7 @@ import { PATH_AFTER_LOGIN } from 'src/config-global';
 import Iconify from 'src/components/iconify';
 import FormProvider, { RHFTextField } from 'src/components/hook-form';
 
+import './login.css';
 // ----------------------------------------------------------------------
 
 export default function JwtLoginView() {
@@ -70,26 +72,29 @@ export default function JwtLoginView() {
   });
 
   const renderHead = (
-    <Stack spacing={2} sx={{ mb: 5 }}>
-      <Typography variant="h4">Đăng nhập ngay!</Typography>
-
-      <Stack direction="row" spacing={0.5}>
-        {/* <Typography variant="body2">Người dùng mới?</Typography> */}
-
-        {/* <Link component={RouterLink} href={paths.authDemo.classic.register} variant="subtitle2">
-          Create an account
-        </Link> */}
+    <Box alignItems="center" justifyContent="center" display="flex" flexDirection="column">
+      <img
+        src="https://res.cloudinary.com/dut4zlbui/image/upload/v1741544458/iotwczgmwylmpvklj1mu.png"
+        alt="logo"
+        width={200}
+        height={200}
+      />
+      <Stack spacing={2} sx={{ mb: 5 }} textAlign="center">
+        <Typography variant="h4">Chào mừng quay trở lại</Typography>
+        <Typography fontSize={20} fontWeight={600} color="text.secondary">
+          Đăng nhập ngay!
+        </Typography>
+        <Stack direction="row" spacing={0.5} />
       </Stack>
-    </Stack>
+    </Box>
   );
 
   const renderForm = (
     <Stack spacing={2.5}>
-      <RHFTextField name="email" label="Email address" />
-
+      <RHFTextField name="email" label="Email" />
       <RHFTextField
         name="password"
-        label="Password"
+        label="Mật khẩu"
         type={password.value ? 'text' : 'password'}
         InputProps={{
           endAdornment: (
@@ -113,6 +118,7 @@ export default function JwtLoginView() {
         type="submit"
         variant="contained"
         loading={isSubmitting}
+        className="login-button"
       >
         Đăng nhập
       </LoadingButton>
@@ -120,22 +126,16 @@ export default function JwtLoginView() {
   );
 
   return (
-    <>
+    <Stack sx={{ minWidth: '460px', ml: 'auto', mr: 'auto' }} className="login-page-wrapper">
       {renderHead}
-
-      <Alert severity="info" sx={{ mb: 3 }}>
-        Use email : demo@minimals.cc / password :<strong> 12341234</strong>
-      </Alert>
-
       {!!errorMsg && (
         <Alert severity="error" sx={{ mb: 3 }}>
           {errorMsg}
         </Alert>
       )}
-
       <FormProvider methods={methods} onSubmit={onSubmit}>
         {renderForm}
       </FormProvider>
-    </>
+    </Stack>
   );
 }

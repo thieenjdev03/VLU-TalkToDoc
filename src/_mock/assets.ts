@@ -238,8 +238,15 @@ export const _phoneNumbers = [
 
 // ----------------------------------------------------------------------
 
-export const _roles = ['Bác Sĩ', 'Quản Trị Viên', 'Điều Phối Viên', 'Bệnh Nhân'];
+export const _specialties = [
+  { value: 'sp001', label: 'Nội khoa', description: 'Chuyên khoa Nội tổng quát' },
+  { value: 'sp002', label: 'Ngoại khoa', description: 'Chuyên khoa Ngoại tổng quát' },
+  { value: 'sp003', label: 'Sản phụ khoa', description: 'Chuyên khoa phụ nữ và sản khoa' },
+  { value: 'sp004', label: 'Tim mạch', description: 'Chuyên khoa Tim mạch' },
+  { value: 'sp005', label: 'Thần kinh', description: 'Chuyên khoa Thần kinh' },
+];
 
+export const _roles = ['Bác sĩ', 'Quản trị viên', 'Điều phối viên', 'Bệnh nhân'];
 // ----------------------------------------------------------------------
 
 export const _postTitles = [
@@ -500,4 +507,90 @@ export const _descriptions = [
   `Sunt totam facilis. Quam commodi voluptatem veniam. Tempora deleniti itaque fugit nihil voluptas.`,
   `Ipsam aliquam velit nobis repellendus officiis aut deserunt id et. Nihil sunt aut dolores aut. Dolores est ipsa quia et laborum quidem laborum accusamus id. Facilis odit quod hic laudantium saepe omnis nisi in sint. Sed cupiditate possimus id.`,
   `Magnam non eveniet optio optio ut aliquid atque. Velit libero aspernatur quis laborum consequatur laudantium. Tempora facere optio fugit accusantium ut. Omnis aspernatur reprehenderit autem esse ut ut enim voluptatibus.`,
+];
+
+export const _cities = [
+  'Hà Nội',
+  'Hồ Chí Minh',
+  'Đà Nẵng',
+  'Hải Phòng',
+  'Cần Thơ',
+  'Đà Lạt',
+  'Nha Trang',
+  'Vũng Tàu',
+  'Đồng Nai',
+  'Bình Dương',
+  'Bình Thuận',
+  'Bình Phước',
+];
+
+export const _hospitalIds = [
+  'Bệnh viện Chợ Rẫy',
+  'Bệnh viện Bạch Mai',
+  'Bệnh viện Đại học Y Dược',
+  'Bệnh viện Nhân Dân 115',
+  'Bệnh viện Hữu Nghị Việt Đức',
+  'Bệnh viện Đa khoa Xuyên Á',
+  'Bệnh viện Ung bướu TP.HCM',
+  'Bệnh viện Đa khoa An Bình',
+  'Bệnh viện Chấn thương Chỉnh hình',
+  'Bệnh viện Đa khoa Medlatec',
+  'Bệnh viện Thống Nhất',
+  'Bệnh viện Đa khoa Quốc tế Thu Cúc',
+  'Bệnh viện Đa khoa Hồng Ngọc',
+  'Bệnh viện Mắt Sài Gòn',
+  'Bệnh viện Phạm Ngọc Thạch',
+  'Bệnh viện Đa khoa Hoàn Mỹ',
+  'Bệnh viện Tim Hà Nội',
+  'Bệnh viện Răng Hàm Mặt Trung ương',
+  'Bệnh viện Quốc tế City',
+  'Bệnh viện Đa khoa Xuyên Á',
+  'Bệnh viện Ung bướu TP.HCM',
+  'Bệnh viện Đa khoa An Bình',
+  'Bệnh viện Chấn thương Chỉnh hình',
+  'Bệnh viện Đa khoa Medlatec',
+  'Bệnh viện Thống Nhất',
+  'Bệnh viện Đa khoa Quốc tế Thu Cúc',
+  'Bệnh viện Đa khoa Hồng Ngọc',
+  'Bệnh viện Mắt Sài Gòn',
+  'Bệnh viện Phạm Ngọc Thạch',
+  'Bệnh viện Đa khoa Hoàn Mỹ',
+  'Bệnh viện Tim Hà Nội',
+  'Bệnh viện Răng Hàm Mặt Trung ương',
+  'Bệnh viện Quốc tế City',
+  'Bệnh viện Đa khoa Xuyên Á',
+  'Bệnh viện Ung bướu TP.HCM',
+  'Bệnh viện Đa khoa An Bình',
+  'Bệnh viện Chấn thương Chỉnh hình',
+];
+
+export const _specialty = [
+  ['CK001', 'CK002'],
+  ['CK003'],
+  ['CK001', 'CK004'],
+  ['CK002', 'CK003', 'CK004'],
+  ['CK001'],
+];
+
+export const _licenseNos = [
+  '1234567890',
+  '9876543210',
+  '1122334455',
+  '6677889900',
+  '1234567890',
+  '9876543210',
+  '1122334455',
+  '6677889900',
+  '1234567890',
+  '9876543210',
+];
+
+export const _experienceYears = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
+
+export const _ranks = [
+  'Bác sĩ',
+  'Bác sĩ chuyên khoa',
+  'Bác sĩ chuyên khoa',
+  'Bác sĩ chuyên khoa',
+  'Bác sĩ chuyên khoa',
 ];
