@@ -1,11 +1,10 @@
 import axios, { AxiosRequestConfig } from 'axios';
 
-import { HOST_API } from 'src/config-global';
 // ----------------------------------------------------------------------
 
 // axiosInstance v1
 const axiosInstance = axios.create({
-  baseURL: HOST_API,
+  baseURL: 'https://api-dev-minimal-v510.vercel.app',
 });
 
 axiosInstance.interceptors.response.use(
