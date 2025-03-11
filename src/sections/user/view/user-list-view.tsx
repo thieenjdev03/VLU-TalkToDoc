@@ -50,18 +50,21 @@ import UserTableFiltersResult from '../user-table-filters-result';
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'Tất Cả' }, ...USER_STATUS_OPTIONS];
 console.log('check table user list data', _userList);
-const TABLE_HEAD_DEFAULT = [
-  { id: 'fullName', label: 'Họ & Tên' },
-  { id: 'phoneNumber', label: 'SĐT', width: 180 },
-  { id: 'company', label: 'Bệnh Viện', width: 220 },
-  { id: 'role', label: 'Vị Trí', width: 180 },
+const TABLE_HEAD_PATIENT = [
+  { id: 'fullName', label: 'Họ & Tên', width: 200 },
+  { id: 'phone', label: 'Số Điện Thoại', width: 160 },
+  { id: 'dateOfBirth', label: 'Ngày Sinh', width: 160 },
+  { id: 'gender', label: 'Giới Tính', width: 120 },
+  { id: 'address', label: 'Địa Chỉ', width: 250 },
+  { id: 'medicalHistory', label: 'Bệnh Án', width: 180 },
+  { id: 'id', label: 'Mã Bệnh Nhân', width: 200 },
   { id: 'status', label: 'Trạng Thái', width: 100 },
   { id: '', width: 88 },
 ];
 
 const TABLE_HEAD_DOCTOR = [
   { id: 'fullName', label: 'Họ & Tên', width: 200 },
-  { id: 'hospitalId', label: 'Bệnh Viện', width: 220 },
+  { id: 'hospitalId', label: 'Bệnh Viện', width: 400 },
   { id: 'rank', label: 'Cấp Bậc', width: 180 },
   { id: 'specialty', label: 'Chuyên Khoa', width: 200 },
   { id: 'city', label: 'Thành Phố', width: 220 },
@@ -90,11 +93,11 @@ const defaultFilters: IUserTableFilters = {
 
 // ----------------------------------------------------------------------
 
-export default function UserListView(props: { typeUser: 'user' | 'doctor' | 'employee' }) {
+export default function UserListView(props: {
+  typeUser: 'user' | 'doctor' | 'employee' | 'patient';
+}) {
   const { typeUser } = props;
-
   const { enqueueSnackbar } = useSnackbar();
-
   const table = useTable();
 
   const settings = useSettingsContext();
@@ -127,8 +130,6 @@ export default function UserListView(props: { typeUser: 'user' | 'doctor' | 'emp
       setTableData([]);
     }
   }, [users, usersLoading, usersError, usersValidating]);
-  console.log('check dataFiltered', dataFiltered);
-
   const dataInPage = dataFiltered.slice(
     table.page * table.rowsPerPage,
     table.page * table.rowsPerPage + table.rowsPerPage
@@ -154,19 +155,20 @@ export default function UserListView(props: { typeUser: 'user' | 'doctor' | 'emp
   const handleResetFilters = useCallback(() => {
     setFilters(defaultFilters);
   }, []);
-  const { deleteDoctor } = useDeleteUser(); // ✅ Dùng Hook ở ngoài
+  const { deleteUser } = useDeleteUser({ typeUser });
   const handleDeleteRow = useCallback(
     async (id: string) => {
-      try {
-        await deleteDoctor(id); // ✅ Gọi API xóa doctor
-        enqueueSnackbar('Xoá người dùng thành công!', { variant: 'success' });
-        table.onUpdatePageDeleteRow(dataInPage.length);
-      } catch (error) {
-        console.error('Error deleting doctor:', error);
-        enqueueSnackbar('Không thể xoá người dùng!', { variant: 'error' });
-      }
+      await deleteUser(id)
+        .then(() => {
+          enqueueSnackbar('Xoá người dùng thành công!', { variant: 'success' });
+          table.onUpdatePageDeleteRow(dataInPage.length);
+          confirm.onFalse();
+        })
+        .catch((err) => {
+          enqueueSnackbar('Không thể xoá người dùng!', { variant: 'error' });
+        });
     },
-    [dataInPage.length, enqueueSnackbar, table, deleteDoctor] // ✅ Thêm `deleteDoctor` vào dependency
+    [dataInPage.length, enqueueSnackbar, table, deleteUser, confirm]
   );
 
   const handleDeleteRows = useCallback(() => {
@@ -199,13 +201,14 @@ export default function UserListView(props: { typeUser: 'user' | 'doctor' | 'emp
 
   return (
     <>
-      <Container maxWidth={settings.themeStretch ? false : 'lg'}>
+      <Container maxWidth={settings.themeStretch ? false : 'lg'} sx={{ overflow: 'hidden' }}>
         <CustomBreadcrumbs
           heading={
             {
-              user: 'Bệnh Nhân',
+              patient: 'Bệnh Nhân',
               employee: 'Nhân Viên',
               doctor: 'Bác Sĩ',
+              user: 'Người Dùng',
             }[typeUser]
           }
           links={[
@@ -213,9 +216,10 @@ export default function UserListView(props: { typeUser: 'user' | 'doctor' | 'emp
             { name: 'Quản Lý Người Dùng', href: paths.dashboard.user.root },
             {
               name: {
-                user: 'Bệnh Nhân',
+                patient: 'Bệnh Nhân',
                 employee: 'Nhân Viên',
                 doctor: 'Bác Sĩ',
+                user: 'Người Dùng',
               }[typeUser],
             },
           ]}
@@ -274,7 +278,7 @@ export default function UserListView(props: { typeUser: 'user' | 'doctor' | 'emp
             filters={filters}
             onFilters={handleFilters}
             //
-            roleOptions={_specialties.map((item) => item.label)}
+            roleOptions={_specialties.map((item) => item.value)}
           />
 
           {canReset && (
@@ -315,9 +319,10 @@ export default function UserListView(props: { typeUser: 'user' | 'doctor' | 'emp
                   orderBy={table.orderBy}
                   headLabel={
                     {
-                      user: TABLE_HEAD_DEFAULT,
+                      user: TABLE_HEAD_PATIENT,
                       doctor: TABLE_HEAD_DOCTOR,
                       employee: TABLE_HEAD_EMPLOYEE,
+                      patient: TABLE_HEAD_PATIENT,
                     }[typeUser]
                   }
                   rowCount={dataFiltered.length}

@@ -95,7 +95,12 @@ export type IUserItem = {
   id: string;
   _id: string;
   fullName: string;
+  username: string;
   city: string;
+  medicalHistory: any[];
+  birthDate: string;
+  gender: string;
+  password: string;
   role: string;
   email: string;
   state: string;
@@ -104,11 +109,12 @@ export type IUserItem = {
   country: string;
   zipCode: string;
   company: string;
-  avatarUrl: CustomFile | string | null | undefined;
+  avatarUrl: any;
   phoneNumber: string;
   isVerified: boolean;
   rank: string;
   specialty: string[];
+  dateOfBirth: string;
   licenseNo: string;
   experienceYears: string;
   hospitalId: string;

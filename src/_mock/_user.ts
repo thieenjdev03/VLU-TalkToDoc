@@ -142,6 +142,7 @@ export const _userList = [...Array(20)].map((_, index) => ({
   _id: _mock.id(index),
   id: _mock.id(index),
   zipCode: '85807',
+  dateOfBirth: '',
   state: 'Virginia',
   city: _mock.city(Math.floor(Math.random() * 4)),
   role: _mock.role(Math.floor(Math.random() * 4)), // Random 0 - 4
@@ -160,4 +161,9 @@ export const _userList = [...Array(20)].map((_, index) => ({
   licenseNo: _mock.licenseNo(Math.floor(Math.random() * 4)),
   experienceYears: _mock.experienceYears(Math.floor(Math.random() * 4)),
   hospitalId: _mock.hospitalId(Math.floor(Math.random() * 4)),
+  birthDate: '',
+  gender: '',
+  username: '',
+  password: '',
+  medicalHistory: [],
 }));

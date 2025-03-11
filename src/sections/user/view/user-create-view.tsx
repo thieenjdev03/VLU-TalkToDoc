@@ -9,7 +9,9 @@ import UserNewEditForm from '../user-new-edit-form';
 
 // ----------------------------------------------------------------------
 
-export default function UserCreateView(props: { typeUser: 'user' | 'doctor' | 'employee' }) {
+export default function UserCreateView(props: {
+  typeUser: 'user' | 'doctor' | 'employee' | 'patient';
+}) {
   const { typeUser } = props;
   const settings = useSettingsContext();
 
@@ -20,7 +22,8 @@ export default function UserCreateView(props: { typeUser: 'user' | 'doctor' | 'e
           {
             doctor: 'Bác Sĩ',
             employee: 'Nhân Viên',
-            user: 'Bệnh Nhân',
+            user: 'Người Dùng',
+            patient: 'Bệnh Nhân',
           }[typeUser]
         }`}
         links={[

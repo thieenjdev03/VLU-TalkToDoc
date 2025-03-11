@@ -104,7 +104,7 @@ export function useNavData() {
             children: [
               // { title: t('Thông tin'), path: paths.dashboard.user.root },
               // { title: t('cards'), path: paths.dashboard.user.cards },
-              { title: t('Bệnh Nhân'), path: paths.dashboard.user.list },
+              { title: t('Bệnh Nhân'), path: paths.dashboard.user.list_patient },
               { title: t('Nhân viên'), path: paths.dashboard.user.list_employee },
               { title: t('Bác Sĩ'), path: paths.dashboard.user.list_doctor },
               // { title: t('Tạo Người Dùng'), path: paths.dashboard.user.new },

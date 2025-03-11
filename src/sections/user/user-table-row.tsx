@@ -6,6 +6,7 @@ import TableRow from '@mui/material/TableRow';
 import Checkbox from '@mui/material/Checkbox';
 import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
 import ListItemText from '@mui/material/ListItemText';
 
 import { useBoolean } from 'src/hooks/use-boolean';
@@ -27,7 +28,7 @@ type Props = {
   row: IUserItem;
   onSelectRow: VoidFunction;
   onDeleteRow: VoidFunction;
-  typeUser: 'user' | 'doctor' | 'employee';
+  typeUser: 'user' | 'doctor' | 'employee' | 'patient';
 };
 
 export default function UserTableRow({
@@ -44,7 +45,6 @@ export default function UserTableRow({
     status,
     email,
     phoneNumber,
-    company,
     role,
     hospitalId,
     rank,
@@ -52,24 +52,20 @@ export default function UserTableRow({
     city,
     experienceYears,
     licenseNo,
+    birthDate,
+    gender,
+    address,
+    medicalHistory,
+    _id,
+    dateOfBirth,
   } = row;
 
   const confirm = useBoolean();
   const quickEdit = useBoolean();
   const popover = usePopover();
 
-  const handleRenderSpecialty = (listSpecialty: string[]) => {
-    const specialtyList = [
-      { specialtyId: 'sp001', name: 'Nội khoa', description: 'Chuyên khoa Nội tổng quát' },
-      { specialtyId: 'sp002', name: 'Ngoại khoa', description: 'Chuyên khoa Ngoại tổng quát' },
-      { specialtyId: 'sp003', name: 'Sản phụ khoa', description: 'Chuyên khoa phụ nữ và sản khoa' },
-      { specialtyId: 'sp004', name: 'Tim mạch', description: 'Chuyên khoa Tim mạch' },
-      { specialtyId: 'sp005', name: 'Thần kinh', description: 'Chuyên khoa Thần kinh' },
-    ];
-    const specialtyId = specialtyList.filter((s) => listSpecialty.includes(s.specialtyId));
-    if (specialtyId.length === 0) return '-';
-    return specialtyId.map((item) => item.name).join(', ');
-  };
+  const handleRenderSpecialty = (listSpecialty: string[]) =>
+    listSpecialty.map((item: any) => item.label).join(', ');
 
   const handleRenderHospital = (listHospital: string) => {
     const _hospitalIds = [
@@ -122,11 +118,7 @@ export default function UserTableRow({
         return (
           <>
             <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-              <Avatar
-                alt={fullName}
-                src={typeof avatarUrl === 'string' ? avatarUrl : ''}
-                sx={{ mr: 2 }}
-              />
+              <Avatar alt={fullName} src={avatarUrl?.preview || ''} sx={{ mr: 2 }} />
               <ListItemText primary={fullName} secondary={email} />
             </TableCell>
             <TableCell>{handleRenderHospital(hospitalId)}</TableCell>
@@ -156,11 +148,7 @@ export default function UserTableRow({
         return (
           <>
             <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-              <Avatar
-                alt={fullName}
-                src={typeof avatarUrl === 'string' ? avatarUrl : ''}
-                sx={{ mr: 2 }}
-              />
+              <Avatar alt={fullName} src={avatarUrl?.preview || ''} sx={{ mr: 2 }} />
               <ListItemText primary={fullName} secondary={email} />
             </TableCell>
             <TableCell>{phoneNumber}</TableCell>
@@ -183,20 +171,63 @@ export default function UserTableRow({
           </>
         );
 
-      default: // user
+      default: // patient
         return (
           <>
+            {/* Hiển thị Avatar và Họ tên + Email */}
             <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-              <Avatar
-                alt={fullName}
-                src={typeof avatarUrl === 'string' ? avatarUrl : ''}
-                sx={{ mr: 2 }}
-              />
+              <Avatar alt={fullName} src={avatarUrl?.preview} sx={{ mr: 2 }} />
               <ListItemText primary={fullName} secondary={email} />
             </TableCell>
             <TableCell>{phoneNumber}</TableCell>
-            <TableCell>{company}</TableCell>
-            <TableCell>{role}</TableCell>
+            <TableCell>{birthDate || dateOfBirth || '-'}</TableCell>
+            {/* Hiển thị địa chỉ */}
+            <TableCell>
+              <Label
+                variant="soft"
+                color={(() => {
+                  if (gender === 'male') return 'info';
+                  if (gender === 'female') return 'error';
+                  return 'default';
+                })()}
+              >
+                {(() => {
+                  switch (gender) {
+                    case 'male':
+                      return 'Nam';
+                    case 'female':
+                      return 'Nữ';
+                    default:
+                      return 'Khác';
+                  }
+                })()}
+              </Label>
+            </TableCell>
+            <TableCell>{address}</TableCell>
+
+            {/* Hiển thị lịch sử bệnh án */}
+            <TableCell>
+              {medicalHistory?.length > 0 ? (
+                <Tooltip
+                  title={medicalHistory
+                    .map((item: any) => `${item.condition} (${item.diagnosisDate})`)
+                    .join(', ')}
+                >
+                  <Typography
+                    variant="body2"
+                    sx={{ cursor: 'pointer', textDecoration: 'underline' }}
+                  >
+                    {medicalHistory.length} bệnh án
+                  </Typography>
+                </Tooltip>
+              ) : (
+                <Typography variant="body2" color="text.secondary">
+                  Không có
+                </Typography>
+              )}
+            </TableCell>
+            <TableCell>{_id}</TableCell>
+            {/* Hiển thị trạng thái tài khoản */}
             <TableCell>
               <Label
                 variant="soft"
@@ -225,7 +256,7 @@ export default function UserTableRow({
         {renderCells()}
 
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
-          <Tooltip title="Quick Edit" placement="top" arrow>
+          <Tooltip title="Sửa nhanh" placement="top" arrow>
             <IconButton color={quickEdit.value ? 'inherit' : 'default'} onClick={quickEdit.onTrue}>
               <Iconify icon="solar:pen-bold" />
             </IconButton>
@@ -273,13 +304,14 @@ export default function UserTableRow({
       </CustomPopover>
 
       <ConfirmDialog
-        open={confirm.value}
+        open={confirm.value || false}
         onClose={confirm.onFalse}
         title={`Xoá người dùng ${
           {
             doctor: 'Bác Sĩ',
             employee: 'Nhân Viên',
-            user: 'Bệnh Nhân',
+            user: 'Người Dùng',
+            patient: 'Bệnh Nhân',
           }[typeUser]
         }`}
         content="Bạn có chắc chắn muốn xoá chứ?"

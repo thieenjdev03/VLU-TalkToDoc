@@ -88,14 +88,24 @@ export const endpoints = {
     list: '/api/v1/doctors',
     delete: '/api/v1/doctors/:id',
     update: (id: string) => `/api/v1/doctors/${id}`,
+    create: '/api/v1/doctors',
   },
   patients: {
     list: '/api/v1/patients',
+    delete: '/api/v1/patients/:id',
+    update: (id: string) => `/api/v1/patients/${id}`,
+    create: '/api/v1/patients',
   },
   employees: {
     list: '/api/v1/employees',
+    delete: '/api/v1/employees/:id',
+    update: (id: string) => `/api/v1/employees/${id}`,
+    create: '/api/v1/employees',
   },
   users: {
     list: '/api/v1/users',
+    delete: '/api/v1/users/:id',
+    update: (id: string) => `/api/v1/users/${id}`,
+    create: '/api/v1/users',
   },
 };

@@ -14,17 +14,16 @@ export const useGetUsers = ({ typeUser }: Props) => {
   const URL = useMemo(() => {
     if (typeUser === 'doctor') return endpoints.doctors.list;
     if (typeUser === 'patient') return endpoints.patients.list;
+    if (typeUser === 'employee') return endpoints.employees.list;
     if (typeUser === 'user') return endpoints.users.list;
     return '';
   }, [typeUser]);
 
-  // 🛠 Gọi API dùng SWR
   const { data, isLoading, error, isValidating } = useSWR(
     [URL, { method: 'GET' }],
     ([url, config]) => fetcher([url, config], true)
   );
 
-  // 🛠 Xử lý dữ liệu trả về
   const memoizedValue = useMemo(
     () => ({
       users: (data as IUserItem[]) || [],
@@ -38,29 +37,63 @@ export const useGetUsers = ({ typeUser }: Props) => {
 
   return memoizedValue;
 };
-export const useDeleteUser = () => {
-  // Gọi API xóa user bằng `mutate` của `useSWR`
-  const deleteDoctor = async (id: string) => {
-    await axiosInstanceV2.delete(`${endpoints.doctors.list}/${id}`);
-    mutate(endpoints.doctors.list);
+export const useDeleteUser = ({ typeUser }: Props) => {
+  const URL = useMemo(() => {
+    if (typeUser === 'doctor') return endpoints.doctors.list;
+    if (typeUser === 'patient') return endpoints.patients.list;
+    if (typeUser === 'employee') return endpoints.employees.list;
+    if (typeUser === 'user') return endpoints.users.list;
+    return '';
+  }, [typeUser]);
+  const deleteUser = async (id: string) => {
+    await axiosInstanceV2.delete(`${URL}/${id}`);
+    mutate(URL);
   };
-
-  return { deleteDoctor };
+  return { deleteUser };
 };
 
-// 🛠 Cập nhật `useUpdateDoctor` để sử dụng `PUT` và truyền `ID` linh hoạt
-export const useUpdateDoctor = () => {
+export const useUpdateUser = ({ typeUser }: Props) => {
+  const URL = useMemo(() => {
+    if (typeUser === 'doctor') return endpoints.doctors.list;
+    if (typeUser === 'patient') return endpoints.patients.list;
+    if (typeUser === 'employee') return endpoints.employees.list;
+    if (typeUser === 'user') return endpoints.users.list;
+    return '';
+  }, [typeUser]);
   const { trigger, isMutating, error } = useSWRMutation(
-    endpoints.doctors.list,
+    URL,
     async (_url, { arg }: { arg: { id: string; data: any } }) => {
-      const response = await axiosInstanceV2.put(`${endpoints.doctors.list}/${arg.id}`, arg.data);
+      const response = await axiosInstanceV2.put(`${URL}/${arg.id}`, arg.data);
       return response.data;
     }
   );
 
   return {
-    updateDoctor: trigger,
+    updateUser: trigger,
     isUpdating: isMutating,
+    error,
+  };
+};
+
+export const useCreateUser = ({ typeUser }: Props) => {
+  const URL = useMemo(() => {
+    if (typeUser === 'doctor') return endpoints.doctors.create;
+    if (typeUser === 'patient') return endpoints.patients.create;
+    if (typeUser === 'employee') return endpoints.employees.create;
+    if (typeUser === 'user') return endpoints.users.create;
+    return '';
+  }, [typeUser]);
+  const { trigger, isMutating, error } = useSWRMutation(
+    URL,
+    async (_url, { arg }: { arg: { data: any } }) => {
+      const response = await axiosInstanceV2.post(URL, arg.data);
+      return response.data;
+    }
+  );
+
+  return {
+    createUser: trigger,
+    isCreating: isMutating,
     error,
   };
 };

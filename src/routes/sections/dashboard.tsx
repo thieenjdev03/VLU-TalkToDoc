@@ -34,6 +34,7 @@ const UserCardsPage = lazy(() => import('src/pages/dashboard/user/cards'));
 const UserListPage = lazy(() => import('src/pages/dashboard/user/list'));
 const UserDoctorListPage = lazy(() => import('src/pages/dashboard/user/list-doctor'));
 const UserEmployeeListPage = lazy(() => import('src/pages/dashboard/user/list-employee'));
+const UserPatientListPage = lazy(() => import('src/pages/dashboard/user/list-patient'));
 const UserAccountPage = lazy(() => import('src/pages/dashboard/user/account'));
 const UserCreatePage = lazy(() => import('src/pages/dashboard/user/new'));
 const UserEditPage = lazy(() => import('src/pages/dashboard/user/edit'));
@@ -94,9 +95,11 @@ export const dashboardRoutes = [
           { path: 'list', element: <UserListPage /> },
           { path: 'list-doctor', element: <UserDoctorListPage /> },
           { path: 'list-employee', element: <UserEmployeeListPage /> },
+          { path: 'list-patient', element: <UserPatientListPage /> },
           { path: 'new', element: <UserCreatePage typeUser="user" /> },
           { path: 'new-doctor', element: <UserCreatePage typeUser="doctor" /> },
           { path: 'new-employee', element: <UserCreatePage typeUser="employee" /> },
+          { path: 'new-patient', element: <UserCreatePage typeUser="patient" /> },
           { path: ':id/edit', element: <UserEditPage /> },
           { path: 'account', element: <UserAccountPage /> },
         ],

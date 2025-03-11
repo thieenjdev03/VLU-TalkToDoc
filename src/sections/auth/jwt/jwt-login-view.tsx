@@ -80,7 +80,7 @@ export default function JwtLoginView() {
         height={200}
       />
       <Stack spacing={2} sx={{ mb: 5 }} textAlign="center">
-        <Typography variant="h4">Chào mừng quay trở lại</Typography>
+        <Typography variant="h4">Chào mừng trở lại</Typography>
         <Typography fontSize={20} fontWeight={600} color="text.secondary">
           Đăng nhập ngay!
         </Typography>

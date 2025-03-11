@@ -17,6 +17,8 @@ import { useRouter } from 'src/routes/hooks';
 
 import { fData } from 'src/utils/format-number';
 
+import { useCreateUser } from 'src/api/user';
+
 import Label from 'src/components/label';
 import { CustomFile } from 'src/components/upload';
 import { useSnackbar } from 'src/components/snackbar';
@@ -33,11 +35,13 @@ import { IUserItem } from 'src/types/user';
 
 type Props = {
   currentUser?: IUserItem;
-  typeUser: 'user' | 'doctor' | 'employee';
+  typeUser: 'user' | 'doctor' | 'employee' | 'patient';
 };
 
 type FormValuesProps = {
   fullName: string;
+  username: string;
+  password: string;
   email: string;
   phoneNumber: string;
   status: string;
@@ -47,24 +51,43 @@ type FormValuesProps = {
   role?: string;
   hospitalId?: string;
   rank?: string;
-  specialty?: string[];
+  specialty?: string[] | any;
   city?: string;
   experienceYears?: string;
   licenseNo?: string;
+  gender?: string;
+  dateOfBirth?: string;
+  address?: string;
+  emergencyContact?: string[];
 };
 
 export default function UserNewEditForm({ currentUser, typeUser }: Props) {
   const router = useRouter();
 
   const { enqueueSnackbar } = useSnackbar();
-
+  const { createUser } = useCreateUser({ typeUser });
   const NewUserSchema = Yup.object().shape({
     fullName: Yup.string().required('Họ & tên không được để trống'),
+    username: Yup.string().required('Tên tài khoản không được để trống'),
+    password: Yup.string().required('Mật khẩu không được để trống'),
     email: Yup.string().required('Email không được để trống').email('Email không hợp lệ'),
     phoneNumber: Yup.string().required('Số điện thoại không được để trống'),
     avatarUrl: Yup.mixed().nullable(),
     status: Yup.string(),
     isVerified: Yup.boolean(),
+    gender:
+      typeUser === 'patient'
+        ? Yup.string().required('Giới tính không được để trống')
+        : Yup.string().optional(),
+    dateOfBirth:
+      typeUser === 'patient'
+        ? Yup.string().required('Ngày sinh không được để trống')
+        : Yup.string().optional(),
+    address:
+      typeUser === 'patient'
+        ? Yup.string().required('Địa chỉ không được để trống')
+        : Yup.string().optional(),
+    emergencyContact: Yup.array().of(Yup.string()),
     company:
       typeUser === 'user'
         ? Yup.string().required('Bệnh viện không được để trống')
@@ -82,9 +105,12 @@ export default function UserNewEditForm({ currentUser, typeUser }: Props) {
         ? Yup.string().required('Cấp bậc không được để trống')
         : Yup.string().optional(),
     specialty:
-      typeUser === 'doctor' || typeUser === 'employee'
-        ? Yup.array().of(Yup.string()).min(1, 'Chọn ít nhất một chuyên khoa')
-        : Yup.array().of(Yup.string()).optional(),
+      typeUser === 'doctor'
+        ? Yup.array()
+            .of(Yup.string().required('Chuyên khoa không hợp lệ'))
+            .min(1, 'Chọn ít nhất một chuyên khoa')
+            .required('Chuyên khoa không được để trống')
+        : Yup.string().optional(),
     city:
       typeUser === 'doctor'
         ? Yup.string().required('Thành phố không được để trống')
@@ -102,6 +128,8 @@ export default function UserNewEditForm({ currentUser, typeUser }: Props) {
   const defaultValues = useMemo(
     () => ({
       fullName: currentUser?.fullName || '',
+      username: currentUser?.username || '',
+      password: currentUser?.password || '',
       email: currentUser?.email || '',
       status: currentUser?.status || 'active',
       avatarUrl: currentUser?.avatarUrl || null,
@@ -114,7 +142,11 @@ export default function UserNewEditForm({ currentUser, typeUser }: Props) {
       ...(typeUser === 'doctor' && {
         hospitalId: currentUser?.hospitalId || '',
         rank: currentUser?.rank || '',
-        specialty: currentUser?.specialty || [],
+        specialty: Array.isArray(currentUser?.specialty)
+          ? currentUser?.specialty.map((item: any) =>
+              typeof item === 'object' ? item.value : item
+            )
+          : [],
         city: currentUser?.city || '',
         experienceYears: currentUser?.experienceYears || '',
         licenseNo: currentUser?.licenseNo || '',
@@ -122,7 +154,11 @@ export default function UserNewEditForm({ currentUser, typeUser }: Props) {
       ...(typeUser === 'employee' && {
         hospitalId: currentUser?.hospitalId || '',
         role: currentUser?.role || '',
-        specialty: currentUser?.specialty || [],
+        specialty: Array.isArray(currentUser?.specialty)
+          ? currentUser?.specialty.map((item: any) =>
+              typeof item === 'object' ? item.value : item
+            )
+          : [],
       }),
     }),
     [currentUser, typeUser]
@@ -132,30 +168,50 @@ export default function UserNewEditForm({ currentUser, typeUser }: Props) {
     resolver: yupResolver(NewUserSchema) as any,
     defaultValues,
   });
-
   const {
     reset,
     watch,
     control,
     setValue,
     handleSubmit,
-    formState: { isSubmitting },
+    formState: { isSubmitting, errors }, // Thêm errors để debug
   } = methods;
+  console.log('Form Errors:', errors);
 
   const values = watch();
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      let formattedData;
+      let path;
+      if (typeUser === 'doctor') {
+        path = paths.dashboard.user.list_doctor;
+        formattedData = {
+          ...data,
+          specialty: Array.isArray(data.specialty)
+            ? data.specialty.map((item) => (typeof item === 'object' ? item.value : item))
+            : [],
+        };
+      } else if (typeUser === 'patient') {
+        path = paths.dashboard.user.list_patient;
+        formattedData = {
+          ...data,
+        };
+      } else if (typeUser === 'employee') {
+        path = paths.dashboard.user.list_employee;
+        formattedData = {
+          ...data,
+        };
+      }
+      await createUser({ data: formattedData });
+
       reset();
       enqueueSnackbar(currentUser ? 'Cập nhật thành công!' : 'Tạo mới thành công!');
-      router.push(paths.dashboard.user.list);
-      console.info('DATA', data);
-    } catch (error) {
-      console.error(error);
+      router.push(path || '');
+    } catch (err) {
+      console.error(err);
     }
   });
-
   const handleDrop = useCallback(
     (acceptedFiles: File[]) => {
       const file = acceptedFiles[0];
@@ -177,13 +233,25 @@ export default function UserNewEditForm({ currentUser, typeUser }: Props) {
       columnGap={2}
       display="grid"
       gridTemplateColumns={{
-        xs: 'repeat(1, 1fr)',
-        sm: 'repeat(2, 1fr)',
+        xs: 'repeat(2, 2fr)',
+        sm: 'repeat(2, 2fr)',
       }}
     >
-      <RHFTextField name="name" label="Họ & Tên" />
-      <RHFTextField name="email" label="Email" />
+      <RHFTextField name="fullName" label="Họ & Tên" />
       <RHFTextField name="phoneNumber" label="Số điện thoại" />
+      <RHFTextField name="username" label="Tên tài khoản" />
+      <RHFTextField name="password" label="Mật khẩu" />
+      <Box
+        rowGap={3}
+        columnGap={2}
+        display="grid"
+        gridTemplateColumns={{
+          xs: 'repeat(1, 1fr)',
+          sm: 'repeat(1, 1fr)',
+        }}
+      >
+        <RHFTextField name="email" label="Email" />
+      </Box>
     </Box>
   );
 
@@ -194,16 +262,14 @@ export default function UserNewEditForm({ currentUser, typeUser }: Props) {
       display="grid"
       gridTemplateColumns={{
         xs: 'repeat(1, 1fr)',
-        sm: 'repeat(2, 1fr)',
+        sm: 'repeat(1, 1fr)',
       }}
     >
       {renderBasicFields}
-      <RHFTextField name="company" label="Bệnh viện" />
-      <RHFTextField name="role" label="Vị trí" />
     </Box>
   );
 
-  const renderDoctorFields = (
+  const renderPatientFields = (
     <Box
       rowGap={3}
       columnGap={2}
@@ -214,22 +280,81 @@ export default function UserNewEditForm({ currentUser, typeUser }: Props) {
       }}
     >
       {renderBasicFields}
-      <RHFTextField name="hospitalId" label="Bệnh viện" />
-      <RHFTextField name="rank" label="Cấp bậc" />
+      <RHFTextField name="dateOfBirth" label="Ngày sinh" />
       <RHFAutocomplete
-        name="specialty"
-        label="Chuyên khoa"
-        multiple
+        name="gender"
+        label="Giới tính"
         options={[
-          { value: 'CK001', label: 'Nội khoa' },
-          { value: 'CK002', label: 'Ngoại khoa' },
-          { value: 'CK003', label: 'Sản phụ khoa' },
-          { value: 'CK004', label: 'Nhi khoa' },
+          { value: 'male', label: 'Nam' },
+          { value: 'female', label: 'Nữ' },
+          { value: 'other', label: 'Khác' },
         ]}
+        getOptionLabel={(option) => (typeof option === 'string' ? option : option.label)}
+        isOptionEqualToValue={(option, value: any) =>
+          typeof option === 'string' ? option === value : option.value === value
+        }
+        onChange={(event, newValue: any) =>
+          setValue('gender', newValue.value, { shouldValidate: true })
+        }
       />
-      <RHFTextField name="city" label="Thành phố" />
-      <RHFTextField name="experienceYears" label="Kinh nghiệm (năm)" />
-      <RHFTextField name="licenseNo" label="Mã giấy phép" />
+      <RHFTextField name="address" label="Địa chỉ" />
+      <RHFAutocomplete
+        name="emergencyContact"
+        label="Liên hệ khẩn cấp"
+        multiple
+        options={[]} // Thêm dữ liệu liên hệ nếu có
+      />
+    </Box>
+  );
+
+  const renderDoctorFields = (
+    <Box
+      rowGap={3}
+      columnGap={2}
+      display="grid"
+      gridTemplateColumns={{
+        xs: 'repeat(1, 1fr)',
+        sm: 'repeat(1, 1fr)',
+      }}
+    >
+      <Box
+        rowGap={3}
+        columnGap={2}
+        display="grid"
+        gridTemplateColumns={{
+          xs: 'repeat(1, 2fr)',
+          sm: 'repeat(1, 2fr)',
+        }}
+      >
+        {renderBasicFields}
+        <RHFAutocomplete
+          name="specialty"
+          label="Chuyên khoa"
+          multiple
+          options={[
+            { value: 'CK001', label: 'Nội khoa' },
+            { value: 'CK002', label: 'Ngoại khoa' },
+            { value: 'CK003', label: 'Sản phụ khoa' },
+            { value: 'CK004', label: 'Nhi khoa' },
+          ]}
+          getOptionLabel={(option) => (typeof option === 'string' ? option : option.label)}
+          isOptionEqualToValue={(option, value: any) =>
+            typeof option === 'string' ? option === value : option.value === value
+          }
+          onChange={(event, newValue) =>
+            setValue(
+              'specialty',
+              newValue.map((item) => (typeof item === 'string' ? item : item.value)),
+              { shouldValidate: true }
+            )
+          }
+        />
+        <RHFTextField name="hospitalId" label="Bệnh viện" />
+        <RHFTextField name="city" label="Thành phố" />
+        <RHFTextField name="rank" label="Cấp bậc" />
+        <RHFTextField name="experienceYears" label="Kinh nghiệm (năm)" />
+        <RHFTextField name="licenseNo" label="Mã giấy phép" />
+      </Box>
     </Box>
   );
 
@@ -244,8 +369,6 @@ export default function UserNewEditForm({ currentUser, typeUser }: Props) {
       }}
     >
       {renderBasicFields}
-      <RHFTextField name="hospitalId" label="Bệnh viện" />
-      <RHFTextField name="role" label="Vị trí" />
       <RHFAutocomplete
         name="specialty"
         label="Chuyên khoa"
@@ -256,7 +379,22 @@ export default function UserNewEditForm({ currentUser, typeUser }: Props) {
           { value: 'CK003', label: 'Sản phụ khoa' },
           { value: 'CK004', label: 'Nhi khoa' },
         ]}
+        getOptionLabel={(option) => (typeof option === 'string' ? option : option.label)}
+        isOptionEqualToValue={(option, value: any) =>
+          typeof option === 'string' ? option === value : option.value === value
+        }
+        onChange={(event, newValue) =>
+          setValue(
+            'specialty',
+            newValue.map((item) => (typeof item === 'string' ? item : item.value)),
+            { shouldValidate: true }
+          )
+        }
       />
+      <RHFTextField name="hospitalId" label="Bệnh viện" />
+      <RHFTextField name="role" label="Vị trí" />
+      <RHFTextField name="username" label="Tên tài khoản" />
+      <RHFTextField name="password" label="Mật khẩu" />
     </Box>
   );
 
@@ -338,12 +476,10 @@ export default function UserNewEditForm({ currentUser, typeUser }: Props) {
               labelPlacement="start"
               label={
                 <>
-                  <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-                    Xác thực email
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                    Tắt tính năng này sẽ tự động gửi email xác thực cho người dùng
-                  </Typography>
+                  <Typography variant="subtitle2" sx={{ mb: 0.5 }} />
+                  Xác thực email
+                  <Typography variant="body2" sx={{ color: 'text.secondary' }} />
+                  Tắt tính năng này sẽ tự động gửi email xác thực cho người dùng
                 </>
               }
               sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
@@ -356,9 +492,16 @@ export default function UserNewEditForm({ currentUser, typeUser }: Props) {
             {typeUser === 'user' && renderUserFields}
             {typeUser === 'doctor' && renderDoctorFields}
             {typeUser === 'employee' && renderEmployeeFields}
-
+            {typeUser === 'patient' && renderPatientFields}
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>
-              <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+              <LoadingButton
+                type="submit"
+                variant="contained"
+                loading={isSubmitting}
+                onClick={() => {
+                  console.log('Clicked submit button');
+                }}
+              >
                 {!currentUser ? 'Tạo mới' : 'Lưu thay đổi'}
               </LoadingButton>
             </Stack>
