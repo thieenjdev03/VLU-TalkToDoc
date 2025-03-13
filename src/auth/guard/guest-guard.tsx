@@ -27,14 +27,13 @@ function Container({ children }: Props) {
   const searchParams = useSearchParams();
 
   const returnTo = searchParams.get('returnTo') || paths.dashboard.root;
-
-  const { authenticated } = useAuthContext();
+  const accessToken = localStorage.getItem('accessToken');
 
   const check = useCallback(() => {
-    if (authenticated) {
+    if (!accessToken) {
       router.replace(returnTo);
     }
-  }, [authenticated, returnTo, router]);
+  }, [router, returnTo, accessToken]);
 
   useEffect(() => {
     check();

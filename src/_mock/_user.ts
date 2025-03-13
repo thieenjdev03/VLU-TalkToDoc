@@ -5,9 +5,9 @@ import { _mock } from './_mock';
 // ----------------------------------------------------------------------
 
 export const USER_STATUS_OPTIONS = [
-  { value: 'active', label: 'Hoạt Động' },
+  { value: 'Hoạt Động', label: 'Hoạt Động' },
   // { value: 'pending', label: 'Pending' },
-  { value: 'banned', label: 'Đã Khoá' },
+  { value: 'Đã Khoá', label: 'Đã Khoá' },
   // { value: 'rejected', label: 'Rejected' },
 ];
 

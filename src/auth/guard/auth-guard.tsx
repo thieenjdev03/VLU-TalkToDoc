@@ -37,9 +37,9 @@ function Container({ children }: Props) {
   const { authenticated, method } = useAuthContext();
 
   const [checked, setChecked] = useState(false);
-
+  const accessToken = localStorage.getItem('accessToken');
   const check = useCallback(() => {
-    if (!authenticated) {
+    if (!accessToken) {
       const searchParams = new URLSearchParams({
         returnTo: window.location.pathname,
       }).toString();
@@ -52,7 +52,7 @@ function Container({ children }: Props) {
     } else {
       setChecked(true);
     }
-  }, [authenticated, method, router]);
+  }, [accessToken, method, router]);
 
   useEffect(() => {
     check();

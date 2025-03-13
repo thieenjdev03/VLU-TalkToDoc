@@ -1,6 +1,6 @@
 import * as Yup from 'yup';
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useState, useEffect } from 'react';
 import { yupResolver } from '@hookform/resolvers/yup';
 
 import Box from '@mui/material/Box';
@@ -16,7 +16,7 @@ import { useRouter, useSearchParams } from 'src/routes/hooks';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { useAuthContext } from 'src/auth/hooks';
+import { useLogin } from 'src/api/auth';
 import { PATH_AFTER_LOGIN } from 'src/config-global';
 
 import Iconify from 'src/components/iconify';
@@ -26,8 +26,7 @@ import './login.css';
 // ----------------------------------------------------------------------
 
 export default function JwtLoginView() {
-  const { login } = useAuthContext();
-
+  const { login } = useLogin();
   const router = useRouter();
 
   const [errorMsg, setErrorMsg] = useState('');
@@ -37,15 +36,15 @@ export default function JwtLoginView() {
   const returnTo = searchParams.get('returnTo');
 
   const password = useBoolean();
-
+  const accessToken = localStorage.getItem('accessToken');
   const LoginSchema = Yup.object().shape({
-    email: Yup.string().required('Email is required').email('Email must be a valid email address'),
-    password: Yup.string().required('Password is required'),
+    username: Yup.string().required('Vui lòng nhập tài khoản'),
+    password: Yup.string().required('Vui lòng nhập mật khẩu'),
   });
 
   const defaultValues = {
-    email: 'demo@minimals.cc',
-    password: 'demo1234',
+    username: 'johndoe',
+    password: 'password123',
   };
 
   const methods = useForm({
@@ -61,8 +60,9 @@ export default function JwtLoginView() {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      await login?.(data.email, data.password);
-
+      // await login?.(data.email, data.password);
+      const res = await login(data.username, data.password);
+      localStorage.setItem('accessToken', res.access_token);
       router.push(returnTo || PATH_AFTER_LOGIN);
     } catch (error) {
       console.error(error);
@@ -70,7 +70,11 @@ export default function JwtLoginView() {
       setErrorMsg(typeof error === 'string' ? error : error.message);
     }
   });
-
+  useEffect(() => {
+    if (accessToken) {
+      router.push(returnTo || PATH_AFTER_LOGIN);
+    }
+  }, [accessToken, router, returnTo]);
   const renderHead = (
     <Box alignItems="center" justifyContent="center" display="flex" flexDirection="column">
       <img
@@ -91,7 +95,7 @@ export default function JwtLoginView() {
 
   const renderForm = (
     <Stack spacing={2.5}>
-      <RHFTextField name="email" label="Email" />
+      <RHFTextField name="username" label="Tài khoản" />
       <RHFTextField
         name="password"
         label="Mật khẩu"

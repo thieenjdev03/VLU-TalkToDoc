@@ -35,6 +35,7 @@ const UserListPage = lazy(() => import('src/pages/dashboard/user/list'));
 const UserDoctorListPage = lazy(() => import('src/pages/dashboard/user/list-doctor'));
 const UserEmployeeListPage = lazy(() => import('src/pages/dashboard/user/list-employee'));
 const UserPatientListPage = lazy(() => import('src/pages/dashboard/user/list-patient'));
+const SpecialtiesListPage = lazy(() => import('src/pages/dashboard/specialties/list'));
 const UserAccountPage = lazy(() => import('src/pages/dashboard/user/account'));
 const UserCreatePage = lazy(() => import('src/pages/dashboard/user/new'));
 const UserEditPage = lazy(() => import('src/pages/dashboard/user/edit'));
@@ -102,6 +103,13 @@ export const dashboardRoutes = [
           { path: 'new-patient', element: <UserCreatePage typeUser="patient" /> },
           { path: ':id/edit', element: <UserEditPage /> },
           { path: 'account', element: <UserAccountPage /> },
+        ],
+      },
+      {
+        path: 'specialties',
+        children: [
+          { element: <SpecialtiesListPage />, index: true },
+          { path: 'list', element: <SpecialtiesListPage /> },
         ],
       },
       {

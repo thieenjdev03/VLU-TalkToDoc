@@ -113,6 +113,14 @@ export function useNavData() {
             ],
           },
 
+          // Specialties
+          {
+            title: t('Quản Lý Chuyên Khoa'),
+            path: paths.dashboard.specialties.root,
+            icon: ICONS.medical,
+            children: [{ title: t('Danh sách'), path: paths.dashboard.specialties.root }],
+          },
+
           // PRODUCT
           {
             title: t('Quản Lý Thuốc'),
@@ -128,35 +136,43 @@ export function useNavData() {
               { title: t('edit'), path: paths.dashboard.product.demo.edit },
             ],
           },
-
+          // // JOB
+          {
+            title: t('Quản Lý Nhà Thuốc'),
+            path: paths.dashboard.job.root,
+            icon: ICONS.job,
+            children: [
+              { title: t('Danh Sách'), path: paths.dashboard.job.root },
+              // { title: t('details'), path: paths.dashboard.job.demo.details },
+              // { title: t('create'), path: paths.dashboard.job.new },
+              // { title: t('edit'), path: paths.dashboard.job.demo.edit },
+            ],
+          },
           // // ORDER
-          // {
-          //   title: t('order'),
-          //   path: paths.dashboard.order.root,
-          //   icon: ICONS.order,
-          //   children: [
-          //     { title: t('list'), path: paths.dashboard.order.root },
-          //     { title: t('details'), path: paths.dashboard.order.demo.details },
-          //   ],
-          // },
+          {
+            title: t('Quản Lý Bệnh Án'),
+            path: paths.dashboard.order.root,
+            icon: ICONS.order,
+            children: [{ title: t('Danh Sách'), path: paths.dashboard.order.root }],
+          },
 
           // // INVOICE
-          // {
-          //   title: t('invoice'),
-          //   path: paths.dashboard.invoice.root,
-          //   icon: ICONS.invoice,
-          //   children: [
-          //     { title: t('list'), path: paths.dashboard.invoice.root },
-          //     {
-          //       title: t('details'),
-          //       path: paths.dashboard.invoice.demo.details,
-          //     },
-          //     { title: t('create'), path: paths.dashboard.invoice.new },
-          //     { title: t('edit'), path: paths.dashboard.invoice.demo.edit },
-          //   ],
-          // },
+          {
+            title: t('Thanh Toán'),
+            path: paths.dashboard.invoice.root,
+            icon: ICONS.invoice,
+            children: [
+              { title: t('Danh Sách'), path: paths.dashboard.invoice.root },
+              // {
+              //   title: t('details'),
+              //   path: paths.dashboard.invoice.demo.details,
+              // },
+              { title: t('Tạo Hóa Đơn'), path: paths.dashboard.invoice.new },
+              // { title: t('edit'), path: paths.dashboard.invoice.demo.edit },
+            ],
+          },
 
-          // // BLOG
+          // // // BLOG
           // {
           //   title: t('blog'),
           //   path: paths.dashboard.post.root,
@@ -169,20 +185,7 @@ export function useNavData() {
           //   ],
           // },
 
-          // // JOB
-          // {
-          //   title: t('job'),
-          //   path: paths.dashboard.job.root,
-          //   icon: ICONS.job,
-          //   children: [
-          //     { title: t('list'), path: paths.dashboard.job.root },
-          //     { title: t('details'), path: paths.dashboard.job.demo.details },
-          //     { title: t('create'), path: paths.dashboard.job.new },
-          //     { title: t('edit'), path: paths.dashboard.job.demo.edit },
-          //   ],
-          // },
-
-          // // TOUR
+          // // // TOUR
           // {
           //   title: t('tour'),
           //   path: paths.dashboard.tour.root,
@@ -195,7 +198,7 @@ export function useNavData() {
           //   ],
           // },
 
-          // FILE MANAGER
+          // // FILE MANAGER
           // {
           //   title: t('file_manager'),
           //   path: paths.dashboard.fileManager,
@@ -210,26 +213,26 @@ export function useNavData() {
           //   info: <Label color="error">+32</Label>,
           // },
 
-          // CHAT
-          {
-            title: t('chat'),
-            path: paths.dashboard.chat,
-            icon: ICONS.chat,
-          },
-
-          // CALENDAR
-          {
-            title: t('calendar'),
-            path: paths.dashboard.calendar,
-            icon: ICONS.calendar,
-          },
-
-          // // KANBAN
+          // // CHAT
           // {
-          //   title: t('kanban'),
-          //   path: paths.dashboard.kanban,
-          //   icon: ICONS.kanban,
+          //   title: t('chat'),
+          //   path: paths.dashboard.chat,
+          //   icon: ICONS.chat,
           // },
+
+          // // CALENDAR
+          // {
+          //   title: t('calendar'),
+          //   path: paths.dashboard.calendar,
+          //   icon: ICONS.calendar,
+          // },
+
+          // // // KANBAN
+          // // {
+          // //   title: t('kanban'),
+          // //   path: paths.dashboard.kanban,
+          // //   icon: ICONS.kanban,
+          // // },
         ],
       },
 
