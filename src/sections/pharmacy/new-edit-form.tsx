@@ -140,7 +140,7 @@ export default function PharmacyNewEditForm({ currentPharmacy }: Props) {
               <RHFAutocomplete
                 name="city"
                 label="Thành Phố/Tỉnh"
-                placeholder="Chọn thành phố/tỉnh"
+                placeholder={`${loadingCities ? '' : 'Chọn thành phố/tỉnh'}`}
                 options={cityOptions}
                 isOptionEqualToValue={(option, value) => option === value}
               />

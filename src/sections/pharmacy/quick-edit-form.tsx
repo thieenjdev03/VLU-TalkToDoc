@@ -43,12 +43,7 @@ interface IProvince {
   phone_code: number;
 }
 
-export default function PharmacyQuickEditForm({
-  currentPharmacy,
-  open,
-  onClose,
-  onSuccess,
-}: Props) {
+export default function PharmacyQuickEditForm({ currentPharmacy, open, onClose }: Props) {
   const { enqueueSnackbar } = useSnackbar();
   const { updatePharmacy } = useUpdatePharmacy();
   const [cities, setCities] = useState<IProvince[]>([]);
@@ -111,10 +106,6 @@ export default function PharmacyQuickEditForm({
       enqueueSnackbar('Cập nhật nhà thuốc thành công!');
 
       // Call onSuccess to trigger refetching in parent component
-      if (onSuccess) {
-        onSuccess();
-      }
-
       onClose();
     } catch (error) {
       enqueueSnackbar('Failed to update pharmacy', { variant: 'error' });

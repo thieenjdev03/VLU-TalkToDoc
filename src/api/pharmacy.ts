@@ -65,5 +65,7 @@ export const useUpdatePharmacy = () => {
     updatePharmacy: trigger,
     isUpdating: isMutating,
     error,
+    pharmaciesError: error,
+    mutate, // Add mutate function to the returned object
   };
 };

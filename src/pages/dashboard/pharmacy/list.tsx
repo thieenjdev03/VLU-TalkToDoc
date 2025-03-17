@@ -89,13 +89,8 @@ export default function PharmaciesListPage() {
   const [selectedPharmacy, setSelectedPharmacy] = useState<IPharmacyItem | undefined>(undefined);
   const editDialog = useBoolean();
 
-  const {
-    pharmacies,
-    pharmaciesLoading,
-    pharmaciesError,
-    pharmaciesValidating,
-    mutate: refetchPharmacies, // Extract the mutate function if using SWR
-  } = useGetPharmacies();
+  const { pharmacies, pharmaciesLoading, pharmaciesError, pharmaciesValidating } =
+    useGetPharmacies();
 
   useEffect(() => {
     if (pharmacies.length) {
@@ -135,15 +130,13 @@ export default function PharmaciesListPage() {
           enqueueSnackbar('Xoá nhà thuốc thành công!', { variant: 'success' });
           table.onUpdatePageDeleteRow(dataInPage.length);
           confirm.onFalse();
-
           // Trigger refetch after successful deletion
-          refetchPharmacies();
         })
         .catch(() => {
           enqueueSnackbar('Không thể xoá nhà thuốc!', { variant: 'error' });
         });
     },
-    [dataInPage.length, enqueueSnackbar, table, deletePharmacy, confirm, refetchPharmacies]
+    [dataInPage.length, enqueueSnackbar, table, deletePharmacy, confirm]
   );
 
   const handleEditRow = useCallback(
@@ -167,9 +160,6 @@ export default function PharmaciesListPage() {
   );
 
   // Function to handle refetch after successful operations
-  const handleRefetchData = useCallback(() => {
-    refetchPharmacies();
-  }, [refetchPharmacies]);
 
   return (
     <>
@@ -338,7 +328,6 @@ export default function PharmaciesListPage() {
           open={editDialog.value}
           onClose={editDialog.onFalse}
           currentPharmacy={selectedPharmacy}
-          onSuccess={handleRefetchData} // Pass the refetch function
         />
       )}
     </>
