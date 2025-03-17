@@ -1,7 +1,7 @@
 import * as Yup from 'yup';
-import { useMemo, useCallback } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -18,6 +18,7 @@ import { useRouter } from 'src/routes/hooks';
 import { fData } from 'src/utils/format-number';
 
 import { useCreateUser } from 'src/api/user';
+import { useGetSpecialties } from 'src/api/specialty';
 
 import Label from 'src/components/label';
 import { CustomFile } from 'src/components/upload';
@@ -30,6 +31,7 @@ import FormProvider, {
 } from 'src/components/hook-form';
 
 import { IUserItem } from 'src/types/user';
+import { ISpecialtyItem } from 'src/types/specialties';
 
 // ----------------------------------------------------------------------
 
@@ -45,10 +47,11 @@ type FormValuesProps = {
   email: string;
   phoneNumber: string;
   status: string;
+  active: boolean;
   avatarUrl: CustomFile | string | null;
   isVerified: boolean;
   company?: string;
-  role?: string;
+  position?: string;
   hospitalId?: string;
   rank?: string;
   specialty?: string[] | any;
@@ -56,14 +59,20 @@ type FormValuesProps = {
   experienceYears?: string;
   licenseNo?: string;
   gender?: string;
-  dateOfBirth?: string;
+  birthDate?: string;
   address?: string;
   emergencyContact?: string[];
 };
 
 export default function UserNewEditForm({ currentUser, typeUser }: Props) {
   const router = useRouter();
-
+  const { specialties } = useGetSpecialties();
+  const [specialtyList, setSpecialtyList] = useState<ISpecialtyItem[]>([]);
+  useEffect(() => {
+    if (specialties.length) {
+      setSpecialtyList(specialties);
+    }
+  }, [specialties]);
   const { enqueueSnackbar } = useSnackbar();
   const { createUser } = useCreateUser({ typeUser });
   const NewUserSchema = Yup.object().shape({
@@ -74,12 +83,13 @@ export default function UserNewEditForm({ currentUser, typeUser }: Props) {
     phoneNumber: Yup.string().required('Số điện thoại không được để trống'),
     avatarUrl: Yup.mixed().nullable(),
     status: Yup.string(),
+    active: Yup.boolean(),
     isVerified: Yup.boolean(),
     gender:
       typeUser === 'patient'
         ? Yup.string().required('Giới tính không được để trống')
         : Yup.string().optional(),
-    dateOfBirth:
+    birthDate:
       typeUser === 'patient'
         ? Yup.string().required('Ngày sinh không được để trống')
         : Yup.string().optional(),
@@ -92,7 +102,7 @@ export default function UserNewEditForm({ currentUser, typeUser }: Props) {
       typeUser === 'user'
         ? Yup.string().required('Bệnh viện không được để trống')
         : Yup.string().optional(),
-    role:
+    position:
       typeUser === 'user' || typeUser === 'employee'
         ? Yup.string().required('Vị trí không được để trống')
         : Yup.string().optional(),
@@ -105,7 +115,7 @@ export default function UserNewEditForm({ currentUser, typeUser }: Props) {
         ? Yup.string().required('Cấp bậc không được để trống')
         : Yup.string().optional(),
     specialty:
-      typeUser === 'doctor'
+      typeUser === 'doctor' || typeUser === 'employee'
         ? Yup.array()
             .of(Yup.string().required('Chuyên khoa không hợp lệ'))
             .min(1, 'Chọn ít nhất một chuyên khoa')
@@ -132,12 +142,13 @@ export default function UserNewEditForm({ currentUser, typeUser }: Props) {
       password: currentUser?.password || '',
       email: currentUser?.email || '',
       status: currentUser?.status || 'active',
+      active: currentUser?.active || true,
       avatarUrl: currentUser?.avatarUrl || null,
       phoneNumber: currentUser?.phoneNumber || '',
       isVerified: currentUser?.isVerified || true,
       ...(typeUser === 'user' && {
         company: currentUser?.company || '',
-        role: currentUser?.role || '',
+        position: currentUser?.position || '',
       }),
       ...(typeUser === 'doctor' && {
         hospitalId: currentUser?.hospitalId || '',
@@ -153,7 +164,7 @@ export default function UserNewEditForm({ currentUser, typeUser }: Props) {
       }),
       ...(typeUser === 'employee' && {
         hospitalId: currentUser?.hospitalId || '',
-        role: currentUser?.role || '',
+        position: currentUser?.position || '',
         specialty: Array.isArray(currentUser?.specialty)
           ? currentUser?.specialty.map((item: any) =>
               typeof item === 'object' ? item.value : item
@@ -237,10 +248,27 @@ export default function UserNewEditForm({ currentUser, typeUser }: Props) {
         sm: 'repeat(2, 2fr)',
       }}
     >
+      <FormControlLabel
+        control={
+          <Controller
+            name="active"
+            control={control}
+            render={({ field }) => (
+              <Switch
+                {...field}
+                checked={field.value}
+                onChange={(event) => field.onChange(event.target.checked)}
+              />
+            )}
+          />
+        }
+        label="Trạng Thái"
+      />
       <RHFTextField name="fullName" label="Họ & Tên" />
       <RHFTextField name="phoneNumber" label="Số điện thoại" />
       <RHFTextField name="username" label="Tên tài khoản" />
-      <RHFTextField name="password" label="Mật khẩu" />
+      <RHFTextField name="password" type="password" label="Mật khẩu" />
+
       <Box
         rowGap={3}
         columnGap={2}
@@ -276,34 +304,38 @@ export default function UserNewEditForm({ currentUser, typeUser }: Props) {
       display="grid"
       gridTemplateColumns={{
         xs: 'repeat(1, 1fr)',
-        sm: 'repeat(2, 1fr)',
+        sm: 'repeat(1, 1fr)',
       }}
     >
       {renderBasicFields}
-      <RHFTextField name="dateOfBirth" label="Ngày sinh" />
-      <RHFAutocomplete
-        name="gender"
-        label="Giới tính"
-        options={[
-          { value: 'male', label: 'Nam' },
-          { value: 'female', label: 'Nữ' },
-          { value: 'other', label: 'Khác' },
-        ]}
-        getOptionLabel={(option) => (typeof option === 'string' ? option : option.label)}
-        isOptionEqualToValue={(option, value: any) =>
-          typeof option === 'string' ? option === value : option.value === value
-        }
-        onChange={(event, newValue: any) =>
-          setValue('gender', newValue.value, { shouldValidate: true })
-        }
-      />
       <RHFTextField name="address" label="Địa chỉ" />
-      <RHFAutocomplete
-        name="emergencyContact"
-        label="Liên hệ khẩn cấp"
-        multiple
-        options={[]} // Thêm dữ liệu liên hệ nếu có
-      />
+      <Box
+        rowGap={3}
+        columnGap={2}
+        display="grid"
+        gridTemplateColumns={{
+          xs: 'repeat(2, 2fr)',
+          sm: 'repeat(2, 2fr)',
+        }}
+      >
+        <RHFTextField name="birthDate" label="Ngày sinh" />
+        <RHFAutocomplete
+          name="gender"
+          label="Giới tính"
+          options={[
+            { value: 'male', label: 'Nam' },
+            { value: 'female', label: 'Nữ' },
+            { value: 'other', label: 'Khác' },
+          ]}
+          getOptionLabel={(option) => (typeof option === 'string' ? option : option.label)}
+          isOptionEqualToValue={(option, value: any) =>
+            typeof option === 'string' ? option === value : option.value === value
+          }
+          onChange={(event, newValue: any) =>
+            setValue('gender', newValue.value, { shouldValidate: true })
+          }
+        />
+      </Box>
     </Box>
   );
 
@@ -331,12 +363,10 @@ export default function UserNewEditForm({ currentUser, typeUser }: Props) {
           name="specialty"
           label="Chuyên khoa"
           multiple
-          options={[
-            { value: 'CK001', label: 'Nội khoa' },
-            { value: 'CK002', label: 'Ngoại khoa' },
-            { value: 'CK003', label: 'Sản phụ khoa' },
-            { value: 'CK004', label: 'Nhi khoa' },
-          ]}
+          options={specialtyList.map((item) => ({
+            value: item._id,
+            label: item.name,
+          }))}
           getOptionLabel={(option) => (typeof option === 'string' ? option : option.label)}
           isOptionEqualToValue={(option, value: any) =>
             typeof option === 'string' ? option === value : option.value === value
@@ -373,12 +403,10 @@ export default function UserNewEditForm({ currentUser, typeUser }: Props) {
         name="specialty"
         label="Chuyên khoa"
         multiple
-        options={[
-          { value: 'CK001', label: 'Nội khoa' },
-          { value: 'CK002', label: 'Ngoại khoa' },
-          { value: 'CK003', label: 'Sản phụ khoa' },
-          { value: 'CK004', label: 'Nhi khoa' },
-        ]}
+        options={specialtyList.map((item) => ({
+          value: item._id,
+          label: item.name,
+        }))}
         getOptionLabel={(option) => (typeof option === 'string' ? option : option.label)}
         isOptionEqualToValue={(option, value: any) =>
           typeof option === 'string' ? option === value : option.value === value
@@ -392,9 +420,9 @@ export default function UserNewEditForm({ currentUser, typeUser }: Props) {
         }
       />
       <RHFTextField name="hospitalId" label="Bệnh viện" />
-      <RHFTextField name="role" label="Vị trí" />
-      <RHFTextField name="username" label="Tên tài khoản" />
-      <RHFTextField name="password" label="Mật khẩu" />
+      <RHFTextField name="position" label="Vị trí" />
+      <RHFTextField name="city" label="Thành phố" />
+      <RHFTextField name="experienceYears" label="Kinh nghiệm (năm)" />
     </Box>
   );
 

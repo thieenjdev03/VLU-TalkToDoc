@@ -9,25 +9,24 @@ import InputAdornment from '@mui/material/InputAdornment';
 import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 
-import { ISpecialtyTableFilters, ISpecialtyTableFilterValue } from 'src/types/specialties';
+import { IPharmacyTableFilters, IPharmacyTableFilterValue } from 'src/types/pharmacy';
 
 // ----------------------------------------------------------------------
 
 type Props = {
-  filters: ISpecialtyTableFilters;
-  onFilters: (name: string, value: ISpecialtyTableFilterValue) => void;
+  filters: IPharmacyTableFilters;
+  onFilters: (name: string, value: IPharmacyTableFilterValue) => void;
   //
-  specialtyOptions: string[];
+  PharmacyOptions: string[];
 };
 
-export default function SpecialtyTableToolbar({
+export default function PharmacyTableToolbar({
   filters,
   onFilters,
   //
-  specialtyOptions,
+  PharmacyOptions,
 }: Props) {
   const popover = usePopover();
-
   const handleFilterName = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       onFilters('name', { name: event.target.value, status: filters.status });

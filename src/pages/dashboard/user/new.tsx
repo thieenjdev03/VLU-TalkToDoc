@@ -11,7 +11,7 @@ export default function UserCreatePage(props: {
   return (
     <>
       <Helmet>
-        <title> Dashboard: Create a new user</title>
+        <title> Dashboard: Tạo người dùng mới</title>
       </Helmet>
 
       <UserCreateView typeUser={typeUser} />

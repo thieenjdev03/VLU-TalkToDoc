@@ -38,6 +38,7 @@ const UserPatientListPage = lazy(() => import('src/pages/dashboard/user/list-pat
 const SpecialtiesListPage = lazy(() => import('src/pages/dashboard/specialties/list'));
 const UserAccountPage = lazy(() => import('src/pages/dashboard/user/account'));
 const UserCreatePage = lazy(() => import('src/pages/dashboard/user/new'));
+const SpecialtyCreatePage = lazy(() => import('src/pages/dashboard/specialties/new'));
 const UserEditPage = lazy(() => import('src/pages/dashboard/user/edit'));
 // BLOG
 const BlogPostsPage = lazy(() => import('src/pages/dashboard/post/list'));
@@ -65,6 +66,10 @@ const KanbanPage = lazy(() => import('src/pages/dashboard/kanban'));
 const PermissionDeniedPage = lazy(() => import('src/pages/dashboard/permission'));
 // BLANK PAGE
 const BlankPage = lazy(() => import('src/pages/dashboard/blank'));
+
+// Pharmacy Page
+const PharmacyListPage = lazy(() => import('src/pages/dashboard/pharmacy/list'));
+const PharmacyCreatePage = lazy(() => import('src/pages/dashboard/pharmacy/new'));
 
 // ----------------------------------------------------------------------
 
@@ -110,6 +115,15 @@ export const dashboardRoutes = [
         children: [
           { element: <SpecialtiesListPage />, index: true },
           { path: 'list', element: <SpecialtiesListPage /> },
+          { path: 'new', element: <SpecialtyCreatePage /> },
+        ],
+      },
+      {
+        path: 'pharmacy',
+        children: [
+          { element: <PharmacyListPage />, index: true },
+          { path: 'list', element: <PharmacyListPage /> },
+          { path: 'new', element: <PharmacyCreatePage /> },
         ],
       },
       {

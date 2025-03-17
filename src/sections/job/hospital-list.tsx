@@ -16,7 +16,7 @@ type Props = {
   jobs: IJobItem[];
 };
 
-export default function JobList({ jobs }: Props) {
+export default function HospitalList({ jobs }: Props) {
   const router = useRouter();
 
   const handleView = useCallback(

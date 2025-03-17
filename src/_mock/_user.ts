@@ -5,10 +5,10 @@ import { _mock } from './_mock';
 // ----------------------------------------------------------------------
 
 export const USER_STATUS_OPTIONS = [
-  { value: 'Hoạt Động', label: 'Hoạt Động' },
-  // { value: 'pending', label: 'Pending' },
-  { value: 'Đã Khoá', label: 'Đã Khoá' },
-  // { value: 'rejected', label: 'Rejected' },
+  // { value: 'Hoạt Động', label: 'Hoạt Động' },
+  // // { value: 'pending', label: 'Pending' },
+  // { value: 'Đã Khoá', label: 'Đã Khoá' },
+  // // { value: 'rejected', label: 'Rejected' },
 ];
 
 export const _userAbout = {
@@ -165,5 +165,7 @@ export const _userList = [...Array(20)].map((_, index) => ({
   gender: '',
   username: '',
   password: '',
+  position: '',
   medicalHistory: [],
+  department: '',
 }));

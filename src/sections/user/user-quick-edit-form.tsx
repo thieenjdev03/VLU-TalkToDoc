@@ -1,6 +1,6 @@
 import * as Yup from 'yup';
-import { useMemo } from 'react';
 import { useForm, Resolver } from 'react-hook-form';
+import { useMemo, useState, useEffect } from 'react';
 import { yupResolver } from '@hookform/resolvers/yup';
 
 import Box from '@mui/material/Box';
@@ -12,12 +12,16 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 
+import { paths } from 'src/routes/paths';
+
 import { useUpdateUser } from 'src/api/user';
+import { useGetSpecialties } from 'src/api/specialty';
 
 import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, { RHFTextField, RHFAutocomplete } from 'src/components/hook-form';
 
 import { IUserItem } from 'src/types/user';
+import { ISpecialtyItem } from 'src/types/specialties';
 
 type Props = {
   open: boolean;
@@ -29,7 +33,6 @@ type Props = {
 export default function UserQuickEditForm({ currentUser, open, onClose, typeUser }: Props) {
   const { enqueueSnackbar } = useSnackbar();
   const { updateUser } = useUpdateUser({ typeUser });
-
   // 🛠 Schema validation cho từng loại user
   const NewUserSchema = useMemo(() => {
     switch (typeUser) {
@@ -60,6 +63,7 @@ export default function UserQuickEditForm({ currentUser, open, onClose, typeUser
           phoneNumber: Yup.string().required('Số điện thoại không được để trống'),
           role: Yup.string().required('Vai trò không được để trống'),
           hospitalId: Yup.string().required('Bệnh viện không được để trống'),
+          department: Yup.string().required('Bộ phận không được để trống'),
         });
       default:
         return Yup.object().shape({});
@@ -88,6 +92,9 @@ export default function UserQuickEditForm({ currentUser, open, onClose, typeUser
       ...(typeUser === 'employee' && {
         role: currentUser?.role || '',
         hospitalId: currentUser?.hospitalId || '',
+        department: currentUser?.department || '',
+        specialty: currentUser?.specialty || [],
+        position: currentUser?.position || '',
       }),
     }),
     [currentUser, typeUser]
@@ -101,20 +108,53 @@ export default function UserQuickEditForm({ currentUser, open, onClose, typeUser
   const {
     reset,
     handleSubmit,
+    setValue,
     formState: { isSubmitting, errors },
   } = methods;
   console.log(errors);
   const onSubmit = handleSubmit(async (data) => {
     try {
-      await updateUser({ id: data?._id || '', data });
+      let formattedData;
+      let path;
+      if (typeUser === 'doctor') {
+        path = paths.dashboard.user.list_doctor;
+        formattedData = {
+          ...data,
+          specialty: Array.isArray(data.specialty)
+            ? data.specialty.map((item: any) => (typeof item === 'object' ? item.value : item))
+            : [],
+        };
+      } else if (typeUser === 'patient') {
+        path = paths.dashboard.user.list_patient;
+        formattedData = {
+          ...data,
+        };
+      } else if (typeUser === 'employee') {
+        path = paths.dashboard.user.list_employee;
+        formattedData = {
+          ...data,
+          specialty: Array.isArray(data.specialty)
+            ? data.specialty.map((item: any) => (typeof item === 'object' ? item.value : item))
+            : [],
+        };
+      }
+      await updateUser({ id: formattedData?._id || '', data: formattedData });
       reset();
       onClose();
       enqueueSnackbar('Cập nhật thành công!');
+      window.location.reload();
     } catch (error) {
       console.error(error);
       enqueueSnackbar('Cập nhật thất bại', { variant: 'error' });
     }
   });
+  const { specialties } = useGetSpecialties();
+  const [specialtyList, setSpecialtyList] = useState<ISpecialtyItem[]>([]);
+  useEffect(() => {
+    if (specialties.length) {
+      setSpecialtyList(specialties);
+    }
+  }, [specialties]);
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
@@ -132,7 +172,6 @@ export default function UserQuickEditForm({ currentUser, open, onClose, typeUser
               <Grid item xs={12} sm={6}>
                 <RHFTextField name="phoneNumber" label="Số điện thoại" />
               </Grid>
-
               {typeUser === 'doctor' && (
                 <>
                   <Grid item xs={12} sm={6}>
@@ -140,12 +179,16 @@ export default function UserQuickEditForm({ currentUser, open, onClose, typeUser
                       name="specialty"
                       label="Chuyên khoa"
                       multiple
-                      options={[
-                        { value: 'CK001', label: 'Nội khoa' },
-                        { value: 'CK002', label: 'Ngoại khoa' },
-                        { value: 'CK003', label: 'Sản phụ khoa' },
-                        { value: 'CK004', label: 'Nhi khoa' },
-                      ]}
+                      options={specialtyList.map((item) => ({
+                        value: item._id,
+                        label: item.name,
+                      }))}
+                      getOptionLabel={(option) =>
+                        typeof option === 'string' ? option : option.label
+                      }
+                      isOptionEqualToValue={(option, value: any) =>
+                        typeof option === 'string' ? option === value : option.value === value
+                      }
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
@@ -172,7 +215,24 @@ export default function UserQuickEditForm({ currentUser, open, onClose, typeUser
                     <RHFTextField name="birthDate" label="Ngày sinh" />
                   </Grid>
                   <Grid item xs={12} sm={6}>
-                    <RHFTextField name="gender" label="Giới tính" />
+                    <RHFAutocomplete
+                      name="gender"
+                      label="Giới tính"
+                      options={[
+                        { value: 'male', label: 'Nam' },
+                        { value: 'female', label: 'Nữ' },
+                        { value: 'other', label: 'Khác' },
+                      ]}
+                      getOptionLabel={(option) =>
+                        typeof option === 'string' ? option : option.label
+                      }
+                      isOptionEqualToValue={(option, value: any) =>
+                        typeof option === 'string' ? option === value : option.value === value
+                      }
+                      onChange={(event, newValue: any) =>
+                        setValue('gender', newValue.value, { shouldValidate: true })
+                      }
+                    />
                   </Grid>
                 </>
               )}
@@ -180,7 +240,27 @@ export default function UserQuickEditForm({ currentUser, open, onClose, typeUser
               {typeUser === 'employee' && (
                 <>
                   <Grid item xs={12} sm={6}>
-                    <RHFTextField name="role" label="Vai trò" />
+                    <RHFTextField name="position" label="Vị trí" />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <RHFAutocomplete
+                      name="specialty"
+                      label="Chuyên khoa"
+                      multiple
+                      options={specialtyList.map((item) => ({
+                        value: item._id,
+                        label: item.name,
+                      }))}
+                      getOptionLabel={(option) =>
+                        typeof option === 'string' ? option : option.label
+                      }
+                      isOptionEqualToValue={(option, value: any) =>
+                        typeof option === 'string' ? option === value : option.value === value
+                      }
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <RHFTextField name="department" label="Bộ Phận" />
                   </Grid>
                   <Grid item xs={12} sm={6}>
                     <RHFTextField name="hospitalId" label="Bệnh viện" />

@@ -12,25 +12,25 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 
-import { useUpdateSpecialty } from 'src/api/specialty'; // Updated to use specialty API
+import { useUpdatePharmacy } from 'src/api/pharmacy'; // Updated to use specialty API
 
 import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, { RHFTextField } from 'src/components/hook-form';
 
-import { ISpecialtyItem } from 'src/types/specialties'; // Updated type
+import { IPharmacyItem } from 'src/types/pharmacy'; // Updated type
 
 type Props = {
   open: boolean;
   onClose: VoidFunction;
-  currentSpecialty?: ISpecialtyItem; // Updated type
+  currentPharmacy?: IPharmacyItem; // Updated type
 };
 
-export default function SpecialtyQuickEditForm({ currentSpecialty, open, onClose }: Props) {
+export default function PharmacyQuickEditForm({ currentPharmacy, open, onClose }: Props) {
   const { enqueueSnackbar } = useSnackbar();
-  const { updateSpecialty } = useUpdateSpecialty(); // Ensure the correct function is used for updating specialties
+  const { updatePharmacy } = useUpdatePharmacy(); // Ensure the correct function is used for updating specialties
 
   // 🛠 Schema validation cho chuyên khoa
-  const NewSpecialtySchema = useMemo(
+  const NewPharmacySchema = useMemo(
     () =>
       Yup.object().shape({
         name: Yup.string().required('Tên chuyên khoa không được để trống'),
@@ -43,16 +43,16 @@ export default function SpecialtyQuickEditForm({ currentSpecialty, open, onClose
   // 🛠 Default values cho chuyên khoa
   const defaultValues = useMemo(
     () => ({
-      _id: currentSpecialty?._id || '',
-      name: currentSpecialty?.name || '',
-      description: currentSpecialty?.description || '',
-      status: currentSpecialty?.status || 'active',
+      _id: currentPharmacy?._id || '',
+      name: currentPharmacy?.name || '',
+      description: currentPharmacy?.description || '',
+      status: currentPharmacy?.status || 'active',
     }),
-    [currentSpecialty]
+    [currentPharmacy]
   );
 
   const methods = useForm({
-    resolver: yupResolver(NewSpecialtySchema) as Resolver<any>,
+    resolver: yupResolver(NewPharmacySchema) as Resolver<any>,
     defaultValues,
   });
 
@@ -64,7 +64,7 @@ export default function SpecialtyQuickEditForm({ currentSpecialty, open, onClose
   console.log(errors);
   const onSubmit = handleSubmit(async (data) => {
     try {
-      await updateSpecialty({ id: data._id, data });
+      await updatePharmacy({ id: data._id, data });
       reset();
       onClose();
       enqueueSnackbar('Cập nhật thành công!');

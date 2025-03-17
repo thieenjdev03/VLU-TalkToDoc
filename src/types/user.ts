@@ -95,6 +95,7 @@ export type IUserItem = {
   id: string;
   _id: string;
   fullName: string;
+  department: string;
   username: string;
   city: string;
   medicalHistory: any[];
@@ -103,11 +104,13 @@ export type IUserItem = {
   password: string;
   role: string;
   email: string;
+  position: string;
   state: string;
   status: string;
   address: string;
   country: string;
   zipCode: string;
+  active: boolean;
   company: string;
   avatarUrl: any;
   phoneNumber: string;

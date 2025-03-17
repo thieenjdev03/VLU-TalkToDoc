@@ -20,7 +20,7 @@ import { RouterLink } from 'src/routes/components';
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { useGetUsers, useDeleteUser } from 'src/api/user';
-import { _userList, _specialties, USER_STATUS_OPTIONS } from 'src/_mock';
+import { _userList, USER_STATUS_OPTIONS } from 'src/_mock';
 
 import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
@@ -38,14 +38,16 @@ import {
   TableHeadCustom,
   TableSelectedAction,
   TablePaginationCustom,
-} from 'src/components/table';
+} from 'src/components/table'; // Updated to use specialty API
 
+import { useGetSpecialties } from 'src/api/specialty';
+
+import { ISpecialtyItem } from 'src/types/specialties';
 import { IUserItem, IUserTableFilters, IUserTableFilterValue } from 'src/types/user';
 
 import UserTableRow from '../user-table-row';
 import UserTableToolbar from '../user-table-toolbar';
 import UserTableFiltersResult from '../user-table-filters-result';
-
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'Tất Cả' }, ...USER_STATUS_OPTIONS];
@@ -53,7 +55,7 @@ console.log('check table user list data', _userList);
 const TABLE_HEAD_PATIENT = [
   { id: 'fullName', label: 'Họ & Tên', width: 200 },
   { id: 'phone', label: 'Số Điện Thoại', width: 160 },
-  { id: 'dateOfBirth', label: 'Ngày Sinh', width: 160 },
+  { id: 'birthDate', label: 'Ngày Sinh', width: 160 },
   { id: 'gender', label: 'Giới Tính', width: 120 },
   { id: 'address', label: 'Địa Chỉ', width: 250 },
   { id: 'medicalHistory', label: 'Bệnh Án', width: 180 },
@@ -66,7 +68,7 @@ const TABLE_HEAD_DOCTOR = [
   { id: 'fullName', label: 'Họ & Tên', width: 200 },
   { id: 'hospitalId', label: 'Bệnh Viện', width: 400 },
   { id: 'rank', label: 'Cấp Bậc', width: 180 },
-  { id: 'specialty', label: 'Chuyên Khoa', width: 200 },
+  { id: 'specialty', label: 'Chuyên Khoa', width: 1000 },
   { id: 'city', label: 'Thành Phố', width: 220 },
   { id: 'phoneNumber', label: 'SĐT', width: 180 },
   { id: 'experienceYears', label: 'Kinh Nghiệm (Năm)', width: 120 },
@@ -78,9 +80,9 @@ const TABLE_HEAD_DOCTOR = [
 const TABLE_HEAD_EMPLOYEE = [
   { id: 'fullName', label: 'Họ & Tên' },
   { id: 'phoneNumber', label: 'SĐT', width: 180 },
-  { id: 'hospitalId', label: 'Bệnh Viện', width: 220 },
+  { id: 'hospitalId', label: 'Bộ Phận', width: 220 },
   { id: 'role', label: 'Vị Trí', width: 180 },
-  { id: 'specialty', label: 'Chuyên Khoa', width: 200 },
+  { id: 'specialty', label: 'Chuyên Khoa', width: 600 },
   { id: 'status', label: 'Trạng Thái', width: 100 },
   { id: '', width: 88 },
 ];
@@ -109,14 +111,18 @@ export default function UserListView(props: {
   const [tableData, setTableData] = useState<IUserItem[]>([]);
 
   const [filters, setFilters] = useState(defaultFilters);
-
+  const { specialties } = useGetSpecialties();
   const dataFiltered = applyFilter({
     inputData: tableData,
     comparator: getComparator(table.order, table.orderBy),
     filters,
   });
   const { users, usersLoading, usersError, usersValidating } = useGetUsers({ typeUser });
+  const [specialtyList, setSpecialtyList] = useState<ISpecialtyItem[]>([]);
   useEffect(() => {
+    if (specialties.length) {
+      setSpecialtyList(specialties);
+    }
     if (users.length) {
       setTableData(users);
     }
@@ -129,7 +135,7 @@ export default function UserListView(props: {
     if (usersValidating) {
       setTableData([]);
     }
-  }, [users, usersLoading, usersError, usersValidating]);
+  }, [users, usersLoading, usersError, usersValidating, specialties]);
   const dataInPage = dataFiltered.slice(
     table.page * table.rowsPerPage,
     table.page * table.rowsPerPage + table.rowsPerPage
@@ -163,6 +169,7 @@ export default function UserListView(props: {
           enqueueSnackbar('Xoá người dùng thành công!', { variant: 'success' });
           table.onUpdatePageDeleteRow(dataInPage.length);
           confirm.onFalse();
+          window.location.reload();
         })
         .catch((err) => {
           enqueueSnackbar('Không thể xoá người dùng!', { variant: 'error' });
@@ -278,7 +285,7 @@ export default function UserListView(props: {
             filters={filters}
             onFilters={handleFilters}
             //
-            roleOptions={_specialties.map((item) => item.value)}
+            roleOptions={specialtyList.map((item) => item.name)}
           />
 
           {canReset && (
@@ -298,10 +305,7 @@ export default function UserListView(props: {
               numSelected={table.selected.length}
               rowCount={dataFiltered.length}
               onSelectAllRows={(checked) =>
-                table.onSelectAllRows(
-                  checked,
-                  dataFiltered.map((row) => row.id)
-                )
+                table.onSelectAllRows(checked, dataFiltered?.map((row) => row.id))
               }
               action={
                 <Tooltip title="Xoá">
@@ -329,10 +333,7 @@ export default function UserListView(props: {
                   numSelected={table.selected.length}
                   onSort={table.onSort}
                   onSelectAllRows={(checked) =>
-                    table.onSelectAllRows(
-                      checked,
-                      dataFiltered.map((row) => row.id)
-                    )
+                    table.onSelectAllRows(checked, dataFiltered?.map((row) => row.id))
                   }
                 />
 
@@ -342,7 +343,7 @@ export default function UserListView(props: {
                       table.page * table.rowsPerPage,
                       table.page * table.rowsPerPage + table.rowsPerPage
                     )
-                    .map((row) => (
+                    ?.map((row) => (
                       <UserTableRow
                         key={row._id}
                         row={row}
@@ -351,6 +352,7 @@ export default function UserListView(props: {
                         onDeleteRow={() => handleDeleteRow(row._id)}
                         onEditRow={() => handleEditRow(row.id)}
                         typeUser={typeUser}
+                        specialtyList={specialtyList}
                       />
                     ))}
 
@@ -416,7 +418,7 @@ function applyFilter({
 }) {
   const { fullName, status, specialty } = filters;
 
-  const stabilizedThis = inputData.map((el, index) => [el, index] as const);
+  const stabilizedThis = inputData?.map((el, index) => [el, index] as const);
 
   stabilizedThis.sort((a, b) => {
     const order = comparator(a[0], b[0]);
@@ -424,7 +426,7 @@ function applyFilter({
     return a[1] - b[1];
   });
 
-  inputData = stabilizedThis.map((el) => el[0]);
+  inputData = stabilizedThis?.map((el) => el[0]);
 
   if (fullName) {
     inputData = inputData.filter(

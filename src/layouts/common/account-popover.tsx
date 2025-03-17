@@ -55,6 +55,7 @@ export default function AccountPopover() {
       await logout();
       popover.onClose();
       router.replace('/auth/jwt/login');
+      localStorage.removeItem('accessToken');
     } catch (error) {
       console.error(error);
       enqueueSnackbar('Unable to logout!', { variant: 'error' });

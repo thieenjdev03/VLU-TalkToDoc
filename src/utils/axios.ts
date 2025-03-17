@@ -62,11 +62,17 @@ export const endpoints = {
   chat: '/api/chat',
   kanban: '/api/kanban',
   calendar: '/api/calendar',
+  pharmacies: {
+    list: '/api/v1/pharmacies',
+    delete: '/api/v1/pharmacies',
+    update: '/api/v1/pharmacies',
+    create: '/api/v1/pharmacies',
+  },
   specialties: {
-    list: '/api/v1/specialties',
-    delete: '/api/v1/specialties/:id',
-    update: '/api/v1/specialties',
-    create: '/api/v1/specialties',
+    list: '/api/v1/specialities',
+    delete: '/api/v1/specialities',
+    update: '/api/v1/specialities',
+    create: '/api/v1/specialities',
   },
   auth: {
     me: '/api/auth/me',

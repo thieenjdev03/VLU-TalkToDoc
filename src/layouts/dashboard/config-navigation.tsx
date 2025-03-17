@@ -121,6 +121,17 @@ export function useNavData() {
             children: [{ title: t('Danh sách'), path: paths.dashboard.specialties.root }],
           },
 
+          {
+            title: t('Quản Lý Nhà Thuốc'),
+            path: paths.dashboard.job.root,
+            icon: ICONS.job,
+            children: [
+              { title: t('Danh Sách'), path: paths.dashboard.pharmacies.list },
+              // { title: t('details'), path: paths.dashboard.job.demo.details },
+              // { title: t('create'), path: paths.dashboard.job.new },
+              // { title: t('edit'), path: paths.dashboard.job.demo.edit },
+            ],
+          },
           // PRODUCT
           {
             title: t('Quản Lý Thuốc'),
@@ -137,17 +148,7 @@ export function useNavData() {
             ],
           },
           // // JOB
-          {
-            title: t('Quản Lý Nhà Thuốc'),
-            path: paths.dashboard.job.root,
-            icon: ICONS.job,
-            children: [
-              { title: t('Danh Sách'), path: paths.dashboard.job.root },
-              // { title: t('details'), path: paths.dashboard.job.demo.details },
-              // { title: t('create'), path: paths.dashboard.job.new },
-              // { title: t('edit'), path: paths.dashboard.job.demo.edit },
-            ],
-          },
+
           // // ORDER
           {
             title: t('Quản Lý Bệnh Án'),

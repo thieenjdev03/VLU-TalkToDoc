@@ -98,6 +98,13 @@ export const paths = {
   },
   // DASHBOARD
   dashboard: {
+    pharmacies: {
+      root: `${ROOTS.DASHBOARD}/pharmacy`,
+      new: `${ROOTS.DASHBOARD}/pharmacy/new`,
+      list: `${ROOTS.DASHBOARD}/pharmacy/list`,
+      details: (id: string) => `${ROOTS.DASHBOARD}/pharmacy/${id}`,
+      edit: (id: string) => `${ROOTS.DASHBOARD}/pharmacy/${id}/edit`,
+    },
     root: ROOTS.DASHBOARD,
     specialties: {
       root: `${ROOTS.DASHBOARD}/specialties`,
@@ -187,6 +194,7 @@ export const paths = {
         edit: `${ROOTS.DASHBOARD}/job/${MOCK_ID}/edit`,
       },
     },
+
     tour: {
       root: `${ROOTS.DASHBOARD}/tour`,
       new: `${ROOTS.DASHBOARD}/tour/new`,

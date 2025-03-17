@@ -3,6 +3,8 @@ export interface ISpecialtyItem {
   name: string;
   description: string;
   status: string;
+  value: string;
+  label: string;
 }
 
 export interface ISpecialtyTableFilters {
@@ -10,7 +12,6 @@ export interface ISpecialtyTableFilters {
   status: string;
   specialty: string[];
 }
-
 export interface ISpecialtyTableFilterValue {
   name: string;
   status: string;

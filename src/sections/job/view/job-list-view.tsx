@@ -28,9 +28,9 @@ import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 
 import { IJobItem, IJobFilters, IJobFilterValue } from 'src/types/job';
 
-import JobList from '../job-list';
 import JobSort from '../job-sort';
 import JobSearch from '../job-search';
+import JobList from '../hospital-list';
 import JobFilters from '../job-filters';
 import JobFiltersResult from '../job-filters-result';
 

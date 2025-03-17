@@ -36,7 +36,7 @@ function Container({ children }: Props) {
   }, [router, returnTo, accessToken]);
 
   useEffect(() => {
-    check();
+    // check();
   }, [check]);
 
   return <>{children}</>;

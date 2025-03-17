@@ -4,10 +4,10 @@ import useSWRMutation from 'swr/mutation';
 
 import { fetcher, endpoints, axiosInstanceV2 } from 'src/utils/axios';
 
-import { ISpecialtyItem } from 'src/types/specialties';
+import { IPharmacyItem } from 'src/types/pharmacy';
 
-export const useGetSpecialties = () => {
-  const URL = endpoints.specialties.list;
+export const useGetPharmacies = () => {
+  const URL = endpoints.pharmacies.list;
   const { data, isLoading, error, isValidating } = useSWR(
     [URL, { method: 'GET' }],
     ([url, config]) => fetcher([url, config], true)
@@ -15,27 +15,27 @@ export const useGetSpecialties = () => {
 
   const memoizedValue = useMemo(
     () => ({
-      specialties: (data as ISpecialtyItem[]) || [],
-      specialtiesLoading: isLoading,
-      specialtiesError: error,
-      specialtiesValidating: isValidating,
-      specialtiesEmpty: !isLoading && (!data || data.length === 0),
+      pharmacies: (data as IPharmacyItem[]) || [],
+      pharmaciesLoading: isLoading,
+      pharmaciesError: error,
+      pharmaciesValidating: isValidating,
+      pharmaciesEmpty: !isLoading && (!data || data.length === 0),
     }),
     [data, error, isLoading, isValidating]
   );
 
   return memoizedValue;
 };
-export const useDeleteSpecialty = () => {
-  const URL = endpoints.specialties.delete;
-  const deleteSpecialty = async (id: string) => {
+export const useDeletePharmacy = () => {
+  const URL = endpoints.pharmacies.delete;
+  const deletePharmacy = async (id: string) => {
     await axiosInstanceV2.delete(`${URL}/${id}`);
     mutate(URL);
   };
-  return { deleteSpecialty };
+  return { deletePharmacy };
 };
-export const useCreateSpecialty = () => {
-  const URL = endpoints.specialties.create;
+export const useCreatePharmacy = () => {
+  const URL = endpoints.pharmacies.create;
   const { trigger, isMutating, error } = useSWRMutation(
     URL,
     async (_url, { arg }: { arg: any }) => {
@@ -45,13 +45,13 @@ export const useCreateSpecialty = () => {
   );
 
   return {
-    createSpecialty: trigger,
+    createPharmacy: trigger,
     isCreating: isMutating,
     error,
   };
 };
-export const useUpdateSpecialty = () => {
-  const URL = endpoints.specialties.update;
+export const useUpdatePharmacy = () => {
+  const URL = endpoints.pharmacies.update;
   const { trigger, isMutating, error } = useSWRMutation(
     URL,
     async (_url, { arg }: { arg: { id: string; data: any } }) => {
@@ -61,7 +61,7 @@ export const useUpdateSpecialty = () => {
   );
 
   return {
-    updateSpecialty: trigger,
+    updatePharmacy: trigger,
     isUpdating: isMutating,
     error,
   };

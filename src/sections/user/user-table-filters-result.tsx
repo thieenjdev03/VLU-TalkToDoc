@@ -72,7 +72,7 @@ export default function UserTableFiltersResult({
         )}
 
         {!!filters.fullName && (
-          <Block label="Keyword:">
+          <Block label="Từ khoá:">
             <Chip label={filters.fullName} size="small" onDelete={handleRemoveKeyword} />
           </Block>
         )}
@@ -82,7 +82,7 @@ export default function UserTableFiltersResult({
           onClick={onResetFilters}
           startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
         >
-          Xoá lọc
+          Xoá
         </Button>
       </Stack>
     </Stack>
