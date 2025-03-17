@@ -254,16 +254,6 @@ export default function UserTableRow({
           <Iconify icon="solar:trash-bin-trash-bold" />
           Xoá
         </MenuItem>
-
-        {/* <MenuItem
-          onClick={() => {
-            onEditRow();
-            popover.onClose();
-          }}
-        >
-          <Iconify icon="solar:pen-bold" />
-          Chỉnh Sửa
-        </MenuItem> */}
       </CustomPopover>
 
       <ConfirmDialog

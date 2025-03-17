@@ -98,6 +98,20 @@ export const paths = {
   },
   // DASHBOARD
   dashboard: {
+    root: ROOTS.DASHBOARD,
+    ranking_doctor: {
+      root: `${ROOTS.DASHBOARD}/ranking_doctor`,
+      list: `${ROOTS.DASHBOARD}/ranking_doctor/list`,
+      details: (id: string) => `${ROOTS.DASHBOARD}/ranking_doctor/${id}`,
+      edit: (id: string) => `${ROOTS.DASHBOARD}/ranking_doctor/${id}/edit`,
+    },
+    hospital: {
+      root: `${ROOTS.DASHBOARD}/hospital`,
+      new: `${ROOTS.DASHBOARD}/hospital/new`,
+      list: `${ROOTS.DASHBOARD}/hospital/list`,
+      details: (id: string) => `${ROOTS.DASHBOARD}/hospital/${id}`,
+      edit: (id: string) => `${ROOTS.DASHBOARD}/hospital/${id}/edit`,
+    },
     pharmacies: {
       root: `${ROOTS.DASHBOARD}/pharmacy`,
       new: `${ROOTS.DASHBOARD}/pharmacy/new`,
@@ -105,7 +119,6 @@ export const paths = {
       details: (id: string) => `${ROOTS.DASHBOARD}/pharmacy/${id}`,
       edit: (id: string) => `${ROOTS.DASHBOARD}/pharmacy/${id}/edit`,
     },
-    root: ROOTS.DASHBOARD,
     specialties: {
       root: `${ROOTS.DASHBOARD}/specialties`,
       new: `${ROOTS.DASHBOARD}/specialties/new`,

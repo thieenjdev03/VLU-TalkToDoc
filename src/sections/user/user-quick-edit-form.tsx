@@ -12,8 +12,6 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 
-import { paths } from 'src/routes/paths';
-
 import { useUpdateUser } from 'src/api/user';
 import { useGetSpecialties } from 'src/api/specialty';
 
@@ -33,6 +31,15 @@ type Props = {
 export default function UserQuickEditForm({ currentUser, open, onClose, typeUser }: Props) {
   const { enqueueSnackbar } = useSnackbar();
   const { updateUser } = useUpdateUser({ typeUser });
+
+  const { specialties } = useGetSpecialties();
+  const [specialtyList, setSpecialtyList] = useState<ISpecialtyItem[]>([]);
+  useEffect(() => {
+    if (specialties.length) {
+      setSpecialtyList(specialties);
+    }
+  }, [specialties]);
+  console.log('specialtyList check', specialtyList);
   // 🛠 Schema validation cho từng loại user
   const NewUserSchema = useMemo(() => {
     switch (typeUser) {
@@ -93,13 +100,12 @@ export default function UserQuickEditForm({ currentUser, open, onClose, typeUser
         role: currentUser?.role || '',
         hospitalId: currentUser?.hospitalId || '',
         department: currentUser?.department || '',
-        specialty: currentUser?.specialty || [],
+        specialty: currentUser?.specialty,
         position: currentUser?.position || '',
       }),
     }),
     [currentUser, typeUser]
   );
-
   const methods = useForm({
     resolver: yupResolver(NewUserSchema) as Resolver<any>,
     defaultValues,
@@ -115,9 +121,7 @@ export default function UserQuickEditForm({ currentUser, open, onClose, typeUser
   const onSubmit = handleSubmit(async (data) => {
     try {
       let formattedData;
-      let path;
       if (typeUser === 'doctor') {
-        path = paths.dashboard.user.list_doctor;
         formattedData = {
           ...data,
           specialty: Array.isArray(data.specialty)
@@ -125,12 +129,10 @@ export default function UserQuickEditForm({ currentUser, open, onClose, typeUser
             : [],
         };
       } else if (typeUser === 'patient') {
-        path = paths.dashboard.user.list_patient;
         formattedData = {
           ...data,
         };
       } else if (typeUser === 'employee') {
-        path = paths.dashboard.user.list_employee;
         formattedData = {
           ...data,
           specialty: Array.isArray(data.specialty)
@@ -142,19 +144,12 @@ export default function UserQuickEditForm({ currentUser, open, onClose, typeUser
       reset();
       onClose();
       enqueueSnackbar('Cập nhật thành công!');
-      window.location.reload();
+      // window.location.reload();
     } catch (error) {
       console.error(error);
       enqueueSnackbar('Cập nhật thất bại', { variant: 'error' });
     }
   });
-  const { specialties } = useGetSpecialties();
-  const [specialtyList, setSpecialtyList] = useState<ISpecialtyItem[]>([]);
-  useEffect(() => {
-    if (specialties.length) {
-      setSpecialtyList(specialties);
-    }
-  }, [specialties]);
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">

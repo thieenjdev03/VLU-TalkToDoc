@@ -5,6 +5,8 @@ export interface ISpecialtyItem {
   status: string;
   value: string;
   label: string;
+  active: boolean;
+  createdAt: string;
 }
 
 export interface ISpecialtyTableFilters {

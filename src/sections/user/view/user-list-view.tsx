@@ -169,7 +169,8 @@ export default function UserListView(props: {
           enqueueSnackbar('Xoá người dùng thành công!', { variant: 'success' });
           table.onUpdatePageDeleteRow(dataInPage.length);
           confirm.onFalse();
-          window.location.reload();
+          confirm.value = false;
+          // window.location.reload();
         })
         .catch((err) => {
           enqueueSnackbar('Không thể xoá người dùng!', { variant: 'error' });

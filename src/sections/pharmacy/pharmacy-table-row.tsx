@@ -9,21 +9,20 @@ import Typography from '@mui/material/Typography';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 
-import { ISpecialtyItem } from 'src/types/specialties';
+import PharmacyQuickEditForm from 'src/sections/pharmacy/quick-edit-form';
 
-import SpecialtyQuickEditForm from './quick-edit-form';
+import { IPharmacyItem } from 'src/types/pharmacy';
 
 // ----------------------------------------------------------------------
 
 type Props = {
   selected: boolean;
   onEditRow: VoidFunction;
-  row: ISpecialtyItem;
+  row: IPharmacyItem;
   onSelectRow: VoidFunction;
   onDeleteRow: VoidFunction;
 };
@@ -35,7 +34,7 @@ export default function PharmacyTableRow({
   onSelectRow,
   onDeleteRow,
 }: Props) {
-  const { name, description, status, _id } = row;
+  const { name, status, _id, address, phoneNumber, is24Hours, city } = row;
 
   const confirm = useBoolean();
   const quickEdit = useBoolean();
@@ -44,28 +43,26 @@ export default function PharmacyTableRow({
   const renderCells = () => (
     <>
       <TableCell>{_id}</TableCell>
-      {/* Hiển thị Tên chuyên khoa */}
       <TableCell>
         <Typography variant="body1">{name}</Typography>
       </TableCell>
-      {/* Hiển thị Mô tả */}
       <TableCell>
-        <Typography variant="body2">{description || '-'}</Typography>
+        <Typography variant="body2">{address || '-'}</Typography>
       </TableCell>
-      {/* Hiển thị trạng thái */}
       <TableCell>
-        <Label
-          variant="soft"
-          color={
-            (status === 'Hoạt Động' && 'success') || (status === 'Đã Khoá' && 'error') || 'default'
-          }
-        >
-          {status}
-        </Label>
+        <Typography variant="body2">{city || '-'}</Typography>
+      </TableCell>
+      <TableCell>
+        <Typography variant="body2">{phoneNumber || '-'}</Typography>
+      </TableCell>
+      <TableCell>
+        <Checkbox checked={is24Hours} disabled />
+      </TableCell>
+      <TableCell>
+        <Checkbox checked={status} disabled />
       </TableCell>
     </>
   );
-  console.log(row);
   return (
     <>
       <TableRow hover selected={selected}>
@@ -74,7 +71,6 @@ export default function PharmacyTableRow({
         </TableCell>
 
         {renderCells()}
-
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
           <Tooltip title="Sửa nhanh" placement="top" arrow>
             <IconButton color={quickEdit.value ? 'inherit' : 'default'} onClick={quickEdit.onTrue}>
@@ -104,18 +100,7 @@ export default function PharmacyTableRow({
           <Iconify icon="solar:trash-bin-trash-bold" />
           Xoá
         </MenuItem>
-
-        {/* <MenuItem
-          onClick={() => {
-            onEditRow();
-            popover.onClose();
-          }}
-        >
-          <Iconify icon="solar:pen-bold" />
-          Chỉnh Sửa
-        </MenuItem> */}
       </CustomPopover>
-
       <ConfirmDialog
         open={confirm.value || false}
         onClose={confirm.onFalse}
@@ -127,8 +112,8 @@ export default function PharmacyTableRow({
           </Button>
         }
       />
-      <SpecialtyQuickEditForm
-        currentSpecialty={row}
+      <PharmacyQuickEditForm
+        currentPharmacy={row}
         open={quickEdit.value}
         onClose={quickEdit.onFalse}
       />

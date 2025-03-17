@@ -1,5 +1,5 @@
 import * as Yup from 'yup';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useForm, Resolver } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 
@@ -7,12 +7,15 @@ import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
+import Checkbox from '@mui/material/Checkbox';
 import LoadingButton from '@mui/lab/LoadingButton';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 
-import { useUpdateSpecialty } from 'src/api/specialty'; // Updated to use specialty API
+import { useUpdateSpecialty } from 'src/api/specialty';
+
+import Label from 'src/components/label'; // Updated to use specialty API
 
 import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, { RHFTextField } from 'src/components/hook-form';
@@ -28,7 +31,7 @@ type Props = {
 export default function SpecialtyQuickEditForm({ currentSpecialty, open, onClose }: Props) {
   const { enqueueSnackbar } = useSnackbar();
   const { updateSpecialty } = useUpdateSpecialty(); // Ensure the correct function is used for updating specialties
-
+  const [render, setRender] = useState(false);
   // 🛠 Schema validation cho chuyên khoa
   const NewSpecialtySchema = useMemo(
     () =>
@@ -47,6 +50,7 @@ export default function SpecialtyQuickEditForm({ currentSpecialty, open, onClose
       name: currentSpecialty?.name || '',
       description: currentSpecialty?.description || '',
       status: currentSpecialty?.status || 'active',
+      active: currentSpecialty?.active || false,
     }),
     [currentSpecialty]
   );
@@ -68,7 +72,8 @@ export default function SpecialtyQuickEditForm({ currentSpecialty, open, onClose
       reset();
       onClose();
       enqueueSnackbar('Cập nhật thành công!');
-      window.location.reload();
+      // window.location.reload();
+      setRender(!render);
     } catch (error) {
       console.error(error);
       enqueueSnackbar('Cập nhật thất bại', { variant: 'error' });
@@ -88,8 +93,13 @@ export default function SpecialtyQuickEditForm({ currentSpecialty, open, onClose
               <Grid item xs={12} sm={6}>
                 <RHFTextField name="description" label="Mô tả" />
               </Grid>
-              <Grid item xs={12} sm={6}>
-                <RHFTextField name="status" label="Trạng thái" />
+              <Grid item xs={12}>
+                <Label>Kích Hoạt</Label>
+                <Checkbox
+                  value={defaultValues.active}
+                  checked={defaultValues.active}
+                  name="active"
+                />
               </Grid>
             </Grid>
           </Box>

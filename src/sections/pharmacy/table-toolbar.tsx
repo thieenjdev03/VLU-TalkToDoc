@@ -17,14 +17,14 @@ type Props = {
   filters: IPharmacyTableFilters;
   onFilters: (name: string, value: IPharmacyTableFilterValue) => void;
   //
-  PharmacyOptions: string[];
+  pharmacyOptions: string[];
 };
 
 export default function PharmacyTableToolbar({
   filters,
   onFilters,
   //
-  PharmacyOptions,
+  pharmacyOptions,
 }: Props) {
   const popover = usePopover();
   const handleFilterName = useCallback(

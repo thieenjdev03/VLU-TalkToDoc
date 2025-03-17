@@ -5,21 +5,21 @@ import { paths } from 'src/routes/paths';
 import { useSettingsContext } from 'src/components/settings';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 
-import SpecialtyNewEditForm from '../new-edit-form';
+import PharmacyNewEditForm from '../new-edit-form';
 
 // ----------------------------------------------------------------------
 
-export default function SpecialtyCreateView() {
+export default function PharmacyCreateView() {
   const settings = useSettingsContext();
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
       <CustomBreadcrumbs
-        heading="Tạo chuyên khoa mới"
+        heading="Tạo nhà thuốc mới"
         links={[
           {
-            name: 'Quản Lý Chuyên Khoa',
-            href: paths.dashboard.specialties.root,
+            name: 'Quản lý nhà thuốc',
+            href: paths.dashboard.pharmacies.list,
           },
           { name: 'Tạo Mới' },
         ]}
@@ -27,7 +27,7 @@ export default function SpecialtyCreateView() {
           mb: { xs: 3, md: 5 },
         }}
       />
-      <SpecialtyNewEditForm />
+      <PharmacyNewEditForm />
     </Container>
   );
 }

@@ -141,6 +141,7 @@ export const _userPlans = [
 export const _userList = [...Array(20)].map((_, index) => ({
   _id: _mock.id(index),
   id: _mock.id(index),
+  active: _mock.boolean(index),
   zipCode: '85807',
   dateOfBirth: '',
   state: 'Virginia',

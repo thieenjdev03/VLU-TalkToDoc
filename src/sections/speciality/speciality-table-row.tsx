@@ -9,7 +9,6 @@ import Typography from '@mui/material/Typography';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
@@ -35,7 +34,7 @@ export default function SpecialtyTableRow({
   onSelectRow,
   onDeleteRow,
 }: Props) {
-  const { name, description, status, _id } = row;
+  const { name, description, value, active } = row;
 
   const confirm = useBoolean();
   const quickEdit = useBoolean();
@@ -43,7 +42,7 @@ export default function SpecialtyTableRow({
 
   const renderCells = () => (
     <>
-      <TableCell>{_id}</TableCell>
+      <TableCell>{value}</TableCell>
       {/* Hiển thị Tên chuyên khoa */}
       <TableCell>
         <Typography variant="body1">{name}</Typography>
@@ -54,14 +53,7 @@ export default function SpecialtyTableRow({
       </TableCell>
       {/* Hiển thị trạng thái */}
       <TableCell>
-        <Label
-          variant="soft"
-          color={
-            (status === 'Hoạt Động' && 'success') || (status === 'Đã Khoá' && 'error') || 'default'
-          }
-        >
-          {status}
-        </Label>
+        <Checkbox checked={active} disabled />
       </TableCell>
     </>
   );

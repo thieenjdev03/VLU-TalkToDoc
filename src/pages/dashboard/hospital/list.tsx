@@ -14,12 +14,11 @@ import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
 
 import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { useGetSpecialties, useDeleteSpecialty } from 'src/api/specialty'; // Updated to use specialty API
+import { useGetPharmacies, useDeletePharmacy } from 'src/api/pharmacy'; // Updated to use pharmacy API
 import { USER_STATUS_OPTIONS } from 'src/_mock';
 
 import Label from 'src/components/label';
@@ -40,45 +39,44 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
-import SpecialtyTableToolbar from 'src/sections/speciality/table-toolbar';
-// Updated to use specialty toolbar
-import SpecialtyTableRow from 'src/sections/speciality/speciality-table-row';
-// Updated to use specialty filters result
+import PharmacyTableToolbar from 'src/sections/pharmacy/table-toolbar'; // Updated to use pharmacy toolbar
+import PharmacyTableRow from 'src/sections/pharmacy/pharmacy-table-row'; // Updated to use pharmacy filters result
+import PharmacyQuickEditForm from 'src/sections/pharmacy/quick-edit-form'; // Import the edit form
 
 import {
-  ISpecialtyItem,
-  ISpecialtyTableFilters,
-  ISpecialtyTableFilterValue,
-} from 'src/types/specialties'; // Updated types
+  IPharmacyItem,
+  IPharmacyTableFilters,
+  IPharmacyTableFilterValue,
+} from 'src/types/pharmacy'; // Updated types
 
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'Tất Cả' }, ...USER_STATUS_OPTIONS];
-const TABLE_HEAD_SPECIALTY = [
+const TABLE_HEAD_PHARMACY = [
   { id: '_id', label: 'ID', width: 100 },
-  { id: 'name', label: 'Tên Chuyên Khoa', width: '20%' },
-  { id: 'description', label: 'Mô Tả', width: '20%' },
-  { id: 'status', label: 'Trạng Thái', width: '20%' },
+  { id: 'name', label: 'Tên Nhà Thuốc', width: '20%' },
+  { id: 'address', label: 'Địa Chỉ', width: '20%' },
+  { id: 'city', label: 'Thành Phố', width: '20%' },
+  { id: 'phoneNumber', label: 'Số Điện Thoại', width: '20%' },
+  { id: 'is24Hours', label: 'Hoạt Động 24/7', width: '10%' },
 ];
-const defaultFilters: ISpecialtyTableFilters = {
+const defaultFilters: IPharmacyTableFilters = {
   name: '',
   status: 'all',
-  specialty: [],
+  pharmacy: [],
 };
 
 // ----------------------------------------------------------------------
 
-export default function SpecialtiesListPage() {
+export default function HospitalListPage() {
   const { enqueueSnackbar } = useSnackbar();
   const table = useTable();
 
   const settings = useSettingsContext();
 
-  const router = useRouter();
-
   const confirm = useBoolean();
 
-  const [tableData, setTableData] = useState<ISpecialtyItem[]>([]); // Updated state type
+  const [tableData, setTableData] = useState<IPharmacyItem[]>([]); // Updated state type
 
   const [filters, setFilters] = useState(defaultFilters);
 
@@ -88,16 +86,24 @@ export default function SpecialtiesListPage() {
     filters,
   });
 
-  const { specialties, specialtiesLoading, specialtiesError, specialtiesValidating } =
-    useGetSpecialties();
+  const [selectedPharmacy, setSelectedPharmacy] = useState<IPharmacyItem | undefined>(undefined);
+  const editDialog = useBoolean();
+
+  const {
+    pharmacies,
+    pharmaciesLoading,
+    pharmaciesError,
+    pharmaciesValidating,
+    mutate: refetchPharmacies, // Extract the mutate function if using SWR
+  } = useGetPharmacies();
 
   useEffect(() => {
-    if (specialties.length) {
-      setTableData(specialties);
-    } else if (specialtiesLoading || specialtiesError || specialtiesValidating) {
+    if (pharmacies.length) {
+      setTableData(pharmacies);
+    } else if (pharmaciesLoading || pharmaciesError || pharmaciesValidating) {
       setTableData([]);
     }
-  }, [specialties, specialtiesLoading, specialtiesError, specialtiesValidating]);
+  }, [pharmacies, pharmaciesLoading, pharmaciesError, pharmaciesValidating]);
 
   const dataInPage = dataFiltered.slice(
     table.page * table.rowsPerPage,
@@ -111,7 +117,7 @@ export default function SpecialtiesListPage() {
   const notFound = (!tableData.length && canReset) || !tableData.length;
 
   const handleFilters = useCallback(
-    (fullName: string, value: ISpecialtyTableFilterValue) => {
+    (fullName: string, value: IPharmacyTableFilterValue) => {
       table.onResetPage();
       setFilters((prevState) => ({
         ...prevState,
@@ -121,52 +127,65 @@ export default function SpecialtiesListPage() {
     [table]
   );
 
-  const { deleteSpecialty } = useDeleteSpecialty();
+  const { deletePharmacy } = useDeletePharmacy();
   const handleDeleteRow = useCallback(
     async (id: string) => {
-      await deleteSpecialty(id)
+      await deletePharmacy(id)
         .then(() => {
-          enqueueSnackbar('Xoá chuyên khoa thành công!', { variant: 'success' });
+          enqueueSnackbar('Xoá nhà thuốc thành công!', { variant: 'success' });
           table.onUpdatePageDeleteRow(dataInPage.length);
           confirm.onFalse();
-          // window.location.reload();
+
+          // Trigger refetch after successful deletion
+          refetchPharmacies();
         })
         .catch(() => {
-          enqueueSnackbar('Không thể xoá chuyên khoa!', { variant: 'error' });
+          enqueueSnackbar('Không thể xoá nhà thuốc!', { variant: 'error' });
         });
     },
-    [dataInPage.length, enqueueSnackbar, table, deleteSpecialty, confirm]
+    [dataInPage.length, enqueueSnackbar, table, deletePharmacy, confirm, refetchPharmacies]
   );
 
   const handleEditRow = useCallback(
     (_id: string) => {
-      router.push(paths.dashboard.specialties.edit(_id)); // Updated path for specialties
+      // Option 1: Navigate to edit page
+      // router.push(paths.dashboard.pharmacies.edit(_id));
+
+      // Option 2: Open edit dialog
+      const pharmacy = tableData.find((p) => p._id === _id);
+      setSelectedPharmacy(pharmacy);
+      editDialog.onTrue();
     },
-    [router]
+    [tableData, editDialog]
   );
 
   const handleFilterStatus = useCallback(
-    (event: React.SyntheticEvent, newValue: ISpecialtyTableFilterValue) => {
+    (event: React.SyntheticEvent, newValue: IPharmacyTableFilterValue) => {
       handleFilters('status', newValue);
     },
     [handleFilters]
   );
 
+  // Function to handle refetch after successful operations
+  const handleRefetchData = useCallback(() => {
+    refetchPharmacies();
+  }, [refetchPharmacies]);
+
   return (
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'} sx={{ overflow: 'hidden' }}>
         <CustomBreadcrumbs
-          heading="Quản Lý Chuyên Khoa"
+          heading="Quản Lý Bệnh Viện"
           links={[
             {
-              name: 'Quản Lý Chuyên Khoa',
-              href: paths.dashboard.specialties.root,
+              name: 'Quản Lý Bệnh Viện',
+              href: paths.dashboard.hospital.root,
             },
           ]}
           action={
             <Button
               component={RouterLink}
-              href={`${paths.dashboard.specialties.new}`} // Updated to new specialty path
+              href={`${paths.dashboard.hospital.new}`} // Updated to new pharmacy path
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
             >
@@ -205,7 +224,7 @@ export default function SpecialtiesListPage() {
                     }
                   >
                     {['Hoạt Động', 'Đã Khoá'].includes(tab.value)
-                      ? tableData.filter((specialty) => specialty.status === tab.value).length
+                      ? tableData.filter((pharmacy) => pharmacy.active === tab.value).length
                       : tableData.length}
                   </Label>
                 }
@@ -213,10 +232,10 @@ export default function SpecialtiesListPage() {
             ))}
           </Tabs>
 
-          <SpecialtyTableToolbar
+          <PharmacyTableToolbar
             filters={filters}
             onFilters={handleFilters}
-            specialtyOptions={tableData.map((item) => item.name)} // Updated to use status options
+            pharmacyOptions={tableData.map((item) => item.name)} // Updated to use pharmacy options
           />
 
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
@@ -244,7 +263,7 @@ export default function SpecialtiesListPage() {
                 <TableHeadCustom
                   order={table.order}
                   orderBy={table.orderBy}
-                  headLabel={TABLE_HEAD_SPECIALTY} // Updated to use specialty table head
+                  headLabel={TABLE_HEAD_PHARMACY} // Updated to use pharmacy table head
                   rowCount={tableData.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
@@ -258,7 +277,7 @@ export default function SpecialtiesListPage() {
 
                 <TableBody>
                   {dataFiltered.map((row) => (
-                    <SpecialtyTableRow
+                    <PharmacyTableRow
                       key={row._id}
                       row={row}
                       selected={table.selected.includes(row._id)}
@@ -296,7 +315,7 @@ export default function SpecialtiesListPage() {
         title="Xoá"
         content={
           <>
-            Bạn có chắc chắn muốn xoá <strong> {table.selected.length} </strong> chuyên khoa?
+            Bạn có chắc chắn muốn xoá <strong> {table.selected.length} </strong> nhà thuốc?
           </>
         }
         action={
@@ -312,6 +331,16 @@ export default function SpecialtiesListPage() {
           </Button>
         }
       />
+
+      {/* Add Quick Edit Dialog */}
+      {selectedPharmacy && (
+        <PharmacyQuickEditForm
+          open={editDialog.value}
+          onClose={editDialog.onFalse}
+          currentPharmacy={selectedPharmacy}
+          onSuccess={handleRefetchData} // Pass the refetch function
+        />
+      )}
     </>
   );
 }
@@ -323,9 +352,9 @@ function applyFilter({
   comparator,
   filters,
 }: {
-  inputData: ISpecialtyItem[]; // Updated type
+  inputData: IPharmacyItem[]; // Updated type
   comparator: (a: any, b: any) => number;
-  filters: ISpecialtyTableFilters; // Updated type
+  filters: IPharmacyTableFilters; // Updated type
 }) {
   const { name, status } = filters;
 
@@ -341,12 +370,12 @@ function applyFilter({
 
   if (name) {
     inputData = inputData.filter(
-      (specialty) => specialty?.name?.toLowerCase().includes(name?.toLowerCase())
+      (pharmacy) => pharmacy?.name?.toLowerCase().includes(name?.toLowerCase())
     );
   }
 
   if (status !== 'all') {
-    inputData = inputData.filter((specialty) => specialty.status === status);
+    inputData = inputData.filter((pharmacy) => pharmacy.active === status);
   }
 
   return inputData;

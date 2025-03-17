@@ -14,7 +14,6 @@ import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
 
 import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
 
 import { useBoolean } from 'src/hooks/use-boolean';
@@ -42,6 +41,7 @@ import {
 
 import PharmacyTableToolbar from 'src/sections/pharmacy/table-toolbar'; // Updated to use pharmacy toolbar
 import PharmacyTableRow from 'src/sections/pharmacy/pharmacy-table-row'; // Updated to use pharmacy filters result
+import PharmacyQuickEditForm from 'src/sections/pharmacy/quick-edit-form'; // Import the edit form
 
 import {
   IPharmacyItem,
@@ -56,8 +56,9 @@ const TABLE_HEAD_PHARMACY = [
   { id: '_id', label: 'ID', width: 100 },
   { id: 'name', label: 'Tên Nhà Thuốc', width: '20%' },
   { id: 'address', label: 'Địa Chỉ', width: '20%' },
+  { id: 'city', label: 'Thành Phố', width: '20%' },
   { id: 'phoneNumber', label: 'Số Điện Thoại', width: '20%' },
-  { id: 'is24Hours', label: '24 Giờ', width: '10%' },
+  { id: 'is24Hours', label: 'Hoạt Động 24/7', width: '10%' },
 ];
 const defaultFilters: IPharmacyTableFilters = {
   name: '',
@@ -73,8 +74,6 @@ export default function PharmaciesListPage() {
 
   const settings = useSettingsContext();
 
-  const router = useRouter();
-
   const confirm = useBoolean();
 
   const [tableData, setTableData] = useState<IPharmacyItem[]>([]); // Updated state type
@@ -87,8 +86,16 @@ export default function PharmaciesListPage() {
     filters,
   });
 
-  const { pharmacies, pharmaciesLoading, pharmaciesError, pharmaciesValidating } =
-    useGetPharmacies();
+  const [selectedPharmacy, setSelectedPharmacy] = useState<IPharmacyItem | undefined>(undefined);
+  const editDialog = useBoolean();
+
+  const {
+    pharmacies,
+    pharmaciesLoading,
+    pharmaciesError,
+    pharmaciesValidating,
+    mutate: refetchPharmacies, // Extract the mutate function if using SWR
+  } = useGetPharmacies();
 
   useEffect(() => {
     if (pharmacies.length) {
@@ -128,20 +135,28 @@ export default function PharmaciesListPage() {
           enqueueSnackbar('Xoá nhà thuốc thành công!', { variant: 'success' });
           table.onUpdatePageDeleteRow(dataInPage.length);
           confirm.onFalse();
-          window.location.reload();
+
+          // Trigger refetch after successful deletion
+          refetchPharmacies();
         })
         .catch(() => {
           enqueueSnackbar('Không thể xoá nhà thuốc!', { variant: 'error' });
         });
     },
-    [dataInPage.length, enqueueSnackbar, table, deletePharmacy, confirm]
+    [dataInPage.length, enqueueSnackbar, table, deletePharmacy, confirm, refetchPharmacies]
   );
 
   const handleEditRow = useCallback(
     (_id: string) => {
-      router.push(paths.dashboard.pharmacies.edit(_id)); // Updated path for pharmacies
+      // Option 1: Navigate to edit page
+      // router.push(paths.dashboard.pharmacies.edit(_id));
+
+      // Option 2: Open edit dialog
+      const pharmacy = tableData.find((p) => p._id === _id);
+      setSelectedPharmacy(pharmacy);
+      editDialog.onTrue();
     },
-    [router]
+    [tableData, editDialog]
   );
 
   const handleFilterStatus = useCallback(
@@ -150,6 +165,11 @@ export default function PharmaciesListPage() {
     },
     [handleFilters]
   );
+
+  // Function to handle refetch after successful operations
+  const handleRefetchData = useCallback(() => {
+    refetchPharmacies();
+  }, [refetchPharmacies]);
 
   return (
     <>
@@ -204,7 +224,7 @@ export default function PharmaciesListPage() {
                     }
                   >
                     {['Hoạt Động', 'Đã Khoá'].includes(tab.value)
-                      ? tableData.filter((pharmacy) => pharmacy.status === tab.value).length
+                      ? tableData.filter((pharmacy) => pharmacy.active === tab.value).length
                       : tableData.length}
                   </Label>
                 }
@@ -311,6 +331,16 @@ export default function PharmaciesListPage() {
           </Button>
         }
       />
+
+      {/* Add Quick Edit Dialog */}
+      {selectedPharmacy && (
+        <PharmacyQuickEditForm
+          open={editDialog.value}
+          onClose={editDialog.onFalse}
+          currentPharmacy={selectedPharmacy}
+          onSuccess={handleRefetchData} // Pass the refetch function
+        />
+      )}
     </>
   );
 }
@@ -345,7 +375,7 @@ function applyFilter({
   }
 
   if (status !== 'all') {
-    inputData = inputData.filter((pharmacy) => pharmacy.status === status);
+    inputData = inputData.filter((pharmacy) => pharmacy.active === status);
   }
 
   return inputData;

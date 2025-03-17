@@ -71,6 +71,10 @@ const BlankPage = lazy(() => import('src/pages/dashboard/blank'));
 const PharmacyListPage = lazy(() => import('src/pages/dashboard/pharmacy/list'));
 const PharmacyCreatePage = lazy(() => import('src/pages/dashboard/pharmacy/new'));
 
+// Hospital Page
+const HospitalListPage = lazy(() => import('src/pages/dashboard/hospital/list'));
+const HospitalCreatePage = lazy(() => import('src/pages/dashboard/hospital/new'));
+
 // ----------------------------------------------------------------------
 
 export const dashboardRoutes = [
@@ -124,6 +128,13 @@ export const dashboardRoutes = [
           { element: <PharmacyListPage />, index: true },
           { path: 'list', element: <PharmacyListPage /> },
           { path: 'new', element: <PharmacyCreatePage /> },
+        ],
+      },
+      {
+        path: 'hospital',
+        children: [
+          { path: 'list', element: <HospitalListPage /> },
+          { path: 'new', element: <HospitalCreatePage /> },
         ],
       },
       {

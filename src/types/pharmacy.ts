@@ -6,11 +6,15 @@ export interface IPharmacyItem {
   phoneNumber: string;
   description: string;
   availableMedicines: string[];
-  status: string;
+  status: boolean;
   createdAt: Date;
   updatedAt: Date;
+  city: string;
   value: string;
   label: string;
+  active: string;
+  is24Hours: boolean;
+  isVerified: boolean;
 }
 export interface IPharmacyTableFilters {
   name: string;
