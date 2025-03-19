@@ -214,9 +214,9 @@ export default function HospitalListPage() {
                       'default'
                     }
                   >
-                    {['Hoạt Động', 'Đã Khoá'].includes(tab.value)
+                    {/* {['Hoạt Động', 'Đã Khoá'].includes(tab.value)
                       ? tableData.filter((pharmacy) => pharmacy.active === tab.value).length
-                      : tableData.length}
+                      : tableData.length} */}
                   </Label>
                 }
               />
@@ -364,9 +364,9 @@ function applyFilter({
     );
   }
 
-  if (status !== 'all') {
-    inputData = inputData.filter((pharmacy) => pharmacy.active === status);
-  }
+  // if (status !== 'all') {
+  //   inputData = inputData.filter((pharmacy) => pharmacy.active === status);
+  // }
 
   return inputData;
 }

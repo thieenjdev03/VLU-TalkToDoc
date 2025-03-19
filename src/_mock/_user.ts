@@ -169,4 +169,6 @@ export const _userList = [...Array(20)].map((_, index) => ({
   position: '',
   medicalHistory: [],
   department: '',
+  emergencyContact: [],
+  isActive: false,
 }));

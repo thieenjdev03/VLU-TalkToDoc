@@ -100,10 +100,11 @@ export const paths = {
   dashboard: {
     root: ROOTS.DASHBOARD,
     ranking_doctor: {
-      root: `${ROOTS.DASHBOARD}/ranking_doctor`,
-      list: `${ROOTS.DASHBOARD}/ranking_doctor/list`,
-      details: (id: string) => `${ROOTS.DASHBOARD}/ranking_doctor/${id}`,
-      edit: (id: string) => `${ROOTS.DASHBOARD}/ranking_doctor/${id}/edit`,
+      root: `${ROOTS.DASHBOARD}/ranking`,
+      list: `${ROOTS.DASHBOARD}/ranking/list`,
+      details: (id: string) => `${ROOTS.DASHBOARD}/ranking/${id}`,
+      edit: (id: string) => `${ROOTS.DASHBOARD}/ranking/${id}/edit`,
+      new: `${ROOTS.DASHBOARD}/ranking/new`,
     },
     hospital: {
       root: `${ROOTS.DASHBOARD}/hospital`,

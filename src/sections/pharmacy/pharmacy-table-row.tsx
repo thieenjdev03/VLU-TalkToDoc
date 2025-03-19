@@ -34,7 +34,7 @@ export default function PharmacyTableRow({
   onSelectRow,
   onDeleteRow,
 }: Props) {
-  const { name, status, _id, address, phoneNumber, is24Hours, city } = row;
+  const { name, id, address, phoneNumber, is24Hours, city, isActive } = row;
 
   const confirm = useBoolean();
   const quickEdit = useBoolean();
@@ -42,7 +42,7 @@ export default function PharmacyTableRow({
 
   const renderCells = () => (
     <>
-      <TableCell>{_id}</TableCell>
+      <TableCell>{id}</TableCell>
       <TableCell>
         <Typography variant="body1">{name}</Typography>
       </TableCell>
@@ -59,7 +59,7 @@ export default function PharmacyTableRow({
         <Checkbox checked={is24Hours} disabled />
       </TableCell>
       <TableCell>
-        <Checkbox checked={status} disabled />
+        <Checkbox checked={active} disabled />
       </TableCell>
     </>
   );

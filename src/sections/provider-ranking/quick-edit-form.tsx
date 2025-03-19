@@ -13,27 +13,27 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 
-import { useUpdateSpecialty } from 'src/api/specialty';
+import { useUpdateRanking } from 'src/api/ranking'; // Updated to use provider_ranking API
 
-import Label from 'src/components/label'; // Updated to use specialty API
+import Label from 'src/components/label'; // Updated to use Ranking API
 
 import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, { RHFTextField } from 'src/components/hook-form';
 
-import { ISpecialtyItem } from 'src/types/specialties'; // Updated type
+import { IRankingItem } from 'src/types/provider-ranking'; // Updated type
 
 type Props = {
   open: boolean;
   onClose: VoidFunction;
-  currentSpecialty?: ISpecialtyItem; // Updated type
+  currentRanking?: IRankingItem; // Updated type
 };
 
-export default function SpecialtyQuickEditForm({ currentSpecialty, open, onClose }: Props) {
+export default function RankingQuickEditForm({ currentRanking, open, onClose }: Props) {
   const { enqueueSnackbar } = useSnackbar();
-  const { updateSpecialty } = useUpdateSpecialty(); // Ensure the correct function is used for updating specialties
+  const { updateRanking } = useUpdateRanking(); // Ensure the correct function is used for updating provider_ranking
   const [render, setRender] = useState(false);
   // 🛠 Schema validation cho chuyên khoa
-  const NewSpecialtySchema = useMemo(
+  const NewRankingSchema = useMemo(
     () =>
       Yup.object().shape({
         name: Yup.string().required('Tên chuyên khoa không được để trống'),
@@ -47,17 +47,17 @@ export default function SpecialtyQuickEditForm({ currentSpecialty, open, onClose
   // 🛠 Default values cho chuyên khoa
   const defaultValues = useMemo(
     () => ({
-      _id: currentSpecialty?._id || '',
-      name: currentSpecialty?.name || '',
-      description: currentSpecialty?.description || '',
-      status: currentSpecialty?.status || 'isActive',
-      isActive: currentSpecialty?.isActive || false,
+      _id: currentRanking?._id || '',
+      name: currentRanking?.name || '',
+      description: currentRanking?.description || '',
+      status: currentRanking?.status || 'isActive',
+      isActive: currentRanking?.isActive || false,
     }),
-    [currentSpecialty]
+    [currentRanking]
   );
 
   const methods = useForm({
-    resolver: yupResolver(NewSpecialtySchema) as Resolver<any>,
+    resolver: yupResolver(NewRankingSchema) as Resolver<any>,
     defaultValues,
   });
 
@@ -70,7 +70,7 @@ export default function SpecialtyQuickEditForm({ currentSpecialty, open, onClose
   console.log(errors);
   const onSubmit = handleSubmit(async (data) => {
     try {
-      await updateSpecialty({ id: data._id, data });
+      await updateRanking({ id: data._id, data });
       reset();
       onClose();
       enqueueSnackbar('Cập nhật thành công!');

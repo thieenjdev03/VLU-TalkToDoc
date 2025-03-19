@@ -160,7 +160,6 @@ export default function PharmaciesListPage() {
   );
 
   // Function to handle refetch after successful operations
-
   return (
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'} sx={{ overflow: 'hidden' }}>
@@ -213,9 +212,9 @@ export default function PharmaciesListPage() {
                       'default'
                     }
                   >
-                    {['Hoạt Động', 'Đã Khoá'].includes(tab.value)
+                    {/* {['Hoạt Động', 'Đã Khoá'].includes(tab.value)
                       ? tableData.filter((pharmacy) => pharmacy.active === tab.value).length
-                      : tableData.length}
+                      : tableData.length} */}
                   </Label>
                 }
               />
@@ -326,7 +325,13 @@ export default function PharmaciesListPage() {
       {selectedPharmacy && (
         <PharmacyQuickEditForm
           open={editDialog.value}
-          onClose={editDialog.onFalse}
+          onClose={() => {
+            editDialog.onFalse();
+            // Wait a bit for any pending operations to complete
+            setTimeout(() => {
+              setSelectedPharmacy(undefined);
+            }, 300);
+          }}
           currentPharmacy={selectedPharmacy}
         />
       )}
@@ -363,9 +368,9 @@ function applyFilter({
     );
   }
 
-  if (status !== 'all') {
-    inputData = inputData.filter((pharmacy) => pharmacy.active === status);
-  }
+  // if (status !== 'all') {
+  //   inputData = inputData.filter((pharmacy) => pharmacy.active === status);
+  // }
 
   return inputData;
 }

@@ -12,7 +12,7 @@ export interface IPharmacyItem {
   city: string;
   value: string;
   label: string;
-  active: string;
+  isActive: boolean;
   is24Hours: boolean;
   isVerified: boolean;
 }

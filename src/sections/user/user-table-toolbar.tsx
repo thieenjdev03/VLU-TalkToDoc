@@ -21,26 +21,33 @@ import { IUserTableFilters, IUserTableFilterValue } from 'src/types/user';
 type Props = {
   filters: IUserTableFilters;
   onFilters: (name: string, value: IUserTableFilterValue) => void;
-  //
   roleOptions: string[];
+  searchValue?: string;
+  onSearchChange?: (query: string) => void;
 };
 
 export default function UserTableToolbar({
   filters,
   onFilters,
-  //
   roleOptions,
+  searchValue = '',
+  onSearchChange,
 }: Props) {
   const popover = usePopover();
 
-  const handleFilterName = useCallback(
+  const handleFilterQuery = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      onFilters('fullName', event.target.value);
+      const query = event.target.value;
+      // Call onSearchChange for API search if provided
+      if (onSearchChange) {
+        onSearchChange(query);
+      }
+      onFilters('fullName', query);
     },
-    [onFilters]
+    [onFilters, onSearchChange]
   );
 
-  const handleFilterRole = useCallback(
+  const handleFilterSpecialty = useCallback(
     (event: SelectChangeEvent<string[]>) => {
       onFilters(
         'specialty',
@@ -64,6 +71,7 @@ export default function UserTableToolbar({
           pr: { xs: 2.5, md: 1 },
         }}
       >
+        {/* Dropdown chọn chuyên khoa */}
         <FormControl
           sx={{
             flexShrink: 0,
@@ -75,8 +83,8 @@ export default function UserTableToolbar({
           <Select
             multiple
             value={filters.specialty}
-            onChange={handleFilterRole}
-            input={<OutlinedInput label="Role" />}
+            onChange={handleFilterSpecialty}
+            input={<OutlinedInput label="Chuyên Khoa" />}
             renderValue={(selected) => selected.map((value) => value).join(', ')}
             MenuProps={{
               PaperProps: {
@@ -93,11 +101,12 @@ export default function UserTableToolbar({
           </Select>
         </FormControl>
 
+        {/* Ô tìm kiếm */}
         <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
           <TextField
             fullWidth
-            value={filters.fullName}
-            onChange={handleFilterName}
+            value={searchValue || filters.fullName}
+            onChange={handleFilterQuery}
             placeholder="Tìm kiếm..."
             InputProps={{
               startAdornment: (
@@ -120,29 +129,17 @@ export default function UserTableToolbar({
         arrow="right-top"
         sx={{ width: 140 }}
       >
-        <MenuItem
-          onClick={() => {
-            popover.onClose();
-          }}
-        >
+        <MenuItem onClick={popover.onClose}>
           <Iconify icon="solar:printer-minimalistic-bold" />
           Print
         </MenuItem>
 
-        <MenuItem
-          onClick={() => {
-            popover.onClose();
-          }}
-        >
+        <MenuItem onClick={popover.onClose}>
           <Iconify icon="solar:import-bold" />
           Import
         </MenuItem>
 
-        <MenuItem
-          onClick={() => {
-            popover.onClose();
-          }}
-        >
+        <MenuItem onClick={popover.onClose}>
           <Iconify icon="solar:export-bold" />
           Export
         </MenuItem>

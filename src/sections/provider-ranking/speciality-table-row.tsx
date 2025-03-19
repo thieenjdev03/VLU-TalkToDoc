@@ -13,21 +13,21 @@ import Iconify from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 
-import { ISpecialtyItem } from 'src/types/specialties';
+import { IRankingItem } from 'src/types/provider-ranking';
 
-import SpecialtyQuickEditForm from './quick-edit-form';
+import RankingQuickEditForm from './quick-edit-form';
 
 // ----------------------------------------------------------------------
 
 type Props = {
   selected: boolean;
   onEditRow: VoidFunction;
-  row: ISpecialtyItem;
+  row: IRankingItem;
   onSelectRow: VoidFunction;
   onDeleteRow: VoidFunction;
 };
 
-export default function SpecialtyTableRow({
+export default function RankingTableRow({
   row,
   selected,
   onEditRow,
@@ -43,15 +43,12 @@ export default function SpecialtyTableRow({
   const renderCells = () => (
     <>
       <TableCell>{id}</TableCell>
-      {/* Hiển thị Tên chuyên khoa */}
       <TableCell>
         <Typography variant="body1">{name}</Typography>
       </TableCell>
-      {/* Hiển thị Mô tả */}
       <TableCell>
         <Typography variant="body2">{description || '-'}</Typography>
       </TableCell>
-      {/* Hiển thị trạng thái */}
       <TableCell>
         <Checkbox checked={isActive} disabled />
       </TableCell>
@@ -97,16 +94,6 @@ export default function SpecialtyTableRow({
           <Iconify icon="solar:trash-bin-trash-bold" />
           Xoá
         </MenuItem>
-
-        {/* <MenuItem
-          onClick={() => {
-            onEditRow();
-            popover.onClose();
-          }}
-        >
-          <Iconify icon="solar:pen-bold" />
-          Chỉnh Sửa
-        </MenuItem> */}
       </CustomPopover>
 
       <ConfirmDialog
@@ -120,8 +107,8 @@ export default function SpecialtyTableRow({
           </Button>
         }
       />
-      <SpecialtyQuickEditForm
-        currentSpecialty={row}
+      <RankingQuickEditForm
+        currentRanking={row}
         open={quickEdit.value}
         onClose={quickEdit.onFalse}
       />

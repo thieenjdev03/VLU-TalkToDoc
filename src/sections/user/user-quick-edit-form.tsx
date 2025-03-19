@@ -1,16 +1,18 @@
 import * as Yup from 'yup';
-import { useForm, Resolver } from 'react-hook-form';
 import { useMemo, useState, useEffect } from 'react';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { useForm, Resolver, Controller } from 'react-hook-form';
 
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
+import Switch from '@mui/material/Switch';
 import LoadingButton from '@mui/lab/LoadingButton';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
+import FormControlLabel from '@mui/material/FormControlLabel';
 
 import { useUpdateUser } from 'src/api/user';
 import { useGetSpecialties } from 'src/api/specialty';
@@ -116,6 +118,7 @@ export default function UserQuickEditForm({ currentUser, open, onClose, typeUser
     handleSubmit,
     setValue,
     formState: { isSubmitting, errors },
+    control,
   } = methods;
   console.log(errors);
   const onSubmit = handleSubmit(async (data) => {
@@ -144,7 +147,7 @@ export default function UserQuickEditForm({ currentUser, open, onClose, typeUser
       reset();
       onClose();
       enqueueSnackbar('Cập nhật thành công!');
-      // window.location.reload();
+      window.location.reload();
     } catch (error) {
       console.error(error);
       enqueueSnackbar('Cập nhật thất bại', { variant: 'error' });
@@ -156,7 +159,7 @@ export default function UserQuickEditForm({ currentUser, open, onClose, typeUser
       <FormProvider methods={methods} onSubmit={onSubmit}>
         <DialogTitle>Cập nhật thông tin người dùng</DialogTitle>
         <DialogContent>
-          <Box sx={{ display: 'grid', gap: 2, mt: 2 }}>
+          <Box sx={{ gap: 2, mt: 2 }}>
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
                 <RHFTextField name="fullName" label="Họ và Tên" />
@@ -167,6 +170,22 @@ export default function UserQuickEditForm({ currentUser, open, onClose, typeUser
               <Grid item xs={12} sm={6}>
                 <RHFTextField name="phoneNumber" label="Số điện thoại" />
               </Grid>
+              <FormControlLabel
+                control={
+                  <Controller
+                    name="isActive"
+                    control={control}
+                    render={({ field }) => (
+                      <Switch
+                        {...field}
+                        checked={field.value}
+                        onChange={(event) => field.onChange(event.target.checked)}
+                      />
+                    )}
+                  />
+                }
+                label="Trạng Thái"
+              />
               {typeUser === 'doctor' && (
                 <>
                   <Grid item xs={12} sm={6}>
@@ -238,23 +257,6 @@ export default function UserQuickEditForm({ currentUser, open, onClose, typeUser
                     <RHFTextField name="position" label="Vị trí" />
                   </Grid>
                   <Grid item xs={12} sm={6}>
-                    <RHFAutocomplete
-                      name="specialty"
-                      label="Chuyên khoa"
-                      multiple
-                      options={specialtyList.map((item) => ({
-                        value: item._id,
-                        label: item.name,
-                      }))}
-                      getOptionLabel={(option) =>
-                        typeof option === 'string' ? option : option.label
-                      }
-                      isOptionEqualToValue={(option, value: any) =>
-                        typeof option === 'string' ? option === value : option.value === value
-                      }
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
                     <RHFTextField name="department" label="Bộ Phận" />
                   </Grid>
                   <Grid item xs={12} sm={6}>
@@ -265,7 +267,6 @@ export default function UserQuickEditForm({ currentUser, open, onClose, typeUser
             </Grid>
           </Box>
         </DialogContent>
-
         <DialogActions>
           <Button variant="outlined" onClick={onClose}>
             Huỷ

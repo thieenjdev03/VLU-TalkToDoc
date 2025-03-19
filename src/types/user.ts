@@ -97,7 +97,7 @@ export type IUserItem = {
   fullName: string;
   department: string;
   username: string;
-  city: string;
+  city: any;
   medicalHistory: any[];
   birthDate: string;
   gender: string;
@@ -110,7 +110,7 @@ export type IUserItem = {
   address: string;
   country: string;
   zipCode: string;
-  active: boolean;
+  isActive: boolean;
   company: string;
   avatarUrl: any;
   phoneNumber: string;

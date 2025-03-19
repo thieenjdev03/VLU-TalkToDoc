@@ -19,9 +19,8 @@ import { RouterLink } from 'src/routes/components';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { useGetSpecialties, useDeleteSpecialty } from 'src/api/specialty'; // Updated to use specialty API
 import { USER_STATUS_OPTIONS } from 'src/_mock';
-
+import { useGetRanking, useDeleteRanking } from 'src/api/ranking'; // Updated to use provider ranking API
 import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
@@ -40,36 +39,36 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
-import SpecialtyTableToolbar from 'src/sections/speciality/table-toolbar';
-// Updated to use specialty toolbar
-import SpecialtyTableRow from 'src/sections/speciality/speciality-table-row';
-// Updated to use specialty filters result
+import RankingTableToolbar from 'src/sections/speciality/table-toolbar';
+// Updated to use ranking toolbar
+import RankingTableRow from 'src/sections/speciality/speciality-table-row';
+// Updated to use ranking filters result
 
 import {
-  ISpecialtyItem,
-  ISpecialtyTableFilters,
-  ISpecialtyTableFilterValue,
-} from 'src/types/specialties'; // Updated types
+  IRankingItem,
+  IRankingTableFilters,
+  IRankingTableFilterValue,
+} from 'src/types/provider-ranking'; // Updated types
 
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'Tất Cả' }, ...USER_STATUS_OPTIONS];
 const TABLE_HEAD_SPECIALTY = [
-  { id: '_id', label: 'ID', width: 100 },
-  { id: 'name', label: 'Tên Chuyên Khoa', width: '20%' },
+  { id: 'id', label: 'ID', width: 100 },
+  { id: 'name', label: 'Tên Cấp Bậc', width: '20%' },
   { id: 'description', label: 'Mô Tả', width: '20%' },
   { id: 'isActive', label: 'Kích Hoạt', width: '20%' },
-  { id: 'updatedAt', label: 'Cập Nhật Lần Cuối', width: '20%' },
+  { id: 'base_price', label: 'Lương', width: '20%' },
 ];
-const defaultFilters: ISpecialtyTableFilters = {
+const defaultFilters: IRankingTableFilters = {
   name: '',
   status: 'all',
-  specialty: [],
+  ranking: [],
 };
 
 // ----------------------------------------------------------------------
 
-export default function SpecialtiesListPage() {
+export default function ProviderRankingListPage() {
   const { enqueueSnackbar } = useSnackbar();
   const table = useTable();
 
@@ -79,7 +78,7 @@ export default function SpecialtiesListPage() {
 
   const confirm = useBoolean();
 
-  const [tableData, setTableData] = useState<ISpecialtyItem[]>([]); // Updated state type
+  const [tableData, setTableData] = useState<IRankingItem[]>([]); // Updated state type
 
   const [filters, setFilters] = useState(defaultFilters);
 
@@ -89,16 +88,20 @@ export default function SpecialtiesListPage() {
     filters,
   });
 
-  const { specialties, specialtiesLoading, specialtiesError, specialtiesValidating } =
-    useGetSpecialties();
+  const {
+    providerRanking,
+    providerRankingLoading,
+    providerRankingError,
+    providerRankingValidating,
+  } = useGetRanking();
 
   useEffect(() => {
-    if (specialties.length) {
-      setTableData(specialties);
-    } else if (specialtiesLoading || specialtiesError || specialtiesValidating) {
+    if (providerRanking.length) {
+      setTableData(providerRanking);
+    } else if (providerRankingLoading || providerRankingError || providerRankingValidating) {
       setTableData([]);
     }
-  }, [specialties, specialtiesLoading, specialtiesError, specialtiesValidating]);
+  }, [providerRanking, providerRankingLoading, providerRankingError, providerRankingValidating]);
 
   const dataInPage = dataFiltered.slice(
     table.page * table.rowsPerPage,
@@ -112,7 +115,7 @@ export default function SpecialtiesListPage() {
   const notFound = (!tableData.length && canReset) || !tableData.length;
 
   const handleFilters = useCallback(
-    (fullName: string, value: ISpecialtyTableFilterValue) => {
+    (fullName: string, value: IRankingTableFilterValue) => {
       table.onResetPage();
       setFilters((prevState) => ({
         ...prevState,
@@ -122,10 +125,10 @@ export default function SpecialtiesListPage() {
     [table]
   );
 
-  const { deleteSpecialty } = useDeleteSpecialty();
+  const { deleteRanking } = useDeleteRanking();
   const handleDeleteRow = useCallback(
     async (id: string) => {
-      await deleteSpecialty(id)
+      await deleteRanking(id)
         .then(() => {
           enqueueSnackbar('Xoá chuyên khoa thành công!', { variant: 'success' });
           table.onUpdatePageDeleteRow(dataInPage.length);
@@ -136,18 +139,18 @@ export default function SpecialtiesListPage() {
           enqueueSnackbar('Không thể xoá chuyên khoa!', { variant: 'error' });
         });
     },
-    [dataInPage.length, enqueueSnackbar, table, deleteSpecialty, confirm]
+    [dataInPage.length, enqueueSnackbar, table, deleteRanking, confirm]
   );
 
   const handleEditRow = useCallback(
     (_id: string) => {
-      router.push(paths.dashboard.specialties.edit(_id)); // Updated path for specialties
+      router.push(paths.dashboard.ranking_doctor.edit(_id)); // Updated path for providerRanking
     },
     [router]
   );
 
   const handleFilterStatus = useCallback(
-    (event: React.SyntheticEvent, newValue: ISpecialtyTableFilterValue) => {
+    (event: React.SyntheticEvent, newValue: IRankingTableFilterValue) => {
       handleFilters('status', newValue);
     },
     [handleFilters]
@@ -161,13 +164,13 @@ export default function SpecialtiesListPage() {
           links={[
             {
               name: 'Quản Lý Chuyên Khoa',
-              href: paths.dashboard.specialties.root,
+              href: paths.dashboard.ranking_doctor.root,
             },
           ]}
           action={
             <Button
               component={RouterLink}
-              href={`${paths.dashboard.specialties.new}`} // Updated to new specialty path
+              href={`${paths.dashboard.ranking_doctor.new}`} // Updated to new ranking path
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
             >
@@ -206,7 +209,7 @@ export default function SpecialtiesListPage() {
                     }
                   >
                     {['Hoạt Động', 'Đã Khoá'].includes(tab.value)
-                      ? tableData.filter((specialty) => specialty.status === tab.value).length
+                      ? tableData.filter((ranking) => ranking.status === tab.value).length
                       : tableData.length}
                   </Label>
                 }
@@ -214,10 +217,10 @@ export default function SpecialtiesListPage() {
             ))}
           </Tabs>
 
-          <SpecialtyTableToolbar
+          <RankingTableToolbar
             filters={filters}
             onFilters={handleFilters}
-            specialtyOptions={tableData.map((item) => item.name)} // Updated to use status options
+            rankingOptions={tableData.map((item) => item.name)} // Updated to use status options
           />
 
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
@@ -259,7 +262,7 @@ export default function SpecialtiesListPage() {
 
                 <TableBody>
                   {dataFiltered.map((row) => (
-                    <SpecialtyTableRow
+                    <RankingTableRow
                       key={row._id}
                       row={row}
                       selected={table.selected.includes(row._id)}
@@ -324,9 +327,9 @@ function applyFilter({
   comparator,
   filters,
 }: {
-  inputData: ISpecialtyItem[]; // Updated type
+  inputData: IRankingItem[]; // Updated type
   comparator: (a: any, b: any) => number;
-  filters: ISpecialtyTableFilters; // Updated type
+  filters: IRankingTableFilters; // Updated type
 }) {
   const { name, status } = filters;
 
@@ -342,12 +345,12 @@ function applyFilter({
 
   if (name) {
     inputData = inputData.filter(
-      (specialty) => specialty?.name?.toLowerCase().includes(name?.toLowerCase())
+      (ranking) => ranking?.name?.toLowerCase().includes(name?.toLowerCase())
     );
   }
 
   if (status !== 'all') {
-    inputData = inputData.filter((specialty) => specialty.status === status);
+    inputData = inputData.filter((ranking) => ranking.status === status);
   }
 
   return inputData;

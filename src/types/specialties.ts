@@ -1,12 +1,14 @@
 export interface ISpecialtyItem {
   _id: string;
+  id: string;
   name: string;
   description: string;
   status: string;
   value: string;
   label: string;
-  active: boolean;
+  isActive: boolean;
   createdAt: string;
+  updatedAt: string;
 }
 
 export interface ISpecialtyTableFilters {

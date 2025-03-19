@@ -75,6 +75,9 @@ const PharmacyCreatePage = lazy(() => import('src/pages/dashboard/pharmacy/new')
 const HospitalListPage = lazy(() => import('src/pages/dashboard/hospital/list'));
 const HospitalCreatePage = lazy(() => import('src/pages/dashboard/hospital/new'));
 
+const ProviderRankingPage = lazy(() => import('src/pages/dashboard/provider-ranking/list'));
+const ProviderRankingCreatePage = lazy(() => import('src/pages/dashboard/provider-ranking/new'));
+
 // ----------------------------------------------------------------------
 
 export const dashboardRoutes = [
@@ -135,6 +138,13 @@ export const dashboardRoutes = [
         children: [
           { path: 'list', element: <HospitalListPage /> },
           { path: 'new', element: <HospitalCreatePage /> },
+        ],
+      },
+      {
+        path: 'ranking',
+        children: [
+          { path: 'list', element: <ProviderRankingPage /> },
+          { path: 'new', element: <ProviderRankingCreatePage /> },
         ],
       },
       {

@@ -61,6 +61,7 @@ export default function UserTableRow({
     birthDate,
     position,
     department,
+    id,
   } = row;
 
   const confirm = useBoolean();
@@ -80,14 +81,15 @@ export default function UserTableRow({
       case 'doctor':
         return (
           <>
+            <TableCell>{id}</TableCell>
             <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-              <Avatar alt={fullName} src={avatarUrl?.preview || ''} sx={{ mr: 2 }} />
+              <Avatar alt={fullName} src={avatarUrl || ''} sx={{ mr: 2 }} />
               <ListItemText primary={fullName} secondary={email} />
             </TableCell>
             <TableCell>{hospitalId}</TableCell>
             <TableCell>{rank}</TableCell>
             <TableCell>{handleRenderSpecialty(specialty)}</TableCell>
-            <TableCell>{city}</TableCell>
+            <TableCell>{city?.name || city}</TableCell>
             <TableCell>{phoneNumber}</TableCell>
             <TableCell>{experienceYears}</TableCell>
             <TableCell>{licenseNo}</TableCell>
@@ -110,6 +112,7 @@ export default function UserTableRow({
       case 'employee':
         return (
           <>
+            <TableCell>{id}</TableCell>
             <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
               <Avatar alt={fullName} src={avatarUrl?.preview || ''} sx={{ mr: 2 }} />
               <ListItemText primary={fullName} secondary={email} />
@@ -117,7 +120,6 @@ export default function UserTableRow({
             <TableCell>{phoneNumber}</TableCell>
             <TableCell>{department}</TableCell>
             <TableCell>{position}</TableCell>
-            <TableCell>{handleRenderSpecialty(specialty)}</TableCell>
             <TableCell>
               <Label
                 variant="soft"
@@ -137,14 +139,13 @@ export default function UserTableRow({
       default: // patient
         return (
           <>
-            {/* Hiển thị Avatar và Họ tên + Email */}
+            <TableCell>{id}</TableCell>
             <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
               <Avatar alt={fullName} src={avatarUrl?.preview} sx={{ mr: 2 }} />
               <ListItemText primary={fullName} secondary={email} />
             </TableCell>
             <TableCell>{phoneNumber}</TableCell>
             <TableCell>{birthDate || '-'}</TableCell>
-            {/* Hiển thị địa chỉ */}
             <TableCell>
               <Label
                 variant="soft"

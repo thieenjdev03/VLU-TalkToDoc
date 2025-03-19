@@ -1,5 +1,6 @@
 import isEqual from 'lodash/isEqual';
-import { useState, useEffect, useCallback } from 'react';
+import debounce from 'lodash/debounce';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
@@ -33,7 +34,6 @@ import {
   useTable,
   emptyRows,
   TableNoData,
-  getComparator,
   TableEmptyRows,
   TableHeadCustom,
   TableSelectedAction,
@@ -53,6 +53,7 @@ import UserTableFiltersResult from '../user-table-filters-result';
 const STATUS_OPTIONS = [{ value: 'all', label: 'Tất Cả' }, ...USER_STATUS_OPTIONS];
 console.log('check table user list data', _userList);
 const TABLE_HEAD_PATIENT = [
+  { id: 'id', label: 'ID', width: 200 },
   { id: 'fullName', label: 'Họ & Tên', width: 200 },
   { id: 'phone', label: 'Số Điện Thoại', width: 160 },
   { id: 'birthDate', label: 'Ngày Sinh', width: 160 },
@@ -65,6 +66,7 @@ const TABLE_HEAD_PATIENT = [
 ];
 
 const TABLE_HEAD_DOCTOR = [
+  { id: 'id', label: 'ID', width: 200 },
   { id: 'fullName', label: 'Họ & Tên', width: 200 },
   { id: 'hospitalId', label: 'Bệnh Viện', width: 400 },
   { id: 'rank', label: 'Cấp Bậc', width: 180 },
@@ -78,11 +80,11 @@ const TABLE_HEAD_DOCTOR = [
 ];
 
 const TABLE_HEAD_EMPLOYEE = [
+  { id: 'id', label: 'ID', width: 200 },
   { id: 'fullName', label: 'Họ & Tên' },
   { id: 'phoneNumber', label: 'SĐT', width: 180 },
   { id: 'hospitalId', label: 'Bộ Phận', width: 220 },
   { id: 'role', label: 'Vị Trí', width: 180 },
-  { id: 'specialty', label: 'Chuyên Khoa', width: 600 },
   { id: 'status', label: 'Trạng Thái', width: 100 },
   { id: '', width: 88 },
 ];
@@ -109,23 +111,31 @@ export default function UserListView(props: {
   const confirm = useBoolean();
 
   const [tableData, setTableData] = useState<IUserItem[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const [filters, setFilters] = useState(defaultFilters);
   const { specialties } = useGetSpecialties();
-  const dataFiltered = applyFilter({
-    inputData: tableData,
-    comparator: getComparator(table.order, table.orderBy),
-    filters,
+  const dataFiltered = tableData;
+
+  const { users, usersLoading, usersError, usersValidating } = useGetUsers({
+    typeUser,
+    query: searchQuery,
+    page: table.page + 1,
+    limit: table.rowsPerPage,
+    sortField: table.orderBy || 'fullName',
+    sortOrder: table.order || 'asc',
   });
-  const { users, usersLoading, usersError, usersValidating } = useGetUsers({ typeUser });
+
   const [specialtyList, setSpecialtyList] = useState<ISpecialtyItem[]>([]);
+
   useEffect(() => {
     if (specialties.length) {
       setSpecialtyList(specialties);
     }
-    if (users.length) {
+    if (users) {
       setTableData(users);
     }
+    console.log('data check', users);
     if (usersLoading) {
       setTableData([]);
     }
@@ -136,6 +146,7 @@ export default function UserListView(props: {
       setTableData([]);
     }
   }, [users, usersLoading, usersError, usersValidating, specialties]);
+
   const dataInPage = dataFiltered.slice(
     table.page * table.rowsPerPage,
     table.page * table.rowsPerPage + table.rowsPerPage
@@ -146,6 +157,15 @@ export default function UserListView(props: {
   const canReset = !isEqual(defaultFilters, filters);
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
+
+  const debouncedSearch = useMemo(
+    () =>
+      debounce((query: string) => {
+        setSearchQuery(query);
+        table.onResetPage();
+      }, 1000),
+    [table]
+  );
 
   const handleFilters = useCallback(
     (fullName: string, value: IUserTableFilterValue) => {
@@ -170,7 +190,7 @@ export default function UserListView(props: {
           table.onUpdatePageDeleteRow(dataInPage.length);
           confirm.onFalse();
           confirm.value = false;
-          // window.location.reload();
+          window.location.reload();
         })
         .catch((err) => {
           enqueueSnackbar('Không thể xoá người dùng!', { variant: 'error' });
@@ -284,9 +304,9 @@ export default function UserListView(props: {
 
           <UserTableToolbar
             filters={filters}
-            onFilters={handleFilters}
-            //
+            onFilters={handleFilters} // ✅ Cho phép user nhập query tìm kiếm
             roleOptions={specialtyList.map((item) => item.name)}
+            onSearchChange={debouncedSearch}
           />
 
           {canReset && (
@@ -417,31 +437,31 @@ function applyFilter({
   comparator: (a: any, b: any) => number;
   filters: IUserTableFilters;
 }) {
-  const { fullName, status, specialty } = filters;
+  // const { fullName, status, specialty } = filters;
 
-  const stabilizedThis = inputData?.map((el, index) => [el, index] as const);
+  // const stabilizedThis = inputData?.map((el, index) => [el, index] as const);
 
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
+  // stabilizedThis.sort((a, b) => {
+  //   const order = comparator(a[0], b[0]);
+  //   if (order !== 0) return order;
+  //   return a[1] - b[1];
+  // });
 
-  inputData = stabilizedThis?.map((el) => el[0]);
+  // inputData = stabilizedThis?.map((el) => el[0]);
 
-  if (fullName) {
-    inputData = inputData.filter(
-      (user) => user.fullName.toLowerCase().indexOf(fullName.toLowerCase()) !== -1
-    );
-  }
+  // if (fullName) {
+  //   inputData = inputData.filter(
+  //     (user) => user.fullName.toLowerCase().indexOf(fullName.toLowerCase()) !== -1
+  //   );
+  // }
 
-  if (status !== 'all') {
-    inputData = inputData.filter((user) => user.status === status);
-  }
+  // if (status !== 'all') {
+  //   inputData = inputData.filter((user) => user.status === status);
+  // }
 
-  if (specialty.length) {
-    inputData = inputData.filter((user) => specialty.includes(user.role));
-  }
+  // if (specialty.length) {
+  //   inputData = inputData.filter((user) => specialty.includes(user.role));
+  // }
 
   return inputData;
 }

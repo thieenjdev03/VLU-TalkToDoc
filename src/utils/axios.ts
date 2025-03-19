@@ -68,6 +68,12 @@ export const endpoints = {
     update: '/api/v1/pharmacies',
     create: '/api/v1/pharmacies',
   },
+  provider_ranking: {
+    list: '/api/v1/doctor_levels',
+    delete: '/api/v1/doctor_levels',
+    update: '/api/v1/doctor_levels',
+    create: '/api/v1/doctor_levels',
+  },
   specialties: {
     list: '/api/v1/specialities',
     delete: '/api/v1/specialities',
@@ -96,24 +102,28 @@ export const endpoints = {
     search: '/api/product/search',
   },
   doctors: {
+    search: '/api/v1/doctors/search',
     list: '/api/v1/doctors',
     delete: '/api/v1/doctors/:id',
     update: (id: string) => `/api/v1/doctors/${id}`,
     create: '/api/v1/doctors',
   },
   patients: {
+    search: '/api/v1/patients/search',
     list: '/api/v1/patients',
     delete: '/api/v1/patients/:id',
     update: (id: string) => `/api/v1/patients/${id}`,
     create: '/api/v1/patients',
   },
   employees: {
+    search: '/api/v1/employees/search',
     list: '/api/v1/employees',
     delete: '/api/v1/employees/:id',
     update: (id: string) => `/api/v1/employees/${id}`,
     create: '/api/v1/employees',
   },
   users: {
+    search: '/api/v1/users/search',
     list: '/api/v1/users',
     delete: '/api/v1/users/:id',
     update: (id: string) => `/api/v1/users/${id}`,
