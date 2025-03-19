@@ -9,22 +9,21 @@ import InputAdornment from '@mui/material/InputAdornment';
 import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 
-import { IRankingTableFilters, IRankingTableFilterValue } from 'src/types/provider-ranking';
-
+import { ISpecialtyTableFilters, ISpecialtyTableFilterValue } from 'src/types/specialties';
 // ----------------------------------------------------------------------
 
 type Props = {
-  filters: IRankingTableFilters;
-  onFilters: (name: string, value: IRankingTableFilterValue) => void;
+  filters: ISpecialtyTableFilters;
+  onFilters: (name: string, value: ISpecialtyTableFilterValue) => void;
   //
-  rankingOptions: string[];
+  specialtyOptions?: string[];
 };
 
-export default function RankingTableToolbar({
+export default function SpecialtyTableToolbar({
   filters,
   onFilters,
   //
-  rankingOptions,
+  specialtyOptions,
 }: Props) {
   const popover = usePopover();
 

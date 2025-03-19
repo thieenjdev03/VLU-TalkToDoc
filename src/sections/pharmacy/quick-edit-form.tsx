@@ -93,7 +93,7 @@ export default function PharmacyQuickEditForm({ currentPharmacy, open, onClose }
     reset,
     handleSubmit,
     control, // Get control for Controller components
-    formState: { isSubmitting, errors },
+    formState: { isSubmitting },
   } = methods;
 
   // Reset form khi currentPharmacy thay đổi

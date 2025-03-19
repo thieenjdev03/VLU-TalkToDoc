@@ -1,8 +1,8 @@
 import axios from 'axios';
 import * as Yup from 'yup';
+import { useMemo, useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useMemo, useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -18,7 +18,6 @@ import { useRouter } from 'src/routes/hooks';
 import { useCreateUser } from 'src/api/user';
 import { useGetSpecialties } from 'src/api/specialty';
 
-import { CustomFile } from 'src/components/upload';
 import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, { RHFTextField, RHFAutocomplete } from 'src/components/hook-form';
 
@@ -48,16 +47,7 @@ type FormValuesProps = {
   phoneNumber: string;
   status: string;
   isActive: boolean;
-  avatarUrl:
-    | CustomFile
-    | string
-    | null
-    | {
-        preview: string;
-        name: string;
-        size: number;
-        type: string;
-      };
+  avatarUrl: any;
   isVerified: boolean;
   company?: string;
   position?: string;
@@ -208,15 +198,12 @@ export default function UserNewEditForm({ currentUser, typeUser }: Props) {
   });
   const {
     reset,
-    watch,
     control,
     setValue,
     handleSubmit,
     formState: { isSubmitting, errors }, // Thêm errors để debug
   } = methods;
   console.log('Form Errors:', errors);
-
-  const values = watch();
 
   const onSubmit = handleSubmit(async (data) => {
     try {
@@ -251,20 +238,6 @@ export default function UserNewEditForm({ currentUser, typeUser }: Props) {
       console.error(err);
     }
   });
-  const handleDrop = useCallback(
-    (acceptedFiles: File[]) => {
-      const file = acceptedFiles[0];
-
-      const newFile = Object.assign(file, {
-        preview: URL.createObjectURL(file),
-      }) as CustomFile;
-
-      if (file) {
-        setValue('avatarUrl', newFile, { shouldValidate: true });
-      }
-    },
-    [setValue]
-  );
 
   const renderBasicFields = (
     <Box

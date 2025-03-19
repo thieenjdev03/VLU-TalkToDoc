@@ -17,14 +17,14 @@ type Props = {
   filters: IRankingTableFilters;
   onFilters: (name: string, value: IRankingTableFilterValue) => void;
   //
-  specialtyOptions: string[];
+  rankingOptions: string[];
 };
 
 export default function RankingTableToolbar({
   filters,
   onFilters,
   //
-  specialtyOptions,
+  rankingOptions,
 }: Props) {
   const popover = usePopover();
 

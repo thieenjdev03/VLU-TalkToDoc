@@ -39,9 +39,9 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
-import RankingTableToolbar from 'src/sections/speciality/table-toolbar';
 // Updated to use ranking toolbar
 import RankingTableRow from 'src/sections/speciality/speciality-table-row';
+import RankingTableToolbar from 'src/sections/provider-ranking/table-toolbar';
 // Updated to use ranking filters result
 
 import {

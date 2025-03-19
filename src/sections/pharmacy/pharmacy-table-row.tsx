@@ -59,7 +59,7 @@ export default function PharmacyTableRow({
         <Checkbox checked={is24Hours} disabled />
       </TableCell>
       <TableCell>
-        <Checkbox checked={active} disabled />
+        <Checkbox checked={isActive} disabled />
       </TableCell>
     </>
   );

@@ -94,6 +94,7 @@ export type IUserCard = {
 export type IUserItem = {
   id: string;
   _id: string;
+  emergencyContact: any[];
   fullName: string;
   department: string;
   username: string;

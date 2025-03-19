@@ -34,7 +34,7 @@ export default function SpecialtyTableRow({
   onSelectRow,
   onDeleteRow,
 }: Props) {
-  const { name, description, value, isActive, updatedAt, id } = row;
+  const { name, description, isActive, updatedAt, id } = row;
 
   const confirm = useBoolean();
   const quickEdit = useBoolean();
