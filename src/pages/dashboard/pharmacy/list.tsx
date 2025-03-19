@@ -324,15 +324,9 @@ export default function PharmaciesListPage() {
       {/* Add Quick Edit Dialog */}
       {selectedPharmacy && (
         <PharmacyQuickEditForm
-          open={editDialog.value}
-          onClose={() => {
-            editDialog.onFalse();
-            // Wait a bit for any pending operations to complete
-            setTimeout(() => {
-              setSelectedPharmacy(undefined);
-            }, 300);
-          }}
           currentPharmacy={selectedPharmacy}
+          open={editDialog.value}
+          onClose={editDialog.onFalse}
         />
       )}
     </>

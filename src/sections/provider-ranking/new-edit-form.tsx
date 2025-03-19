@@ -17,6 +17,7 @@ import { useRouter } from 'src/routes/hooks';
 import { useCreateRanking } from 'src/api/ranking';
 
 import { useSnackbar } from 'src/components/snackbar';
+import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 import FormProvider, { RHFTextField } from 'src/components/hook-form';
 // ----------------------------------------------------------------------
 
@@ -36,7 +37,7 @@ export default function RankingNewEditForm({ currentRanking }: Props) {
   const { enqueueSnackbar } = useSnackbar();
   const { createRanking } = useCreateRanking();
   const RankingSchema = Yup.object().shape({
-    name: Yup.string().required('Tên chuyên khoa không được để trống'),
+    name: Yup.string().required('Tên Cấp Bậc không được để trống'),
     description: Yup.string().optional(),
     isActive: Yup.boolean(),
   }) as Yup.ObjectSchema<FormValuesProps>;
@@ -66,56 +67,70 @@ export default function RankingNewEditForm({ currentRanking }: Props) {
       await createRanking({ data });
 
       reset();
-      enqueueSnackbar(
-        currentRanking ? 'Cập nhật chuyên khoa thành công!' : 'Tạo chuyên khoa thành công!'
-      );
-      router.push(paths.dashboard.specialties.list);
+      enqueueSnackbar(currentRanking ? 'Cập nhật Cấp Bậc thành công!' : 'Tạo Cấp Bậc thành công!');
+      router.push(paths.dashboard.ranking_doctor.list);
     } catch (err) {
       console.error(err);
     }
   });
   return (
-    <FormProvider methods={methods} onSubmit={onSubmit}>
-      <Grid container spacing={3}>
-        <Grid xs={12}>
-          <Card sx={{ p: 3 }}>
-            <Box
-              rowGap={3}
-              columnGap={2}
-              display="grid"
-              gridTemplateColumns={{
-                xs: 'repeat(2, 2fr)',
-                sm: 'repeat(2, 2fr)',
-              }}
-              sx={{ marginBottom: 2 }}
-            >
-              <RHFTextField name="name" label="Tên chuyên khoa" />
-              <FormControlLabel
-                control={
-                  <Controller
-                    name="isActive"
-                    control={control}
-                    render={({ field }) => (
-                      <Switch
-                        {...field}
-                        checked={field.value}
-                        onChange={(event) => field.onChange(event.target.checked)}
-                      />
-                    )}
-                  />
-                }
-                label="Trạng Thái"
-              />
-            </Box>
-            <RHFTextField name="description" label="Mô tả" multiline rows={4} />
-            <Stack alignItems="flex-end" sx={{ mt: 3 }}>
-              <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                {!currentRanking ? 'Tạo chuyên khoa' : 'Lưu thay đổi'}
-              </LoadingButton>
-            </Stack>
-          </Card>
+    <>
+      <CustomBreadcrumbs
+        heading="Tạo cấp bậc mới"
+        links={[
+          {
+            name: 'Quản Lý Cấp Bậc',
+            href: paths.dashboard.specialties.root,
+          },
+          { name: 'Tạo Mới' },
+        ]}
+        sx={{
+          mb: { xs: 3, md: 5 },
+        }}
+      />
+      <FormProvider methods={methods} onSubmit={onSubmit}>
+        <Grid container spacing={3}>
+          <Grid xs={12}>
+            <Card sx={{ p: 3 }}>
+              <Box
+                rowGap={3}
+                columnGap={2}
+                display="grid"
+                gridTemplateColumns={{
+                  xs: 'repeat(1, 1fr)',
+                  sm: 'repeat(1, 1fr)',
+                }}
+                sx={{ marginBottom: 2 }}
+              >
+                <RHFTextField name="name" label="Tên Cấp Bậc" />
+                <RHFTextField name="base_price" label="Lương / Giờ" />
+                <FormControlLabel
+                  control={
+                    <Controller
+                      name="isActive"
+                      control={control}
+                      render={({ field }) => (
+                        <Switch
+                          {...field}
+                          checked={field.value}
+                          onChange={(event) => field.onChange(event.target.checked)}
+                        />
+                      )}
+                    />
+                  }
+                  label="Kích hoạt"
+                />
+              </Box>
+              <RHFTextField name="description" label="Mô tả" multiline rows={4} />
+              <Stack alignItems="flex-end" sx={{ mt: 3 }}>
+                <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+                  {!currentRanking ? 'Tạo Cấp Bậc' : 'Lưu thay đổi'}
+                </LoadingButton>
+              </Stack>
+            </Card>
+          </Grid>
         </Grid>
-      </Grid>
-    </FormProvider>
+      </FormProvider>
+    </>
   );
 }

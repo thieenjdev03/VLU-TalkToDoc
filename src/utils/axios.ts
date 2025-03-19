@@ -68,6 +68,12 @@ export const endpoints = {
     update: '/api/v1/pharmacies',
     create: '/api/v1/pharmacies',
   },
+  hospital: {
+    list: '/api/v1/hospitals',
+    delete: '/api/v1/hospitals',
+    update: '/api/v1/hospitals',
+    create: '/api/v1/hospitals',
+  },
   provider_ranking: {
     list: '/api/v1/doctor_levels',
     delete: '/api/v1/doctor_levels',

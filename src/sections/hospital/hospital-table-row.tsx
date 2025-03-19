@@ -13,28 +13,28 @@ import Iconify from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 
-import { IRankingItem } from 'src/types/provider-ranking';
+import HospitalQuickEditForm from 'src/sections/hospital/quick-edit-form';
 
-import RankingQuickEditForm from './quick-edit-form';
+import { IPharmacyItem } from 'src/types/hospital';
 
 // ----------------------------------------------------------------------
 
 type Props = {
   selected: boolean;
   onEditRow: VoidFunction;
-  row: IRankingItem;
+  row: IPharmacyItem;
   onSelectRow: VoidFunction;
   onDeleteRow: VoidFunction;
 };
 
-export default function RankingTableRow({
+export default function HospitalTableRow({
   row,
   selected,
   onEditRow,
   onSelectRow,
   onDeleteRow,
 }: Props) {
-  const { name, description, isActive, updatedAt, id, base_price } = row;
+  const { name, id, address, phoneNumber, isActive, isPublic } = row;
 
   const confirm = useBoolean();
   const quickEdit = useBoolean();
@@ -47,24 +47,26 @@ export default function RankingTableRow({
         <Typography variant="body1">{name}</Typography>
       </TableCell>
       <TableCell>
-        <Typography variant="body2">{description || '-'}</Typography>
+        <Typography variant="body2">{address || '-'}</Typography>
       </TableCell>
-      <TableCell>{base_price}</TableCell>
+      <TableCell>
+        <Typography variant="body2">{phoneNumber || '-'}</Typography>
+      </TableCell>
+      <TableCell>
+        <Checkbox checked={isPublic} disabled />
+      </TableCell>
       <TableCell>
         <Checkbox checked={isActive} disabled />
       </TableCell>
     </>
   );
-  console.log(row);
   return (
     <>
       <TableRow hover selected={selected}>
         <TableCell padding="checkbox">
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell>
-
         {renderCells()}
-
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
           <Tooltip title="Sửa nhanh" placement="top" arrow>
             <IconButton color={quickEdit.value ? 'inherit' : 'default'} onClick={quickEdit.onTrue}>
@@ -95,11 +97,10 @@ export default function RankingTableRow({
           Xoá
         </MenuItem>
       </CustomPopover>
-
       <ConfirmDialog
         open={confirm.value || false}
         onClose={confirm.onFalse}
-        title={`Xoá chuyên khoa ${name}`}
+        title={`Xoá bệnh viện ${name}`}
         content="Bạn có chắc chắn muốn xoá chứ?"
         action={
           <Button variant="contained" color="error" onClick={onDeleteRow}>
@@ -107,8 +108,8 @@ export default function RankingTableRow({
           </Button>
         }
       />
-      <RankingQuickEditForm
-        currentRanking={row}
+      <HospitalQuickEditForm
+        currentHospital={row}
         open={quickEdit.value}
         onClose={quickEdit.onFalse}
       />

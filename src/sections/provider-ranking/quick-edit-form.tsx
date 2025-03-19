@@ -38,7 +38,7 @@ export default function RankingQuickEditForm({ currentRanking, open, onClose }: 
       Yup.object().shape({
         name: Yup.string().required('Tên chuyên khoa không được để trống'),
         description: Yup.string().required('Mô tả không được để trống'),
-        status: Yup.string().required('Trạng thái không được để trống'),
+        base_price: Yup.number().required('Lương không được để trống hoặc là Chữ'),
         isActive: Yup.boolean(),
       }),
     []
@@ -47,10 +47,10 @@ export default function RankingQuickEditForm({ currentRanking, open, onClose }: 
   // 🛠 Default values cho chuyên khoa
   const defaultValues = useMemo(
     () => ({
-      _id: currentRanking?._id || '',
+      id: currentRanking?.id || '',
       name: currentRanking?.name || '',
       description: currentRanking?.description || '',
-      status: currentRanking?.status || 'isActive',
+      base_price: currentRanking?.base_price || 'base_price',
       isActive: currentRanking?.isActive || false,
     }),
     [currentRanking]
@@ -70,7 +70,7 @@ export default function RankingQuickEditForm({ currentRanking, open, onClose }: 
   console.log(errors);
   const onSubmit = handleSubmit(async (data) => {
     try {
-      await updateRanking({ id: data._id, data });
+      await updateRanking({ id: data.id, data });
       reset();
       onClose();
       enqueueSnackbar('Cập nhật thành công!');
@@ -85,21 +85,24 @@ export default function RankingQuickEditForm({ currentRanking, open, onClose }: 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
       <FormProvider methods={methods} onSubmit={onSubmit}>
-        <DialogTitle>Cập nhật thông tin chuyên khoa</DialogTitle>
+        <DialogTitle>Cập nhật thông tin Cấp Bậc</DialogTitle>
         <DialogContent>
           <Box sx={{ display: 'grid', gap: 2, mt: 2 }}>
             <Grid container spacing={2}>
               <Grid item xs={12}>
-                <RHFTextField disabled name="id" label="ID Chuyên Khoa" />
+                <RHFTextField disabled name="id" label="ID Cấp Bậc" />
               </Grid>
               <Grid item xs={12}>
-                <RHFTextField name="name" label="Tên chuyên khoa" />
+                <RHFTextField name="name" label="Tên Cấp Bậc" />
+              </Grid>
+              <Grid item xs={12}>
+                <RHFTextField name="base_price" label="Lương / Giờ" />
               </Grid>
               <Grid item xs={12}>
                 <RHFTextField name="description" label="Mô tả" />
               </Grid>
               <Grid item xs={12}>
-                <Label>Trạng thái</Label>
+                <Label>Kích hoạt</Label>
                 <Controller
                   name="isActive"
                   control={control}

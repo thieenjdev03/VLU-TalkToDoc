@@ -20,6 +20,8 @@ import { RouterLink } from 'src/routes/components';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
+import { useGetRanking } from 'src/api/ranking';
+import { useGetHospital } from 'src/api/hospital';
 import { useGetUsers, useDeleteUser } from 'src/api/user';
 import { _userList, USER_STATUS_OPTIONS } from 'src/_mock';
 
@@ -61,7 +63,7 @@ const TABLE_HEAD_PATIENT = [
   { id: 'address', label: 'Địa Chỉ', width: 250 },
   { id: 'medicalHistory', label: 'Bệnh Án', width: 180 },
   { id: 'id', label: 'Mã Bệnh Nhân', width: 200 },
-  { id: 'status', label: 'Trạng Thái', width: 100 },
+  { id: 'status', label: 'Kích hoạt', width: 100 },
   { id: '', width: 88 },
 ];
 
@@ -75,7 +77,7 @@ const TABLE_HEAD_DOCTOR = [
   { id: 'phoneNumber', label: 'SĐT', width: 180 },
   { id: 'experienceYears', label: 'Kinh Nghiệm (Năm)', width: 120 },
   { id: 'licenseNo', label: 'Mã Giấy Phép', width: 180 },
-  { id: 'status', label: 'Trạng Thái', width: 100 },
+  { id: 'status', label: 'Kích hoạt', width: 100 },
   { id: '', width: 88 },
 ];
 
@@ -83,9 +85,11 @@ const TABLE_HEAD_EMPLOYEE = [
   { id: 'id', label: 'ID', width: 200 },
   { id: 'fullName', label: 'Họ & Tên' },
   { id: 'phoneNumber', label: 'SĐT', width: 180 },
-  { id: 'hospitalId', label: 'Bộ Phận', width: 220 },
+  { id: 'city', label: 'Thành Phố', width: 180 },
+  { id: 'department', label: 'Bộ Phận', width: 220 },
   { id: 'role', label: 'Vị Trí', width: 180 },
-  { id: 'status', label: 'Trạng Thái', width: 100 },
+  { id: 'salary', label: 'Lương / Tháng', width: 220 },
+  { id: 'status', label: 'Kích hoạt', width: 100 },
   { id: '', width: 88 },
 ];
 
@@ -103,7 +107,7 @@ export default function UserListView(props: {
   const { typeUser } = props;
   const { enqueueSnackbar } = useSnackbar();
   const table = useTable();
-
+  const { providerRanking } = useGetRanking();
   const settings = useSettingsContext();
 
   const router = useRouter();
@@ -157,7 +161,7 @@ export default function UserListView(props: {
   const canReset = !isEqual(defaultFilters, filters);
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
-
+  const { hospitals, hospitalsLoading, hospitalsError, hospitalsValidating } = useGetHospital();
   const debouncedSearch = useMemo(
     () =>
       debounce((query: string) => {
@@ -368,12 +372,14 @@ export default function UserListView(props: {
                       <UserTableRow
                         key={row._id}
                         row={row}
+                        ranking={providerRanking}
                         selected={table.selected.includes(row._id)}
                         onSelectRow={() => table.onSelectRow(row._id)}
                         onDeleteRow={() => handleDeleteRow(row._id)}
                         onEditRow={() => handleEditRow(row.id)}
                         typeUser={typeUser}
                         specialtyList={specialtyList}
+                        hospitalList={hospitals}
                       />
                     ))}
 

@@ -31,6 +31,8 @@ type Props = {
   onDeleteRow: VoidFunction;
   typeUser: 'user' | 'doctor' | 'employee' | 'patient';
   specialtyList: ISpecialtyItem[];
+  hospitalList: any;
+  ranking: any;
 };
 
 export default function UserTableRow({
@@ -41,6 +43,8 @@ export default function UserTableRow({
   onDeleteRow,
   typeUser,
   specialtyList,
+  hospitalList,
+  ranking,
 }: Props) {
   const {
     fullName,
@@ -57,11 +61,12 @@ export default function UserTableRow({
     gender,
     address,
     medicalHistory,
-    _id,
     birthDate,
     position,
     department,
     id,
+    isActive,
+    salary,
   } = row;
 
   const confirm = useBoolean();
@@ -76,6 +81,12 @@ export default function UserTableRow({
       ?.filter((name) => name !== null);
     return _specialtyList?.join(', ');
   };
+
+  const hospitalOptions = hospitalList?.map((item: any) => ({
+    value: item._id,
+    label: item.name,
+  }));
+
   const renderCells = () => {
     switch (typeUser) {
       case 'doctor':
@@ -94,17 +105,7 @@ export default function UserTableRow({
             <TableCell>{experienceYears}</TableCell>
             <TableCell>{licenseNo}</TableCell>
             <TableCell>
-              <Label
-                variant="soft"
-                color={
-                  (status === 'active' && 'success') ||
-                  (status === 'pending' && 'warning') ||
-                  (status === 'banned' && 'error') ||
-                  'default'
-                }
-              >
-                {status}
-              </Label>
+              <Checkbox checked={isActive} disabled />
             </TableCell>
           </>
         );
@@ -118,20 +119,12 @@ export default function UserTableRow({
               <ListItemText primary={fullName} secondary={email} />
             </TableCell>
             <TableCell>{phoneNumber}</TableCell>
+            <TableCell>{city?.name || city}</TableCell>
             <TableCell>{department}</TableCell>
             <TableCell>{position}</TableCell>
+            <TableCell>{salary}</TableCell>
             <TableCell>
-              <Label
-                variant="soft"
-                color={
-                  (status === 'active' && 'success') ||
-                  (status === 'pending' && 'warning') ||
-                  (status === 'banned' && 'error') ||
-                  'default'
-                }
-              >
-                {status}
-              </Label>
+              <Checkbox checked={isActive} disabled />
             </TableCell>
           </>
         );
@@ -190,20 +183,10 @@ export default function UserTableRow({
                 </Typography>
               )}
             </TableCell>
-            <TableCell>{_id}</TableCell>
+            <TableCell>{id}</TableCell>
             {/* Hiển thị trạng thái tài khoản */}
             <TableCell>
-              <Label
-                variant="soft"
-                color={
-                  (status === 'active' && 'success') ||
-                  (status === 'pending' && 'warning') ||
-                  (status === 'banned' && 'error') ||
-                  'default'
-                }
-              >
-                {status}
-              </Label>
+              <Checkbox checked={isActive} disabled />
             </TableCell>
           </>
         );
@@ -237,6 +220,8 @@ export default function UserTableRow({
         currentUser={row}
         open={quickEdit.value}
         onClose={quickEdit.onFalse}
+        ranking={ranking}
+        hospitalList={hospitalOptions}
       />
 
       <CustomPopover

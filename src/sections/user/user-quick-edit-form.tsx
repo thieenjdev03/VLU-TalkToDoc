@@ -1,3 +1,4 @@
+import axios from 'axios';
 import * as Yup from 'yup';
 import { useMemo, useState, useEffect } from 'react';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -21,18 +22,49 @@ import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, { RHFTextField, RHFAutocomplete } from 'src/components/hook-form';
 
 import { IUserItem } from 'src/types/user';
+import { IProvince } from 'src/types/hospital';
 import { ISpecialtyItem } from 'src/types/specialties';
+import { IRankingItem } from 'src/types/provider-ranking';
 
 type Props = {
   open: boolean;
   onClose: VoidFunction;
   currentUser?: IUserItem;
   typeUser: 'doctor' | 'patient' | 'employee' | 'user';
+  ranking: IRankingItem[];
+  hospitalList: any;
 };
 
-export default function UserQuickEditForm({ currentUser, open, onClose, typeUser }: Props) {
+export default function UserQuickEditForm({
+  currentUser,
+  open,
+  onClose,
+  typeUser,
+  ranking,
+  hospitalList,
+}: Props) {
   const { enqueueSnackbar } = useSnackbar();
   const { updateUser } = useUpdateUser({ typeUser });
+  const [cities, setCities] = useState<IProvince[]>([]);
+  const [loadingCities, setLoadingCities] = useState<boolean>(false);
+
+  // Load danh sách thành phố từ API
+  useEffect(() => {
+    const fetchCities = async () => {
+      setLoadingCities(true);
+      try {
+        const response = await axios.get('https://provinces.open-api.vn/api/');
+        setCities(response.data);
+      } catch (error) {
+        enqueueSnackbar('Failed to load cities data', { variant: 'error' });
+      } finally {
+        setLoadingCities(false);
+      }
+    };
+    fetchCities();
+  }, [enqueueSnackbar]);
+
+  const cityOptions = cities.map((city) => city.name);
 
   const { specialties } = useGetSpecialties();
   const [specialtyList, setSpecialtyList] = useState<ISpecialtyItem[]>([]);
@@ -71,7 +103,6 @@ export default function UserQuickEditForm({ currentUser, open, onClose, typeUser
           email: Yup.string().required('Email không được để trống').email('Email không hợp lệ'),
           phoneNumber: Yup.string().required('Số điện thoại không được để trống'),
           role: Yup.string().required('Vai trò không được để trống'),
-          hospitalId: Yup.string().required('Bệnh viện không được để trống'),
           department: Yup.string().required('Bộ phận không được để trống'),
         });
       default:
@@ -85,6 +116,7 @@ export default function UserQuickEditForm({ currentUser, open, onClose, typeUser
       _id: currentUser?._id || '',
       fullName: currentUser?.fullName || '',
       email: currentUser?.email || '',
+      isActive: currentUser?.isActive || false,
       phoneNumber: currentUser?.phoneNumber || '',
       ...(typeUser === 'doctor' && {
         specialty: currentUser?.specialty || [],
@@ -104,6 +136,8 @@ export default function UserQuickEditForm({ currentUser, open, onClose, typeUser
         department: currentUser?.department || '',
         specialty: currentUser?.specialty,
         position: currentUser?.position || '',
+        salary: currentUser?.salary || 0,
+        city: currentUser?.city || '',
       }),
     }),
     [currentUser, typeUser]
@@ -170,22 +204,7 @@ export default function UserQuickEditForm({ currentUser, open, onClose, typeUser
               <Grid item xs={12} sm={6}>
                 <RHFTextField name="phoneNumber" label="Số điện thoại" />
               </Grid>
-              <FormControlLabel
-                control={
-                  <Controller
-                    name="isActive"
-                    control={control}
-                    render={({ field }) => (
-                      <Switch
-                        {...field}
-                        checked={field.value}
-                        onChange={(event) => field.onChange(event.target.checked)}
-                      />
-                    )}
-                  />
-                }
-                label="Trạng Thái"
-              />
+
               {typeUser === 'doctor' && (
                 <>
                   <Grid item xs={12} sm={6}>
@@ -206,10 +225,39 @@ export default function UserQuickEditForm({ currentUser, open, onClose, typeUser
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
-                    <RHFTextField name="hospitalId" label="Bệnh viện" />
+                    <RHFAutocomplete
+                      name="hospitalId"
+                      label="Bệnh Viện"
+                      options={hospitalList}
+                      getOptionLabel={(option) =>
+                        typeof option === 'string' ? option : option.label
+                      }
+                      isOptionEqualToValue={(option: any, value: any) =>
+                        typeof option === 'string' ? option === value : option.value === value
+                      }
+                      onChange={(event, newValue: any) =>
+                        setValue('hospitalId', newValue.label, { shouldValidate: true })
+                      }
+                    />
                   </Grid>
                   <Grid item xs={12} sm={6}>
-                    <RHFTextField name="rank" label="Cấp bậc" />
+                    <RHFAutocomplete
+                      name="rank"
+                      label="Cấp Bậc"
+                      options={ranking?.map((item) => ({
+                        value: item._id,
+                        label: item.name,
+                      }))}
+                      getOptionLabel={(option: any) =>
+                        typeof option === 'string' ? option : option.label
+                      }
+                      isOptionEqualToValue={(option, value: any) =>
+                        typeof option === 'string' ? option === value : option.value === value
+                      }
+                      onChange={(event, newValue: any) =>
+                        setValue('rank', newValue.label, { shouldValidate: true })
+                      }
+                    />
                   </Grid>
                   <Grid item xs={12} sm={6}>
                     <RHFTextField name="experienceYears" label="Số năm kinh nghiệm" />
@@ -260,10 +308,45 @@ export default function UserQuickEditForm({ currentUser, open, onClose, typeUser
                     <RHFTextField name="department" label="Bộ Phận" />
                   </Grid>
                   <Grid item xs={12} sm={6}>
-                    <RHFTextField name="hospitalId" label="Bệnh viện" />
+                    <RHFTextField name="salary" label="Lương / Tháng" />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    {loadingCities ? (
+                      <RHFTextField
+                        name="city"
+                        label="Thành Phố/Tỉnh"
+                        disabled
+                        placeholder="Loading cities..."
+                      />
+                    ) : (
+                      <RHFAutocomplete
+                        name="city"
+                        label="Thành Phố/Tỉnh"
+                        placeholder="Chọn thành Phố/Tỉnh"
+                        options={cityOptions}
+                        isOptionEqualToValue={(option, value) => option === value}
+                      />
+                    )}{' '}
                   </Grid>
                 </>
               )}
+              <FormControlLabel
+                sx={{ ml: '10px' }}
+                control={
+                  <Controller
+                    name="isActive"
+                    control={control}
+                    render={({ field }) => (
+                      <Switch
+                        {...field}
+                        checked={field.value}
+                        onChange={(event) => field.onChange(event.target.checked)}
+                      />
+                    )}
+                  />
+                }
+                label="Kích hoạt"
+              />
             </Grid>
           </Box>
         </DialogContent>

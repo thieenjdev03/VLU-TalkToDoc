@@ -6,9 +6,11 @@ export interface IRankingItem {
   status: string;
   value: string;
   label: string;
+  salary: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  base_price: number;
 }
 
 export interface IRankingTableFilters {

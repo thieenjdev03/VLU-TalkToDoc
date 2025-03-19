@@ -10,13 +10,12 @@ import Stack from '@mui/material/Stack';
 import Switch from '@mui/material/Switch';
 import Grid from '@mui/material/Unstable_Grid2';
 import LoadingButton from '@mui/lab/LoadingButton';
-import DialogTitle from '@mui/material/DialogTitle';
 import FormControlLabel from '@mui/material/FormControlLabel';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 
-import { useCreatePharmacy, useUpdatePharmacy } from 'src/api/pharmacy';
+import { useCreateHospital, useUpdateHospital } from 'src/api/hospital';
 
 import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, { RHFTextField } from 'src/components/hook-form';
@@ -31,8 +30,8 @@ type FormValuesProps = {
   address: string;
   phoneNumber: string;
   city: string;
-  is24Hours: boolean;
-  status: boolean;
+  isActive: boolean;
+  isPublic: boolean;
 };
 
 // Interface for provinces API response
@@ -47,8 +46,8 @@ export default function PharmacyNewEditForm({ currentPharmacy }: Props) {
   const router = useRouter();
 
   const { enqueueSnackbar } = useSnackbar();
-  const { createPharmacy } = useCreatePharmacy();
-  const { updatePharmacy } = useUpdatePharmacy();
+  const { createHospital } = useCreateHospital();
+  const { updateHospital } = useUpdateHospital();
   const [cities, setCities] = useState<IProvince[]>([]);
   const [loadingCities, setLoadingCities] = useState<boolean>(false);
 
@@ -74,9 +73,8 @@ export default function PharmacyNewEditForm({ currentPharmacy }: Props) {
     name: Yup.string().required('Tên nhà thuốc không được để trống'),
     address: Yup.string().required('Địa chỉ không được để trống'),
     phoneNumber: Yup.string().required('Số điện thoại không được để trống'),
-    city: Yup.string().required('Thành phố không được để trống'),
-    is24Hours: Yup.boolean(),
-    status: Yup.boolean(),
+    isActive: Yup.boolean(),
+    isPublic: Yup.boolean(),
   }) as Yup.ObjectSchema<FormValuesProps>;
 
   const defaultValues = useMemo(
@@ -84,9 +82,8 @@ export default function PharmacyNewEditForm({ currentPharmacy }: Props) {
       name: currentPharmacy?.name || '',
       address: currentPharmacy?.address || '',
       phoneNumber: currentPharmacy?.phoneNumber || '',
-      city: currentPharmacy?.city || '',
-      is24Hours: currentPharmacy?.is24Hours || false,
-      status: currentPharmacy?.status || true,
+      isPublic: currentPharmacy?.is24Hours || false,
+      isActive: currentPharmacy?.isActive || true,
     }),
     [currentPharmacy]
   );
@@ -101,26 +98,24 @@ export default function PharmacyNewEditForm({ currentPharmacy }: Props) {
     formState: { isSubmitting, errors },
   } = methods;
   console.log('Form Errors:', errors);
-  const cityOptions = cities.map((city) => city.name);
 
   const onSubmit = handleSubmit(async (data) => {
     try {
       if (currentPharmacy) {
-        await updatePharmacy({ _id: currentPharmacy._id, data });
-        enqueueSnackbar('Cập nhật nhà thuốc thành công!');
+        await updateHospital({ _id: currentPharmacy._id, data });
+        enqueueSnackbar('Cập nhật Bệnh Viện thành công!');
       } else {
-        await createPharmacy({ data });
-        enqueueSnackbar('Tạo nhà thuốc thành công!');
+        await createHospital({ data });
+        enqueueSnackbar('Tạo Bệnh Viện thành công!');
       }
       reset();
-      router.push(paths.dashboard.pharmacies.list);
+      router.push(paths.dashboard.hospital.list);
     } catch (err) {
       console.error(err);
     }
   });
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
-      <DialogTitle>{currentPharmacy ? 'Chỉnh sửa nhà thuốc' : 'Tạo mới nhà thuốc'}</DialogTitle>
       <Grid container spacing={3}>
         <Grid xs={12}>
           <Card sx={{ p: 3 }}>
@@ -129,54 +124,48 @@ export default function PharmacyNewEditForm({ currentPharmacy }: Props) {
               columnGap={2}
               display="grid"
               gridTemplateColumns={{
-                xs: 'repeat(2, 2fr)',
-                sm: 'repeat(2, 2fr)',
+                xs: 'repeat(1, 1fr)',
+                sm: 'repeat(1, 1fr)',
               }}
               sx={{ marginBottom: 2 }}
             >
-              <RHFTextField name="name" label="Tên nhà thuốc" />
+              <RHFTextField name="name" label="Tên Bệnh Viện" />
               <RHFTextField name="address" label="Địa chỉ" />
               <RHFTextField name="phoneNumber" label="Số điện thoại" />
-              <RHFTextField name="city" label="Thành Phố/Tỉnh" />
-              {/* <RHFAutocomplete
-                name="city"
-                label="Thành Phố/Tỉnh"
-                placeholder={`${loadingCities ? '' : 'Chọn thành phố/tỉnh'}`}
-                options={cityOptions}
-                isOptionEqualToValue={(option, value) => option === value}
-              /> */}
-              <FormControlLabel
-                control={
-                  <Controller
-                    name="is24Hours"
-                    control={control}
-                    render={({ field }) => (
-                      <Switch
-                        {...field}
-                        checked={field.value}
-                        onChange={(event) => field.onChange(event.target.checked)}
-                      />
-                    )}
-                  />
-                }
-                label="Hoạt động 24/7"
-              />
-              <FormControlLabel
-                control={
-                  <Controller
-                    name="status"
-                    control={control}
-                    render={({ field }) => (
-                      <Switch
-                        {...field}
-                        checked={field.value}
-                        onChange={(event) => field.onChange(event.target.checked)}
-                      />
-                    )}
-                  />
-                }
-                label="Kích hoạt"
-              />
+              <Box sx={{ display: 'flex', flexDirection: 'row' }}>
+                <FormControlLabel
+                  control={
+                    <Controller
+                      name="isPublic"
+                      control={control}
+                      render={({ field }) => (
+                        <Switch
+                          {...field}
+                          checked={field.value}
+                          onChange={(event) => field.onChange(event.target.checked)}
+                        />
+                      )}
+                    />
+                  }
+                  label="BV Công"
+                />
+                <FormControlLabel
+                  control={
+                    <Controller
+                      name="isActive"
+                      control={control}
+                      render={({ field }) => (
+                        <Switch
+                          {...field}
+                          checked={field.value}
+                          onChange={(event) => field.onChange(event.target.checked)}
+                        />
+                      )}
+                    />
+                  }
+                  label="Kích hoạt"
+                />
+              </Box>
             </Box>
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>
               <LoadingButton type="submit" variant="contained" loading={isSubmitting}>

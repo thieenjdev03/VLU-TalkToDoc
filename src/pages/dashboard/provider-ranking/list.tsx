@@ -39,9 +39,9 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
-// Updated to use ranking toolbar
-import RankingTableRow from 'src/sections/speciality/speciality-table-row';
 import RankingTableToolbar from 'src/sections/provider-ranking/table-toolbar';
+// Updated to use ranking toolbar
+import RankingTableRow from 'src/sections/provider-ranking/speciality-table-row';
 // Updated to use ranking filters result
 
 import {
@@ -57,8 +57,8 @@ const TABLE_HEAD_SPECIALTY = [
   { id: 'id', label: 'ID', width: 100 },
   { id: 'name', label: 'Tên Cấp Bậc', width: '20%' },
   { id: 'description', label: 'Mô Tả', width: '20%' },
-  { id: 'isActive', label: 'Kích Hoạt', width: '20%' },
   { id: 'base_price', label: 'Lương', width: '20%' },
+  { id: 'isActive', label: 'Kích Hoạt', width: '20%' },
 ];
 const defaultFilters: IRankingTableFilters = {
   name: '',
@@ -160,10 +160,10 @@ export default function ProviderRankingListPage() {
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'} sx={{ overflow: 'hidden' }}>
         <CustomBreadcrumbs
-          heading="Quản Lý Chuyên Khoa"
+          heading="Quản Lý Cấp Bậc"
           links={[
             {
-              name: 'Quản Lý Chuyên Khoa',
+              name: 'Quản Lý Cấp Bậc',
               href: paths.dashboard.ranking_doctor.root,
             },
           ]}

@@ -104,7 +104,7 @@ export default function SpecialtyNewEditForm({ currentSpecialty }: Props) {
                     )}
                   />
                 }
-                label="Trạng Thái"
+                label="Kích hoạt"
               />
             </Box>
             <RHFTextField name="description" label="Mô tả" multiline rows={4} />

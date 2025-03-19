@@ -109,6 +109,7 @@ export type IUserItem = {
   state: string;
   status: string;
   address: string;
+  salary: number;
   country: string;
   zipCode: string;
   isActive: boolean;

@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 
-import SpecialtyCreateView from 'src/sections/pharmacy/view/create-view';
+import SpecialtyCreateView from 'src/sections/hospital/view/create-view';
 // ----------------------------------------------------------------------
 
 export default function SpecialtyCreatePage() {

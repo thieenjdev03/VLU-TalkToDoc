@@ -13,12 +13,13 @@ import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
 
+import { useGetHospital, useDeleteHospital } from 'src/api/hospital'; // Updated to use hospital API
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { useGetPharmacies, useDeletePharmacy } from 'src/api/pharmacy'; // Updated to use pharmacy API
+// Updated to use pharmacy API
 import { USER_STATUS_OPTIONS } from 'src/_mock';
 
 import Label from 'src/components/label';
@@ -39,15 +40,15 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
-import PharmacyTableToolbar from 'src/sections/pharmacy/table-toolbar'; // Updated to use pharmacy toolbar
-import PharmacyTableRow from 'src/sections/pharmacy/pharmacy-table-row'; // Updated to use pharmacy filters result
-import PharmacyQuickEditForm from 'src/sections/pharmacy/quick-edit-form'; // Import the edit form
+import PharmacyTableToolbar from 'src/sections/hospital/table-toolbar'; // Updated to use pharmacy toolbar
+import PharmacyTableRow from 'src/sections/hospital/hospital-table-row'; // Updated to use pharmacy filters result
+import PharmacyQuickEditForm from 'src/sections/hospital/quick-edit-form'; // Import the edit form
 
 import {
   IPharmacyItem,
   IPharmacyTableFilters,
   IPharmacyTableFilterValue,
-} from 'src/types/pharmacy'; // Updated types
+} from 'src/types/hospital'; // Updated types
 
 // ----------------------------------------------------------------------
 
@@ -56,9 +57,9 @@ const TABLE_HEAD_PHARMACY = [
   { id: '_id', label: 'ID', width: 100 },
   { id: 'name', label: 'Tên Nhà Thuốc', width: '20%' },
   { id: 'address', label: 'Địa Chỉ', width: '20%' },
-  { id: 'city', label: 'Thành Phố', width: '20%' },
   { id: 'phoneNumber', label: 'Số Điện Thoại', width: '20%' },
-  { id: 'is24Hours', label: 'Hoạt Động 24/7', width: '10%' },
+  { id: 'isPublic', label: 'BV Công', width: '10%' },
+  { id: 'isActive', label: 'Kích Hoạt', width: '10%' },
 ];
 const defaultFilters: IPharmacyTableFilters = {
   name: '',
@@ -86,19 +87,18 @@ export default function HospitalListPage() {
     filters,
   });
 
-  const [selectedPharmacy, setSelectedPharmacy] = useState<IPharmacyItem | undefined>(undefined);
+  const [selectedHospital, setSelectedHospital] = useState<IPharmacyItem | undefined>(undefined);
   const editDialog = useBoolean();
 
-  const { pharmacies, pharmaciesLoading, pharmaciesError, pharmaciesValidating } =
-    useGetPharmacies();
+  const { hospitals, hospitalsLoading, hospitalsError, hospitalsValidating } = useGetHospital();
 
   useEffect(() => {
-    if (pharmacies.length) {
-      setTableData(pharmacies);
-    } else if (pharmaciesLoading || pharmaciesError || pharmaciesValidating) {
+    if (hospitals?.length) {
+      setTableData(hospitals);
+    } else if (hospitalsLoading || hospitalsError || hospitalsValidating) {
       setTableData([]);
     }
-  }, [pharmacies, pharmaciesLoading, pharmaciesError, pharmaciesValidating]);
+  }, [hospitals, hospitalsLoading, hospitalsError, hospitalsValidating]);
 
   const dataInPage = dataFiltered.slice(
     table.page * table.rowsPerPage,
@@ -122,10 +122,10 @@ export default function HospitalListPage() {
     [table]
   );
 
-  const { deletePharmacy } = useDeletePharmacy();
+  const { deleteHospital } = useDeleteHospital();
   const handleDeleteRow = useCallback(
     async (id: string) => {
-      await deletePharmacy(id)
+      await deleteHospital(id)
         .then(() => {
           enqueueSnackbar('Xoá nhà thuốc thành công!', { variant: 'success' });
           table.onUpdatePageDeleteRow(dataInPage.length);
@@ -137,17 +137,17 @@ export default function HospitalListPage() {
           enqueueSnackbar('Không thể xoá nhà thuốc!', { variant: 'error' });
         });
     },
-    [dataInPage.length, enqueueSnackbar, table, deletePharmacy, confirm]
+    [dataInPage.length, enqueueSnackbar, table, deleteHospital, confirm]
   );
 
   const handleEditRow = useCallback(
     (_id: string) => {
       // Option 1: Navigate to edit page
-      // router.push(paths.dashboard.pharmacies.edit(_id));
+      // router.push(paths.dashboard.hospitals.edit(_id));
 
       // Option 2: Open edit dialog
       const pharmacy = tableData.find((p) => p._id === _id);
-      setSelectedPharmacy(pharmacy);
+      setSelectedHospital(pharmacy);
       editDialog.onTrue();
     },
     [tableData, editDialog]
@@ -324,11 +324,11 @@ export default function HospitalListPage() {
       />
 
       {/* Add Quick Edit Dialog */}
-      {selectedPharmacy && (
+      {selectedHospital && (
         <PharmacyQuickEditForm
           open={editDialog.value}
           onClose={editDialog.onFalse}
-          currentPharmacy={selectedPharmacy}
+          currentHospital={selectedHospital}
         />
       )}
     </>
@@ -346,7 +346,7 @@ function applyFilter({
   comparator: (a: any, b: any) => number;
   filters: IPharmacyTableFilters; // Updated type
 }) {
-  const { name, status } = filters;
+  const { name } = filters;
 
   const stabilizedThis = inputData.map((el, index) => [el, index] as const);
 

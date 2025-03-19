@@ -1,20 +1,24 @@
 import { Helmet } from 'react-helmet-async';
 
-import { UserCreateView } from 'src/sections/user/view';
+import { useGetRanking } from 'src/api/ranking';
+import { useGetHospital } from 'src/api/hospital';
 
+import { UserCreateView } from 'src/sections/user/view';
 // ----------------------------------------------------------------------
 
 export default function UserCreatePage(props: {
   typeUser: 'user' | 'doctor' | 'employee' | 'patient';
 }) {
   const { typeUser } = props;
+  const { hospitals } = useGetHospital();
+  const { providerRanking } = useGetRanking();
   return (
     <>
       <Helmet>
         <title> Dashboard: Tạo người dùng mới</title>
       </Helmet>
 
-      <UserCreateView typeUser={typeUser} />
+      <UserCreateView typeUser={typeUser} hospitals={hospitals} ranking={providerRanking} />
     </>
   );
 }

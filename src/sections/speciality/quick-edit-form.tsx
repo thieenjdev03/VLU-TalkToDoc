@@ -38,7 +38,7 @@ export default function SpecialtyQuickEditForm({ currentSpecialty, open, onClose
       Yup.object().shape({
         name: Yup.string().required('Tên chuyên khoa không được để trống'),
         description: Yup.string().required('Mô tả không được để trống'),
-        status: Yup.string().required('Trạng thái không được để trống'),
+        status: Yup.string().required('Kích hoạt không được để trống'),
         isActive: Yup.boolean(),
       }),
     []
@@ -99,7 +99,7 @@ export default function SpecialtyQuickEditForm({ currentSpecialty, open, onClose
                 <RHFTextField name="description" label="Mô tả" />
               </Grid>
               <Grid item xs={12}>
-                <Label>Trạng thái</Label>
+                <Label>Kích hoạt</Label>
                 <Controller
                   name="isActive"
                   control={control}

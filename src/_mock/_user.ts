@@ -156,6 +156,7 @@ export const _userList = [...Array(20)].map((_, index) => ({
   country: countries[index + 1].label,
   avatarUrl: _mock.image.avatar(index),
   phoneNumber: _mock.phoneNumber(index),
+  salary: _mock.number.price(index),
   status: (index % 2 && 'Hoạt Động') || 'Đã Khoá',
   rank: _mock.rank(Math.floor(Math.random() * 4)),
   specialty: _mock.specialty(Math.floor(Math.random() * 4)),

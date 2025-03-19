@@ -175,7 +175,7 @@ export default function PharmacyQuickEditForm({ currentPharmacy, open, onClose }
                   />
                 </Grid>
                 <Grid item xs={12}>
-                  <Label>Trạng thái</Label>
+                  <Label>Kích hoạt</Label>
                   <Controller
                     name="active"
                     control={control}
