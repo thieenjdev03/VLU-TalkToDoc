@@ -10,6 +10,7 @@ import Stack from '@mui/material/Stack';
 import Switch from '@mui/material/Switch';
 import Grid from '@mui/material/Unstable_Grid2';
 import LoadingButton from '@mui/lab/LoadingButton';
+import InputAdornment from '@mui/material/InputAdornment';
 import FormControlLabel from '@mui/material/FormControlLabel';
 
 import { paths } from 'src/routes/paths';
@@ -25,6 +26,7 @@ import { IUserItem } from 'src/types/user';
 import { IPharmacyItem } from 'src/types/hospital';
 import { ISpecialtyItem } from 'src/types/specialties';
 import { IRankingItem } from 'src/types/provider-ranking';
+
 // ----------------------------------------------------------------------
 
 type Props = {
@@ -97,6 +99,13 @@ export default function UserNewEditForm({ currentUser, typeUser, hospitals, rank
     };
     fetchCities();
   }, [enqueueSnackbar]);
+  const formatNumber = (value: number | string) => {
+    if (!value) return '';
+    return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  };
+
+  // Parse formatted number back to number
+  const parseNumber = (value: string) => value.replace(/,/g, '');
 
   const cityOptions = cities.map((city) => city.name);
   const NewUserSchema = Yup.object().shape({
@@ -137,10 +146,7 @@ export default function UserNewEditForm({ currentUser, typeUser, hospitals, rank
       typeUser === 'user' || typeUser === 'employee'
         ? Yup.string().required('Vị trí không được để trống')
         : Yup.string().optional(),
-    ranking:
-      typeUser === 'doctor'
-        ? Yup.string().required('Cấp bậc không được để trống')
-        : Yup.string().optional(),
+    ranking: typeUser === 'doctor' ? Yup.string().optional() : Yup.string().optional(),
     specialty:
       typeUser === 'doctor'
         ? Yup.array()
@@ -354,7 +360,7 @@ export default function UserNewEditForm({ currentUser, typeUser, hospitals, rank
             typeof option === 'string' ? option === value : option.value === value
           }
           onChange={(event, newValue: any) =>
-            setValue('gender', newValue.value, { shouldValidate: true })
+            setValue('gender', newValue.label, { shouldValidate: true })
           }
         />
       </Box>
@@ -478,7 +484,28 @@ export default function UserNewEditForm({ currentUser, typeUser, hospitals, rank
       )}
       <RHFTextField name="position" label="Vị trí" />
       <RHFTextField name="department" label="Bộ Phận" />
-      <RHFTextField name="salary" label="Lương / Tháng" />
+      <Controller
+        name="salary"
+        control={control}
+        render={({ field, fieldState: { error } }) => (
+          <RHFTextField
+            name="salary"
+            label="Lương / Tháng"
+            value={formatNumber(field.value)}
+            onChange={(e) => {
+              const parsedValue = parseNumber(e.target.value);
+              if (!parsedValue || /^\d+$/.test(parsedValue)) {
+                field.onChange(parsedValue);
+              }
+            }}
+            InputProps={{
+              endAdornment: <InputAdornment position="end">VND</InputAdornment>,
+            }}
+            helperText={error?.message || 'Nhập số tiền không có dấu phẩy'}
+            error={!!error}
+          />
+        )}
+      />
     </Box>
   );
   // <Grid xs={12} md={4}>

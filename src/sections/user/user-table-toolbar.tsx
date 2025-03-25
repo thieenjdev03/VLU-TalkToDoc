@@ -24,6 +24,7 @@ type Props = {
   roleOptions: string[];
   searchValue?: string;
   onSearchChange?: (query: string) => void;
+  typeUser: 'user' | 'doctor' | 'employee' | 'patient';
 };
 
 export default function UserTableToolbar({
@@ -32,6 +33,7 @@ export default function UserTableToolbar({
   roleOptions,
   searchValue = '',
   onSearchChange,
+  typeUser,
 }: Props) {
   const popover = usePopover();
 
@@ -56,7 +58,21 @@ export default function UserTableToolbar({
     },
     [onFilters]
   );
-
+  const renderTextForFilter = () => {
+    if (typeUser === 'user') {
+      return 'Người dùng';
+    }
+    if (typeUser === 'doctor') {
+      return 'Chuyên Khoa';
+    }
+    if (typeUser === 'employee') {
+      return 'Bộ Phận';
+    }
+    if (typeUser === 'patient') {
+      return '';
+    }
+    return 'Chuyên khoa';
+  };
   return (
     <>
       <Stack
@@ -72,34 +88,42 @@ export default function UserTableToolbar({
         }}
       >
         {/* Dropdown chọn chuyên khoa */}
-        <FormControl
-          sx={{
-            flexShrink: 0,
-            width: { xs: 1, md: 200 },
-          }}
-        >
-          <InputLabel>Chuyên Khoa</InputLabel>
-
-          <Select
-            multiple
-            value={filters.specialty}
-            onChange={handleFilterSpecialty}
-            input={<OutlinedInput label="Chuyên Khoa" />}
-            renderValue={(selected) => selected.map((value) => value).join(', ')}
-            MenuProps={{
-              PaperProps: {
-                sx: { maxHeight: 240 },
-              },
+        {typeUser === 'patient' || typeUser === 'user' ? (
+          <></>
+        ) : (
+          <FormControl
+            sx={{
+              flexShrink: 0,
+              width: { xs: 1, md: 200 },
             }}
           >
-            {roleOptions.map((option) => (
-              <MenuItem key={option} value={option}>
-                <Checkbox disableRipple size="small" checked={filters.specialty.includes(option)} />
-                {option}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+            <InputLabel>{renderTextForFilter()}</InputLabel>
+
+            <Select
+              multiple
+              value={filters.specialty}
+              onChange={handleFilterSpecialty}
+              input={<OutlinedInput label="Chuyên Khoa" />}
+              renderValue={(selected) => selected.map((value) => value).join(', ')}
+              MenuProps={{
+                PaperProps: {
+                  sx: { maxHeight: 240 },
+                },
+              }}
+            >
+              {roleOptions.map((option) => (
+                <MenuItem key={option} value={option}>
+                  <Checkbox
+                    disableRipple
+                    size="small"
+                    checked={filters.specialty.includes(option)}
+                  />
+                  {option}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        )}
 
         {/* Ô tìm kiếm */}
         <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>

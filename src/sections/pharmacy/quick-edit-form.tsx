@@ -95,7 +95,7 @@ export default function PharmacyQuickEditForm({ currentPharmacy, open, onClose }
     control, // Get control for Controller components
     formState: { isSubmitting },
   } = methods;
-
+  console.log('currentPharmacy:', currentPharmacy);
   // Reset form khi currentPharmacy thay đổi
   useEffect(() => {
     reset(defaultValues);
@@ -103,10 +103,10 @@ export default function PharmacyQuickEditForm({ currentPharmacy, open, onClose }
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      if (currentPharmacy?._id) {
-        await updatePharmacy({ _id: currentPharmacy._id, data });
+      if (currentPharmacy?.id) {
+        await updatePharmacy({ id: currentPharmacy._id, data });
 
-        window.location.reload();
+        // window.location.reload();
       } else {
         enqueueSnackbar('Pharmacy ID is missing', { variant: 'error' });
         return;
@@ -123,12 +123,12 @@ export default function PharmacyQuickEditForm({ currentPharmacy, open, onClose }
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
       <FormProvider {...methods}>
         <form onSubmit={onSubmit}>
-          <DialogTitle>Cập nhật thông tin Pharmacy</DialogTitle>
+          <DialogTitle>Cập nhật thông tin Nhà Thuốc</DialogTitle>
           <DialogContent>
             <Box sx={{ mt: 2 }}>
               <Grid container spacing={2}>
                 <Grid item xs={12}>
-                  <RHFTextField disabled name="id" label="ID" />
+                  <RHFTextField disabled name="id" label="Mã" />
                 </Grid>
                 <Grid item xs={12}>
                   <RHFTextField name="name" label="Tên Pharmacy" />

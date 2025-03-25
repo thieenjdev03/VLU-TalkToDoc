@@ -26,14 +26,19 @@ export const useGetHospital = () => {
 
   return memoizedValue;
 };
+
 export const useDeleteHospital = () => {
-  const URL = endpoints.hospital.delete;
+  const URL = endpoints.hospital.list;
+  const deleteURL = endpoints.hospital.delete;
+
   const deleteHospital = async (id: string) => {
-    await axiosInstanceV2.delete(`${URL}/${id}`);
-    mutate(URL);
+    await axiosInstanceV2.delete(`${deleteURL}/${id}`);
+    // Revalidate the list endpoint to refresh data
+    mutate([URL, { method: 'GET' }]);
   };
   return { deleteHospital };
 };
+
 export const useCreateHospital = () => {
   const URL = endpoints.hospital.create;
   const { trigger, isMutating, error } = useSWRMutation(
@@ -52,12 +57,21 @@ export const useCreateHospital = () => {
 };
 
 export const useUpdateHospital = () => {
-  const URL = endpoints.hospital.update;
+  const URL = endpoints.hospital.list;
+  const updateURL = endpoints.hospital.update;
+
   const { trigger, isMutating, error } = useSWRMutation(
-    URL,
+    updateURL,
     async (_url, { arg }: { arg: { _id: string; data: any } }) => {
-      const response = await axiosInstanceV2.put(`${URL}/${arg._id}`, arg.data);
-      return response.data;
+      try {
+        const response = await axiosInstanceV2.put(`${updateURL}/${arg._id}`, arg.data);
+        // Revalidate the list endpoint to refresh data
+        await mutate([URL, { method: 'GET' }]);
+        return response.data;
+      } catch (err) {
+        console.error('Error updating hospital:', err);
+        throw err;
+      }
     }
   );
 
@@ -66,6 +80,5 @@ export const useUpdateHospital = () => {
     isUpdating: isMutating,
     error,
     hospitalsError: error,
-    mutate, // Add mutate function to the returned object
   };
 };

@@ -42,6 +42,8 @@ import {
   TablePaginationCustom,
 } from 'src/components/table'; // Updated to use specialty API
 
+import { useUserData } from 'src/hooks/use-user-data';
+
 import { useGetSpecialties } from 'src/api/specialty';
 
 import { ISpecialtyItem } from 'src/types/specialties';
@@ -55,7 +57,7 @@ import UserTableFiltersResult from '../user-table-filters-result';
 const STATUS_OPTIONS = [{ value: 'all', label: 'Tất Cả' }, ...USER_STATUS_OPTIONS];
 console.log('check table user list data', _userList);
 const TABLE_HEAD_PATIENT = [
-  { id: 'id', label: 'ID', width: 200 },
+  { id: 'id', label: 'Mã Bệnh Nhân', width: 200 },
   { id: 'fullName', label: 'Họ & Tên', width: 200 },
   { id: 'phone', label: 'Số Điện Thoại', width: 160 },
   { id: 'birthDate', label: 'Ngày Sinh', width: 160 },
@@ -68,7 +70,7 @@ const TABLE_HEAD_PATIENT = [
 ];
 
 const TABLE_HEAD_DOCTOR = [
-  { id: 'id', label: 'ID', width: 200 },
+  { id: 'id', label: 'Mã Bác Sĩ', width: 200 },
   { id: 'fullName', label: 'Họ & Tên', width: 200 },
   { id: 'hospitalId', label: 'Bệnh Viện', width: 400 },
   { id: 'rank', label: 'Cấp Bậc', width: 180 },
@@ -82,12 +84,12 @@ const TABLE_HEAD_DOCTOR = [
 ];
 
 const TABLE_HEAD_EMPLOYEE = [
-  { id: 'id', label: 'ID', width: 200 },
+  { id: 'id', label: 'Mã Nhân Viên', width: 200 },
   { id: 'fullName', label: 'Họ & Tên' },
   { id: 'phoneNumber', label: 'SĐT', width: 180 },
   { id: 'city', label: 'Thành Phố', width: 180 },
   { id: 'department', label: 'Bộ Phận', width: 220 },
-  { id: 'role', label: 'Vị Trí', width: 180 },
+  { id: 'role', label: 'Vai Trò', width: 180 },
   { id: 'salary', label: 'Lương / Tháng', width: 220 },
   { id: 'status', label: 'Kích hoạt', width: 100 },
   { id: '', width: 88 },
@@ -120,6 +122,7 @@ export default function UserListView(props: {
   const [filters, setFilters] = useState(defaultFilters);
   const { specialties } = useGetSpecialties();
   const dataFiltered = tableData;
+  const [specialtyList, setSpecialtyList] = useState<ISpecialtyItem[]>([]);
 
   const { users, usersLoading, usersError, usersValidating } = useGetUsers({
     typeUser,
@@ -129,8 +132,6 @@ export default function UserListView(props: {
     sortField: table.orderBy || 'fullName',
     sortOrder: table.order || 'asc',
   });
-
-  const [specialtyList, setSpecialtyList] = useState<ISpecialtyItem[]>([]);
 
   useEffect(() => {
     if (specialties.length) {
@@ -186,21 +187,28 @@ export default function UserListView(props: {
     setFilters(defaultFilters);
   }, []);
   const { deleteUser } = useDeleteUser({ typeUser });
+  const { refreshUserData } = useUserData(typeUser, {
+    query: searchQuery,
+    page: table.page + 1,
+    limit: table.rowsPerPage,
+    sortField: table.orderBy || 'fullName',
+    sortOrder: table.order || 'asc',
+  });
+  const handleRefreshData = useCallback(() => {
+    refreshUserData();
+  }, [refreshUserData]);
   const handleDeleteRow = useCallback(
     async (id: string) => {
-      await deleteUser(id)
-        .then(() => {
-          enqueueSnackbar('Xoá người dùng thành công!', { variant: 'success' });
-          table.onUpdatePageDeleteRow(dataInPage.length);
-          confirm.onFalse();
-          confirm.value = false;
-          window.location.reload();
-        })
-        .catch((err) => {
-          enqueueSnackbar('Không thể xoá người dùng!', { variant: 'error' });
-        });
+      try {
+        await deleteUser(id);
+        handleRefreshData();
+        enqueueSnackbar('Xoá người dùng thành công!', { variant: 'success' });
+        table.onUpdatePageDeleteRow(dataInPage.length);
+      } catch (err) {
+        enqueueSnackbar('Không thể xoá người dùng!', { variant: 'error' });
+      }
     },
-    [dataInPage.length, enqueueSnackbar, table, deleteUser, confirm]
+    [deleteUser, handleRefreshData, enqueueSnackbar, table, dataInPage.length]
   );
 
   const handleDeleteRows = useCallback(() => {
@@ -311,8 +319,8 @@ export default function UserListView(props: {
             onFilters={handleFilters} // ✅ Cho phép user nhập query tìm kiếm
             roleOptions={specialtyList.map((item) => item.name)}
             onSearchChange={debouncedSearch}
+            typeUser={typeUser}
           />
-
           {canReset && (
             <UserTableFiltersResult
               filters={filters}
@@ -419,8 +427,8 @@ export default function UserListView(props: {
           <Button
             variant="contained"
             color="error"
-            onClick={() => {
-              handleDeleteRows();
+            onClick={async () => {
+              await handleDeleteRows();
               confirm.onFalse();
             }}
           >
@@ -431,5 +439,4 @@ export default function UserListView(props: {
     </>
   );
 }
-
 // ----------------------------------------------------------------------

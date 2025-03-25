@@ -1,3 +1,5 @@
+import moment from 'moment';
+
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
 import Tooltip from '@mui/material/Tooltip';
@@ -10,6 +12,8 @@ import Typography from '@mui/material/Typography';
 import ListItemText from '@mui/material/ListItemText';
 
 import { useBoolean } from 'src/hooks/use-boolean';
+
+import { formatCurrencyVND } from 'src/utils/formatCurrency';
 
 import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
@@ -72,16 +76,14 @@ export default function UserTableRow({
   const confirm = useBoolean();
   const quickEdit = useBoolean();
   const popover = usePopover();
-  const handleRenderSpecialty = (listSpecialty: string[]) => {
-    const _specialtyList = listSpecialty
-      ?.map((itemId) => {
-        const _specialty = specialtyList?.find((s) => s._id === itemId);
-        return _specialty ? _specialty.name : null;
-      })
-      ?.filter((name) => name !== null);
-    return _specialtyList?.join(', ');
-  };
-
+  const handleRenderSpecialty = (listSpecialty: string[]) =>
+    // const _specialtyList = listSpecialty
+    //   ?.map((itemId) => {
+    //     const _specialty = specialtyList?.find((s) => s.id === itemId);
+    //     return _specialty ? _specialty.name : null;
+    //   })
+    //   ?.filter((name) => name !== null);
+    listSpecialty?.join(', ');
   const hospitalOptions = hospitalList?.map((item: any) => ({
     value: item._id,
     label: item.name,
@@ -122,7 +124,7 @@ export default function UserTableRow({
             <TableCell>{city?.name || city}</TableCell>
             <TableCell>{department}</TableCell>
             <TableCell>{position}</TableCell>
-            <TableCell>{salary}</TableCell>
+            <TableCell>{formatCurrencyVND(salary)}</TableCell>
             <TableCell>
               <Checkbox checked={isActive} disabled />
             </TableCell>
@@ -138,21 +140,21 @@ export default function UserTableRow({
               <ListItemText primary={fullName} secondary={email} />
             </TableCell>
             <TableCell>{phoneNumber}</TableCell>
-            <TableCell>{birthDate || '-'}</TableCell>
+            <TableCell>{moment(birthDate).format('l') || '-'}</TableCell>
             <TableCell>
               <Label
                 variant="soft"
                 color={(() => {
-                  if (gender === 'male') return 'info';
-                  if (gender === 'female') return 'error';
+                  if (gender === 'Nam') return 'info';
+                  if (gender === 'Nữ') return 'error';
                   return 'default';
                 })()}
               >
                 {(() => {
                   switch (gender) {
-                    case 'male':
+                    case 'Nam':
                       return 'Nam';
-                    case 'female':
+                    case 'Nữ':
                       return 'Nữ';
                     default:
                       return 'Khác';
@@ -201,7 +203,6 @@ export default function UserTableRow({
         </TableCell>
 
         {renderCells()}
-
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
           <Tooltip title="Sửa nhanh" placement="top" arrow>
             <IconButton color={quickEdit.value ? 'inherit' : 'default'} onClick={quickEdit.onTrue}>
@@ -255,7 +256,14 @@ export default function UserTableRow({
         }`}
         content="Bạn có chắc chắn muốn xoá chứ?"
         action={
-          <Button variant="contained" color="error" onClick={onDeleteRow}>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={() => {
+              onDeleteRow(); // Changed from the incorrect syntax
+              confirm.onFalse(); // This will close the modal
+            }}
+          >
             Xoá
           </Button>
         }

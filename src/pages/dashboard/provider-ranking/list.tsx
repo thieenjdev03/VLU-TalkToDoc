@@ -54,7 +54,7 @@ import {
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'Tất Cả' }, ...USER_STATUS_OPTIONS];
 const TABLE_HEAD_SPECIALTY = [
-  { id: 'id', label: 'ID', width: 100 },
+  { id: 'id', label: 'Mã Chuyên Khoa', width: 100 },
   { id: 'name', label: 'Tên Cấp Bậc', width: '20%' },
   { id: 'description', label: 'Mô Tả', width: '20%' },
   { id: 'base_price', label: 'Lương', width: '20%' },
@@ -133,7 +133,7 @@ export default function ProviderRankingListPage() {
           enqueueSnackbar('Xoá chuyên khoa thành công!', { variant: 'success' });
           table.onUpdatePageDeleteRow(dataInPage.length);
           confirm.onFalse();
-          window.location.reload();
+          // window.location.reload();
         })
         .catch(() => {
           enqueueSnackbar('Không thể xoá chuyên khoa!', { variant: 'error' });

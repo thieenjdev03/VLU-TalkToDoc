@@ -13,6 +13,7 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
+import InputAdornment from '@mui/material/InputAdornment';
 import FormControlLabel from '@mui/material/FormControlLabel';
 
 import { useUpdateUser } from 'src/api/user';
@@ -109,6 +110,13 @@ export default function UserQuickEditForm({
         return Yup.object().shape({});
     }
   }, [typeUser]);
+  const formatNumber = (value: number | string) => {
+    if (!value) return '';
+    return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  };
+
+  // Parse formatted number back to number
+  const parseNumber = (value: string) => value.replace(/,/g, '');
 
   // 🛠 Default values theo typeUser
   const defaultValues = useMemo(
@@ -161,6 +169,7 @@ export default function UserQuickEditForm({
       if (typeUser === 'doctor') {
         formattedData = {
           ...data,
+          rank: data.rank,
           specialty: Array.isArray(data.specialty)
             ? data.specialty.map((item: any) => (typeof item === 'object' ? item.value : item))
             : [],
@@ -181,7 +190,7 @@ export default function UserQuickEditForm({
       reset();
       onClose();
       enqueueSnackbar('Cập nhật thành công!');
-      window.location.reload();
+      // window.location.reload();
     } catch (error) {
       console.error(error);
       enqueueSnackbar('Cập nhật thất bại', { variant: 'error' });
@@ -236,7 +245,7 @@ export default function UserQuickEditForm({
                         typeof option === 'string' ? option === value : option.value === value
                       }
                       onChange={(event, newValue: any) =>
-                        setValue('hospitalId', newValue.label, { shouldValidate: true })
+                        setValue('hospitalId', newValue.value, { shouldValidate: true })
                       }
                     />
                   </Grid>
@@ -255,7 +264,7 @@ export default function UserQuickEditForm({
                         typeof option === 'string' ? option === value : option.value === value
                       }
                       onChange={(event, newValue: any) =>
-                        setValue('rank', newValue.label, { shouldValidate: true })
+                        setValue('rank', newValue.value, { shouldValidate: true })
                       }
                     />
                   </Grid>
@@ -292,7 +301,7 @@ export default function UserQuickEditForm({
                         typeof option === 'string' ? option === value : option.value === value
                       }
                       onChange={(event, newValue: any) =>
-                        setValue('gender', newValue.value, { shouldValidate: true })
+                        setValue('gender', newValue.label, { shouldValidate: true })
                       }
                     />
                   </Grid>
@@ -308,7 +317,28 @@ export default function UserQuickEditForm({
                     <RHFTextField name="department" label="Bộ Phận" />
                   </Grid>
                   <Grid item xs={12} sm={6}>
-                    <RHFTextField name="salary" label="Lương / Tháng" />
+                    <Controller
+                      name="salary"
+                      control={control}
+                      render={({ field, fieldState: { error } }) => (
+                        <RHFTextField
+                          name="salary"
+                          label="Lương / Tháng"
+                          value={formatNumber(field.value)}
+                          onChange={(e) => {
+                            const parsedValue = parseNumber(e.target.value);
+                            if (!parsedValue || /^\d+$/.test(parsedValue)) {
+                              field.onChange(parsedValue);
+                            }
+                          }}
+                          InputProps={{
+                            endAdornment: <InputAdornment position="end">VND</InputAdornment>,
+                          }}
+                          helperText={error?.message || 'Nhập số tiền không có dấu phẩy'}
+                          error={!!error}
+                        />
+                      )}
+                    />{' '}
                   </Grid>
                   <Grid item xs={12} sm={6}>
                     {loadingCities ? (

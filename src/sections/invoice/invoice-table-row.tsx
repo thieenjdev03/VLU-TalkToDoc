@@ -176,7 +176,14 @@ export default function InvoiceTableRow({
         title="Delete"
         content="Are you sure want to delete?"
         action={
-          <Button variant="contained" color="error" onClick={onDeleteRow}>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={() => {
+              onDeleteRow();
+              confirm.onFalse();
+            }}
+          >
             Delete
           </Button>
         }

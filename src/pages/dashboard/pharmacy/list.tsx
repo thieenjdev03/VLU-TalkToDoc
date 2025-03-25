@@ -53,7 +53,7 @@ import {
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'Tất Cả' }, ...USER_STATUS_OPTIONS];
 const TABLE_HEAD_PHARMACY = [
-  { id: '_id', label: 'ID', width: 100 },
+  { id: '_id', label: 'Mã Nhà Thuốc', width: 100 },
   { id: 'name', label: 'Tên Nhà Thuốc', width: '20%' },
   { id: 'address', label: 'Địa Chỉ', width: '20%' },
   { id: 'city', label: 'Thành Phố', width: '20%' },

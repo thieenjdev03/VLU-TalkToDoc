@@ -12,6 +12,7 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
+import InputAdornment from '@mui/material/InputAdornment';
 
 import { useUpdateRanking } from 'src/api/ranking'; // Updated to use provider_ranking API
 
@@ -47,6 +48,7 @@ export default function RankingQuickEditForm({ currentRanking, open, onClose }: 
   // 🛠 Default values cho chuyên khoa
   const defaultValues = useMemo(
     () => ({
+      _id: currentRanking?._id || '',
       id: currentRanking?.id || '',
       name: currentRanking?.name || '',
       description: currentRanking?.description || '',
@@ -70,17 +72,27 @@ export default function RankingQuickEditForm({ currentRanking, open, onClose }: 
   console.log(errors);
   const onSubmit = handleSubmit(async (data) => {
     try {
-      await updateRanking({ id: data.id, data });
+      console.log('data submit', data);
+      await updateRanking({ id: data._id, data });
       reset();
       onClose();
       enqueueSnackbar('Cập nhật thành công!');
-      window.location.reload();
+      // window.location.reload();
       setRender(!render);
     } catch (error) {
       console.error(error);
       enqueueSnackbar('Cập nhật thất bại', { variant: 'error' });
     }
   });
+
+  // Format number with thousands separator
+  const formatNumber = (value: number | string) => {
+    if (!value) return '';
+    return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  };
+
+  // Parse formatted number back to number
+  const parseNumber = (value: string) => value.replace(/,/g, '');
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
@@ -90,13 +102,34 @@ export default function RankingQuickEditForm({ currentRanking, open, onClose }: 
           <Box sx={{ display: 'grid', gap: 2, mt: 2 }}>
             <Grid container spacing={2}>
               <Grid item xs={12}>
-                <RHFTextField disabled name="id" label="ID Cấp Bậc" />
+                <RHFTextField disabled name="id" label="Mã Cấp Bậc" />
               </Grid>
               <Grid item xs={12}>
                 <RHFTextField name="name" label="Tên Cấp Bậc" />
               </Grid>
               <Grid item xs={12}>
-                <RHFTextField name="base_price" label="Lương / Giờ" />
+                <Controller
+                  name="base_price"
+                  control={control}
+                  render={({ field, fieldState: { error } }) => (
+                    <RHFTextField
+                      name="base_price"
+                      label="Lương / Giờ"
+                      value={formatNumber(field.value)}
+                      onChange={(e) => {
+                        const parsedValue = parseNumber(e.target.value);
+                        if (!parsedValue || /^\d+$/.test(parsedValue)) {
+                          field.onChange(parsedValue);
+                        }
+                      }}
+                      InputProps={{
+                        endAdornment: <InputAdornment position="end">VND</InputAdornment>,
+                      }}
+                      helperText={error?.message || 'Nhập số tiền không có dấu phẩy'}
+                      error={!!error}
+                    />
+                  )}
+                />
               </Grid>
               <Grid item xs={12}>
                 <RHFTextField name="description" label="Mô tả" />

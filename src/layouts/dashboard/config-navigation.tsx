@@ -119,10 +119,10 @@ export function useNavData() {
             path: paths.dashboard.specialties.root,
             icon: ICONS.medical,
             children: [
-              { title: t('Quản Lý Chuyên Khoa'), path: paths.dashboard.specialties.root },
-              { title: t('Quản Lý Nhà Thuốc'), path: paths.dashboard.pharmacies.list },
-              { title: t('Quản Lý Cấp Bậc'), path: paths.dashboard.ranking_doctor.list },
-              { title: t('Quản Lý Bệnh Viện'), path: paths.dashboard.hospital.list },
+              { title: t('Chuyên Khoa'), path: paths.dashboard.specialties.root },
+              { title: t('Nhà Thuốc'), path: paths.dashboard.pharmacies.list },
+              { title: t('Cấp Bậc'), path: paths.dashboard.ranking_doctor.list },
+              { title: t('Bệnh Viện'), path: paths.dashboard.hospital.list },
             ],
           },
           // {

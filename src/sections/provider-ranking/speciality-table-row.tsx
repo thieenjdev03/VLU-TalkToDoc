@@ -9,6 +9,8 @@ import Typography from '@mui/material/Typography';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
+import { formatCurrencyVND } from 'src/utils/formatCurrency';
+
 import Iconify from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
@@ -39,7 +41,6 @@ export default function RankingTableRow({
   const confirm = useBoolean();
   const quickEdit = useBoolean();
   const popover = usePopover();
-
   const renderCells = () => (
     <>
       <TableCell>{id}</TableCell>
@@ -49,13 +50,12 @@ export default function RankingTableRow({
       <TableCell>
         <Typography variant="body2">{description || '-'}</Typography>
       </TableCell>
-      <TableCell>{base_price}</TableCell>
+      <TableCell>{formatCurrencyVND(base_price)}</TableCell>
       <TableCell>
         <Checkbox checked={isActive} disabled />
       </TableCell>
     </>
   );
-  console.log(row);
   return (
     <>
       <TableRow hover selected={selected}>
@@ -102,7 +102,14 @@ export default function RankingTableRow({
         title={`Xoá chuyên khoa ${name}`}
         content="Bạn có chắc chắn muốn xoá chứ?"
         action={
-          <Button variant="contained" color="error" onClick={onDeleteRow}>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={() => {
+              onDeleteRow();
+              confirm.onFalse();
+            }}
+          >
             Xoá
           </Button>
         }

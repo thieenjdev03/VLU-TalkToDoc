@@ -107,7 +107,14 @@ export default function PharmacyTableRow({
         title={`Xoá chuyên khoa ${name}`}
         content="Bạn có chắc chắn muốn xoá chứ?"
         action={
-          <Button variant="contained" color="error" onClick={onDeleteRow}>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={() => {
+              onDeleteRow();
+              confirm.onFalse();
+            }}
+          >
             Xoá
           </Button>
         }

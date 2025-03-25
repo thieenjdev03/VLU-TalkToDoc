@@ -22,17 +22,21 @@ import { IPharmacyItem } from 'src/types/hospital';
 type Props = {
   selected: boolean;
   onEditRow: VoidFunction;
+  onViewRow?: VoidFunction;
   row: IPharmacyItem;
   onSelectRow: VoidFunction;
   onDeleteRow: VoidFunction;
+  onRefreshData?: VoidFunction;
 };
 
 export default function HospitalTableRow({
   row,
   selected,
   onEditRow,
+  onViewRow,
   onSelectRow,
   onDeleteRow,
+  onRefreshData,
 }: Props) {
   const { name, id, address, phoneNumber, isActive, isPublic } = row;
 
@@ -44,10 +48,14 @@ export default function HospitalTableRow({
     <>
       <TableCell>{id}</TableCell>
       <TableCell>
-        <Typography variant="body1">{name}</Typography>
+        <Typography variant="body1" noWrap>
+          {name}
+        </Typography>
       </TableCell>
       <TableCell>
-        <Typography variant="body2">{address || '-'}</Typography>
+        <Typography variant="body2" noWrap>
+          {address || '-'}
+        </Typography>
       </TableCell>
       <TableCell>
         <Typography variant="body2">{phoneNumber || '-'}</Typography>
@@ -86,6 +94,28 @@ export default function HospitalTableRow({
         arrow="right-top"
         sx={{ width: 140 }}
       >
+        {onViewRow && (
+          <MenuItem
+            onClick={() => {
+              onViewRow();
+              popover.onClose();
+            }}
+          >
+            <Iconify icon="solar:eye-bold" />
+            Xem
+          </MenuItem>
+        )}
+
+        <MenuItem
+          onClick={() => {
+            onEditRow();
+            popover.onClose();
+          }}
+        >
+          <Iconify icon="solar:pen-bold" />
+          Sửa
+        </MenuItem>
+
         <MenuItem
           onClick={() => {
             confirm.onTrue();
@@ -97,21 +127,31 @@ export default function HospitalTableRow({
           Xoá
         </MenuItem>
       </CustomPopover>
+
       <ConfirmDialog
-        open={confirm.value || false}
+        open={confirm.value}
         onClose={confirm.onFalse}
         title={`Xoá bệnh viện ${name}`}
         content="Bạn có chắc chắn muốn xoá chứ?"
         action={
-          <Button variant="contained" color="error" onClick={onDeleteRow}>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={() => {
+              onDeleteRow();
+              confirm.onFalse(); // Add this line to close the modal
+            }}
+          >
             Xoá
           </Button>
         }
       />
+
       <HospitalQuickEditForm
         currentHospital={row}
         open={quickEdit.value}
         onClose={quickEdit.onFalse}
+        onSuccess={onRefreshData}
       />
     </>
   );

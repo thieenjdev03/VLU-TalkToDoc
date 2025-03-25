@@ -55,8 +55,8 @@ export const useUpdatePharmacy = () => {
   const URL = endpoints.pharmacies.update;
   const { trigger, isMutating, error } = useSWRMutation(
     URL,
-    async (_url, { arg }: { arg: { _id: string; data: any } }) => {
-      const response = await axiosInstanceV2.put(`${URL}/${arg._id}`, arg.data);
+    async (_url, { arg }: { arg: { id: string; data: any } }) => {
+      const response = await axiosInstanceV2.put(`${URL}/${arg.id}`, arg.data);
       return response.data;
     }
   );

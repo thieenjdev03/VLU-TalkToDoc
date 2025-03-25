@@ -106,7 +106,7 @@ export default function PharmacyNewEditForm({ currentPharmacy }: Props) {
   const onSubmit = handleSubmit(async (data) => {
     try {
       if (currentPharmacy) {
-        await updatePharmacy({ _id: currentPharmacy._id, data });
+        await updatePharmacy({ id: currentPharmacy._id, data });
         enqueueSnackbar('Cập nhật nhà thuốc thành công!');
       } else {
         await createPharmacy({ data });

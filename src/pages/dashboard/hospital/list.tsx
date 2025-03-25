@@ -54,8 +54,8 @@ import {
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'Tất Cả' }, ...USER_STATUS_OPTIONS];
 const TABLE_HEAD_PHARMACY = [
-  { id: '_id', label: 'ID', width: 100 },
-  { id: 'name', label: 'Tên Nhà Thuốc', width: '20%' },
+  { id: '_id', label: 'Mã Bệnh Viện', width: 100 },
+  { id: 'name', label: 'Tên Bệnh Viện', width: '20%' },
   { id: 'address', label: 'Địa Chỉ', width: '20%' },
   { id: 'phoneNumber', label: 'Số Điện Thoại', width: '20%' },
   { id: 'isPublic', label: 'BV Công', width: '10%' },
@@ -74,21 +74,17 @@ export default function HospitalListPage() {
   const table = useTable();
 
   const settings = useSettingsContext();
-
   const confirm = useBoolean();
-
   const [tableData, setTableData] = useState<IPharmacyItem[]>([]); // Updated state type
-
   const [filters, setFilters] = useState(defaultFilters);
-
+  const [selectedHospital, setSelectedHospital] = useState<IPharmacyItem | undefined>(undefined);
+  const editDialog = useBoolean();
+  const { deleteHospital } = useDeleteHospital();
   const dataFiltered = applyFilter({
     inputData: tableData,
     comparator: getComparator(table.order, table.orderBy),
     filters,
   });
-
-  const [selectedHospital, setSelectedHospital] = useState<IPharmacyItem | undefined>(undefined);
-  const editDialog = useBoolean();
 
   const { hospitals, hospitalsLoading, hospitalsError, hospitalsValidating } = useGetHospital();
 
@@ -122,12 +118,12 @@ export default function HospitalListPage() {
     [table]
   );
 
-  const { deleteHospital } = useDeleteHospital();
   const handleDeleteRow = useCallback(
     async (id: string) => {
       await deleteHospital(id)
         .then(() => {
-          enqueueSnackbar('Xoá nhà thuốc thành công!', { variant: 'success' });
+          enqueueSnackbar('Xoá Bệnh Viện thành công!', { variant: 'success' });
+          // window.location.reload();
           table.onUpdatePageDeleteRow(dataInPage.length);
           confirm.onFalse();
 

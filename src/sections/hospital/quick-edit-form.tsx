@@ -39,7 +39,12 @@ type Props = {
   onSuccess?: VoidFunction;
 };
 
-export default function HospitalQuickEditForm({ currentHospital, open, onClose }: Props) {
+export default function HospitalQuickEditForm({
+  currentHospital,
+  open,
+  onClose,
+  onSuccess,
+}: Props) {
   const { enqueueSnackbar } = useSnackbar();
   const { updateHospital } = useUpdateHospital();
 
@@ -78,16 +83,19 @@ export default function HospitalQuickEditForm({ currentHospital, open, onClose }
       if (currentHospital?._id) {
         await updateHospital({ _id: currentHospital._id, data });
 
-        window.location.reload();
+        // Call onSuccess if provided
+        if (onSuccess) {
+          onSuccess();
+        }
+
+        reset();
+        enqueueSnackbar('Cập nhật bệnh viện thành công!');
+        onClose();
       } else {
         enqueueSnackbar('Hospital ID is missing', { variant: 'error' });
-        return;
       }
-      reset();
-      enqueueSnackbar('Cập nhật bệnh viện thành công!');
-      onClose();
     } catch (error) {
-      enqueueSnackbar('Failed to update hospital', { variant: 'error' });
+      enqueueSnackbar('Cập nhật bệnh viện thất bại', { variant: 'error' });
     }
   });
 
@@ -100,7 +108,7 @@ export default function HospitalQuickEditForm({ currentHospital, open, onClose }
             <Box sx={{ mt: 2 }}>
               <Grid container spacing={2}>
                 <Grid item xs={12}>
-                  <RHFTextField disabled name="id" label="ID" />
+                  <RHFTextField disabled name="id" label="Mã Bệnh Viện" />
                 </Grid>
                 <Grid item xs={12}>
                   <RHFTextField name="name" label="Tên Bệnh Viện" />
