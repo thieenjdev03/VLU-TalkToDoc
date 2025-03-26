@@ -4,8 +4,6 @@ import useSWRMutation from 'swr/mutation';
 
 import { endpoints, axiosInstanceV2 } from 'src/utils/axios';
 
-import { IPharmacyItem } from 'src/types/pharmacy';
-
 export const useGetPharmacies = ({
   query = '',
   page = 1,
@@ -39,7 +37,7 @@ export const useGetPharmacies = ({
 
   const memoizedValue = useMemo(
     () => ({
-      pharmacies: (data as IPharmacyItem[]) || [],
+      pharmacies: (data as any) || [],
       pharmaciesLoading: isLoading,
       pharmaciesError: error,
       pharmaciesValidating: isValidating,

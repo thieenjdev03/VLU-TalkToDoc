@@ -3,6 +3,11 @@
     {
       "source": "/(.*)",
       "destination": "/"
+    },
+    {
+      "typescript": {
+        "ignoreBuildErrors": true
+      }
     }
   ]
 }

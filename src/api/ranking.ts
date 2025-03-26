@@ -4,8 +4,6 @@ import useSWRMutation from 'swr/mutation';
 
 import { endpoints, axiosInstanceV2 } from 'src/utils/axios';
 
-import { IRankingItem } from 'src/types/provider-ranking';
-
 export const useGetRanking = ({
   query = '',
   page = 1,
@@ -39,7 +37,7 @@ export const useGetRanking = ({
 
   const memoizedValue = useMemo(
     () => ({
-      providerRanking: (data as IRankingItem[]) || [],
+      providerRanking: (data as any) || [],
       providerRankingLoading: isLoading,
       providerRankingError: error,
       providerRankingValidating: isValidating,

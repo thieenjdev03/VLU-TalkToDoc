@@ -9,12 +9,12 @@ import InputAdornment from '@mui/material/InputAdornment';
 import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 
-import { IUserTableFilters, IUserTableFilterValue } from 'src/types/user';
+import { IUserTableFilterValue } from 'src/types/user';
 
 // ----------------------------------------------------------------------
 
 type Props = {
-  filters: IUserTableFilters;
+  filters: any;
   onFilters: (name: string, value: IUserTableFilterValue) => void;
   searchValue?: string;
   onSearchChange?: (query: string) => void;

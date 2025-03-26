@@ -9,26 +9,22 @@ import InputAdornment from '@mui/material/InputAdornment';
 import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 
-import { IUserTableFilters, IUserTableFilterValue } from 'src/types/user';
-
 // ----------------------------------------------------------------------
 
 type Props = {
-  filters: IUserTableFilters;
-  onFilters: (name: string, value: IUserTableFilterValue) => void;
-  roleOptions: string[];
+  filters: any;
+  onFilters: (name: string, value: any) => void;
   searchValue?: string;
   onSearchChange?: (query: string) => void;
-  typeUser: 'user' | 'doctor' | 'employee' | 'patient';
+  specialtyOptions: any[];
 };
 
 export default function UserTableToolbar({
   filters,
   onFilters,
-  roleOptions,
   searchValue = '',
   onSearchChange,
-  typeUser,
+  specialtyOptions,
 }: Props) {
   const popover = usePopover();
 

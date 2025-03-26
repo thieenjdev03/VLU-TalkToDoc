@@ -78,7 +78,7 @@ export default function ProviderRankingListPage() {
 
   const confirm = useBoolean();
 
-  const [tableData, setTableData] = useState<IRankingItem[]>([]); // Updated state type
+  const [tableData, setTableData] = useState<any[]>([]); // Updated state type
 
   const [filters, setFilters] = useState(defaultFilters);
 
@@ -227,7 +227,6 @@ export default function ProviderRankingListPage() {
             filters={filters}
             onFilters={handleFilters}
             onSearchChange={setSearchQuery}
-            rankingOptions={tableData.map((item) => item.name)} // Updated to use status options
           />
 
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>

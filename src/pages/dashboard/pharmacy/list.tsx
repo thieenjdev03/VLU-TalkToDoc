@@ -1,5 +1,5 @@
 import isEqual from 'lodash/isEqual';
-import { useMemo, useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
@@ -19,7 +19,6 @@ import { RouterLink } from 'src/routes/components';
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { useGetPharmacies, useDeletePharmacy } from 'src/api/pharmacy'; // Updated to use pharmacy API
-import debounce from 'lodash';
 
 import { USER_STATUS_OPTIONS } from 'src/_mock';
 
@@ -77,7 +76,7 @@ export default function PharmaciesListPage() {
 
   const confirm = useBoolean();
 
-  const [tableData, setTableData] = useState<IPharmacyItem[]>([]); // Updated state type
+  const [tableData, setTableData] = useState<any[]>([]); // Updated state type
 
   const [filters, setFilters] = useState(defaultFilters);
 
@@ -109,15 +108,6 @@ export default function PharmaciesListPage() {
   const canReset = !isEqual(defaultFilters, filters);
 
   const notFound = (!tableData.length && canReset) || !tableData.length;
-
-  const debouncedSearch = useMemo(
-    () =>
-      debounce((query: string) => {
-        setSearchQuery(query);
-        table.onResetPage();
-      }, 1000),
-    [table]
-  );
 
   const handleFilters = useCallback(
     (fullName: string, value: any) => {
@@ -233,7 +223,6 @@ export default function PharmaciesListPage() {
             filters={filters}
             onFilters={handleFilters}
             onSearchChange={setSearchQuery}
-            specialtyOptions={tableData.map((item) => item.name)}
           />
 
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
