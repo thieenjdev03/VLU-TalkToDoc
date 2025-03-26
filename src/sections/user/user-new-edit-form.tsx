@@ -79,7 +79,13 @@ export default function UserNewEditForm({
   onUpdateSuccess,
 }: Props) {
   const router = useRouter();
-  const { specialties } = useGetSpecialties();
+  const { specialties } = useGetSpecialties({
+    query: '',
+    page: 1,
+    limit: 99,
+    sortField: '',
+    sortOrder: 'desc',
+  });
   const [specialtyList, setSpecialtyList] = useState<ISpecialtyItem[]>([]);
   useEffect(() => {
     if (specialties.length) {

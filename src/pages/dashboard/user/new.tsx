@@ -11,7 +11,13 @@ export default function UserCreatePage(props: {
 }) {
   const { typeUser } = props;
   const { hospitals } = useGetHospital();
-  const { providerRanking } = useGetRanking();
+  const { providerRanking } = useGetRanking({
+    query: '',
+    page: 1,
+    limit: 99,
+    sortField: '',
+    sortOrder: 'desc',
+  });
   return (
     <>
       <Helmet>

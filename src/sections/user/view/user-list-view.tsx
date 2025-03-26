@@ -109,7 +109,13 @@ export default function UserListView(props: {
   const { typeUser } = props;
   const { enqueueSnackbar } = useSnackbar();
   const table = useTable();
-  const { providerRanking } = useGetRanking();
+  const { providerRanking } = useGetRanking({
+    query: '',
+    page: 1,
+    limit: 99,
+    sortField: '',
+    sortOrder: 'desc',
+  });
   const settings = useSettingsContext();
 
   const confirm = useBoolean();
@@ -117,7 +123,13 @@ export default function UserListView(props: {
   const [tableData, setTableData] = useState<IUserItem[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState(defaultFilters);
-  const { specialties } = useGetSpecialties();
+  const { specialties } = useGetSpecialties({
+    query: searchQuery,
+    page: table.page + 1,
+    limit: table.rowsPerPage,
+    sortField: table.orderBy || 'name',
+    sortOrder: table.order === 'asc' ? 'asc' : 'desc',
+  });
   const dataFiltered = tableData;
   const [specialtyList, setSpecialtyList] = useState<ISpecialtyItem[]>([]);
 
@@ -258,7 +270,7 @@ export default function UserListView(props: {
           }
           links={[
             { name: 'Trang Chủ', href: paths.dashboard.root },
-            { name: 'Quản Lý Người Dùng', href: paths.dashboard.user.root },
+            { name: 'Danh Sách', href: paths.dashboard.user.root },
             {
               name: {
                 patient: 'Bệnh Nhân',

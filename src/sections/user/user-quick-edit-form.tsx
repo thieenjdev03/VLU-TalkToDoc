@@ -71,7 +71,13 @@ export default function UserQuickEditForm({
 
   const cityOptions = cities.map((city) => city.name);
 
-  const { specialties } = useGetSpecialties();
+  const { specialties } = useGetSpecialties({
+    query: 'searchQuery',
+    page: 1,
+    limit: 99,
+    sortField: '',
+    sortOrder: 'desc',
+  });
   const [specialtyList, setSpecialtyList] = useState<ISpecialtyItem[]>([]);
   useEffect(() => {
     if (specialties.length) {
