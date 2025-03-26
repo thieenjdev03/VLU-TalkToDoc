@@ -117,12 +117,12 @@ export type IUserItem = {
   avatarUrl: any;
   phoneNumber: string;
   isVerified: boolean;
-  rank: string;
-  specialty: string[];
+  rank: any;
+  specialty: any[];
   dateOfBirth: string;
   licenseNo: string;
   experienceYears: string;
-  hospitalId: string;
+  hospital: any;
 };
 
 export type IUserAccount = {

@@ -67,6 +67,7 @@ export const endpoints = {
     delete: '/api/v1/pharmacies',
     update: '/api/v1/pharmacies',
     create: '/api/v1/pharmacies',
+    search: '/api/v1/pharmacies/search',
   },
   hospital: {
     list: '/api/v1/hospitals',
@@ -79,12 +80,14 @@ export const endpoints = {
     delete: '/api/v1/doctor_levels',
     update: '/api/v1/doctor_levels',
     create: '/api/v1/doctor_levels',
+    search: '/api/v1/doctor_levels/search',
   },
   specialties: {
     list: '/api/v1/specialities',
     delete: '/api/v1/specialities',
     update: '/api/v1/specialities',
     create: '/api/v1/specialities',
+    search: '/api/v1/specialities/search',
   },
   auth: {
     me: '/api/auth/me',

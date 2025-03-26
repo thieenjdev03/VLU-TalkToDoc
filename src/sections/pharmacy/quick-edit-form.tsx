@@ -15,11 +15,11 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 
 import Label from 'src/components/label';
+import { RHFTextField, RHFAutocomplete } from 'src/components/hook-form';
 
 import { IPharmacyItem } from '../../types/pharmacy';
 import { useUpdatePharmacy } from '../../api/pharmacy';
 import { useSnackbar } from '../../components/snackbar';
-import { RHFTextField } from '../../components/hook-form';
 
 // Schema validation
 const UpdatePharmacySchema = Yup.object().shape({
@@ -140,10 +140,10 @@ export default function PharmacyQuickEditForm({ currentPharmacy, open, onClose }
                   <RHFTextField name="phone" label="Số điện thoại" />
                 </Grid>
                 <Grid item xs={12}>
-                  <Grid item xs={12}>
+                  {/* <Grid item xs={12}>
                     <RHFTextField name="city" label="Thành Phố/Tỉnh" />
-                  </Grid>
-                  {/* {loadingCities ? (
+                  </Grid> */}
+                  {loadingCities ? (
                     <RHFTextField
                       name="city"
                       label="Thành Phố/Tỉnh"
@@ -158,7 +158,7 @@ export default function PharmacyQuickEditForm({ currentPharmacy, open, onClose }
                       options={cityOptions}
                       isOptionEqualToValue={(option, value) => option === value}
                     />
-                  )} */}
+                  )}
                 </Grid>
                 <Grid item xs={12}>
                   <Label>Hoạt động 24/7</Label>

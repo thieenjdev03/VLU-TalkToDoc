@@ -2,15 +2,39 @@ import { useMemo } from 'react';
 import useSWR, { mutate } from 'swr';
 import useSWRMutation from 'swr/mutation';
 
-import { fetcher, endpoints, axiosInstanceV2 } from 'src/utils/axios';
+import { endpoints, axiosInstanceV2 } from 'src/utils/axios';
 
 import { IRankingItem } from 'src/types/provider-ranking';
 
-export const useGetRanking = () => {
-  const URL = endpoints.provider_ranking.list;
+export const useGetRanking = ({
+  query = '',
+  page = 1,
+  limit = 10,
+  sortField = 'name',
+  sortOrder = 'asc',
+}: {
+  query?: string;
+  page?: number;
+  limit?: number;
+  sortField?: string;
+  sortOrder?: 'asc' | 'desc';
+}) => {
+  const URL = endpoints.provider_ranking.search;
+
   const { data, isLoading, error, isValidating } = useSWR(
-    [URL, { method: 'GET' }],
-    ([url, config]) => fetcher([url, config], true)
+    [URL, query, page, limit, sortField, sortOrder],
+    () =>
+      axiosInstanceV2
+        .get(URL, {
+          params: {
+            query,
+            page,
+            limit,
+            sortField,
+            sortOrder,
+          },
+        })
+        .then((res) => res.data)
   );
 
   const memoizedValue = useMemo(

@@ -5,10 +5,11 @@ import { yupResolver } from '@hookform/resolvers/yup';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
+import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 import Switch from '@mui/material/Switch';
-import Grid from '@mui/material/Unstable_Grid2';
 import LoadingButton from '@mui/lab/LoadingButton';
+import InputAdornment from '@mui/material/InputAdornment';
 import FormControlLabel from '@mui/material/FormControlLabel';
 
 import { paths } from 'src/routes/paths';
@@ -29,6 +30,7 @@ type FormValuesProps = {
   name: string;
   description?: string;
   isActive: boolean;
+  base_price?: number;
 };
 
 export default function RankingNewEditForm({ currentRanking }: Props) {
@@ -61,6 +63,15 @@ export default function RankingNewEditForm({ currentRanking }: Props) {
     formState: { isSubmitting, errors },
   } = methods;
   console.log('Form Errors:', errors);
+
+  // Format number with thousands separator
+  const formatNumber = (value: number | string) => {
+    if (!value) return '';
+    return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  };
+
+  // Parse formatted number back to number
+  const parseNumber = (value: string) => value.replace(/,/g, '');
 
   const onSubmit = handleSubmit(async (data) => {
     try {
@@ -103,7 +114,30 @@ export default function RankingNewEditForm({ currentRanking }: Props) {
                 sx={{ marginBottom: 2 }}
               >
                 <RHFTextField name="name" label="Tên Cấp Bậc" />
-                <RHFTextField name="base_price" label="Lương / Giờ" />
+                <Grid item xs={12}>
+                  <Controller
+                    name="base_price"
+                    control={control}
+                    render={({ field, fieldState: { error } }) => (
+                      <RHFTextField
+                        name="base_price"
+                        label="Lương / Giờ"
+                        value={formatNumber(field.value as any)}
+                        onChange={(e) => {
+                          const parsedValue = parseNumber(e.target.value);
+                          if (!parsedValue || /^\d+$/.test(parsedValue)) {
+                            field.onChange(parsedValue);
+                          }
+                        }}
+                        InputProps={{
+                          endAdornment: <InputAdornment position="end">VND</InputAdornment>,
+                        }}
+                        helperText={error?.message || 'Nhập số tiền không có dấu phẩy'}
+                        error={!!error}
+                      />
+                    )}
+                  />
+                </Grid>
                 <FormControlLabel
                   control={
                     <Controller

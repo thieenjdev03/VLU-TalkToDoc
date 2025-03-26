@@ -19,7 +19,7 @@ import { useRouter } from 'src/routes/hooks';
 import { useCreatePharmacy, useUpdatePharmacy } from 'src/api/pharmacy';
 
 import { useSnackbar } from 'src/components/snackbar';
-import FormProvider, { RHFTextField } from 'src/components/hook-form';
+import FormProvider, { RHFTextField, RHFAutocomplete } from 'src/components/hook-form';
 // ----------------------------------------------------------------------
 
 type Props = {
@@ -137,14 +137,13 @@ export default function PharmacyNewEditForm({ currentPharmacy }: Props) {
               <RHFTextField name="name" label="Tên nhà thuốc" />
               <RHFTextField name="address" label="Địa chỉ" />
               <RHFTextField name="phoneNumber" label="Số điện thoại" />
-              <RHFTextField name="city" label="Thành Phố/Tỉnh" />
-              {/* <RHFAutocomplete
+              <RHFAutocomplete
                 name="city"
                 label="Thành Phố/Tỉnh"
                 placeholder={`${loadingCities ? '' : 'Chọn thành phố/tỉnh'}`}
                 options={cityOptions}
                 isOptionEqualToValue={(option, value) => option === value}
-              /> */}
+              />
               <FormControlLabel
                 control={
                   <Controller

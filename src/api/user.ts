@@ -69,8 +69,10 @@ export const useGetUsers = ({
       usersError: error,
       usersValidating: isValidating,
       usersEmpty: !isLoading && (!data || data.length === 0),
+      usersURL: URL,
+      mutateUsers: () => mutate(URL),
     }),
-    [data, error, isLoading, isValidating]
+    [data, error, isLoading, isValidating, URL]
   );
 
   return memoizedValue;
@@ -84,9 +86,10 @@ export const useDeleteUser = ({ typeUser }: Props) => {
     if (typeUser === 'user') return endpoints.users.list;
     return '';
   }, [typeUser]);
-  const deleteUser = async (id: string) => {
+  const deleteUser = async (id: string, mutateURL?: string) => {
     await axiosInstanceV2.delete(`${URL}/${id}`);
-    mutate(URL);
+    if (mutateURL) mutate(mutateURL);
+    else mutate(URL);
   };
   return { deleteUser };
 };
@@ -101,8 +104,9 @@ export const useUpdateUser = ({ typeUser }: Props) => {
   }, [typeUser]);
   const { trigger, isMutating, error } = useSWRMutation(
     URL,
-    async (_url, { arg }: { arg: { id: string; data: any } }) => {
+    async (_url, { arg }: { arg: { id: string; data: any; mutateURL?: string } }) => {
       const response = await axiosInstanceV2.put(`${URL}/${arg.id}`, arg.data);
+      if (arg.mutateURL) mutate(arg.mutateURL);
       return response.data;
     }
   );

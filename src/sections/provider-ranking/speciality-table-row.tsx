@@ -36,7 +36,7 @@ export default function RankingTableRow({
   onSelectRow,
   onDeleteRow,
 }: Props) {
-  const { name, description, isActive, updatedAt, id, base_price } = row;
+  const { name, description, isActive, id, base_price } = row;
 
   const confirm = useBoolean();
   const quickEdit = useBoolean();

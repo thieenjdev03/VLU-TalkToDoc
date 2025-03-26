@@ -164,6 +164,7 @@ export const _userList = [...Array(20)].map((_, index) => ({
   experienceYears: _mock.experienceYears(Math.floor(Math.random() * 4)),
   hospitalId: _mock.hospitalId(Math.floor(Math.random() * 4)),
   birthDate: '',
+  hospital: {},
   gender: '',
   username: '',
   password: '',

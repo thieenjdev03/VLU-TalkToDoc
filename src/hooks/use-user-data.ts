@@ -14,13 +14,22 @@ export function useUserData(
   }
 ) {
   const refreshUserData = useCallback(() => {
-    const userURL = endpoints.users.list;
+    let url;
+    if (typeUser === 'doctor') {
+      url = endpoints.doctors.list;
+    } else if (typeUser === 'patient') {
+      url = endpoints.patients.list;
+    } else if (typeUser === 'employee') {
+      url = endpoints.employees.list;
+    } else {
+      url = endpoints.users.list;
+    }
+
     mutate([
-      userURL,
+      url,
       {
         method: 'GET',
         params: {
-          typeUser,
           query: options?.query || '',
           page: options?.page || 1,
           limit: options?.limit || 10,

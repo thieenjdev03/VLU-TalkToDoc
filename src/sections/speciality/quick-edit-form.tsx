@@ -43,11 +43,11 @@ export default function SpecialtyQuickEditForm({ currentSpecialty, open, onClose
       }),
     []
   );
-
+  console.log('currentSpecialty', currentSpecialty);
   // 🛠 Default values cho chuyên khoa
   const defaultValues = useMemo(
     () => ({
-      // _id: currentSpecialty?._id || '',
+      _id: currentSpecialty?._id || '',
       name: currentSpecialty?.name || '',
       description: currentSpecialty?.description || '',
       status: currentSpecialty?.status || 'isActive',
@@ -69,15 +69,8 @@ export default function SpecialtyQuickEditForm({ currentSpecialty, open, onClose
   } = methods;
   console.log(errors);
   const onSubmit = handleSubmit(async (data) => {
+    console.log(data);
     try {
-      console.log('Data:', data);
-      const formattedData = {
-        name: data.name,
-        description: data.description,
-        status: data.status,
-        isActive: data.isActive,
-      };
-
       await updateSpecialty({ id: data._id, data });
       reset();
       onClose();
@@ -98,7 +91,8 @@ export default function SpecialtyQuickEditForm({ currentSpecialty, open, onClose
           <Box sx={{ display: 'grid', gap: 2, mt: 2 }}>
             <Grid container spacing={2}>
               <Grid item xs={12}>
-                <RHFTextField disabled name="id" label="Mã Chuyên Khoa" />
+                <RHFTextField type="hidden" name="_id" />
+                <RHFTextField disabled name="_id" label="Mã Chuyên Khoa" />
               </Grid>
               <Grid item xs={12}>
                 <RHFTextField name="name" label="Tên chuyên khoa" />

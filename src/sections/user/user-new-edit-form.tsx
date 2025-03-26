@@ -34,6 +34,7 @@ type Props = {
   typeUser: 'user' | 'doctor' | 'employee' | 'patient';
   hospitals: IPharmacyItem[];
   ranking: IRankingItem[];
+  onUpdateSuccess?: () => void;
 };
 
 interface IProvince {
@@ -64,13 +65,19 @@ type FormValuesProps = {
   gender?: string;
   birthDate?: string;
   address?: string;
-  hospitalId?: string;
+  hospital?: any;
   department?: string;
   salary?: number;
   emergencyContact?: string[];
 };
 
-export default function UserNewEditForm({ currentUser, typeUser, hospitals, ranking }: Props) {
+export default function UserNewEditForm({
+  currentUser,
+  typeUser,
+  hospitals,
+  ranking,
+  onUpdateSuccess,
+}: Props) {
   const router = useRouter();
   const { specialties } = useGetSpecialties();
   const [specialtyList, setSpecialtyList] = useState<ISpecialtyItem[]>([]);
@@ -122,7 +129,7 @@ export default function UserNewEditForm({ currentUser, typeUser, hospitals, rank
       typeUser === 'doctor'
         ? Yup.string().required('Cấp bậc không được để trống')
         : Yup.string().optional(),
-    hospitalId:
+    hospital:
       typeUser === 'doctor'
         ? Yup.string().required('Bệnh viện không được để trống')
         : Yup.string().optional(),
@@ -197,7 +204,7 @@ export default function UserNewEditForm({ currentUser, typeUser, hospitals, rank
         emergencyContact: currentUser?.emergencyContact || [],
       }),
       ...(typeUser === 'doctor' && {
-        hospitalId: currentUser?.hospitalId || '',
+        hospital: currentUser?.hospital || '',
         rank: currentUser?.rank || '',
         salary: currentUser?.salary || 0,
         specialty: Array.isArray(currentUser?.specialty)
@@ -210,7 +217,7 @@ export default function UserNewEditForm({ currentUser, typeUser, hospitals, rank
         licenseNo: currentUser?.licenseNo || '',
       }),
       ...(typeUser === 'employee' && {
-        hospitalId: currentUser?.hospitalId || '',
+        hospital: currentUser?.hospital || '',
         salary: currentUser?.salary || 0,
         position: currentUser?.position || '',
       }),
@@ -412,7 +419,7 @@ export default function UserNewEditForm({ currentUser, typeUser, hospitals, rank
           }
         />
         <RHFAutocomplete
-          name="hospitalId"
+          name="hospital"
           label="Bệnh Viện"
           options={hospitalOptions}
           getOptionLabel={(option) => (typeof option === 'string' ? option : option.label)}
@@ -420,7 +427,7 @@ export default function UserNewEditForm({ currentUser, typeUser, hospitals, rank
             typeof option === 'string' ? option === value : option.value === value
           }
           onChange={(event, newValue: any) =>
-            setValue('hospitalId', newValue.label, { shouldValidate: true })
+            setValue('hospital', newValue.label, { shouldValidate: true })
           }
         />
         {loadingCities ? (
@@ -491,7 +498,7 @@ export default function UserNewEditForm({ currentUser, typeUser, hospitals, rank
           <RHFTextField
             name="salary"
             label="Lương / Tháng"
-            value={formatNumber(field.value)}
+            value={formatNumber(field.value || 0)}
             onChange={(e) => {
               const parsedValue = parseNumber(e.target.value);
               if (!parsedValue || /^\d+$/.test(parsedValue)) {

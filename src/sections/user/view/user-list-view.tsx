@@ -3,6 +3,7 @@ import debounce from 'lodash/debounce';
 import { useMemo, useState, useEffect, useCallback } from 'react';
 
 import Tab from '@mui/material/Tab';
+import { Box } from '@mui/material';
 import Tabs from '@mui/material/Tabs';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
@@ -15,7 +16,6 @@ import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
 
 import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
 
 import { useBoolean } from 'src/hooks/use-boolean';
@@ -72,7 +72,7 @@ const TABLE_HEAD_PATIENT = [
 const TABLE_HEAD_DOCTOR = [
   { id: 'id', label: 'Mã Bác Sĩ', width: 200 },
   { id: 'fullName', label: 'Họ & Tên', width: 200 },
-  { id: 'hospitalId', label: 'Bệnh Viện', width: 400 },
+  { id: 'hospital', label: 'Bệnh Viện', width: 400 },
   { id: 'rank', label: 'Cấp Bậc', width: 180 },
   { id: 'specialty', label: 'Chuyên Khoa', width: 1000 },
   { id: 'city', label: 'Thành Phố', width: 220 },
@@ -112,13 +112,10 @@ export default function UserListView(props: {
   const { providerRanking } = useGetRanking();
   const settings = useSettingsContext();
 
-  const router = useRouter();
-
   const confirm = useBoolean();
 
   const [tableData, setTableData] = useState<IUserItem[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-
   const [filters, setFilters] = useState(defaultFilters);
   const { specialties } = useGetSpecialties();
   const dataFiltered = tableData;
@@ -162,7 +159,7 @@ export default function UserListView(props: {
   const canReset = !isEqual(defaultFilters, filters);
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
-  const { hospitals, hospitalsLoading, hospitalsError, hospitalsValidating } = useGetHospital();
+  const { hospitals } = useGetHospital();
   const debouncedSearch = useMemo(
     () =>
       debounce((query: string) => {
@@ -220,17 +217,25 @@ export default function UserListView(props: {
 
     table.onUpdatePageDeleteRows({
       totalRowsInPage: dataInPage.length,
-
       totalRowsFiltered: dataFiltered.length,
     });
-  }, [dataFiltered.length, dataInPage.length, enqueueSnackbar, table, tableData]);
 
-  const handleEditRow = useCallback(
-    (id: string) => {
-      router.push(paths.dashboard.user.edit(id));
-    },
-    [router]
-  );
+    handleRefreshData();
+  }, [
+    dataFiltered.length,
+    dataInPage.length,
+    enqueueSnackbar,
+    table,
+    tableData,
+    handleRefreshData,
+  ]);
+
+  // const handleEditRow = useCallback(
+  //   (id: string) => {
+  //     router.push(paths.dashboard.user.edit(id));
+  //   },
+  //   [router]
+  // );
 
   const handleFilterStatus = useCallback(
     (event: React.SyntheticEvent, newValue: string) => {
@@ -264,14 +269,24 @@ export default function UserListView(props: {
             },
           ]}
           action={
-            <Button
-              component={RouterLink}
-              href={`${paths.dashboard.user.new}-${typeUser}`}
-              variant="contained"
-              startIcon={<Iconify icon="mingcute:add-line" />}
-            >
-              Tạo mới
-            </Button>
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <Button
+                component={RouterLink}
+                href={`${paths.dashboard.user.new}-${typeUser}`}
+                variant="contained"
+                startIcon={<Iconify icon="mingcute:add-line" />}
+              >
+                Tạo mới
+              </Button>
+              <Button
+                variant="outlined"
+                color="inherit"
+                onClick={handleRefreshData}
+                startIcon={<Iconify icon="eva:refresh-fill" />}
+              >
+                Làm mới
+              </Button>
+            </Box>
           }
           sx={{
             mb: { xs: 3, md: 5 },
@@ -384,10 +399,9 @@ export default function UserListView(props: {
                         selected={table.selected.includes(row._id)}
                         onSelectRow={() => table.onSelectRow(row._id)}
                         onDeleteRow={() => handleDeleteRow(row._id)}
-                        onEditRow={() => handleEditRow(row.id)}
                         typeUser={typeUser}
-                        specialtyList={specialtyList}
                         hospitalList={hospitals}
+                        handleRefreshData={handleRefreshData}
                       />
                     ))}
 

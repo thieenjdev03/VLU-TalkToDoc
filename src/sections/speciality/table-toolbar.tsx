@@ -9,29 +9,38 @@ import InputAdornment from '@mui/material/InputAdornment';
 import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 
-import { ISpecialtyTableFilters, ISpecialtyTableFilterValue } from 'src/types/specialties';
+import { IUserTableFilters, IUserTableFilterValue } from 'src/types/user';
+
 // ----------------------------------------------------------------------
 
 type Props = {
-  filters: ISpecialtyTableFilters;
-  onFilters: (name: string, value: ISpecialtyTableFilterValue) => void;
-  //
-  specialtyOptions?: string[];
+  filters: IUserTableFilters;
+  onFilters: (name: string, value: IUserTableFilterValue) => void;
+  roleOptions: string[];
+  searchValue?: string;
+  onSearchChange?: (query: string) => void;
+  typeUser: 'user' | 'doctor' | 'employee' | 'patient';
 };
 
-export default function SpecialtyTableToolbar({
+export default function UserTableToolbar({
   filters,
   onFilters,
-  //
-  specialtyOptions,
+  roleOptions,
+  searchValue = '',
+  onSearchChange,
+  typeUser,
 }: Props) {
   const popover = usePopover();
 
-  const handleFilterName = useCallback(
+  const handleFilterQuery = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      onFilters('name', { name: event.target.value, status: filters.status });
+      const query = event.target.value;
+      if (onSearchChange) {
+        onSearchChange(query);
+      }
+      onFilters('fullName', query);
     },
-    [onFilters, filters.status]
+    [onFilters, onSearchChange]
   );
 
   return (
@@ -48,23 +57,25 @@ export default function SpecialtyTableToolbar({
           pr: { xs: 2.5, md: 1 },
         }}
       >
-        <TextField
-          fullWidth
-          value={filters.name}
-          onChange={handleFilterName}
-          placeholder="Tìm kiếm theo tên chuyên khoa..."
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-              </InputAdornment>
-            ),
-          }}
-        />
+        <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
+          <TextField
+            fullWidth
+            value={searchValue || filters.fullName}
+            onChange={handleFilterQuery}
+            placeholder="Tìm kiếm..."
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+                </InputAdornment>
+              ),
+            }}
+          />
 
-        <IconButton onClick={popover.onOpen}>
-          <Iconify icon="eva:more-vertical-fill" />
-        </IconButton>
+          <IconButton onClick={popover.onOpen}>
+            <Iconify icon="eva:more-vertical-fill" />
+          </IconButton>
+        </Stack>
       </Stack>
 
       <CustomPopover
@@ -73,31 +84,19 @@ export default function SpecialtyTableToolbar({
         arrow="right-top"
         sx={{ width: 140 }}
       >
-        <MenuItem
-          onClick={() => {
-            popover.onClose();
-          }}
-        >
+        <MenuItem onClick={popover.onClose}>
           <Iconify icon="solar:printer-minimalistic-bold" />
-          In
+          Print
         </MenuItem>
 
-        <MenuItem
-          onClick={() => {
-            popover.onClose();
-          }}
-        >
+        <MenuItem onClick={popover.onClose}>
           <Iconify icon="solar:import-bold" />
-          Nhập
+          Import
         </MenuItem>
 
-        <MenuItem
-          onClick={() => {
-            popover.onClose();
-          }}
-        >
+        <MenuItem onClick={popover.onClose}>
           <Iconify icon="solar:export-bold" />
-          Xuất
+          Export
         </MenuItem>
       </CustomPopover>
     </>

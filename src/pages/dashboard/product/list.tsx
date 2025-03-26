@@ -8,7 +8,7 @@ export default function ProductListPage() {
   return (
     <>
       <Helmet>
-        <title> Dashboard: Product List</title>
+        <title> Trang Chủ : Quản Lý Thuốc</title>
       </Helmet>
 
       <ProductListView />

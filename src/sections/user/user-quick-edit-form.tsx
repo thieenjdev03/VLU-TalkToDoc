@@ -34,6 +34,8 @@ type Props = {
   typeUser: 'doctor' | 'patient' | 'employee' | 'user';
   ranking: IRankingItem[];
   hospitalList: any;
+  handleRefreshData: () => void;
+  onUpdateSuccess?: () => void;
 };
 
 export default function UserQuickEditForm({
@@ -43,6 +45,8 @@ export default function UserQuickEditForm({
   typeUser,
   ranking,
   hospitalList,
+  onUpdateSuccess,
+  handleRefreshData,
 }: Props) {
   const { enqueueSnackbar } = useSnackbar();
   const { updateUser } = useUpdateUser({ typeUser });
@@ -74,7 +78,6 @@ export default function UserQuickEditForm({
       setSpecialtyList(specialties);
     }
   }, [specialties]);
-  console.log('specialtyList check', specialtyList);
   // 🛠 Schema validation cho từng loại user
   const NewUserSchema = useMemo(() => {
     switch (typeUser) {
@@ -83,9 +86,6 @@ export default function UserQuickEditForm({
           fullName: Yup.string().required('Họ và Tên không được để trống'),
           email: Yup.string().required('Email không được để trống').email('Email không hợp lệ'),
           phoneNumber: Yup.string().required('Số điện thoại không được để trống'),
-          specialty: Yup.array().min(1, 'Chọn ít nhất một chuyên khoa'),
-          hospitalId: Yup.string().required('Bệnh viện không được để trống'),
-          rank: Yup.string().required('Cấp bậc không được để trống'),
           experienceYears: Yup.number().required('Số năm kinh nghiệm không được để trống'),
           licenseNo: Yup.string().required('Mã giấy phép không được để trống'),
         });
@@ -127,9 +127,19 @@ export default function UserQuickEditForm({
       isActive: currentUser?.isActive || false,
       phoneNumber: currentUser?.phoneNumber || '',
       ...(typeUser === 'doctor' && {
-        specialty: currentUser?.specialty || [],
-        hospitalId: currentUser?.hospitalId || '',
-        rank: currentUser?.rank || '',
+        specialty: Array.isArray(currentUser?.specialty)
+          ? currentUser.specialty.map((s: any) =>
+              typeof s === 'object' ? { value: s._id, label: s.name } : s
+            )
+          : [],
+        hospital:
+          currentUser?.hospital && typeof currentUser.hospital === 'object'
+            ? { value: currentUser.hospital._id, label: currentUser.hospital.name }
+            : '',
+        rank:
+          currentUser?.rank && typeof currentUser.rank === 'object'
+            ? { value: currentUser.rank._id, label: currentUser.rank.name }
+            : '',
         experienceYears: currentUser?.experienceYears || 0,
         licenseNo: currentUser?.licenseNo || '',
       }),
@@ -140,12 +150,22 @@ export default function UserQuickEditForm({
       }),
       ...(typeUser === 'employee' && {
         role: currentUser?.role || '',
-        hospitalId: currentUser?.hospitalId || '',
+        hospital:
+          currentUser?.hospital && typeof currentUser.hospital === 'object'
+            ? { value: currentUser.hospital._id, label: currentUser.hospital.name }
+            : '',
         department: currentUser?.department || '',
-        specialty: currentUser?.specialty,
+        specialty: Array.isArray(currentUser?.specialty)
+          ? currentUser.specialty.map((s: any) =>
+              typeof s === 'object' ? { value: s._id, label: s.name } : s
+            )
+          : [],
         position: currentUser?.position || '',
         salary: currentUser?.salary || 0,
-        city: currentUser?.city || '',
+        city:
+          currentUser?.city && typeof currentUser.city === 'object'
+            ? currentUser.city.name
+            : currentUser?.city || '',
       }),
     }),
     [currentUser, typeUser]
@@ -190,7 +210,9 @@ export default function UserQuickEditForm({
       reset();
       onClose();
       enqueueSnackbar('Cập nhật thành công!');
-      // window.location.reload();
+      handleRefreshData();
+      onUpdateSuccess?.();
+      window.location.reload();
     } catch (error) {
       console.error(error);
       enqueueSnackbar('Cập nhật thất bại', { variant: 'error' });
@@ -235,7 +257,7 @@ export default function UserQuickEditForm({
                   </Grid>
                   <Grid item xs={12} sm={6}>
                     <RHFAutocomplete
-                      name="hospitalId"
+                      name="hospital"
                       label="Bệnh Viện"
                       options={hospitalList}
                       getOptionLabel={(option) =>
@@ -245,7 +267,7 @@ export default function UserQuickEditForm({
                         typeof option === 'string' ? option === value : option.value === value
                       }
                       onChange={(event, newValue: any) =>
-                        setValue('hospitalId', newValue.value, { shouldValidate: true })
+                        setValue('hospital', newValue.value, { shouldValidate: true })
                       }
                     />
                   </Grid>

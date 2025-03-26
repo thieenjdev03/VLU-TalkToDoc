@@ -2,15 +2,39 @@ import { useMemo } from 'react';
 import useSWR, { mutate } from 'swr';
 import useSWRMutation from 'swr/mutation';
 
-import { fetcher, endpoints, axiosInstanceV2 } from 'src/utils/axios';
+import { endpoints, axiosInstanceV2 } from 'src/utils/axios';
 
 import { IPharmacyItem } from 'src/types/pharmacy';
 
-export const useGetPharmacies = () => {
-  const URL = endpoints.pharmacies.list;
+export const useGetPharmacies = ({
+  query = '',
+  page = 1,
+  limit = 10,
+  sortField = 'name',
+  sortOrder = 'asc',
+}: {
+  query?: string;
+  page?: number;
+  limit?: number;
+  sortField?: string;
+  sortOrder?: 'asc' | 'desc';
+}) => {
+  const URL = endpoints.pharmacies.search;
+
   const { data, isLoading, error, isValidating } = useSWR(
-    [URL, { method: 'GET' }],
-    ([url, config]) => fetcher([url, config], true)
+    [URL, query, page, limit, sortField, sortOrder],
+    () =>
+      axiosInstanceV2
+        .get(URL, {
+          params: {
+            query,
+            page,
+            limit,
+            sortField,
+            sortOrder,
+          },
+        })
+        .then((res) => res.data)
   );
 
   const memoizedValue = useMemo(
@@ -26,6 +50,7 @@ export const useGetPharmacies = () => {
 
   return memoizedValue;
 };
+
 export const useDeletePharmacy = () => {
   const URL = endpoints.pharmacies.delete;
   const deletePharmacy = async (id: string) => {
@@ -34,6 +59,7 @@ export const useDeletePharmacy = () => {
   };
   return { deletePharmacy };
 };
+
 export const useCreatePharmacy = () => {
   const URL = endpoints.pharmacies.create;
   const { trigger, isMutating, error } = useSWRMutation(

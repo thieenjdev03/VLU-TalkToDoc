@@ -2,15 +2,40 @@ import { useMemo } from 'react';
 import useSWR, { mutate } from 'swr';
 import useSWRMutation from 'swr/mutation';
 
-import { fetcher, endpoints, axiosInstanceV2 } from 'src/utils/axios';
+import { endpoints, axiosInstanceV2 } from 'src/utils/axios';
 
 import { ISpecialtyItem } from 'src/types/specialties';
 
-export const useGetSpecialties = () => {
+// New useGetSpecialties function
+export const useGetSpecialties = ({
+  query = '',
+  page = 1,
+  limit = 10,
+  sortField = 'name',
+  sortOrder = 'asc',
+}: {
+  query?: string;
+  page?: number;
+  limit?: number;
+  sortField?: string;
+  sortOrder?: 'asc' | 'desc';
+}) => {
   const URL = endpoints.specialties.list;
+
   const { data, isLoading, error, isValidating } = useSWR(
-    [URL, { method: 'GET' }],
-    ([url, config]) => fetcher([url, config], true)
+    [URL, query, page, limit, sortField, sortOrder],
+    () =>
+      axiosInstanceV2
+        .get(URL, {
+          params: {
+            q: query,
+            page,
+            limit,
+            sortField,
+            sortOrder,
+          },
+        })
+        .then((res) => res.data)
   );
 
   const memoizedValue = useMemo(
@@ -26,6 +51,7 @@ export const useGetSpecialties = () => {
 
   return memoizedValue;
 };
+
 export const useDeleteSpecialty = () => {
   const URL = endpoints.specialties.delete;
   const deleteSpecialty = async (id: string) => {
@@ -64,5 +90,20 @@ export const useUpdateSpecialty = () => {
     updateSpecialty: trigger,
     isUpdating: isMutating,
     error,
+  };
+};
+export const useSearchSpecialties = (keyword: string) => {
+  const URL = endpoints.specialties.search;
+
+  const shouldFetch = keyword.trim().length > 0;
+
+  const { data, isLoading, error } = useSWR(shouldFetch ? [URL, keyword] : null, ([url]) =>
+    axiosInstanceV2.get(url, { params: { q: keyword } }).then((res) => res.data)
+  );
+
+  return {
+    searchedSpecialties: (data as ISpecialtyItem[]) || [],
+    isSearching: isLoading,
+    searchError: error,
   };
 };

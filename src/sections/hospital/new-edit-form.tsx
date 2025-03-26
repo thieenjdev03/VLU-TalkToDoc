@@ -49,11 +49,9 @@ export default function PharmacyNewEditForm({ currentPharmacy }: Props) {
   const { createHospital } = useCreateHospital();
   const { updateHospital } = useUpdateHospital();
   const [cities, setCities] = useState<IProvince[]>([]);
-  const [loadingCities, setLoadingCities] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchCities = async () => {
-      setLoadingCities(true);
       try {
         const response = await axios.get('https://provinces.open-api.vn/api/');
         console.log('Cities loaded:', response.data); // Debug log to verify data
@@ -62,12 +60,12 @@ export default function PharmacyNewEditForm({ currentPharmacy }: Props) {
         console.error('Failed to fetch cities:', error);
         enqueueSnackbar('Failed to load cities data', { variant: 'error' });
       } finally {
-        setLoadingCities(false);
+        console.log('Cities loaded:', cities); // Debug log to verify data
       }
     };
 
     fetchCities();
-  }, [enqueueSnackbar]);
+  }, [enqueueSnackbar, cities]);
 
   const PharmacySchema = Yup.object().shape({
     name: Yup.string().required('Tên nhà thuốc không được để trống'),

@@ -1,5 +1,6 @@
 import isEqual from 'lodash/isEqual';
-import { useState, useEffect, useCallback } from 'react';
+import debounce from 'lodash/debounce';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
@@ -41,15 +42,13 @@ import {
 } from 'src/components/table';
 
 import SpecialtyTableToolbar from 'src/sections/speciality/table-toolbar';
-// Updated to use specialty toolbar
 import SpecialtyTableRow from 'src/sections/speciality/speciality-table-row';
-// Updated to use specialty filters result
 
 import {
   ISpecialtyItem,
   ISpecialtyTableFilters,
   ISpecialtyTableFilterValue,
-} from 'src/types/specialties'; // Updated types
+} from 'src/types/specialties';
 
 // ----------------------------------------------------------------------
 
@@ -79,7 +78,8 @@ export default function SpecialtiesListPage() {
 
   const confirm = useBoolean();
 
-  const [tableData, setTableData] = useState<ISpecialtyItem[]>([]); // Updated state type
+  const [tableData, setTableData] = useState<ISpecialtyItem[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const [filters, setFilters] = useState(defaultFilters);
 
@@ -90,7 +90,13 @@ export default function SpecialtiesListPage() {
   });
 
   const { specialties, specialtiesLoading, specialtiesError, specialtiesValidating } =
-    useGetSpecialties();
+    useGetSpecialties({
+      query: searchQuery,
+      page: table.page + 1,
+      limit: table.rowsPerPage,
+      sortField: table.orderBy || 'fullName',
+      sortOrder: table.order || 'asc',
+    });
 
   useEffect(() => {
     if (specialties.length) {
@@ -111,8 +117,17 @@ export default function SpecialtiesListPage() {
 
   const notFound = (!tableData.length && canReset) || !tableData.length;
 
+  const debouncedSearch = useMemo(
+    () =>
+      debounce((query: string) => {
+        setSearchQuery(query);
+        table.onResetPage();
+      }, 1000),
+    [table]
+  );
+
   const handleFilters = useCallback(
-    (fullName: string, value: ISpecialtyTableFilterValue) => {
+    (fullName: string, value: any) => {
       table.onResetPage();
       setFilters((prevState) => ({
         ...prevState,
@@ -121,7 +136,6 @@ export default function SpecialtiesListPage() {
     },
     [table]
   );
-
   const { deleteSpecialty } = useDeleteSpecialty();
   const handleDeleteRow = useCallback(
     async (id: string) => {
@@ -130,7 +144,6 @@ export default function SpecialtiesListPage() {
           enqueueSnackbar('Xoá chuyên khoa thành công!', { variant: 'success' });
           table.onUpdatePageDeleteRow(dataInPage.length);
           confirm.onFalse();
-          // window.location.reload();
         })
         .catch(() => {
           enqueueSnackbar('Không thể xoá chuyên khoa!', { variant: 'error' });
@@ -141,7 +154,7 @@ export default function SpecialtiesListPage() {
 
   const handleEditRow = useCallback(
     (_id: string) => {
-      router.push(paths.dashboard.specialties.edit(_id)); // Updated path for specialties
+      router.push(paths.dashboard.specialties.edit(_id));
     },
     [router]
   );
@@ -167,7 +180,7 @@ export default function SpecialtiesListPage() {
           action={
             <Button
               component={RouterLink}
-              href={`${paths.dashboard.specialties.new}`} // Updated to new specialty path
+              href={`${paths.dashboard.specialties.new}`}
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
             >
@@ -217,7 +230,8 @@ export default function SpecialtiesListPage() {
           <SpecialtyTableToolbar
             filters={filters}
             onFilters={handleFilters}
-            specialtyOptions={tableData.map((item) => item.name)} // Updated to use status options
+            onSearchChange={debouncedSearch}
+            specialtyOptions={tableData.map((item) => item.name)}
           />
 
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
@@ -245,7 +259,7 @@ export default function SpecialtiesListPage() {
                 <TableHeadCustom
                   order={table.order}
                   orderBy={table.orderBy}
-                  headLabel={TABLE_HEAD_SPECIALTY} // Updated to use specialty table head
+                  headLabel={TABLE_HEAD_SPECIALTY}
                   rowCount={tableData.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
@@ -324,9 +338,9 @@ function applyFilter({
   comparator,
   filters,
 }: {
-  inputData: ISpecialtyItem[]; // Updated type
+  inputData: ISpecialtyItem[];
   comparator: (a: any, b: any) => number;
-  filters: ISpecialtyTableFilters; // Updated type
+  filters: ISpecialtyTableFilters;
 }) {
   const { name, status } = filters;
 

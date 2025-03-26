@@ -89,7 +89,7 @@ export default function UserTableToolbar({
       >
         {/* Dropdown chọn chuyên khoa */}
         {typeUser === 'patient' || typeUser === 'user' ? (
-          <></>
+          <div />
         ) : (
           <FormControl
             sx={{

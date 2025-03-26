@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+
 import Container from '@mui/material/Container';
 
 import { paths } from 'src/routes/paths';
@@ -19,6 +21,11 @@ export default function UserEditView({ id }: Props) {
   const settings = useSettingsContext();
 
   const currentUser = _userList.find((user) => user.id === id);
+  const handleUpdateSuccess = () => {
+    // window.location.reload();
+  };
+
+  useEffect(() => {}, [id]);
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
@@ -44,6 +51,7 @@ export default function UserEditView({ id }: Props) {
         typeUser={currentUser?.role as 'user' | 'doctor' | 'employee'}
         hospitals={[]}
         ranking={[]}
+        onUpdateSuccess={handleUpdateSuccess}
       />
     </Container>
   );

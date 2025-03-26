@@ -151,7 +151,7 @@ export default function ProductListView() {
     },
     {
       field: 'name',
-      headerName: 'Product',
+      headerName: 'Tên Thuốc',
       flex: 1,
       minWidth: 360,
       hideable: false,
@@ -159,13 +159,13 @@ export default function ProductListView() {
     },
     {
       field: 'createdAt',
-      headerName: 'Create at',
+      headerName: 'Thêm Lúc',
       width: 160,
       renderCell: (params) => <RenderCellCreatedAt params={params} />,
     },
     {
       field: 'inventoryType',
-      headerName: 'Stock',
+      headerName: 'Số Lượng',
       width: 160,
       type: 'singleSelect',
       valueOptions: PRODUCT_STOCK_OPTIONS,
@@ -173,15 +173,15 @@ export default function ProductListView() {
     },
     {
       field: 'price',
-      headerName: 'Price',
+      headerName: 'Giá',
       width: 140,
       editable: true,
       renderCell: (params) => <RenderCellPrice params={params} />,
     },
     {
       field: 'publish',
-      headerName: 'Publish',
-      width: 110,
+      headerName: 'Lần Cập Nhật Cuối',
+      width: 220,
       type: 'singleSelect',
       editable: true,
       valueOptions: PUBLISH_OPTIONS,

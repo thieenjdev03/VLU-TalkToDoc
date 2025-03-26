@@ -1,3 +1,5 @@
+import moment from 'moment';
+
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
@@ -55,7 +57,7 @@ export default function SpecialtyTableRow({
       <TableCell>
         <Checkbox checked={isActive} disabled />
       </TableCell>
-      <TableCell>{updatedAt}</TableCell>
+      <TableCell>{moment(updatedAt).format('L')}</TableCell>
     </>
   );
   console.log(row);

@@ -1,5 +1,5 @@
 import isEqual from 'lodash/isEqual';
-import { useState, useEffect, useCallback } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
@@ -19,6 +19,8 @@ import { RouterLink } from 'src/routes/components';
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { useGetPharmacies, useDeletePharmacy } from 'src/api/pharmacy'; // Updated to use pharmacy API
+import debounce from 'lodash';
+
 import { USER_STATUS_OPTIONS } from 'src/_mock';
 
 import Label from 'src/components/label';
@@ -32,7 +34,6 @@ import {
   useTable,
   emptyRows,
   TableNoData,
-  getComparator,
   TableEmptyRows,
   TableHeadCustom,
   TableSelectedAction,
@@ -80,30 +81,28 @@ export default function PharmaciesListPage() {
 
   const [filters, setFilters] = useState(defaultFilters);
 
-  const dataFiltered = applyFilter({
-    inputData: tableData,
-    comparator: getComparator(table.order, table.orderBy),
-    filters,
-  });
-
   const [selectedPharmacy, setSelectedPharmacy] = useState<IPharmacyItem | undefined>(undefined);
   const editDialog = useBoolean();
-
-  const { pharmacies, pharmaciesLoading, pharmaciesError, pharmaciesValidating } =
-    useGetPharmacies();
+  const [searchQuery, setSearchQuery] = useState('');
+  const { pharmacies, pharmaciesLoading, pharmaciesError, pharmaciesValidating } = useGetPharmacies(
+    {
+      query: searchQuery,
+      page: table.page + 1,
+      limit: table.rowsPerPage,
+      sortField: table.orderBy || 'name',
+      sortOrder: table.order === 'asc' ? 'asc' : 'desc',
+    }
+  );
 
   useEffect(() => {
-    if (pharmacies.length) {
-      setTableData(pharmacies);
+    if (pharmacies?.data?.length) {
+      setTableData(pharmacies?.data);
     } else if (pharmaciesLoading || pharmaciesError || pharmaciesValidating) {
       setTableData([]);
     }
   }, [pharmacies, pharmaciesLoading, pharmaciesError, pharmaciesValidating]);
 
-  const dataInPage = dataFiltered.slice(
-    table.page * table.rowsPerPage,
-    table.page * table.rowsPerPage + table.rowsPerPage
-  );
+  const dataInPage = tableData;
 
   const denseHeight = table.dense ? 56 : 56 + 20;
 
@@ -111,8 +110,17 @@ export default function PharmaciesListPage() {
 
   const notFound = (!tableData.length && canReset) || !tableData.length;
 
+  const debouncedSearch = useMemo(
+    () =>
+      debounce((query: string) => {
+        setSearchQuery(query);
+        table.onResetPage();
+      }, 1000),
+    [table]
+  );
+
   const handleFilters = useCallback(
-    (fullName: string, value: IPharmacyTableFilterValue) => {
+    (fullName: string, value: any) => {
       table.onResetPage();
       setFilters((prevState) => ({
         ...prevState,
@@ -212,9 +220,9 @@ export default function PharmaciesListPage() {
                       'default'
                     }
                   >
-                    {/* {['Hoạt Động', 'Đã Khoá'].includes(tab.value)
+                    {['Hoạt Động', 'Đã Khoá'].includes(tab.value)
                       ? tableData.filter((pharmacy) => pharmacy.active === tab.value).length
-                      : tableData.length} */}
+                      : tableData.length}
                   </Label>
                 }
               />
@@ -224,7 +232,8 @@ export default function PharmaciesListPage() {
           <PharmacyTableToolbar
             filters={filters}
             onFilters={handleFilters}
-            pharmacyOptions={tableData.map((item) => item.name)} // Updated to use pharmacy options
+            onSearchChange={setSearchQuery}
+            specialtyOptions={tableData.map((item) => item.name)}
           />
 
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
@@ -265,7 +274,7 @@ export default function PharmaciesListPage() {
                 />
 
                 <TableBody>
-                  {dataFiltered.map((row) => (
+                  {dataInPage.map((row) => (
                     <PharmacyTableRow
                       key={row._id}
                       row={row}
@@ -331,40 +340,4 @@ export default function PharmaciesListPage() {
       )}
     </>
   );
-}
-
-// ----------------------------------------------------------------------
-
-function applyFilter({
-  inputData,
-  comparator,
-  filters,
-}: {
-  inputData: IPharmacyItem[]; // Updated type
-  comparator: (a: any, b: any) => number;
-  filters: IPharmacyTableFilters; // Updated type
-}) {
-  const { name, status } = filters;
-
-  const stabilizedThis = inputData.map((el, index) => [el, index] as const);
-
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
-
-  inputData = stabilizedThis.map((el) => el[0]);
-
-  if (name) {
-    inputData = inputData.filter(
-      (pharmacy) => pharmacy?.name?.toLowerCase().includes(name?.toLowerCase())
-    );
-  }
-
-  // if (status !== 'all') {
-  //   inputData = inputData.filter((pharmacy) => pharmacy.active === status);
-  // }
-
-  return inputData;
 }

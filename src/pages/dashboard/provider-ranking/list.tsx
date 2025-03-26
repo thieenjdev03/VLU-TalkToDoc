@@ -87,17 +87,23 @@ export default function ProviderRankingListPage() {
     comparator: getComparator(table.order, table.orderBy),
     filters,
   });
-
+  const [searchQuery, setSearchQuery] = useState('');
   const {
     providerRanking,
     providerRankingLoading,
     providerRankingError,
     providerRankingValidating,
-  } = useGetRanking();
+  } = useGetRanking({
+    query: searchQuery,
+    page: table.page + 1,
+    limit: table.rowsPerPage,
+    sortField: table.orderBy || 'fullName',
+    sortOrder: table.order || 'asc',
+  });
 
   useEffect(() => {
-    if (providerRanking.length) {
-      setTableData(providerRanking);
+    if (providerRanking?.data?.length) {
+      setTableData(providerRanking?.data);
     } else if (providerRankingLoading || providerRankingError || providerRankingValidating) {
       setTableData([]);
     }
@@ -130,13 +136,13 @@ export default function ProviderRankingListPage() {
     async (id: string) => {
       await deleteRanking(id)
         .then(() => {
-          enqueueSnackbar('Xoá chuyên khoa thành công!', { variant: 'success' });
+          enqueueSnackbar('Xoá Cấp Bậc thành công!', { variant: 'success' });
           table.onUpdatePageDeleteRow(dataInPage.length);
           confirm.onFalse();
           // window.location.reload();
         })
         .catch(() => {
-          enqueueSnackbar('Không thể xoá chuyên khoa!', { variant: 'error' });
+          enqueueSnackbar('Không thể xoá Cấp Bậc!', { variant: 'error' });
         });
     },
     [dataInPage.length, enqueueSnackbar, table, deleteRanking, confirm]
@@ -220,6 +226,7 @@ export default function ProviderRankingListPage() {
           <RankingTableToolbar
             filters={filters}
             onFilters={handleFilters}
+            onSearchChange={setSearchQuery}
             rankingOptions={tableData.map((item) => item.name)} // Updated to use status options
           />
 

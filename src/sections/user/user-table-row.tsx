@@ -21,7 +21,6 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 
 import { IUserItem } from 'src/types/user';
-import { ISpecialtyItem } from 'src/types/specialties';
 
 import UserQuickEditForm from './user-quick-edit-form';
 
@@ -29,34 +28,33 @@ import UserQuickEditForm from './user-quick-edit-form';
 
 type Props = {
   selected: boolean;
-  onEditRow: VoidFunction;
   row: IUserItem;
   onSelectRow: VoidFunction;
   onDeleteRow: VoidFunction;
   typeUser: 'user' | 'doctor' | 'employee' | 'patient';
-  specialtyList: ISpecialtyItem[];
   hospitalList: any;
   ranking: any;
+  onUpdateSuccess?: () => void;
+  handleRefreshData: () => void;
 };
 
 export default function UserTableRow({
   row,
   selected,
-  onEditRow,
   onSelectRow,
   onDeleteRow,
   typeUser,
-  specialtyList,
   hospitalList,
   ranking,
+  onUpdateSuccess,
+  handleRefreshData,
 }: Props) {
   const {
     fullName,
     avatarUrl,
-    status,
     email,
     phoneNumber,
-    hospitalId,
+    hospital,
     rank,
     specialty,
     city,
@@ -76,14 +74,6 @@ export default function UserTableRow({
   const confirm = useBoolean();
   const quickEdit = useBoolean();
   const popover = usePopover();
-  const handleRenderSpecialty = (listSpecialty: string[]) =>
-    // const _specialtyList = listSpecialty
-    //   ?.map((itemId) => {
-    //     const _specialty = specialtyList?.find((s) => s.id === itemId);
-    //     return _specialty ? _specialty.name : null;
-    //   })
-    //   ?.filter((name) => name !== null);
-    listSpecialty?.join(', ');
   const hospitalOptions = hospitalList?.map((item: any) => ({
     value: item._id,
     label: item.name,
@@ -99,9 +89,13 @@ export default function UserTableRow({
               <Avatar alt={fullName} src={avatarUrl || ''} sx={{ mr: 2 }} />
               <ListItemText primary={fullName} secondary={email} />
             </TableCell>
-            <TableCell>{hospitalId}</TableCell>
-            <TableCell>{rank}</TableCell>
-            <TableCell>{handleRenderSpecialty(specialty)}</TableCell>
+            <TableCell>{(typeof hospital === 'object' && hospital?.name) || '-'}</TableCell>
+            <TableCell>{(typeof rank === 'object' && rank?.name) || '-'}</TableCell>
+            <TableCell>
+              {Array.isArray(specialty)
+                ? specialty.map((s) => (typeof s === 'object' ? s.name : s)).join(', ')
+                : '-'}
+            </TableCell>
             <TableCell>{city?.name || city}</TableCell>
             <TableCell>{phoneNumber}</TableCell>
             <TableCell>{experienceYears}</TableCell>
@@ -223,6 +217,11 @@ export default function UserTableRow({
         onClose={quickEdit.onFalse}
         ranking={ranking}
         hospitalList={hospitalOptions}
+        onUpdateSuccess={() => {
+          quickEdit.onFalse();
+          onUpdateSuccess?.();
+        }}
+        handleRefreshData={handleRefreshData}
       />
 
       <CustomPopover
