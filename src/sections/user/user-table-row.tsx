@@ -89,17 +89,18 @@ export default function UserTableRow({
               <Avatar alt={fullName} src={avatarUrl || ''} sx={{ mr: 2 }} />
               <ListItemText primary={fullName} secondary={email} />
             </TableCell>
-            <TableCell>{(typeof hospital === 'object' && hospital?.name) || '-'}</TableCell>
-            <TableCell>{(typeof rank === 'object' && rank?.name) || '-'}</TableCell>
+            <TableCell>{hospital?.name || '-'}</TableCell>
+            <TableCell>{rank?.name || '-'}</TableCell>
+
             <TableCell>
-              {Array.isArray(specialty)
-                ? specialty.map((s) => (typeof s === 'object' ? s.name : s)).join(', ')
+              {Array.isArray(specialty) && specialty.length > 0
+                ? specialty.map((s) => s?.name || s).join(', ')
                 : '-'}
             </TableCell>
-            <TableCell>{city?.name || city}</TableCell>
-            <TableCell>{phoneNumber}</TableCell>
-            <TableCell>{experienceYears}</TableCell>
-            <TableCell>{licenseNo}</TableCell>
+            <TableCell>{city?.name || '-'}</TableCell>
+            <TableCell>{phoneNumber || '-'}</TableCell>
+            <TableCell>{experienceYears ?? '-'}</TableCell>
+            <TableCell>{licenseNo || '-'}</TableCell>
             <TableCell>
               <Checkbox checked={isActive} disabled />
             </TableCell>
@@ -139,16 +140,16 @@ export default function UserTableRow({
               <Label
                 variant="soft"
                 color={(() => {
-                  if (gender === 'Nam') return 'info';
-                  if (gender === 'Nữ') return 'error';
+                  if (gender === 'male') return 'info';
+                  if (gender === 'female') return 'error';
                   return 'default';
                 })()}
               >
                 {(() => {
                   switch (gender) {
-                    case 'Nam':
+                    case 'male':
                       return 'Nam';
-                    case 'Nữ':
+                    case 'female':
                       return 'Nữ';
                     default:
                       return 'Khác';
@@ -179,7 +180,6 @@ export default function UserTableRow({
                 </Typography>
               )}
             </TableCell>
-            <TableCell>{id}</TableCell>
             {/* Hiển thị trạng thái tài khoản */}
             <TableCell>
               <Checkbox checked={isActive} disabled />

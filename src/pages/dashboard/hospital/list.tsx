@@ -80,13 +80,20 @@ export default function HospitalListPage() {
   const [selectedHospital, setSelectedHospital] = useState<IPharmacyItem | undefined>(undefined);
   const editDialog = useBoolean();
   const { deleteHospital } = useDeleteHospital();
+  const [searchQuery, setSearchQuery] = useState('');
   const dataFiltered = applyFilter({
     inputData: tableData,
     comparator: getComparator(table.order, table.orderBy),
     filters,
   });
 
-  const { hospitals, hospitalsLoading, hospitalsError, hospitalsValidating } = useGetHospital();
+  const { hospitals, hospitalsLoading, hospitalsError, hospitalsValidating } = useGetHospital({
+    query: searchQuery,
+    page: table.page + 1,
+    limit: table.rowsPerPage,
+    sortField: table.orderBy || 'name',
+    sortOrder: table.order === 'asc' ? 'asc' : 'desc',
+  });
 
   useEffect(() => {
     if (hospitals?.length) {
@@ -210,9 +217,9 @@ export default function HospitalListPage() {
                       'default'
                     }
                   >
-                    {/* {['Hoạt Động', 'Đã Khoá'].includes(tab.value)
+                    {['Hoạt Động', 'Đã Khoá'].includes(tab.value)
                       ? tableData.filter((pharmacy) => pharmacy.active === tab.value).length
-                      : tableData.length} */}
+                      : tableData.length}
                   </Label>
                 }
               />
@@ -222,7 +229,7 @@ export default function HospitalListPage() {
           <PharmacyTableToolbar
             filters={filters}
             onFilters={handleFilters}
-            pharmacyOptions={tableData.map((item) => item.name)} // Updated to use pharmacy options
+            onSearchChange={setSearchQuery}
           />
 
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>

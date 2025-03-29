@@ -59,6 +59,7 @@ const TABLE_HEAD_PHARMACY = [
   { id: 'city', label: 'Thành Phố', width: '20%' },
   { id: 'phoneNumber', label: 'Số Điện Thoại', width: '20%' },
   { id: 'is24Hours', label: 'Hoạt Động 24/7', width: '10%' },
+  { id: 'isActive', label: 'Kích Hoạt', width: '10%' },
 ];
 const defaultFilters: IPharmacyTableFilters = {
   name: '',

@@ -1,5 +1,6 @@
 import axios from 'axios';
 import * as Yup from 'yup';
+import moment from 'moment';
 import { useMemo, useState, useEffect } from 'react';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useForm, Resolver, Controller } from 'react-hook-form';
@@ -25,14 +26,13 @@ import FormProvider, { RHFTextField, RHFAutocomplete } from 'src/components/hook
 import { IUserItem } from 'src/types/user';
 import { IProvince } from 'src/types/hospital';
 import { ISpecialtyItem } from 'src/types/specialties';
-import { IRankingItem } from 'src/types/provider-ranking';
 
 type Props = {
   open: boolean;
   onClose: VoidFunction;
   currentUser?: IUserItem;
   typeUser: 'doctor' | 'patient' | 'employee' | 'user';
-  ranking: IRankingItem[];
+  ranking: any[];
   hospitalList: any;
   handleRefreshData: () => void;
   onUpdateSuccess?: () => void;
@@ -74,7 +74,7 @@ export default function UserQuickEditForm({
   const { specialties } = useGetSpecialties({
     query: 'searchQuery',
     page: 1,
-    limit: 99,
+    limit: 10,
     sortField: '',
     sortOrder: 'desc',
   });
@@ -151,7 +151,7 @@ export default function UserQuickEditForm({
       }),
       ...(typeUser === 'patient' && {
         address: currentUser?.address || '',
-        birthDate: currentUser?.birthDate || '',
+        birthDate: moment(currentUser?.birthDate).format('L') || '',
         gender: currentUser?.gender || '',
       }),
       ...(typeUser === 'employee' && {
@@ -218,7 +218,7 @@ export default function UserQuickEditForm({
       enqueueSnackbar('Cập nhật thành công!');
       handleRefreshData();
       onUpdateSuccess?.();
-      window.location.reload();
+      // window.location.reload();
     } catch (error) {
       console.error(error);
       enqueueSnackbar('Cập nhật thất bại', { variant: 'error' });
@@ -281,7 +281,7 @@ export default function UserQuickEditForm({
                     <RHFAutocomplete
                       name="rank"
                       label="Cấp Bậc"
-                      options={ranking?.map((item) => ({
+                      options={ranking?.data?.map((item) => ({
                         value: item._id,
                         label: item.name,
                       }))}
@@ -329,7 +329,7 @@ export default function UserQuickEditForm({
                         typeof option === 'string' ? option === value : option.value === value
                       }
                       onChange={(event, newValue: any) =>
-                        setValue('gender', newValue.label, { shouldValidate: true })
+                        setValue('gender', newValue.value, { shouldValidate: true })
                       }
                     />
                   </Grid>
@@ -339,7 +339,7 @@ export default function UserQuickEditForm({
               {typeUser === 'employee' && (
                 <>
                   <Grid item xs={12} sm={6}>
-                    <RHFTextField name="position" label="Vị trí" />
+                    <RHFTextField name="position" label="Vai Trò" />
                   </Grid>
                   <Grid item xs={12} sm={6}>
                     <RHFTextField name="department" label="Bộ Phận" />

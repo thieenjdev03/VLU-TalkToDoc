@@ -54,7 +54,6 @@ export default function PharmacyNewEditForm({ currentPharmacy }: Props) {
     const fetchCities = async () => {
       try {
         const response = await axios.get('https://provinces.open-api.vn/api/');
-        console.log('Cities loaded:', response.data); // Debug log to verify data
         setCities(response.data);
       } catch (error) {
         console.error('Failed to fetch cities:', error);
@@ -65,7 +64,7 @@ export default function PharmacyNewEditForm({ currentPharmacy }: Props) {
     };
 
     fetchCities();
-  }, [enqueueSnackbar, cities]);
+  }, [enqueueSnackbar]);
 
   const PharmacySchema = Yup.object().shape({
     name: Yup.string().required('Tên nhà thuốc không được để trống'),

@@ -64,7 +64,6 @@ const TABLE_HEAD_PATIENT = [
   { id: 'gender', label: 'Giới Tính', width: 120 },
   { id: 'address', label: 'Địa Chỉ', width: 250 },
   { id: 'medicalHistory', label: 'Bệnh Án', width: 180 },
-  { id: 'id', label: 'Mã Bệnh Nhân', width: 200 },
   { id: 'status', label: 'Kích hoạt', width: 100 },
   { id: '', width: 88 },
 ];
@@ -112,9 +111,9 @@ export default function UserListView(props: {
   const { providerRanking } = useGetRanking({
     query: '',
     page: 1,
-    limit: 99,
+    limit: 10,
     sortField: '',
-    sortOrder: 'desc',
+    sortOrder: 'asc',
   });
   const settings = useSettingsContext();
 

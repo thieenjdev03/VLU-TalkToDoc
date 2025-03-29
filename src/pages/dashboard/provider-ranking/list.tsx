@@ -57,7 +57,7 @@ const TABLE_HEAD_SPECIALTY = [
   { id: 'id', label: 'Mã Chuyên Khoa', width: 100 },
   { id: 'name', label: 'Tên Cấp Bậc', width: '20%' },
   { id: 'description', label: 'Mô Tả', width: '20%' },
-  { id: 'base_price', label: 'Lương', width: '20%' },
+  { id: 'base_price', label: 'Lương / Giờ', width: '20%' },
   { id: 'isActive', label: 'Kích Hoạt', width: '20%' },
 ];
 const defaultFilters: IRankingTableFilters = {

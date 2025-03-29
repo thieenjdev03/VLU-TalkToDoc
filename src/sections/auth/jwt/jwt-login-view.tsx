@@ -42,14 +42,8 @@ export default function JwtLoginView() {
     password: Yup.string().required('Vui lòng nhập mật khẩu'),
   });
 
-  const defaultValues = {
-    username: 'johndoe',
-    password: 'password123',
-  };
-
   const methods = useForm({
     resolver: yupResolver(LoginSchema),
-    defaultValues,
   });
 
   const {

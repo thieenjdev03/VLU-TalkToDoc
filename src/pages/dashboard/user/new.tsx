@@ -14,7 +14,7 @@ export default function UserCreatePage(props: {
   const { providerRanking } = useGetRanking({
     query: '',
     page: 1,
-    limit: 99,
+    limit: 10,
     sortField: '',
     sortOrder: 'desc',
   });

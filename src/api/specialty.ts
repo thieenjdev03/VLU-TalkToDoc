@@ -28,7 +28,7 @@ export const useGetSpecialties = ({
       axiosInstanceV2
         .get(URL, {
           params: {
-            q: query,
+            query,
             page,
             limit,
             sortField,

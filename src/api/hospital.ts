@@ -2,20 +2,42 @@ import { useMemo } from 'react';
 import useSWR, { mutate } from 'swr';
 import useSWRMutation from 'swr/mutation';
 
-import { fetcher, endpoints, axiosInstanceV2 } from 'src/utils/axios';
+import { endpoints, axiosInstanceV2 } from 'src/utils/axios';
 
-import { IPharmacyItem } from 'src/types/hospital';
-
-export const useGetHospital = () => {
+export const useGetHospital = ({
+  query,
+  page,
+  limit,
+  sortField,
+  sortOrder,
+}: {
+  query?: string;
+  page?: number;
+  limit?: number;
+  sortField?: string;
+  sortOrder?: 'asc' | 'desc';
+} = {}) => {
   const URL = endpoints.hospital.list;
+
   const { data, isLoading, error, isValidating } = useSWR(
-    [URL, { method: 'GET' }],
-    ([url, config]) => fetcher([url, config], true)
+    [URL, query, page, limit, sortField, sortOrder],
+    () =>
+      axiosInstanceV2
+        .get(URL, {
+          params: {
+            ...(query && { query }),
+            ...(page && { page }),
+            ...(limit && { limit }),
+            ...(sortField && { sortField }),
+            ...(sortOrder && { sortOrder }),
+          },
+        })
+        .then((res) => res.data)
   );
 
   const memoizedValue = useMemo(
     () => ({
-      hospitals: (data as IPharmacyItem[]) || [],
+      hospitals: (data as any) || [],
       hospitalsLoading: isLoading,
       hospitalsError: error,
       hospitalsValidating: isValidating,

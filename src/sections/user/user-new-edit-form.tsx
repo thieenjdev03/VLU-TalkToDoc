@@ -25,7 +25,6 @@ import FormProvider, { RHFTextField, RHFAutocomplete } from 'src/components/hook
 import { IUserItem } from 'src/types/user';
 import { IPharmacyItem } from 'src/types/hospital';
 import { ISpecialtyItem } from 'src/types/specialties';
-import { IRankingItem } from 'src/types/provider-ranking';
 
 // ----------------------------------------------------------------------
 
@@ -33,7 +32,7 @@ type Props = {
   currentUser?: IUserItem;
   typeUser: 'user' | 'doctor' | 'employee' | 'patient';
   hospitals: IPharmacyItem[];
-  ranking: IRankingItem[];
+  ranking: any[];
   onUpdateSuccess?: () => void;
 };
 
@@ -82,13 +81,13 @@ export default function UserNewEditForm({
   const { specialties } = useGetSpecialties({
     query: '',
     page: 1,
-    limit: 99,
+    limit: 10,
     sortField: '',
     sortOrder: 'desc',
   });
   const [specialtyList, setSpecialtyList] = useState<ISpecialtyItem[]>([]);
   useEffect(() => {
-    if (specialties.length) {
+    if (specialties?.length) {
       setSpecialtyList(specialties);
     }
   }, [specialties]);
@@ -373,7 +372,7 @@ export default function UserNewEditForm({
             typeof option === 'string' ? option === value : option.value === value
           }
           onChange={(event, newValue: any) =>
-            setValue('gender', newValue.label, { shouldValidate: true })
+            setValue('gender', newValue.value, { shouldValidate: true })
           }
         />
       </Box>
@@ -455,7 +454,7 @@ export default function UserNewEditForm({
         <RHFAutocomplete
           name="rank"
           label="Cấp Bậc"
-          options={ranking?.map((item) => ({
+          options={ranking?.data?.map((item) => ({
             value: item._id,
             label: item.name,
           }))}
@@ -495,7 +494,7 @@ export default function UserNewEditForm({
           isOptionEqualToValue={(option, value) => option === value}
         />
       )}
-      <RHFTextField name="position" label="Vị trí" />
+      <RHFTextField name="position" label="Vai Trò" />
       <RHFTextField name="department" label="Bộ Phận" />
       <Controller
         name="salary"

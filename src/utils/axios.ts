@@ -74,6 +74,7 @@ export const endpoints = {
     delete: '/api/v1/hospitals',
     update: '/api/v1/hospitals',
     create: '/api/v1/hospitals',
+    search: '/api/v1/hospitals/search',
   },
   provider_ranking: {
     list: '/api/v1/doctor_levels',
