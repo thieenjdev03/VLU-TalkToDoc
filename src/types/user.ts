@@ -128,7 +128,7 @@ export type IUserItem = {
 export type IUserAccount = {
   email: string;
   isPublic: boolean;
-  displayName: string;
+  name: string;
   city: string | null;
   state: string | null;
   about: string | null;

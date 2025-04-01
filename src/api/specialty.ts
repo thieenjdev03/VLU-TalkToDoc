@@ -6,7 +6,6 @@ import { endpoints, axiosInstanceV2 } from 'src/utils/axios';
 
 import { ISpecialtyItem } from 'src/types/specialties';
 
-// New useGetSpecialties function
 export const useGetSpecialties = ({
   query = '',
   page = 1,
@@ -20,7 +19,7 @@ export const useGetSpecialties = ({
   sortField?: string;
   sortOrder?: 'asc' | 'desc';
 }) => {
-  const URL = endpoints.specialties.list;
+  const URL = endpoints.specialties.search;
 
   const { data, isLoading, error, isValidating } = useSWR(
     [URL, query, page, limit, sortField, sortOrder],
@@ -31,7 +30,6 @@ export const useGetSpecialties = ({
             query,
             page,
             limit,
-            sortField,
             sortOrder,
           },
         })
@@ -40,7 +38,7 @@ export const useGetSpecialties = ({
 
   const memoizedValue = useMemo(
     () => ({
-      specialties: (data as ISpecialtyItem[]) || [],
+      specialties: data || [],
       specialtiesLoading: isLoading,
       specialtiesError: error,
       specialtiesValidating: isValidating,

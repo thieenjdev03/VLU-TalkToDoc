@@ -28,7 +28,7 @@ import FormProvider, {
 // ----------------------------------------------------------------------
 
 type UserType = {
-  displayName: string;
+  name: string;
   email: string;
   photoURL: any;
   phoneNumber: string;
@@ -47,7 +47,7 @@ export default function AccountGeneral() {
   const { user } = useMockedUser();
 
   const UpdateUserSchema = Yup.object().shape({
-    displayName: Yup.string().required('Name is required'),
+    name: Yup.string().required('Name is required'),
     email: Yup.string().required('Email is required').email('Email must be a valid email address'),
     photoURL: Yup.mixed<any>().nullable().required('Avatar is required'),
     phoneNumber: Yup.string().required('Phone number is required'),
@@ -62,7 +62,7 @@ export default function AccountGeneral() {
   });
 
   const defaultValues: UserType = {
-    displayName: user?.displayName || '',
+    name: user?.name || '',
     email: user?.email || '',
     photoURL: user?.photoURL || null,
     phoneNumber: user?.phoneNumber || '',
@@ -161,7 +161,7 @@ export default function AccountGeneral() {
                 sm: 'repeat(2, 1fr)',
               }}
             >
-              <RHFTextField name="displayName" label="Name" />
+              <RHFTextField name="name" label="Name" />
               <RHFTextField name="email" label="Email Address" />
               <RHFTextField name="phoneNumber" label="Phone Number" />
               <RHFTextField name="address" label="Address" />

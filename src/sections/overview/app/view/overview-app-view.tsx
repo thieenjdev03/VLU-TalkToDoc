@@ -1,31 +1,19 @@
-import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import { useTheme } from '@mui/material/styles';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Unstable_Grid2';
 
-import { useMockedUser } from 'src/hooks/use-mocked-user';
-
 import { SeoIllustration } from 'src/assets/illustrations';
-import { _appAuthors, _appRelated, _appFeatured, _appInvoices, _appInstalled } from 'src/_mock';
 
 import { useSettingsContext } from 'src/components/settings';
 
-import AppWidget from '../app-widget';
 import AppWelcome from '../app-welcome';
-import AppFeatured from '../app-featured';
-import AppNewInvoice from '../app-new-invoice';
-import AppTopAuthors from '../app-top-authors';
-import AppTopRelated from '../app-top-related';
-import AppAreaInstalled from '../app-area-installed';
-import AppWidgetSummary from '../app-widget-summary';
-import AppCurrentDownload from '../app-current-download';
-import AppTopInstalledCountries from '../app-top-installed-countries';
 
 // ----------------------------------------------------------------------
 
 export default function OverviewAppView() {
-  const { user } = useMockedUser();
+  const userProfile = localStorage.getItem('userProfile');
+  const user = JSON.parse(userProfile || '{}');
 
   const theme = useTheme();
 
@@ -36,17 +24,17 @@ export default function OverviewAppView() {
       <Grid container spacing={3}>
         <Grid xs={12} md={8}>
           <AppWelcome
-            title={`Welcome back 👋 \n ${user?.displayName}`}
-            description="If you are going to use a passage of Lorem Ipsum, you need to be sure there isn't anything."
+            title={`Xin chào 👋, ${user?.fullName}`}
+            description="Chúng tôi rất vui khi được đồng hành cùng bạn trong hành trình chăm sóc sức khỏe."
             img={<SeoIllustration />}
             action={
               <Button variant="contained" color="primary">
-                Go Now
+                Đặt Lịch Hẹn Ngay
               </Button>
             }
           />
         </Grid>
-
+        {/* 
         <Grid xs={12} md={4}>
           <AppFeatured list={_appFeatured} />
         </Grid>
@@ -175,8 +163,8 @@ export default function OverviewAppView() {
 
         <Grid xs={12} md={6} lg={4}>
           <AppTopAuthors title="Top Authors" list={_appAuthors} />
-        </Grid>
-
+        </Grid> */}
+        {/* 
         <Grid xs={12} md={6} lg={4}>
           <Stack spacing={3}>
             <AppWidget
@@ -198,7 +186,7 @@ export default function OverviewAppView() {
               }}
             />
           </Stack>
-        </Grid>
+        </Grid> */}
       </Grid>
     </Container>
   );

@@ -99,6 +99,24 @@ export const paths = {
   // DASHBOARD
   dashboard: {
     root: ROOTS.DASHBOARD,
+    account: {
+      root: `${ROOTS.DASHBOARD}/account`,
+      profile: `${ROOTS.DASHBOARD}/account/profile`,
+      changePassword: `${ROOTS.DASHBOARD}/account/change-password`,
+      delete: `${ROOTS.DASHBOARD}/account/delete`,
+    },
+    appointment: {
+      root: `${ROOTS.DASHBOARD}/appointment`,
+      list: `${ROOTS.DASHBOARD}/appointment/list`,
+    },
+    medicalRecord: {
+      root: `${ROOTS.DASHBOARD}/medical-record`,
+      list: `${ROOTS.DASHBOARD}/medical-record/list`,
+    },
+    prescription: {
+      root: `${ROOTS.DASHBOARD}/prescription`,
+      list: `${ROOTS.DASHBOARD}/prescription/list`,
+    },
     ranking_doctor: {
       root: `${ROOTS.DASHBOARD}/ranking`,
       list: `${ROOTS.DASHBOARD}/ranking/list`,

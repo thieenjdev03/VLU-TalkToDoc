@@ -5,7 +5,7 @@ import { paths } from 'src/routes/paths';
 import { useSettingsContext } from 'src/components/settings';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 
-import { IPharmacyItem } from 'src/types/hospital';
+import { IHospitalItem } from 'src/types/hospital';
 import { IRankingItem } from 'src/types/provider-ranking';
 
 import UserNewEditForm from '../user-new-edit-form';
@@ -14,8 +14,8 @@ import UserNewEditForm from '../user-new-edit-form';
 
 export default function UserCreateView(props: {
   typeUser: 'user' | 'doctor' | 'employee' | 'patient';
-  hospitals: IPharmacyItem[];
-  ranking: IRankingItem[];
+  hospitals: IHospitalItem[];
+  ranking: { data: IRankingItem[] };
 }) {
   const { typeUser, hospitals, ranking } = props;
   const settings = useSettingsContext();
@@ -45,7 +45,7 @@ export default function UserCreateView(props: {
           mb: { xs: 3, md: 5 },
         }}
       />
-      <UserNewEditForm typeUser={typeUser} hospitals={hospitals} ranking={ranking} />
+      <UserNewEditForm typeUser={typeUser} hospitals={hospitals} ranking={{ data: [] }} />
     </Container>
   );
 }

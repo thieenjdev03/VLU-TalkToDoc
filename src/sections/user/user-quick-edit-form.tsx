@@ -27,12 +27,16 @@ import { IUserItem } from 'src/types/user';
 import { IProvince } from 'src/types/hospital';
 import { ISpecialtyItem } from 'src/types/specialties';
 
+type Ranking = {
+  _id: string;
+  name: string;
+};
 type Props = {
   open: boolean;
   onClose: VoidFunction;
   currentUser?: IUserItem;
   typeUser: 'doctor' | 'patient' | 'employee' | 'user';
-  ranking: any[];
+  ranking: { data: Ranking[] };
   hospitalList: any;
   handleRefreshData: () => void;
   onUpdateSuccess?: () => void;
@@ -72,7 +76,7 @@ export default function UserQuickEditForm({
   const cityOptions = cities.map((city) => city.name);
 
   const { specialties } = useGetSpecialties({
-    query: 'searchQuery',
+    query: '',
     page: 1,
     limit: 10,
     sortField: '',
@@ -80,8 +84,8 @@ export default function UserQuickEditForm({
   });
   const [specialtyList, setSpecialtyList] = useState<ISpecialtyItem[]>([]);
   useEffect(() => {
-    if (specialties.length) {
-      setSpecialtyList(specialties);
+    if (specialties?.data?.length) {
+      setSpecialtyList(specialties?.data);
     }
   }, [specialties]);
   // 🛠 Schema validation cho từng loại user
@@ -195,7 +199,8 @@ export default function UserQuickEditForm({
       if (typeUser === 'doctor') {
         formattedData = {
           ...data,
-          rank: data.rank,
+          rank: data.rank?.value,
+          hospital: data.hospital?.value,
           specialty: Array.isArray(data.specialty)
             ? data.specialty.map((item: any) => (typeof item === 'object' ? item.value : item))
             : [],
@@ -265,34 +270,28 @@ export default function UserQuickEditForm({
                     <RHFAutocomplete
                       name="hospital"
                       label="Bệnh Viện"
+                      multiple={false}
                       options={hospitalList}
                       getOptionLabel={(option) =>
                         typeof option === 'string' ? option : option.label
                       }
-                      isOptionEqualToValue={(option: any, value: any) =>
-                        typeof option === 'string' ? option === value : option.value === value
-                      }
-                      onChange={(event, newValue: any) =>
-                        setValue('hospital', newValue.value, { shouldValidate: true })
-                      }
+                      isOptionEqualToValue={(option, value) => option?.value === value?.value}
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
                     <RHFAutocomplete
                       name="rank"
                       label="Cấp Bậc"
-                      options={ranking?.data?.map((item) => ({
+                      multiple={false}
+                      options={ranking?.data?.map((item: Ranking) => ({
                         value: item._id,
                         label: item.name,
                       }))}
                       getOptionLabel={(option: any) =>
                         typeof option === 'string' ? option : option.label
                       }
-                      isOptionEqualToValue={(option, value: any) =>
-                        typeof option === 'string' ? option === value : option.value === value
-                      }
-                      onChange={(event, newValue: any) =>
-                        setValue('rank', newValue.value, { shouldValidate: true })
+                      isOptionEqualToValue={(option: any, value: any) =>
+                        option?.value === value?.value
                       }
                     />
                   </Grid>

@@ -5,6 +5,7 @@ import Container from '@mui/material/Container';
 import { paths } from 'src/routes/paths';
 
 import { _userList } from 'src/_mock';
+import { useGetSpecialties } from 'src/api/specialty';
 
 import { useSettingsContext } from 'src/components/settings';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
@@ -26,6 +27,13 @@ export default function UserEditView({ id }: Props) {
   };
 
   useEffect(() => {}, [id]);
+  const { specialties } = useGetSpecialties({
+    query: '',
+    page: 1,
+    limit: 10,
+    sortField: '',
+    sortOrder: 'desc',
+  });
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
@@ -50,7 +58,7 @@ export default function UserEditView({ id }: Props) {
         currentUser={currentUser}
         typeUser={currentUser?.role as 'user' | 'doctor' | 'employee'}
         hospitals={[]}
-        ranking={[]}
+        rank={{ data: [] }}
         onUpdateSuccess={handleUpdateSuccess}
       />
     </Container>

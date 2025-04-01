@@ -22,8 +22,8 @@ export default function NavUpgrade() {
     >
       <Stack alignItems="center">
         <Box sx={{ position: 'relative' }}>
-          <Avatar src={user?.photoURL} alt={user?.displayName} sx={{ width: 48, height: 48 }}>
-            {user?.displayName?.charAt(0).toUpperCase()}
+          <Avatar src={user?.photoURL} alt={user?.name} sx={{ width: 48, height: 48 }}>
+            {user?.name?.charAt(0).toUpperCase()}
           </Avatar>
 
           <Label
@@ -44,7 +44,7 @@ export default function NavUpgrade() {
 
         <Stack spacing={0.5} sx={{ mb: 2, mt: 1.5, width: 1 }}>
           <Typography variant="subtitle2" noWrap>
-            {user?.displayName}
+            {user?.name}
           </Typography>
 
           <Typography variant="body2" noWrap sx={{ color: 'text.disabled' }}>

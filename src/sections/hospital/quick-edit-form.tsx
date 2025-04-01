@@ -15,7 +15,7 @@ import DialogContent from '@mui/material/DialogContent';
 
 import Label from 'src/components/label';
 
-import { IPharmacyItem } from '../../types/hospital';
+import { IHospitalItem } from '../../types/hospital';
 import { useUpdateHospital } from '../../api/hospital';
 import { useSnackbar } from '../../components/snackbar';
 import { RHFTextField } from '../../components/hook-form';
@@ -35,7 +35,7 @@ const UpdateHospitalSchema = Yup.object().shape({
 type Props = {
   open: boolean;
   onClose: VoidFunction;
-  currentHospital?: IPharmacyItem;
+  currentHospital?: IHospitalItem;
   onSuccess?: VoidFunction;
 };
 

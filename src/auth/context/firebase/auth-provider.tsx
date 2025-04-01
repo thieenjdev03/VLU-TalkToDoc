@@ -206,7 +206,7 @@ export function AuthProvider({ children }: Props) {
       await setDoc(userProfile, {
         uid: newUser.user?.uid,
         email,
-        displayName: `${firstName} ${lastName}`,
+        name: `${firstName} ${lastName}`,
       });
     },
     []

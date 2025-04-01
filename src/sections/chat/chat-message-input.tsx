@@ -49,7 +49,7 @@ export default function ChatMessageInput({
       role: `${user?.role}`,
       email: `${user?.email}`,
       address: `${user?.address}`,
-      name: `${user?.displayName}`,
+      name: `${user?.name}`,
       lastActivity: new Date(),
       avatarUrl: `${user?.photoURL}`,
       phoneNumber: `${user?.phoneNumber}`,

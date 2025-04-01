@@ -1,13 +1,10 @@
 import isEqual from 'lodash/isEqual';
 import { useState, useEffect, useCallback } from 'react';
 
-import Tab from '@mui/material/Tab';
-import Tabs from '@mui/material/Tabs';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
-import { alpha } from '@mui/material/styles';
 import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
@@ -20,9 +17,7 @@ import { RouterLink } from 'src/routes/components';
 import { useBoolean } from 'src/hooks/use-boolean';
 
 // Updated to use pharmacy API
-import { USER_STATUS_OPTIONS } from 'src/_mock';
 
-import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 import { useSnackbar } from 'src/components/snackbar';
@@ -33,7 +28,6 @@ import {
   useTable,
   emptyRows,
   TableNoData,
-  getComparator,
   TableEmptyRows,
   TableHeadCustom,
   TableSelectedAction,
@@ -44,15 +38,10 @@ import PharmacyTableToolbar from 'src/sections/hospital/table-toolbar'; // Updat
 import PharmacyTableRow from 'src/sections/hospital/hospital-table-row'; // Updated to use pharmacy filters result
 import PharmacyQuickEditForm from 'src/sections/hospital/quick-edit-form'; // Import the edit form
 
-import {
-  IPharmacyItem,
-  IPharmacyTableFilters,
-  IPharmacyTableFilterValue,
-} from 'src/types/hospital'; // Updated types
+import { IHospitalItem, IHospitalTableFilters } from 'src/types/hospital'; // Updated types
 
 // ----------------------------------------------------------------------
 
-const STATUS_OPTIONS = [{ value: 'all', label: 'Tất Cả' }, ...USER_STATUS_OPTIONS];
 const TABLE_HEAD_PHARMACY = [
   { id: '_id', label: 'Mã Bệnh Viện', width: 100 },
   { id: 'name', label: 'Tên Bệnh Viện', width: '20%' },
@@ -61,10 +50,10 @@ const TABLE_HEAD_PHARMACY = [
   { id: 'isPublic', label: 'BV Công', width: '10%' },
   { id: 'isActive', label: 'Kích Hoạt', width: '10%' },
 ];
-const defaultFilters: IPharmacyTableFilters = {
+const defaultFilters: IHospitalTableFilters = {
   name: '',
   status: 'all',
-  pharmacy: [],
+  hospital: [],
 };
 
 // ----------------------------------------------------------------------
@@ -75,17 +64,13 @@ export default function HospitalListPage() {
 
   const settings = useSettingsContext();
   const confirm = useBoolean();
-  const [tableData, setTableData] = useState<IPharmacyItem[]>([]); // Updated state type
+  const [tableData, setTableData] = useState<IHospitalItem[]>([]); // Updated state type
   const [filters, setFilters] = useState(defaultFilters);
-  const [selectedHospital, setSelectedHospital] = useState<IPharmacyItem | undefined>(undefined);
+  const [selectedHospital, setSelectedHospital] = useState<IHospitalItem | undefined>(undefined);
   const editDialog = useBoolean();
   const { deleteHospital } = useDeleteHospital();
   const [searchQuery, setSearchQuery] = useState('');
-  const dataFiltered = applyFilter({
-    inputData: tableData,
-    comparator: getComparator(table.order, table.orderBy),
-    filters,
-  });
+  const dataFiltered = tableData;
 
   const { hospitals, hospitalsLoading, hospitalsError, hospitalsValidating } = useGetHospital({
     query: searchQuery,
@@ -96,14 +81,14 @@ export default function HospitalListPage() {
   });
 
   useEffect(() => {
-    if (hospitals?.length) {
-      setTableData(hospitals);
+    if (hospitals?.data?.length) {
+      setTableData(hospitals?.data);
     } else if (hospitalsLoading || hospitalsError || hospitalsValidating) {
       setTableData([]);
     }
   }, [hospitals, hospitalsLoading, hospitalsError, hospitalsValidating]);
 
-  const dataInPage = dataFiltered.slice(
+  const dataInPage = tableData?.slice(
     table.page * table.rowsPerPage,
     table.page * table.rowsPerPage + table.rowsPerPage
   );
@@ -112,26 +97,24 @@ export default function HospitalListPage() {
 
   const canReset = !isEqual(defaultFilters, filters);
 
-  const notFound = (!tableData.length && canReset) || !tableData.length;
-
+  const notFound = (!tableData?.length && canReset) || !tableData?.length;
   const handleFilters = useCallback(
-    (fullName: string, value: IPharmacyTableFilterValue) => {
+    (name: string, value: any) => {
       table.onResetPage();
       setFilters((prevState) => ({
         ...prevState,
-        [fullName]: value,
+        [name]: value,
       }));
     },
     [table]
   );
-
   const handleDeleteRow = useCallback(
     async (id: string) => {
       await deleteHospital(id)
         .then(() => {
           enqueueSnackbar('Xoá Bệnh Viện thành công!', { variant: 'success' });
           // window.location.reload();
-          table.onUpdatePageDeleteRow(dataInPage.length);
+          table.onUpdatePageDeleteRow(tableData?.length);
           confirm.onFalse();
 
           // Trigger refetch after successful deletion
@@ -140,7 +123,7 @@ export default function HospitalListPage() {
           enqueueSnackbar('Không thể xoá nhà thuốc!', { variant: 'error' });
         });
     },
-    [dataInPage.length, enqueueSnackbar, table, deleteHospital, confirm]
+    [dataInPage?.length, enqueueSnackbar, table, deleteHospital, confirm]
   );
 
   const handleEditRow = useCallback(
@@ -155,15 +138,6 @@ export default function HospitalListPage() {
     },
     [tableData, editDialog]
   );
-
-  const handleFilterStatus = useCallback(
-    (event: React.SyntheticEvent, newValue: IPharmacyTableFilterValue) => {
-      handleFilters('status', newValue);
-    },
-    [handleFilters]
-  );
-
-  // Function to handle refetch after successful operations
 
   return (
     <>
@@ -192,40 +166,6 @@ export default function HospitalListPage() {
         />
 
         <Card>
-          <Tabs
-            value={filters.status}
-            onChange={handleFilterStatus}
-            sx={{
-              px: 2.5,
-              boxShadow: (theme) => `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
-            }}
-          >
-            {STATUS_OPTIONS.map((tab) => (
-              <Tab
-                key={tab.value}
-                iconPosition="end"
-                value={tab.value}
-                label={tab.label}
-                icon={
-                  <Label
-                    variant={
-                      ((tab.value === 'all' || tab.value === filters.status) && 'filled') || 'soft'
-                    }
-                    color={
-                      (tab.value === 'Hoạt Động' && 'success') ||
-                      (tab.value === 'Đã Khoá' && 'error') ||
-                      'default'
-                    }
-                  >
-                    {['Hoạt Động', 'Đã Khoá'].includes(tab.value)
-                      ? tableData.filter((pharmacy) => pharmacy.active === tab.value).length
-                      : tableData.length}
-                  </Label>
-                }
-              />
-            ))}
-          </Tabs>
-
           <PharmacyTableToolbar
             filters={filters}
             onFilters={handleFilters}
@@ -235,13 +175,10 @@ export default function HospitalListPage() {
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
             <TableSelectedAction
               dense={table.dense}
-              numSelected={table.selected.length}
-              rowCount={tableData.length}
+              numSelected={table.selected?.length}
+              rowCount={tableData?.length}
               onSelectAllRows={(checked) =>
-                table.onSelectAllRows(
-                  checked,
-                  tableData.map((row) => row._id)
-                )
+                table.onSelectAllRows(checked, tableData?.map((row) => row._id))
               }
               action={
                 <Tooltip title="Xoá">
@@ -258,19 +195,16 @@ export default function HospitalListPage() {
                   order={table.order}
                   orderBy={table.orderBy}
                   headLabel={TABLE_HEAD_PHARMACY} // Updated to use pharmacy table head
-                  rowCount={tableData.length}
-                  numSelected={table.selected.length}
+                  rowCount={tableData?.length}
+                  numSelected={table.selected?.length}
                   onSort={table.onSort}
                   onSelectAllRows={(checked) =>
-                    table.onSelectAllRows(
-                      checked,
-                      tableData.map((row) => row._id)
-                    )
+                    table.onSelectAllRows(checked, tableData?.map((row) => row._id))
                   }
                 />
 
                 <TableBody>
-                  {dataFiltered.map((row) => (
+                  {tableData?.map((row) => (
                     <PharmacyTableRow
                       key={row._id}
                       row={row}
@@ -283,7 +217,7 @@ export default function HospitalListPage() {
 
                   <TableEmptyRows
                     height={denseHeight}
-                    emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
+                    emptyRows={emptyRows(table.page, table.rowsPerPage, tableData?.length)}
                   />
 
                   <TableNoData notFound={notFound} />
@@ -292,7 +226,7 @@ export default function HospitalListPage() {
             </Scrollbar>
           </TableContainer>
           <TablePaginationCustom
-            count={tableData.length}
+            count={tableData?.length}
             page={table.page}
             rowsPerPage={table.rowsPerPage}
             onPageChange={table.onChangePage}
@@ -309,7 +243,7 @@ export default function HospitalListPage() {
         title="Xoá"
         content={
           <>
-            Bạn có chắc chắn muốn xoá <strong> {table.selected.length} </strong> nhà thuốc?
+            Bạn có chắc chắn muốn xoá <strong> {table.selected?.length} </strong> nhà thuốc?
           </>
         }
         action={
@@ -339,37 +273,3 @@ export default function HospitalListPage() {
 }
 
 // ----------------------------------------------------------------------
-
-function applyFilter({
-  inputData,
-  comparator,
-  filters,
-}: {
-  inputData: IPharmacyItem[]; // Updated type
-  comparator: (a: any, b: any) => number;
-  filters: IPharmacyTableFilters; // Updated type
-}) {
-  const { name } = filters;
-
-  const stabilizedThis = inputData.map((el, index) => [el, index] as const);
-
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
-
-  inputData = stabilizedThis.map((el) => el[0]);
-
-  if (name) {
-    inputData = inputData.filter(
-      (pharmacy) => pharmacy?.name?.toLowerCase().includes(name?.toLowerCase())
-    );
-  }
-
-  // if (status !== 'all') {
-  //   inputData = inputData.filter((pharmacy) => pharmacy.active === status);
-  // }
-
-  return inputData;
-}

@@ -27,7 +27,7 @@ export default function UserTableToolbar({
   onSearchChange,
 }: Props) {
   const popover = usePopover();
-
+  console.log('filters', filters);
   const handleFilterQuery = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const query = event.target.value;

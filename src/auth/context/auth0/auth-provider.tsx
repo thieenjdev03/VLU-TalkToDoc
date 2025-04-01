@@ -50,7 +50,7 @@ function AuthProviderWrapper({ children }: Props) {
     () => ({
       user: {
         ...user,
-        displayName: user?.name,
+        name: user?.name,
         photoURL: user?.picture,
         role: 'admin',
       },

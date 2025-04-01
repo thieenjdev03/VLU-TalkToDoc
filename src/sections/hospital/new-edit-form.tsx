@@ -1,6 +1,5 @@
-import axios from 'axios';
 import * as Yup from 'yup';
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 
@@ -22,7 +21,7 @@ import FormProvider, { RHFTextField } from 'src/components/hook-form';
 // ----------------------------------------------------------------------
 
 type Props = {
-  currentPharmacy?: any;
+  currentHospital?: any;
 };
 
 type FormValuesProps = {
@@ -34,40 +33,14 @@ type FormValuesProps = {
   isPublic: boolean;
 };
 
-// Interface for provinces API response
-interface IProvince {
-  code: number;
-  name: string;
-  division_type: string;
-  codename: string;
-  phone_code: number;
-}
-export default function PharmacyNewEditForm({ currentPharmacy }: Props) {
+export default function HospitalNewEditForm({ currentHospital }: Props) {
   const router = useRouter();
 
   const { enqueueSnackbar } = useSnackbar();
   const { createHospital } = useCreateHospital();
   const { updateHospital } = useUpdateHospital();
-  const [cities, setCities] = useState<IProvince[]>([]);
-
-  useEffect(() => {
-    const fetchCities = async () => {
-      try {
-        const response = await axios.get('https://provinces.open-api.vn/api/');
-        setCities(response.data);
-      } catch (error) {
-        console.error('Failed to fetch cities:', error);
-        enqueueSnackbar('Failed to load cities data', { variant: 'error' });
-      } finally {
-        console.log('Cities loaded:', cities); // Debug log to verify data
-      }
-    };
-
-    fetchCities();
-  }, [enqueueSnackbar]);
-
-  const PharmacySchema = Yup.object().shape({
-    name: Yup.string().required('Tên nhà thuốc không được để trống'),
+  const HospitalSchema = Yup.object().shape({
+    name: Yup.string().required('Tên Bệnh Viện không được để trống'),
     address: Yup.string().required('Địa chỉ không được để trống'),
     phoneNumber: Yup.string().required('Số điện thoại không được để trống'),
     isActive: Yup.boolean(),
@@ -76,16 +49,16 @@ export default function PharmacyNewEditForm({ currentPharmacy }: Props) {
 
   const defaultValues = useMemo(
     () => ({
-      name: currentPharmacy?.name || '',
-      address: currentPharmacy?.address || '',
-      phoneNumber: currentPharmacy?.phoneNumber || '',
-      isPublic: currentPharmacy?.is24Hours || false,
-      isActive: currentPharmacy?.isActive || true,
+      name: currentHospital?.name || '',
+      address: currentHospital?.address || '',
+      phoneNumber: currentHospital?.phoneNumber || '',
+      isPublic: currentHospital?.isPublic || false,
+      isActive: currentHospital?.isActive || true,
     }),
-    [currentPharmacy]
+    [currentHospital]
   );
   const methods = useForm<FormValuesProps>({
-    resolver: yupResolver(PharmacySchema) as any,
+    resolver: yupResolver(HospitalSchema) as any,
     defaultValues,
   });
   const {
@@ -98,8 +71,8 @@ export default function PharmacyNewEditForm({ currentPharmacy }: Props) {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      if (currentPharmacy) {
-        await updateHospital({ _id: currentPharmacy._id, data });
+      if (currentHospital) {
+        await updateHospital({ _id: currentHospital._id, data });
         enqueueSnackbar('Cập nhật Bệnh Viện thành công!');
       } else {
         await createHospital({ data });
@@ -166,7 +139,7 @@ export default function PharmacyNewEditForm({ currentPharmacy }: Props) {
             </Box>
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>
               <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                {!currentPharmacy ? 'Tạo nhà thuốc' : 'Lưu thay đổi'}
+                {!currentHospital ? 'Tạo Bệnh Viện' : 'Lưu thay đổi'}
               </LoadingButton>
             </Stack>
           </Card>

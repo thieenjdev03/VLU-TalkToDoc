@@ -241,7 +241,7 @@ export function AuthProvider({ children }: Props) {
       user: {
         ...state.user,
         role: 'admin',
-        displayName: `${state.user?.user_metadata.display_name}`,
+        name: `${state.user?.user_metadata.display_name}`,
       },
       method: 'supabase',
       loading: status === 'loading',

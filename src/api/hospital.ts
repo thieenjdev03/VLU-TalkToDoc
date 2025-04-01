@@ -5,11 +5,11 @@ import useSWRMutation from 'swr/mutation';
 import { endpoints, axiosInstanceV2 } from 'src/utils/axios';
 
 export const useGetHospital = ({
-  query,
-  page,
-  limit,
-  sortField,
-  sortOrder,
+  query = '',
+  page = 1,
+  limit = 10,
+  sortField = 'name',
+  sortOrder = 'asc',
 }: {
   query?: string;
   page?: number;
@@ -17,7 +17,7 @@ export const useGetHospital = ({
   sortField?: string;
   sortOrder?: 'asc' | 'desc';
 } = {}) => {
-  const URL = endpoints.hospital.list;
+  const URL = endpoints.hospital.search;
 
   const { data, isLoading, error, isValidating } = useSWR(
     [URL, query, page, limit, sortField, sortOrder],

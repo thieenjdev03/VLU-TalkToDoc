@@ -36,7 +36,7 @@ function Group({ subheader, items, slotProps }: NavGroupProps) {
   }, []);
 
   const renderContent = items.map((list) => (
-    <NavList key={list.title} data={list} depth={1} slotProps={slotProps} />
+    <NavList hidden={list.hidden} key={list.title} data={list} depth={1} slotProps={slotProps} />
   ));
 
   return (

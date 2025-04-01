@@ -85,7 +85,15 @@ export default function UserTableRow({
         return (
           <>
             <TableCell>{id}</TableCell>
-            <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
+            <TableCell
+              sx={{
+                height: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                justifyItems: 'center',
+              }}
+            >
               <Avatar alt={fullName} src={avatarUrl || ''} sx={{ mr: 2 }} />
               <ListItemText primary={fullName} secondary={email} />
             </TableCell>
@@ -94,7 +102,7 @@ export default function UserTableRow({
 
             <TableCell>
               {Array.isArray(specialty) && specialty.length > 0
-                ? specialty.map((s) => s?.name || s).join(', ')
+                ? specialty.map((s, index) => <li key={index}>{s?.name || s}</li>)
                 : '-'}
             </TableCell>
             <TableCell>{city?.name || '-'}</TableCell>

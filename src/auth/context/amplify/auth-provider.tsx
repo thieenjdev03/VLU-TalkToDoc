@@ -97,7 +97,7 @@ export function AuthProvider({ children }: Props) {
             user: {
               ...userAttributes,
               id: userAttributes.sub,
-              displayName: `${userAttributes.given_name} ${userAttributes.family_name}`,
+              name: `${userAttributes.given_name} ${userAttributes.family_name}`,
               idToken,
               accessToken,
               role: 'admin',
@@ -144,7 +144,7 @@ export function AuthProvider({ children }: Props) {
         user: {
           ...userAttributes,
           id: userAttributes.sub,
-          displayName: `${userAttributes.given_name} ${userAttributes.family_name}`,
+          name: `${userAttributes.given_name} ${userAttributes.family_name}`,
           idToken,
           accessToken,
           role: 'admin',

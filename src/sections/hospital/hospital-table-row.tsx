@@ -15,7 +15,7 @@ import CustomPopover, { usePopover } from 'src/components/custom-popover';
 
 import HospitalQuickEditForm from 'src/sections/hospital/quick-edit-form';
 
-import { IPharmacyItem } from 'src/types/hospital';
+import { IHospitalItem } from 'src/types/hospital';
 
 // ----------------------------------------------------------------------
 
@@ -23,7 +23,7 @@ type Props = {
   selected: boolean;
   onEditRow: VoidFunction;
   onViewRow?: VoidFunction;
-  row: IPharmacyItem;
+  row: IHospitalItem;
   onSelectRow: VoidFunction;
   onDeleteRow: VoidFunction;
   onRefreshData?: VoidFunction;

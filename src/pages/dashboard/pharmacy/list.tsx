@@ -1,13 +1,10 @@
 import isEqual from 'lodash/isEqual';
 import { useState, useEffect, useCallback } from 'react';
 
-import Tab from '@mui/material/Tab';
-import Tabs from '@mui/material/Tabs';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
-import { alpha } from '@mui/material/styles';
 import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
@@ -20,9 +17,6 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 import { useGetPharmacies, useDeletePharmacy } from 'src/api/pharmacy'; // Updated to use pharmacy API
 
-import { USER_STATUS_OPTIONS } from 'src/_mock';
-
-import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 import { useSnackbar } from 'src/components/snackbar';
@@ -43,15 +37,10 @@ import PharmacyTableToolbar from 'src/sections/pharmacy/table-toolbar'; // Updat
 import PharmacyTableRow from 'src/sections/pharmacy/pharmacy-table-row'; // Updated to use pharmacy filters result
 import PharmacyQuickEditForm from 'src/sections/pharmacy/quick-edit-form'; // Import the edit form
 
-import {
-  IPharmacyItem,
-  IPharmacyTableFilters,
-  IPharmacyTableFilterValue,
-} from 'src/types/pharmacy'; // Updated types
+import { IPharmacyItem, IPharmacyTableFilters } from 'src/types/pharmacy'; // Updated types
 
 // ----------------------------------------------------------------------
 
-const STATUS_OPTIONS = [{ value: 'all', label: 'Tất Cả' }, ...USER_STATUS_OPTIONS];
 const TABLE_HEAD_PHARMACY = [
   { id: '_id', label: 'Mã Nhà Thuốc', width: 100 },
   { id: 'name', label: 'Tên Nhà Thuốc', width: '20%' },
@@ -151,14 +140,6 @@ export default function PharmaciesListPage() {
     [tableData, editDialog]
   );
 
-  const handleFilterStatus = useCallback(
-    (event: React.SyntheticEvent, newValue: IPharmacyTableFilterValue) => {
-      handleFilters('status', newValue);
-    },
-    [handleFilters]
-  );
-
-  // Function to handle refetch after successful operations
   return (
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'} sx={{ overflow: 'hidden' }}>
@@ -186,40 +167,6 @@ export default function PharmaciesListPage() {
         />
 
         <Card>
-          <Tabs
-            value={filters.status}
-            onChange={handleFilterStatus}
-            sx={{
-              px: 2.5,
-              boxShadow: (theme) => `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
-            }}
-          >
-            {STATUS_OPTIONS.map((tab) => (
-              <Tab
-                key={tab.value}
-                iconPosition="end"
-                value={tab.value}
-                label={tab.label}
-                icon={
-                  <Label
-                    variant={
-                      ((tab.value === 'all' || tab.value === filters.status) && 'filled') || 'soft'
-                    }
-                    color={
-                      (tab.value === 'Hoạt Động' && 'success') ||
-                      (tab.value === 'Đã Khoá' && 'error') ||
-                      'default'
-                    }
-                  >
-                    {['Hoạt Động', 'Đã Khoá'].includes(tab.value)
-                      ? tableData.filter((pharmacy) => pharmacy.active === tab.value).length
-                      : tableData.length}
-                  </Label>
-                }
-              />
-            ))}
-          </Tabs>
-
           <PharmacyTableToolbar
             filters={filters}
             onFilters={handleFilters}

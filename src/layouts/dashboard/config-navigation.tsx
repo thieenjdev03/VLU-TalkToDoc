@@ -50,6 +50,9 @@ const ICONS = {
 
 export function useNavData() {
   const { t } = useTranslate();
+  const userProfile = localStorage.getItem('userProfile');
+  const user = JSON.parse(userProfile || '{}');
+  console.log('user', user);
 
   const data = useMemo(
     () => [
@@ -96,8 +99,42 @@ export function useNavData() {
       {
         subheader: t('management'),
         items: [
+          // Patient Role
+          {
+            hidden: user?.role !== 'PATIENT',
+            title: t('Quản lý lịch hẹn'),
+            path: paths.dashboard.appointment.root,
+            icon: ICONS.medical,
+            children: [{ title: t('Danh Sách'), path: paths.dashboard.appointment.list }],
+          },
+          {
+            hidden: user?.role !== 'PATIENT',
+            title: t('Hồ sơ bệnh án'),
+            path: paths.dashboard.medicalRecord.root,
+            icon: ICONS.medical,
+            children: [{ title: t('Danh Sách'), path: paths.dashboard.medicalRecord.list }],
+          },
+          {
+            hidden: user?.role !== 'PATIENT',
+            title: t('Quản lý tài khoản'),
+            path: paths.dashboard.account.root,
+            icon: ICONS.user,
+            children: [
+              { title: t('Thông tin cá nhân'), path: paths.dashboard.account.profile },
+              { title: t('Đổi mật khẩu'), path: paths.dashboard.account.changePassword },
+              { title: t('Xoá tài khoản'), path: paths.dashboard.account.delete },
+            ],
+          },
+          {
+            hidden: user?.role !== 'PATIENT',
+            title: t('Quản lý toa thuốc'),
+            path: paths.dashboard.prescription.root,
+            icon: ICONS.prescription,
+            children: [{ title: t('Danh sách'), path: paths.dashboard.prescription.list }],
+          },
           // USER
           {
+            hidden: user?.role !== 'ADMIN',
             title: t('Quản Lý Người Dùng'),
             path: paths.dashboard.user.root,
             icon: ICONS.user,
@@ -115,6 +152,7 @@ export function useNavData() {
 
           // Specialties
           {
+            hidden: user?.role !== 'ADMIN',
             title: t('Danh Mục'),
             path: paths.dashboard.specialties.root,
             icon: ICONS.medical,
@@ -138,6 +176,7 @@ export function useNavData() {
           // },
           // PRODUCT
           {
+            hidden: user?.role !== 'ADMIN',
             title: t('Quản Lý Thuốc'),
             path: paths.dashboard.product.root,
             icon: ICONS.medical,
@@ -155,6 +194,7 @@ export function useNavData() {
 
           // // ORDER
           {
+            hidden: user?.role !== 'ADMIN',
             title: t('Quản Lý Bệnh Án'),
             path: paths.dashboard.order.root,
             icon: ICONS.order,
@@ -163,6 +203,7 @@ export function useNavData() {
 
           // // INVOICE
           {
+            hidden: user?.role !== 'ADMIN',
             title: t('Thanh Toán'),
             path: paths.dashboard.invoice.root,
             icon: ICONS.invoice,

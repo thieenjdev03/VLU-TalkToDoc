@@ -61,13 +61,13 @@ export default function ProfilePostItem({ post }: Props) {
     <CardHeader
       disableTypography
       avatar={
-        <Avatar src={user?.photoURL} alt={user?.displayName}>
-          {user?.displayName?.charAt(0).toUpperCase()}
+        <Avatar src={user?.photoURL} alt={user?.name}>
+          {user?.name?.charAt(0).toUpperCase()}
         </Avatar>
       }
       title={
         <Link color="inherit" variant="subtitle1">
-          {user?.displayName}
+          {user?.name}
         </Link>
       }
       subheader={
@@ -125,7 +125,7 @@ export default function ProfilePostItem({ post }: Props) {
         p: (theme) => theme.spacing(0, 3, 3, 3),
       }}
     >
-      <Avatar src={user?.photoURL} alt={user?.displayName} />
+      <Avatar src={user?.photoURL} alt={user?.name} />
 
       <InputBase
         fullWidth

@@ -23,8 +23,8 @@ export default function KanbanDetailsCommentInput() {
         px: 2.5,
       }}
     >
-      <Avatar src={user?.photoURL} alt={user?.displayName}>
-        {user?.displayName?.charAt(0).toUpperCase()}
+      <Avatar src={user?.photoURL} alt={user?.name}>
+        {user?.name?.charAt(0).toUpperCase()}
       </Avatar>
 
       <Paper variant="outlined" sx={{ p: 1, flexGrow: 1, bgcolor: 'transparent' }}>

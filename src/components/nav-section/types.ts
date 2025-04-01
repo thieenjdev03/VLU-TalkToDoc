@@ -24,6 +24,7 @@ export type NavItemStateProps = {
 export type NavItemBaseProps = {
   title: string;
   path: string;
+  hidden?: boolean;
   icon?: React.ReactElement;
   info?: React.ReactElement;
   caption?: string;

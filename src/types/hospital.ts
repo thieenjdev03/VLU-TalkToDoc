@@ -1,4 +1,4 @@
-export interface IPharmacyItem {
+export interface IHospitalItem {
   _id: string;
   id: string;
   name: string;
@@ -17,12 +17,12 @@ export interface IPharmacyItem {
   isVerified: boolean;
   isPublic: boolean;
 }
-export interface IPharmacyTableFilters {
+export interface IHospitalTableFilters {
   name: string;
   status: string;
-  pharmacy: IPharmacyItem[];
+  hospital: IHospitalItem[];
 }
-export interface IPharmacyTableFilterValue {
+export interface IHospitalTableFilterValue {
   name: string;
   status: string;
 }

@@ -17,22 +17,25 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 
 import { useCreateUser } from 'src/api/user';
+import { useGetRanking } from 'src/api/ranking';
 import { useGetSpecialties } from 'src/api/specialty';
 
 import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, { RHFTextField, RHFAutocomplete } from 'src/components/hook-form';
 
 import { IUserItem } from 'src/types/user';
-import { IPharmacyItem } from 'src/types/hospital';
 import { ISpecialtyItem } from 'src/types/specialties';
 
 // ----------------------------------------------------------------------
-
+type Ranking = {
+  _id: string;
+  name: string;
+};
 type Props = {
   currentUser?: IUserItem;
   typeUser: 'user' | 'doctor' | 'employee' | 'patient';
-  hospitals: IPharmacyItem[];
-  ranking: any[];
+  hospitals: any;
+  rank: { data: Ranking[] };
   onUpdateSuccess?: () => void;
 };
 
@@ -54,9 +57,12 @@ type FormValuesProps = {
   isActive: boolean;
   avatarUrl: any;
   isVerified: boolean;
+  rank?: {
+    _id: string;
+    name: string;
+  };
   company?: string;
   position?: string;
-  rank?: string;
   specialty?: string[] | any;
   city?: string;
   experienceYears?: string;
@@ -74,7 +80,7 @@ export default function UserNewEditForm({
   currentUser,
   typeUser,
   hospitals,
-  ranking,
+  rank,
   onUpdateSuccess,
 }: Props) {
   const router = useRouter();
@@ -86,17 +92,32 @@ export default function UserNewEditForm({
     sortOrder: 'desc',
   });
   const [specialtyList, setSpecialtyList] = useState<ISpecialtyItem[]>([]);
-  useEffect(() => {
-    if (specialties?.length) {
-      setSpecialtyList(specialties);
-    }
-  }, [specialties]);
+  const { providerRanking: rankingData } = useGetRanking({
+    query: '',
+    page: 1,
+    limit: 10,
+    sortField: '',
+    sortOrder: 'desc',
+  });
+
   const { enqueueSnackbar } = useSnackbar();
   const { createUser } = useCreateUser({ typeUser });
   const [cities, setCities] = useState<IProvince[]>([]);
   const [loadingCities, setLoadingCities] = useState<boolean>(false);
+  const { watch } = useForm();
 
-  // Load danh sách thành phố từ API
+  useEffect(() => {
+    if (specialties?.data?.length) {
+      setSpecialtyList(specialties?.data);
+    }
+  }, [specialties]);
+  const [rankingList, setRankingList] = useState<Ranking[]>([]);
+  useEffect(() => {
+    if (rankingData?.data?.length) {
+      setRankingList(rankingData?.data);
+    }
+  }, [rankingData]);
+
   useEffect(() => {
     const fetchCities = async () => {
       setLoadingCities(true);
@@ -130,14 +151,6 @@ export default function UserNewEditForm({
     status: Yup.string(),
     isActive: Yup.boolean(),
     isVerified: Yup.boolean(),
-    rank:
-      typeUser === 'doctor'
-        ? Yup.string().required('Cấp bậc không được để trống')
-        : Yup.string().optional(),
-    hospital:
-      typeUser === 'doctor'
-        ? Yup.string().required('Bệnh viện không được để trống')
-        : Yup.string().optional(),
     gender:
       typeUser === 'patient'
         ? Yup.string().required('Giới tính không được để trống')
@@ -157,14 +170,6 @@ export default function UserNewEditForm({
     position:
       typeUser === 'user' || typeUser === 'employee'
         ? Yup.string().required('Vị trí không được để trống')
-        : Yup.string().optional(),
-    ranking: typeUser === 'doctor' ? Yup.string().optional() : Yup.string().optional(),
-    specialty:
-      typeUser === 'doctor'
-        ? Yup.array()
-            .of(Yup.string().required('Chuyên khoa không hợp lệ'))
-            .min(1, 'Chọn ít nhất một chuyên khoa')
-            .required('Chuyên khoa không được để trống')
         : Yup.string().optional(),
     city:
       typeUser === 'doctor'
@@ -212,11 +217,7 @@ export default function UserNewEditForm({
         hospital: currentUser?.hospital || '',
         rank: currentUser?.rank || '',
         salary: currentUser?.salary || 0,
-        specialty: Array.isArray(currentUser?.specialty)
-          ? currentUser?.specialty.map((item: any) =>
-              typeof item === 'object' ? item.value : item
-            )
-          : [],
+        specialty: currentUser?.specialty || [], // Là mảng string
         city: currentUser?.city || '',
         experienceYears: currentUser?.experienceYears || '',
         licenseNo: currentUser?.licenseNo || '',
@@ -241,7 +242,7 @@ export default function UserNewEditForm({
     handleSubmit,
     formState: { isSubmitting, errors }, // Thêm errors để debug
   } = methods;
-  console.log('Form Errors:', errors);
+  console.log('  Errors:', errors);
 
   const onSubmit = handleSubmit(async (data) => {
     try {
@@ -252,9 +253,10 @@ export default function UserNewEditForm({
         formattedData = {
           ...data,
           avatarUrl: data.avatarUrl?.preview || data.avatarUrl,
-          specialty: Array.isArray(data.specialty)
-            ? data.specialty.map((item) => (typeof item === 'object' ? item.value : item))
-            : [],
+          specialty: data.specialty?.map((item: any) => item.value), // 👈 chỉ lấy ID
+          rank: data.rank?.value, // 👈 chỉ gửi _id
+          hospital: data.hospital?.value, // string ID
+          city: cities.find((c) => c.name === data.city), // full object (name, code, etc.)
         };
       } else if (typeUser === 'patient') {
         path = paths.dashboard.user.list_patient;
@@ -378,10 +380,12 @@ export default function UserNewEditForm({
       </Box>
     </Box>
   );
-  const hospitalOptions = hospitals.map((hospital) => ({
-    value: hospital._id,
-    label: hospital.name,
-  }));
+  console.log('watch specialty:', watch('specialty'));
+  const hospitalOptions =
+    hospitals?.map((hospital) => ({
+      value: hospital._id,
+      label: hospital.name,
+    })) || [];
 
   const renderDoctorFields = (
     <Box
@@ -412,28 +416,16 @@ export default function UserNewEditForm({
             label: item.name,
           }))}
           getOptionLabel={(option) => (typeof option === 'string' ? option : option.label)}
-          isOptionEqualToValue={(option, value: any) =>
-            typeof option === 'string' ? option === value : option.value === value
-          }
-          onChange={(event, newValue) =>
-            setValue(
-              'specialty',
-              newValue.map((item) => (typeof item === 'string' ? item : item.label)),
-              { shouldValidate: true }
-            )
-          }
+          isOptionEqualToValue={(option, value) => option?.value === value?.value}
+          // Không cần custom onChange nếu bạn giữ nguyên object
         />
         <RHFAutocomplete
           name="hospital"
           label="Bệnh Viện"
+          multiple={false}
           options={hospitalOptions}
           getOptionLabel={(option) => (typeof option === 'string' ? option : option.label)}
-          isOptionEqualToValue={(option, value: any) =>
-            typeof option === 'string' ? option === value : option.value === value
-          }
-          onChange={(event, newValue: any) =>
-            setValue('hospital', newValue.label, { shouldValidate: true })
-          }
+          isOptionEqualToValue={(option, value) => option?.value === value?.value}
         />
         {loadingCities ? (
           <RHFTextField
@@ -454,17 +446,13 @@ export default function UserNewEditForm({
         <RHFAutocomplete
           name="rank"
           label="Cấp Bậc"
-          options={ranking?.data?.map((item) => ({
+          multiple={false}
+          options={rankingList?.map((item: Ranking) => ({
             value: item._id,
             label: item.name,
           }))}
-          getOptionLabel={(option) => (typeof option === 'string' ? option : option.label)}
-          isOptionEqualToValue={(option, value: any) =>
-            typeof option === 'string' ? option === value : option.value === value
-          }
-          onChange={(event, newValue: any) =>
-            setValue('rank', newValue.label, { shouldValidate: true })
-          }
+          getOptionLabel={(option: any) => (typeof option === 'string' ? option : option.label)}
+          isOptionEqualToValue={(option: any, value: any) => option?.value === value?.value}
         />
         <RHFTextField name="experienceYears" label="Kinh nghiệm (năm)" />
         <RHFTextField name="licenseNo" label="Mã giấy phép" />

@@ -142,8 +142,8 @@ export default function UserListView(props: {
   });
 
   useEffect(() => {
-    if (specialties.length) {
-      setSpecialtyList(specialties);
+    if (specialties?.data?.length) {
+      setSpecialtyList(specialties?.data);
     }
     if (users) {
       setTableData(users);
@@ -170,7 +170,13 @@ export default function UserListView(props: {
   const canReset = !isEqual(defaultFilters, filters);
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
-  const { hospitals } = useGetHospital();
+  const { hospitals } = useGetHospital({
+    query: searchQuery,
+    page: table.page + 1,
+    limit: table.rowsPerPage,
+    sortField: table.orderBy || 'name',
+    sortOrder: table.order || 'asc',
+  });
   const debouncedSearch = useMemo(
     () =>
       debounce((query: string) => {
@@ -411,7 +417,7 @@ export default function UserListView(props: {
                         onSelectRow={() => table.onSelectRow(row._id)}
                         onDeleteRow={() => handleDeleteRow(row._id)}
                         typeUser={typeUser}
-                        hospitalList={hospitals}
+                        hospitalList={hospitals?.data}
                         handleRefreshData={handleRefreshData}
                       />
                     ))}

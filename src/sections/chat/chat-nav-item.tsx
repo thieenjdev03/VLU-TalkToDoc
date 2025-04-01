@@ -38,11 +38,10 @@ export default function ChatNavItem({ selected, collapse, conversation, onCloseM
 
   const router = useRouter();
 
-  const { group, displayName, displayText, participants, lastActivity, hasOnlineInGroup } =
-    useGetNavItem({
-      conversation,
-      currentUserId: `${user?.id}`,
-    });
+  const { group, name, displayText, participants, lastActivity, hasOnlineInGroup } = useGetNavItem({
+    conversation,
+    currentUserId: `${user?.id}`,
+  });
 
   const singleParticipant = participants[0];
 
@@ -105,7 +104,7 @@ export default function ChatNavItem({ selected, collapse, conversation, onCloseM
         <>
           <ListItemText
             sx={{ ml: 2 }}
-            primary={displayName}
+            primary={name}
             primaryTypographyProps={{
               noWrap: true,
               variant: 'subtitle2',

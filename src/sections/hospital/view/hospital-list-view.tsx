@@ -35,7 +35,7 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
-import { IPharmacyItem } from 'src/types/hospital';
+import { IHospitalItem } from 'src/types/hospital';
 
 import HospitalTableRow from '../hospital-table-row';
 
@@ -60,15 +60,15 @@ export default function HospitalListView() {
   const router = useRouter();
   const confirm = useBoolean();
 
-  const [tableData, setTableData] = useState<IPharmacyItem[]>([]);
+  const [tableData, setTableData] = useState<IHospitalItem[]>([]);
   const [selectedId, setSelectedId] = useState<string>('');
 
   const { hospitals, hospitalsLoading } = useGetHospital();
   const { deleteHospital } = useDeleteHospital();
 
   useEffect(() => {
-    if (hospitals.length) {
-      setTableData(hospitals);
+    if (hospitals?.data?.length) {
+      setTableData(hospitals?.data);
     }
   }, [hospitals]);
 
