@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 
-import { OverviewBankingView } from 'src/sections/overview/booking/view';
+import { BookingListPage } from 'src/sections/create-booking/view/create-view';
 
 // ----------------------------------------------------------------------
 
@@ -8,10 +8,10 @@ export default function OverviewBookingPage() {
   return (
     <>
       <Helmet>
-        <title> Dashboard: Booking</title>
+        <title> Trang Chủ: Đặt Lịch Hẹn</title>
       </Helmet>
 
-      <OverviewBankingView />
+      <BookingListPage />
     </>
   );
 }

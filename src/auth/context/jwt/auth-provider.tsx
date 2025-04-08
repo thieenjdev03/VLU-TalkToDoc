@@ -85,19 +85,13 @@ export function AuthProvider({ children }: Props) {
   const initialize = useCallback(async () => {
     try {
       const accessToken = localStorage.getItem('accessToken');
-
       if (accessToken && isValidToken(accessToken)) {
         setSession(accessToken);
-
-        const res = await axiosInstance.get(endpoints.auth.me);
-
-        const { user } = res.data;
 
         dispatch({
           type: Types.INITIAL,
           payload: {
             user: {
-              ...user,
               accessToken,
             },
           },

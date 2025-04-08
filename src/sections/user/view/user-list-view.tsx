@@ -129,7 +129,6 @@ export default function UserListView(props: {
     sortField: table.orderBy || 'name',
     sortOrder: table.order === 'asc' ? 'asc' : 'desc',
   });
-  const dataFiltered = tableData;
   const [specialtyList, setSpecialtyList] = useState<ISpecialtyItem[]>([]);
 
   const { users, usersLoading, usersError, usersValidating } = useGetUsers({
@@ -159,7 +158,7 @@ export default function UserListView(props: {
       setTableData([]);
     }
   }, [users, usersLoading, usersError, usersValidating, specialties]);
-
+  const dataFiltered = tableData;
   const dataInPage = dataFiltered.slice(
     table.page * table.rowsPerPage,
     table.page * table.rowsPerPage + table.rowsPerPage
@@ -169,7 +168,7 @@ export default function UserListView(props: {
 
   const canReset = !isEqual(defaultFilters, filters);
 
-  const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
+  const notFound = (!dataInPage.length && canReset) || !dataInPage.length;
   const { hospitals } = useGetHospital({
     query: searchQuery,
     page: table.page + 1,

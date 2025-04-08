@@ -10,7 +10,7 @@ import { NavListProps, NavSubListProps } from '../types';
 
 // ----------------------------------------------------------------------
 
-export default function NavList({ data, depth, slotProps }: NavListProps) {
+export default function NavList({ hidden, data, depth, slotProps }: NavListProps) {
   const pathname = usePathname();
 
   const active = useActiveLink(data.path, !!data.children);

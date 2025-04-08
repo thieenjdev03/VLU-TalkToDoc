@@ -1,5 +1,6 @@
+import { useNavigate } from 'react-router-dom';
+
 import Button from '@mui/material/Button';
-import { useTheme } from '@mui/material/styles';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Unstable_Grid2';
 
@@ -14,9 +15,7 @@ import AppWelcome from '../app-welcome';
 export default function OverviewAppView() {
   const userProfile = localStorage.getItem('userProfile');
   const user = JSON.parse(userProfile || '{}');
-
-  const theme = useTheme();
-
+  const navigate = useNavigate();
   const settings = useSettingsContext();
 
   return (
@@ -28,7 +27,13 @@ export default function OverviewAppView() {
             description="Chúng tôi rất vui khi được đồng hành cùng bạn trong hành trình chăm sóc sức khỏe."
             img={<SeoIllustration />}
             action={
-              <Button variant="contained" color="primary">
+              <Button
+                onClick={() => {
+                  navigate('/dashboard/create-booking');
+                }}
+                variant="contained"
+                color="primary"
+              >
                 Đặt Lịch Hẹn Ngay
               </Button>
             }

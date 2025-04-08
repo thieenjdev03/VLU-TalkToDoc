@@ -272,10 +272,12 @@ export default function UserQuickEditForm({
                       label="Bệnh Viện"
                       multiple={false}
                       options={hospitalList}
-                      getOptionLabel={(option) =>
+                      getOptionLabel={(option: any) =>
                         typeof option === 'string' ? option : option.label
                       }
-                      isOptionEqualToValue={(option, value) => option?.value === value?.value}
+                      isOptionEqualToValue={(option: any, value: any) =>
+                        option?.value === value?.value
+                      }
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>

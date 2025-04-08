@@ -68,7 +68,7 @@ export default function AccountChangePassword() {
         <RHFTextField
           name="oldPassword"
           type={password.value ? 'text' : 'password'}
-          label="Old Password"
+          label="Mật Khẩu Cũ"
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">
@@ -82,7 +82,7 @@ export default function AccountChangePassword() {
 
         <RHFTextField
           name="newPassword"
-          label="New Password"
+          label="Mật Khẩu Mới"
           type={password.value ? 'text' : 'password'}
           InputProps={{
             endAdornment: (
@@ -95,8 +95,8 @@ export default function AccountChangePassword() {
           }}
           helperText={
             <Stack component="span" direction="row" alignItems="center">
-              <Iconify icon="eva:info-fill" width={16} sx={{ mr: 0.5 }} /> Password must be minimum
-              6+
+              <Iconify icon="eva:info-fill" width={16} sx={{ mr: 0.5 }} /> Mật khẩu phải có ít nhất
+              6 ký tự
             </Stack>
           }
         />
@@ -104,7 +104,7 @@ export default function AccountChangePassword() {
         <RHFTextField
           name="confirmNewPassword"
           type={password.value ? 'text' : 'password'}
-          label="Confirm New Password"
+          label="Xác Nhận Mật Khẩu Mới"
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">
@@ -117,7 +117,7 @@ export default function AccountChangePassword() {
         />
 
         <LoadingButton type="submit" variant="contained" loading={isSubmitting} sx={{ ml: 'auto' }}>
-          Save Changes
+          Xác Nhận
         </LoadingButton>
       </Stack>
     </FormProvider>

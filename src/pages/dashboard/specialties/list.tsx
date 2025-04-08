@@ -17,7 +17,6 @@ import { RouterLink } from 'src/routes/components';
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { useGetSpecialties, useDeleteSpecialty } from 'src/api/specialty'; // Updated to use specialty API
-import { USER_STATUS_OPTIONS } from 'src/_mock';
 
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
@@ -42,7 +41,6 @@ import { ISpecialtyTableFilters } from 'src/types/specialties';
 
 // ----------------------------------------------------------------------
 
-const STATUS_OPTIONS = [{ value: 'all', label: 'Tất Cả' }, ...USER_STATUS_OPTIONS];
 const TABLE_HEAD_SPECIALTY = [
   { id: '_id', label: 'Mã Chuyên Khoa', width: 100 },
   { id: 'name', label: 'Tên Chuyên Khoa', width: '20%' },
@@ -159,6 +157,7 @@ export default function SpecialtiesListPage() {
             filters={filters}
             onFilters={handleFilters}
             onSearchChange={setSearchQuery}
+            specialtyOptions={[]}
           />
 
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
@@ -169,7 +168,7 @@ export default function SpecialtiesListPage() {
               onSelectAllRows={(checked) =>
                 table.onSelectAllRows(
                   checked,
-                  tableData.map((row) => row._id)
+                  tableData.map((row: any) => row._id)
                 )
               }
               action={
@@ -193,13 +192,13 @@ export default function SpecialtiesListPage() {
                   onSelectAllRows={(checked) =>
                     table.onSelectAllRows(
                       checked,
-                      tableData.map((row) => row._id)
+                      tableData.map((row: any) => row._id)
                     )
                   }
                 />
 
                 <TableBody>
-                  {tableData?.map((row) => (
+                  {tableData?.map((row: any) => (
                     <SpecialtyTableRow
                       key={row._id}
                       row={row}

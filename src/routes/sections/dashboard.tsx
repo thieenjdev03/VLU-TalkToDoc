@@ -15,6 +15,7 @@ const OverviewAnalyticsPage = lazy(() => import('src/pages/dashboard/analytics')
 const OverviewBankingPage = lazy(() => import('src/pages/dashboard/banking'));
 const OverviewBookingPage = lazy(() => import('src/pages/dashboard/booking'));
 const OverviewFilePage = lazy(() => import('src/pages/dashboard/file'));
+
 // PRODUCT
 const ProductDetailsPage = lazy(() => import('src/pages/dashboard/product/details'));
 const ProductListPage = lazy(() => import('src/pages/dashboard/product/list'));
@@ -40,6 +41,9 @@ const UserAccountPage = lazy(() => import('src/pages/dashboard/user/account'));
 const UserCreatePage = lazy(() => import('src/pages/dashboard/user/new'));
 const SpecialtyCreatePage = lazy(() => import('src/pages/dashboard/specialties/new'));
 const UserEditPage = lazy(() => import('src/pages/dashboard/user/edit'));
+// BOOKING
+const BookingListPage = lazy(() => import('src/pages/dashboard/create-booking/list'));
+const BookingCreatePage = lazy(() => import('src/pages/dashboard/create-booking/new'));
 // BLOG
 const BlogPostsPage = lazy(() => import('src/pages/dashboard/post/list'));
 const BlogPostPage = lazy(() => import('src/pages/dashboard/post/details'));
@@ -78,6 +82,12 @@ const HospitalCreatePage = lazy(() => import('src/pages/dashboard/hospital/new')
 const ProviderRankingPage = lazy(() => import('src/pages/dashboard/provider-ranking/list'));
 const ProviderRankingCreatePage = lazy(() => import('src/pages/dashboard/provider-ranking/new'));
 
+// Medicine
+const MedicineListPage = lazy(() => import('src/pages/dashboard/medicine/list'));
+const MedicineCreatePage = lazy(() => import('src/pages/dashboard/medicine/new'));
+const MedicineImportUpdatePage = lazy(() => import('src/pages/dashboard/medicine/import-update'));
+const MedicineImportNewPage = lazy(() => import('src/pages/dashboard/medicine/import'));
+
 // ----------------------------------------------------------------------
 
 export const dashboardRoutes = [
@@ -99,6 +109,8 @@ export const dashboardRoutes = [
       { path: 'banking', element: <OverviewBankingPage /> },
       { path: 'booking', element: <OverviewBookingPage /> },
       { path: 'file', element: <OverviewFilePage /> },
+      { path: 'create-booking', element: <BookingCreatePage /> },
+      { path: 'list-booking', element: <BookingListPage /> },
       {
         path: 'user',
         children: [
@@ -145,6 +157,15 @@ export const dashboardRoutes = [
         children: [
           { path: 'list', element: <ProviderRankingPage /> },
           { path: 'new', element: <ProviderRankingCreatePage /> },
+        ],
+      },
+      {
+        path: 'medicine',
+        children: [
+          { path: 'list', element: <MedicineListPage /> },
+          { path: 'new', element: <MedicineCreatePage /> },
+          { path: 'import-update', element: <MedicineImportUpdatePage /> },
+          { path: 'import', element: <MedicineImportNewPage /> },
         ],
       },
       {

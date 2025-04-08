@@ -15,7 +15,6 @@ export default function MainLayout({ children }: Props) {
   const pathname = usePathname();
 
   const homePage = pathname === '/';
-  const userProfile = localStorage.getItem('userProfile');
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: 1 }}>
       <Header />

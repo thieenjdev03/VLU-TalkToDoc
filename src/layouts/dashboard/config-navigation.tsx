@@ -129,7 +129,7 @@ export function useNavData() {
             hidden: user?.role !== 'PATIENT',
             title: t('Quản lý toa thuốc'),
             path: paths.dashboard.prescription.root,
-            icon: ICONS.prescription,
+            icon: ICONS.medical,
             children: [{ title: t('Danh sách'), path: paths.dashboard.prescription.list }],
           },
           // USER
@@ -161,6 +161,7 @@ export function useNavData() {
               { title: t('Nhà Thuốc'), path: paths.dashboard.pharmacies.list },
               { title: t('Cấp Bậc'), path: paths.dashboard.ranking_doctor.list },
               { title: t('Bệnh Viện'), path: paths.dashboard.hospital.list },
+              { title: t('Thuốc'), path: paths.dashboard.medicine.list },
             ],
           },
           // {
@@ -175,21 +176,21 @@ export function useNavData() {
           //   ],
           // },
           // PRODUCT
-          {
-            hidden: user?.role !== 'ADMIN',
-            title: t('Quản Lý Thuốc'),
-            path: paths.dashboard.product.root,
-            icon: ICONS.medical,
-            children: [
-              { title: t('list'), path: paths.dashboard.product.root },
-              {
-                title: t('details'),
-                path: paths.dashboard.product.demo.details,
-              },
-              { title: t('create'), path: paths.dashboard.product.new },
-              { title: t('edit'), path: paths.dashboard.product.demo.edit },
-            ],
-          },
+          // {
+          //   hidden: user?.role !== 'ADMIN',
+          //   title: t('Quản Lý Thuốc'),
+          //   path: paths.dashboard.product.root,
+          //   icon: ICONS.medical,
+          //   children: [
+          //     { title: t('list'), path: paths.dashboard.product.root },
+          //     {
+          //       title: t('details'),
+          //       path: paths.dashboard.product.demo.details,
+          //     },
+          //     { title: t('create'), path: paths.dashboard.product.new },
+          //     { title: t('edit'), path: paths.dashboard.product.demo.edit },
+          //   ],
+          // },
           // // JOB
 
           // // ORDER
@@ -369,7 +370,7 @@ export function useNavData() {
       //   ],
       // },
     ],
-    [t]
+    [t, user?.role]
   );
 
   return data;

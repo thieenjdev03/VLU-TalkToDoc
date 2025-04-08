@@ -9,6 +9,7 @@ import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Switch from '@mui/material/Switch';
 import Grid from '@mui/material/Unstable_Grid2';
+import Typography from '@mui/material/Typography';
 import LoadingButton from '@mui/lab/LoadingButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -16,12 +17,18 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 
-import { useCreateUser } from 'src/api/user';
 import { useGetRanking } from 'src/api/ranking';
 import { useGetSpecialties } from 'src/api/specialty';
+import { useCreateUser, useUpdateUser } from 'src/api/user';
 
+import Label from 'src/components/label';
 import { useSnackbar } from 'src/components/snackbar';
-import FormProvider, { RHFTextField, RHFAutocomplete } from 'src/components/hook-form';
+import FormProvider, {
+  RHFSwitch,
+  RHFTextField,
+  RHFAutocomplete,
+  RHFUploadAvatar,
+} from 'src/components/hook-form';
 
 import { IUserItem } from 'src/types/user';
 import { ISpecialtyItem } from 'src/types/specialties';
@@ -35,8 +42,8 @@ type Props = {
   currentUser?: IUserItem;
   typeUser: 'user' | 'doctor' | 'employee' | 'patient';
   hospitals: any;
-  rank: { data: Ranking[] };
-  onUpdateSuccess?: () => void;
+  isSettingAccount?: boolean;
+  updateUserPage?: boolean;
 };
 
 interface IProvince {
@@ -55,10 +62,11 @@ type FormValuesProps = {
   phoneNumber: string;
   status: string;
   isActive: boolean;
-  avatarUrl: any;
+  avatarUrl: string; // Changed to string to store the image URL
   isVerified: boolean;
   rank?: {
     _id: string;
+    value: string;
     name: string;
   };
   company?: string;
@@ -79,10 +87,11 @@ type FormValuesProps = {
 export default function UserNewEditForm({
   currentUser,
   typeUser,
+  updateUserPage,
   hospitals,
-  rank,
-  onUpdateSuccess,
+  isSettingAccount,
 }: Props) {
+  console.log('currentUser:', currentUser);
   const router = useRouter();
   const { specialties } = useGetSpecialties({
     query: '',
@@ -102,6 +111,7 @@ export default function UserNewEditForm({
 
   const { enqueueSnackbar } = useSnackbar();
   const { createUser } = useCreateUser({ typeUser });
+  const { updateUser } = useUpdateUser({ typeUser });
   const [cities, setCities] = useState<IProvince[]>([]);
   const [loadingCities, setLoadingCities] = useState<boolean>(false);
   const { watch } = useForm();
@@ -147,7 +157,7 @@ export default function UserNewEditForm({
     password: Yup.string().required('Mật khẩu không được để trống'),
     email: Yup.string().required('Email không được để trống').email('Email không hợp lệ'),
     phoneNumber: Yup.string().required('Số điện thoại không được để trống'),
-    avatarUrl: Yup.mixed().nullable(),
+    avatarUrl: Yup.string().optional(), // Updated validation
     status: Yup.string(),
     isActive: Yup.boolean(),
     isVerified: Yup.boolean(),
@@ -205,7 +215,7 @@ export default function UserNewEditForm({
       email: currentUser?.email || '',
       status: currentUser?.status || 'isActive',
       isActive: currentUser?.isActive || true,
-      avatarUrl: currentUser?.avatarUrl || null,
+      avatarUrl: currentUser?.avatarUrl || '',
       phoneNumber: currentUser?.phoneNumber || '',
       isVerified: currentUser?.isVerified || true,
       ...(typeUser === 'user' && {
@@ -244,6 +254,18 @@ export default function UserNewEditForm({
   } = methods;
   console.log('  Errors:', errors);
 
+  const uploadImageToCloudinary = async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', 'your_upload_preset'); // Replace with your Cloudinary upload preset
+
+    const response = await axios.post(
+      'https://api.cloudinary.com/v1_1/your_cloud_name/image/upload',
+      formData
+    );
+    return response.data.secure_url; // Return the image URL
+  };
+
   const onSubmit = handleSubmit(async (data) => {
     try {
       let formattedData;
@@ -252,7 +274,6 @@ export default function UserNewEditForm({
         path = paths.dashboard.user.list_doctor;
         formattedData = {
           ...data,
-          avatarUrl: data.avatarUrl?.preview || data.avatarUrl,
           specialty: data.specialty?.map((item: any) => item.value), // 👈 chỉ lấy ID
           rank: data.rank?.value, // 👈 chỉ gửi _id
           hospital: data.hospital?.value, // string ID
@@ -269,11 +290,16 @@ export default function UserNewEditForm({
           ...data,
         };
       }
-      await createUser({ data: formattedData });
-      console.log('Data:', formattedData);
-      reset();
-      enqueueSnackbar(currentUser ? 'Cập nhật thành công!' : 'Tạo mới thành công!');
-      router.push(path || '');
+      if (updateUserPage) {
+        await updateUser({ id: currentUser?._id || '', data: formattedData });
+        reset();
+        enqueueSnackbar(currentUser ? 'Cập nhật thành công!' : 'Tạo mới thành công!');
+      } else {
+        await createUser({ data: formattedData });
+        reset();
+        enqueueSnackbar(currentUser ? 'Cập nhật thành công!' : 'Tạo mới thành công!');
+        router.push(path || '');
+      }
     } catch (err) {
       console.error(err);
     }
@@ -380,9 +406,36 @@ export default function UserNewEditForm({
       </Box>
     </Box>
   );
+  const handleDrop = async (acceptedFiles: File[]) => {
+    const file = acceptedFiles[0];
+    if (file) {
+      try {
+        if (currentUser?.avatarUrl) {
+          const formData = new FormData();
+          formData.append('file', file);
+          formData.append('upload_preset', 'talktodoc_unsigned'); // 👈 đây là upload_preset bạn tạo
+
+          const response = await fetch('https://api.cloudinary.com/v1_1/dut4zlbui/image/upload', {
+            method: 'POST',
+            body: formData,
+          });
+          const data = await response.json();
+          const imageUrl = data.secure_url;
+          setValue('avatarUrl', imageUrl, { shouldValidate: true }); // Gán link vào form
+          console.log('imageUrl:', imageUrl);
+        } else {
+          setValue('avatarUrl', '', { shouldValidate: true }); // Gán link vào form
+          console.log('imageUrl:');
+        }
+      } catch (error) {
+        enqueueSnackbar('Upload ảnh thất bại!', { variant: 'error' });
+      }
+    }
+  };
+
   console.log('watch specialty:', watch('specialty'));
   const hospitalOptions =
-    hospitals?.map((hospital) => ({
+    hospitals?.map((hospital: any) => ({
       value: hospital._id,
       label: hospital.name,
     })) || [];
@@ -416,7 +469,7 @@ export default function UserNewEditForm({
             label: item.name,
           }))}
           getOptionLabel={(option) => (typeof option === 'string' ? option : option.label)}
-          isOptionEqualToValue={(option, value) => option?.value === value?.value}
+          isOptionEqualToValue={(option: any, value: any) => option?.value === value?.value}
           // Không cần custom onChange nếu bạn giữ nguyên object
         />
         <RHFAutocomplete
@@ -424,8 +477,8 @@ export default function UserNewEditForm({
           label="Bệnh Viện"
           multiple={false}
           options={hospitalOptions}
-          getOptionLabel={(option) => (typeof option === 'string' ? option : option.label)}
-          isOptionEqualToValue={(option, value) => option?.value === value?.value}
+          getOptionLabel={(option: any) => (typeof option === 'string' ? option : option.label)}
+          isOptionEqualToValue={(option: any, value: any) => option?.value === value?.value}
         />
         {loadingCities ? (
           <RHFTextField
@@ -508,94 +561,97 @@ export default function UserNewEditForm({
       />
     </Box>
   );
-  // <Grid xs={12} md={4}>
-  //   <Card sx={{ pt: 10, pb: 5, px: 3 }}>
-  //     {currentUser && (
-  //       <Label
-  //         color={
-  //           (values.status === 'active' && 'success') ||
-  //           (values.status === 'banned' && 'error') ||
-  //           'warning'
-  //         }
-  //         sx={{ position: 'absolute', top: 24, right: 24 }}
-  //       >
-  //         {values.status}
-  //       </Label>
-  //     )}
 
-  //     {/* <Box sx={{ mb: 5 }}>
-  //       <RHFUploadAvatar
-  //         name="avatarUrl"
-  //         maxSize={3145728}
-  //         onDrop={handleDrop}
-  //         helperText={
-  //           <Typography
-  //             variant="caption"
-  //             sx={{
-  //               mt: 3,
-  //               mx: 'auto',
-  //               display: 'block',
-  //               textAlign: 'center',
-  //               color: 'text.disabled',
-  //             }}
-  //           >
-  //             Cho phép *.jpeg, *.jpg, *.png, *.gif
-  //             <br /> dung lượng tối đa {fData(3145728)}
-  //           </Typography>
-  //         }
-  //       />
-  //     </Box> */}
-
-  //     {currentUser && (
-  //       <FormControlLabel
-  //         labelPlacement="start"
-  //         control={
-  //           <Controller
-  //             name="status"
-  //             control={control}
-  //             render={({ field }) => (
-  //               <Switch
-  //                 {...field}
-  //                 checked={field.value !== 'active'}
-  //                 onChange={(event) =>
-  //                   field.onChange(event.target.checked ? 'banned' : 'active')
-  //                 }
-  //               />
-  //             )}
-  //           />
-  //         }
-  //         label={
-  //           <>
-  //             <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-  //               Khóa tài khoản
-  //             </Typography>
-  //             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-  //               Vô hiệu hóa tài khoản người dùng
-  //             </Typography>
-  //           </>
-  //         }
-  //         sx={{ mx: 0, mb: 3, width: 1, justifyContent: 'space-between' }}
-  //       />
-  //     )}
-
-  //     <RHFSwitch
-  //       name="isVerified"
-  //       labelPlacement="start"
-  //       label={
-  //         <>
-  //           <Typography variant="subtitle2" sx={{ mb: 0.5 }} />
-  //           Xác thực email
-  //           <Typography variant="body2" sx={{ color: 'text.secondary' }} />
-  //           Tắt tính năng này sẽ tự động gửi email xác thực cho người dùng
-  //         </>
-  //       }
-  //       sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
-  //     />
-  //   </Card>
-  // </Grid>;
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
       <Grid container spacing={3}>
+        {typeUser === 'doctor' && (
+          <Grid xs={12} md={4}>
+            <Card sx={{ pt: 10, pb: 5, px: 3 }}>
+              {currentUser && (
+                <Label
+                  color={
+                    (currentUser.status === 'active' && 'success') ||
+                    (currentUser.status === 'banned' && 'error') ||
+                    'warning'
+                  }
+                  sx={{ position: 'absolute', top: 24, right: 24 }}
+                >
+                  {currentUser.status}
+                </Label>
+              )}
+
+              <Box sx={{ mb: 5 }}>
+                <RHFUploadAvatar
+                  name="avatarUrl"
+                  maxSize={3145728}
+                  onDrop={handleDrop}
+                  helperText={
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        mt: 3,
+                        mx: 'auto',
+                        display: 'block',
+                        textAlign: 'center',
+                        color: 'text.disabled',
+                      }}
+                    >
+                      Cho phép *.jpeg, *.jpg, *.png, *.gif
+                      <br /> dung lượng tối đa
+                    </Typography>
+                  }
+                />
+              </Box>
+
+              {currentUser && (
+                <FormControlLabel
+                  labelPlacement="start"
+                  control={
+                    <Controller
+                      name="status"
+                      control={control}
+                      render={({ field }) => (
+                        <Switch
+                          {...field}
+                          checked={field.value !== 'active'}
+                          onChange={(event) =>
+                            field.onChange(event.target.checked ? 'banned' : 'active')
+                          }
+                        />
+                      )}
+                    />
+                  }
+                  label={
+                    <>
+                      <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
+                        Khóa tài khoản
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                        Vô hiệu hóa tài khoản người dùng
+                      </Typography>
+                    </>
+                  }
+                  sx={{ mx: 0, mb: 3, width: 1, justifyContent: 'space-between' }}
+                />
+              )}
+
+              <RHFSwitch
+                name="isVerified"
+                labelPlacement="start"
+                label={
+                  <>
+                    <Typography variant="subtitle2" sx={{ mb: 0.5 }} />
+                    Xác thực email
+                    <Typography variant="body2" sx={{ color: 'text.secondary' }} />
+                    Tắt tính năng này sẽ tự động gửi email xác thực cho người dùng
+                  </>
+                }
+                sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
+              />
+            </Card>
+          </Grid>
+        )}
         <Grid xs={12} md={8}>
           <Card sx={{ p: 3 }}>
             {typeUser === 'user' && renderUserFields}
@@ -622,7 +678,7 @@ export default function UserNewEditForm({
                   console.log('Clicked submit button');
                 }}
               >
-                {!currentUser ? 'Tạo mới' : 'Lưu thay đổi'}
+                {currentUser || isSettingAccount ? 'Lưu thay đổi' : 'Tạo mới'}
               </LoadingButton>
             </Stack>
           </Card>

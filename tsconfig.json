@@ -2,11 +2,8 @@
   "compilerOptions": {
     "baseUrl": ".",
     "target": "es5",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
+
     "strict": true,
     "noEmit": true,
     "allowJs": true,
@@ -23,18 +20,20 @@
     "noFallthroughCasesInSwitch": true,
     "useUnknownInCatchVariables": false,
     "allowSyntheticDefaultImports": true,
-    "forceConsistentCasingInFileNames": true,
+    "forceConsistentCasingInFileNames": true
   },
-  "exclude": [
-    "node_modules"
-  ],
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "src/**/*",
-  ],
+  "exclude": ["node_modules"],
+  "include": ["**/*.ts", "**/*.tsx", "src/**/*"],
   "references": [
     {
+      "rules": {
+        "import/no-extraneous-dependencies": [
+          "error",
+          {
+            "devDependencies": ["**/*.spec.ts", "**/*.jest.config.js"]
+          }
+        ]
+      },
       "path": "./tsconfig.node.json"
     }
   ]

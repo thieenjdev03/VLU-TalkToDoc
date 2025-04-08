@@ -42,8 +42,8 @@ const TABS = [
   //   icon: <Iconify icon="solar:share-bold" width={24} />,
   // },
   {
-    value: 'security',
-    label: 'Đổi mật khẩu',
+    value: 'medical-intake-form',
+    label: 'Hồ sơ bệnh án',
     icon: <Iconify icon="ic:round-vpn-key" width={24} />,
   },
 ];
@@ -62,11 +62,11 @@ export default function AccountView() {
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
       <CustomBreadcrumbs
-        heading="Account"
+        heading="Cài đặt tài khoản"
         links={[
-          { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'User', href: paths.dashboard.user.root },
-          { name: 'Account' },
+          { name: 'Trang Chủ', href: paths.dashboard.root },
+          { name: 'Tài Khoản', href: paths.dashboard.user.root },
+          { name: 'Cài Đặt' },
         ]}
         sx={{
           mb: { xs: 3, md: 5 },

@@ -62,6 +62,13 @@ export const endpoints = {
   chat: '/api/chat',
   kanban: '/api/kanban',
   calendar: '/api/calendar',
+  medicine: {
+    list: '/api/v1/medicines',
+    delete: '/api/v1/medicines',
+    update: '/api/v1/medicines/import',
+    create: '/api/v1/medicines',
+    search: '/api/v1/medicines',
+  },
   pharmacies: {
     list: '/api/v1/pharmacies',
     delete: '/api/v1/pharmacies',

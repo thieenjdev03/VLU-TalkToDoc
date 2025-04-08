@@ -45,7 +45,7 @@ export default function ChatNavItem({ selected, collapse, conversation, onCloseM
 
   const singleParticipant = participants[0];
 
-  const { name, avatarUrl, status } = singleParticipant;
+  const { avatarUrl, status } = singleParticipant;
 
   const handleClickConversation = useCallback(async () => {
     try {

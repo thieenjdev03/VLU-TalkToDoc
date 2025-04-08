@@ -1,0 +1,261 @@
+[
+  {
+    "specialty_id": "SP596278",
+    "name": "Đa khoa Tư nhân",
+    "fields": [
+      {
+        "key": "symptoms",
+        "label": "Bạn đang gặp vấn đề gì?",
+        "type": "textarea",
+        "required": true
+      },
+      {
+        "key": "duration",
+        "label": "Tình trạng kéo dài bao lâu?",
+        "type": "text",
+        "required": false
+      }
+    ]
+  },
+  {
+    "specialty_id": "SP573514",
+    "name": "Xương khớp",
+    "fields": [
+      { "key": "pain_area", "label": "Bạn bị đau ở đâu?", "type": "text", "required": true },
+      {
+        "key": "pain_level",
+        "label": "Mức độ đau (1-5)",
+        "type": "select",
+        "options": [1, 2, 3, 4, 5],
+        "required": true
+      }
+    ]
+  },
+  {
+    "specialty_id": "SP717225",
+    "name": "Tâm thần học",
+    "fields": [
+      { "key": "mood", "label": "Tâm trạng hiện tại của bạn?", "type": "text", "required": true },
+      {
+        "key": "sleep",
+        "label": "Bạn ngủ trung bình mấy giờ mỗi ngày?",
+        "type": "text",
+        "required": false
+      }
+    ]
+  },
+  {
+    "specialty_id": "SP381348",
+    "name": "Tiền mãn kinh",
+    "fields": [
+      {
+        "key": "symptoms",
+        "label": "Bạn gặp những triệu chứng nào?",
+        "type": "textarea",
+        "required": true
+      },
+      {
+        "key": "cycle_change",
+        "label": "Chu kỳ kinh nguyệt có thay đổi không?",
+        "type": "select",
+        "options": ["Có", "Không"],
+        "required": false
+      }
+    ]
+  },
+  {
+    "specialty_id": "SP243660",
+    "name": "Tiêu hoá – Gan mật",
+    "fields": [
+      {
+        "key": "digestive_issues",
+        "label": "Triệu chứng tiêu hoá của bạn?",
+        "type": "textarea",
+        "required": true
+      },
+      { "key": "duration", "label": "Đã bị bao lâu rồi?", "type": "text", "required": false }
+    ]
+  },
+  {
+    "specialty_id": "SP573515",
+    "name": "Tim mạch",
+    "fields": [
+      {
+        "key": "symptoms",
+        "label": "Triệu chứng tim mạch bạn đang gặp?",
+        "type": "textarea",
+        "required": true
+      },
+      { "key": "blood_pressure", "label": "Huyết áp gần nhất?", "type": "text", "required": false }
+    ]
+  },
+  {
+    "specialty_id": "SP573517",
+    "name": "Thần kinh",
+    "fields": [
+      {
+        "key": "neurologic_symptoms",
+        "label": "Bạn có triệu chứng gì liên quan đến thần kinh?",
+        "type": "textarea",
+        "required": true
+      }
+    ]
+  },
+  {
+    "specialty_id": "SP164404",
+    "name": "Sức khỏe sinh lý",
+    "fields": [
+      {
+        "key": "sexual_symptom",
+        "label": "Bạn gặp vấn đề gì về sinh lý?",
+        "type": "textarea",
+        "required": true
+      },
+      { "key": "duration", "label": "Đã diễn ra trong bao lâu?", "type": "text", "required": false }
+    ]
+  },
+  {
+    "specialty_id": "SP573521",
+    "name": "Sản phụ khoa",
+    "fields": [
+      {
+        "key": "cycle_regular",
+        "label": "Chu kỳ kinh nguyệt của bạn có đều không?",
+        "type": "select",
+        "options": ["Có", "Không"],
+        "required": true
+      },
+      {
+        "key": "pregnant",
+        "label": "Bạn đang mang thai hoặc nghi ngờ mang thai?",
+        "type": "select",
+        "options": ["Có", "Không"],
+        "required": false
+      }
+    ]
+  },
+  {
+    "specialty_id": "SP573516",
+    "name": "Nội tiết",
+    "fields": [
+      {
+        "key": "endocrine_symptoms",
+        "label": "Triệu chứng nội tiết bạn đang gặp?",
+        "type": "textarea",
+        "required": true
+      }
+    ]
+  },
+  {
+    "specialty_id": "SP573522",
+    "name": "Nhi khoa",
+    "fields": [
+      { "key": "child_age", "label": "Tuổi của bé?", "type": "number", "required": true },
+      {
+        "key": "child_symptoms",
+        "label": "Triệu chứng của bé?",
+        "type": "textarea",
+        "required": true
+      }
+    ]
+  },
+  {
+    "specialty_id": "SP573523",
+    "name": "Mắt",
+    "fields": [
+      {
+        "key": "eye_issue",
+        "label": "Vấn đề về mắt bạn gặp phải?",
+        "type": "textarea",
+        "required": true
+      }
+    ]
+  },
+  {
+    "specialty_id": "SP329945",
+    "name": "Kiểm soát Cơn đau",
+    "fields": [
+      {
+        "key": "pain_location",
+        "label": "Bạn bị đau ở vùng nào?",
+        "type": "text",
+        "required": true
+      },
+      {
+        "key": "pain_duration",
+        "label": "Tình trạng đau kéo dài bao lâu?",
+        "type": "text",
+        "required": true
+      }
+    ]
+  },
+  {
+    "specialty_id": "SP573519",
+    "name": "Hô hấp",
+    "fields": [
+      {
+        "key": "respiratory_symptom",
+        "label": "Triệu chứng hô hấp bạn đang gặp?",
+        "type": "textarea",
+        "required": true
+      },
+      {
+        "key": "has_fever",
+        "label": "Bạn có bị sốt không?",
+        "type": "select",
+        "options": ["Có", "Không"],
+        "required": false
+      }
+    ]
+  },
+  {
+    "specialty_id": "SP568081",
+    "name": "Giảm cân & Dinh dưỡng",
+    "fields": [
+      { "key": "weight", "label": "Cân nặng hiện tại (kg)?", "type": "number", "required": true },
+      { "key": "goal_weight", "label": "Mục tiêu giảm cân?", "type": "text", "required": false }
+    ]
+  },
+  {
+    "specialty_id": "SP573518",
+    "name": "Da liễu",
+    "fields": [
+      {
+        "key": "skin_issue",
+        "label": "Vấn đề da bạn đang gặp?",
+        "type": "textarea",
+        "required": true
+      },
+      {
+        "key": "used_treatment",
+        "label": "Đã dùng thuốc hoặc kem gì chưa?",
+        "type": "text",
+        "required": false
+      }
+    ]
+  },
+  {
+    "specialty_id": "SP573524",
+    "name": "Dinh dưỡng",
+    "fields": [
+      {
+        "key": "nutrition_concern",
+        "label": "Vấn đề dinh dưỡng bạn đang gặp?",
+        "type": "textarea",
+        "required": true
+      }
+    ]
+  },
+  {
+    "specialty_id": "SP573520",
+    "name": "Tiêu hóa",
+    "fields": [
+      {
+        "key": "digestive_symptom",
+        "label": "Bạn gặp triệu chứng tiêu hoá gì?",
+        "type": "textarea",
+        "required": true
+      }
+    ]
+  }
+]

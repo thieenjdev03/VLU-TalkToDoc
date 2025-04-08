@@ -66,6 +66,19 @@ export default function AccountPopover() {
     router.push(path);
   };
 
+  const handleShowRoleName = (role: string) => {
+    switch (role) {
+      case 'admin':
+        return 'Quản trị viên';
+      case 'doctor':
+        return 'Bác sĩ';
+      case 'patient':
+        return 'Bệnh nhân';
+      default:
+        return role;
+    }
+  };
+
   return (
     <>
       <IconButton
@@ -105,6 +118,12 @@ export default function AccountPopover() {
 
           <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
             {user?.email}
+          </Typography>
+
+          <Typography variant="body2" sx={{ mt: 1 }} noWrap>
+            <div style={{ color: 'text.primary', fontWeight: 'bold', fontSize: '14px' }}>
+              Role: {handleShowRoleName(user?.role.toLowerCase())}
+            </div>
           </Typography>
         </Box>
 

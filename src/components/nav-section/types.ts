@@ -43,6 +43,7 @@ export type NavListProps = {
   data: NavItemBaseProps;
   depth: number;
   slotProps?: SlotProps;
+  hidden?: boolean;
 };
 
 export type NavSubListProps = {
