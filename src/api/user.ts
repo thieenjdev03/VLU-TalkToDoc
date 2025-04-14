@@ -49,10 +49,10 @@ export const useGetUsers = ({
 
     const queryParams = new URLSearchParams();
     if (query) queryParams.append('query', query);
-    // queryParams.append('page', page.toString());
-    // queryParams.append('limit', limit.toString());
-    // queryParams.append('sortField', sortField);
-    // queryParams.append('sortOrder', sortOrder);
+    queryParams.append('page', page.toString());
+    queryParams.append('limit', limit.toString());
+    queryParams.append('sortField', sortField);
+    queryParams.append('sortOrder', sortOrder);
 
     return `${searchURL}?${queryParams.toString()}`;
   }, [baseURL, query, page, limit, sortField, sortOrder, typeUser]);

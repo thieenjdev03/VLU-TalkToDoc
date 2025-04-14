@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import { useGetUsers } from 'src/api/user';
 
@@ -16,15 +16,30 @@ type Props = {
 };
 
 type FormValuesProps = {
-  name: string;
-  description?: string;
-  isActive: boolean;
-  base_price?: number;
+  patientId: string;
+  doctorId: string;
+  specialtyId: string;
+  booking: {
+    date: string;
+    slot: string;
+    timezone: string;
+  };
+  medicalForm: {
+    symptoms: string;
+    pain_level: string;
+  };
+  payment: {
+    platformFee: number;
+    doctorFee: number;
+    discount: number;
+    total: number;
+    paymentMethod: string;
+  };
 };
 
 export default function RankingNewEditForm({ currentRanking }: Props) {
   const [selected, setSelected] = useState<ISpecialtyItem | null>(null);
-  const [currentStep, setCurrentStep] = useState<String>('select-specialty');
+  const [currentStep, setCurrentStep] = useState<string>('select-specialty');
   const { users: doctors } = useGetUsers({
     typeUser: 'doctor',
     query: '',
@@ -33,13 +48,33 @@ export default function RankingNewEditForm({ currentRanking }: Props) {
     sortField: 'createdAt',
     sortOrder: 'desc',
   });
-  const handleSelect = (key: any) => {
+
+  const [formData, setFormData] = useState<FormValuesProps>({
+    patientId: '',
+    doctorId: '',
+    specialtyId: '',
+    booking: { date: '', slot: '', timezone: '' },
+    medicalForm: { symptoms: '', pain_level: '' },
+    payment: { platformFee: 0, doctorFee: 0, discount: 0, total: 0, paymentMethod: '' },
+  });
+
+  useEffect(() => {
+    console.log('formData', formData);
+  }, [formData]);
+
+  const handleSelect = (key: ISpecialtyItem) => {
     setSelected(key);
   };
-  console.log('doctors', doctors);
+
   const handleSelectCurrentStep = (step: string) => {
     setCurrentStep(step);
   };
+
+  const handleSubmit = (formData: FormValuesProps) => {
+    // Submit the formData to the API
+    setFormData(formData);
+  };
+
   return (
     <>
       {currentStep === 'select-specialty' &&
@@ -47,12 +82,13 @@ export default function RankingNewEditForm({ currentRanking }: Props) {
           <SelectSpecialty
             handleSelectCurrentStep={handleSelectCurrentStep}
             onSelect={handleSelect}
+            formData={formData}
           />
         ) : (
           <DynamicFormMUI
             setCurrentStep={setCurrentStep}
             onSelect={handleSelect}
-            specialty={selected}
+            specialty={selected as ISpecialtyItem}
             config={
               formConfig
                 .find((item) => item?.specialty_id === selected?.id)
@@ -61,6 +97,7 @@ export default function RankingNewEditForm({ currentRanking }: Props) {
                   type: field.type as 'text' | 'select' | 'textarea' | 'number',
                 })) || []
             }
+            formData={formData}
           />
         ))}
       {currentStep === 'select-time-booking' && (
@@ -70,10 +107,10 @@ export default function RankingNewEditForm({ currentRanking }: Props) {
         />
       )}
       {currentStep === 'payment-step' && (
-        <BookingPayment setCurrentStep={setCurrentStep} specialty={selected} />
+        <BookingPayment setCurrentStep={setCurrentStep} specialty={selected} formData={formData} />
       )}
-      {currentStep === 'payment-completed ' && (
-        <BookingPaymentCompleted setCurrentStep={setCurrentStep} />
+      {currentStep === 'payment-completed' && (
+        <BookingPaymentCompleted setCurrentStep={setCurrentStep} formData={formData} />
       )}
     </>
   );

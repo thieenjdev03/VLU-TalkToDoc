@@ -141,7 +141,7 @@ export default function UserNewEditForm({
       }
     };
     fetchCities();
-  }, [enqueueSnackbar]);
+  }, []);
   const formatNumber = (value: number | string) => {
     if (!value) return '';
     return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
@@ -254,18 +254,6 @@ export default function UserNewEditForm({
   } = methods;
   console.log('  Errors:', errors);
 
-  const uploadImageToCloudinary = async (file: File) => {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('upload_preset', 'your_upload_preset'); // Replace with your Cloudinary upload preset
-
-    const response = await axios.post(
-      'https://api.cloudinary.com/v1_1/your_cloud_name/image/upload',
-      formData
-    );
-    return response.data.secure_url; // Return the image URL
-  };
-
   const onSubmit = handleSubmit(async (data) => {
     try {
       let formattedData;
@@ -291,7 +279,7 @@ export default function UserNewEditForm({
         };
       }
       if (updateUserPage) {
-        await updateUser({ id: currentUser?._id || '', data: formattedData });
+        await updateUser({ id: currentUser?._id || '', data: { avatarUrl: data?.avatarUrl } });
         reset();
         enqueueSnackbar(currentUser ? 'Cập nhật thành công!' : 'Tạo mới thành công!');
       } else {
@@ -410,30 +398,30 @@ export default function UserNewEditForm({
     const file = acceptedFiles[0];
     if (file) {
       try {
-        if (currentUser?.avatarUrl) {
-          const formData = new FormData();
-          formData.append('file', file);
-          formData.append('upload_preset', 'talktodoc_unsigned'); // 👈 đây là upload_preset bạn tạo
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', 'talktodoc_unsigned');
 
-          const response = await fetch('https://api.cloudinary.com/v1_1/dut4zlbui/image/upload', {
-            method: 'POST',
-            body: formData,
-          });
-          const data = await response.json();
-          const imageUrl = data.secure_url;
-          setValue('avatarUrl', imageUrl, { shouldValidate: true }); // Gán link vào form
-          console.log('imageUrl:', imageUrl);
+        const response = await fetch('https://api.cloudinary.com/v1_1/dut4zlbui/image/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        const data = await response.json();
+
+        if (data.secure_url) {
+          setValue('avatarUrl', data.secure_url, { shouldValidate: true });
+          console.log('imageUrl:', data.secure_url);
         } else {
-          setValue('avatarUrl', '', { shouldValidate: true }); // Gán link vào form
-          console.log('imageUrl:');
+          enqueueSnackbar('Không thể lấy được đường dẫn ảnh từ Cloudinary!', { variant: 'error' });
         }
       } catch (error) {
+        console.error('Upload error:', error);
         enqueueSnackbar('Upload ảnh thất bại!', { variant: 'error' });
       }
     }
   };
 
-  console.log('watch specialty:', watch('specialty'));
   const hospitalOptions =
     hospitals?.map((hospital: any) => ({
       value: hospital._id,
@@ -586,6 +574,7 @@ export default function UserNewEditForm({
                   name="avatarUrl"
                   maxSize={3145728}
                   onDrop={handleDrop}
+                  accept={{ 'image/*': ['.jpeg', '.jpg', '.png', '.gif'] }} // giới hạn định dạng ảnh
                   helperText={
                     <Typography
                       variant="caption"
@@ -597,8 +586,7 @@ export default function UserNewEditForm({
                         color: 'text.disabled',
                       }}
                     >
-                      Cho phép *.jpeg, *.jpg, *.png, *.gif
-                      <br /> dung lượng tối đa
+                      Cho phép *.jpeg, *.jpg, *.png, *.gif <br /> dung lượng tối đa 3MB
                     </Typography>
                   }
                 />

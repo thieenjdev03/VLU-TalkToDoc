@@ -9,6 +9,7 @@ export interface ISpecialtyItem {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  avatarUrl: string;
 }
 
 export interface ISpecialtyTableFilters {

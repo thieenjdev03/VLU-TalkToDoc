@@ -21,7 +21,7 @@ export default function BookingConfirmation({ booking }: { booking: any }) {
       </div>
 
       {/* Right */}
-      <div className="w-full max-w-md bg-gray-50 p-6 rounded-xl shadow">
+      <div className="w-full max-w-md bg-gray-50 p-6 rounded-xl shadow-md">
         <p className="text-sm text-gray-400 mb-2">
           Đơn hàng của bạn: <span className="font-semibold text-black">{booking.code}</span>
         </p>
@@ -39,19 +39,18 @@ export default function BookingConfirmation({ booking }: { booking: any }) {
               {booking.timezone}
             </p>
           </div>
-
           <hr className="my-4" />
           <div className="space-y-2 text-sm w-full">
-            <div className="flex justify-between">
-              <span className="text-gray-600">Phí nền tảng</span>
-              <span>
-                {booking.subTotal?.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
-              </span>
-            </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Phí bác sĩ</span>
               <span>
                 -{booking.discount?.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-600">Giảm giá</span>
+              <span>
+                {booking.voucher?.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
               </span>
             </div>
             <div className="flex justify-between font-bold text-black">

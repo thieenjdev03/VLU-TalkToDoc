@@ -45,6 +45,16 @@ export default function SpecialtyTableRow({
   const renderCells = () => (
     <>
       <TableCell>{id}</TableCell>
+      <TableCell>
+        <img
+          src={
+            row?.avatarUrl ||
+            'https://res.cloudinary.com/dut4zlbui/image/upload/v1744651244/ah43js2wcqzhtjkur5iz.svg'
+          }
+          alt={name}
+          style={{ width: 40, height: 40, borderRadius: '8px' }}
+        />
+      </TableCell>
       {/* Hiển thị Tên chuyên khoa */}
       <TableCell>
         <Typography variant="body1">{name}</Typography>

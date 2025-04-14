@@ -21,7 +21,11 @@ import { useUpdateUser } from 'src/api/user';
 import { useGetSpecialties } from 'src/api/specialty';
 
 import { useSnackbar } from 'src/components/snackbar';
-import FormProvider, { RHFTextField, RHFAutocomplete } from 'src/components/hook-form';
+import FormProvider, {
+  RHFTextField,
+  RHFAutocomplete,
+  RHFUploadAvatar,
+} from 'src/components/hook-form';
 
 import { IUserItem } from 'src/types/user';
 import { IProvince } from 'src/types/hospital';
@@ -71,7 +75,7 @@ export default function UserQuickEditForm({
       }
     };
     fetchCities();
-  }, [enqueueSnackbar]);
+  }, []);
 
   const cityOptions = cities.map((city) => city.name);
 
@@ -127,7 +131,33 @@ export default function UserQuickEditForm({
 
   // Parse formatted number back to number
   const parseNumber = (value: string) => value.replace(/,/g, '');
+  const handleDrop = async (acceptedFiles: File[]) => {
+    const file = acceptedFiles[0];
+    if (file) {
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', 'talktodoc_unsigned'); // 👈 đổi theo preset của bạn
 
+        const response = await fetch('https://api.cloudinary.com/v1_1/dut4zlbui/image/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        const data = await response.json();
+
+        if (data.secure_url) {
+          setValue('avatarUrl', data.secure_url, { shouldValidate: true });
+          // enqueueSnackbar('Tải ảnh lên thành công!');
+        } else {
+          enqueueSnackbar('Không thể lấy link ảnh từ Cloudinary', { variant: 'error' });
+        }
+      } catch (error) {
+        console.error('Upload error:', error);
+        enqueueSnackbar('Tải ảnh lên thất bại!', { variant: 'error' });
+      }
+    }
+  };
   // 🛠 Default values theo typeUser
   const defaultValues = useMemo(
     () => ({
@@ -136,6 +166,7 @@ export default function UserQuickEditForm({
       email: currentUser?.email || '',
       isActive: currentUser?.isActive || false,
       phoneNumber: currentUser?.phoneNumber || '',
+      avatarUrl: currentUser?.avatarUrl || '',
       ...(typeUser === 'doctor' && {
         specialty: Array.isArray(currentUser?.specialty)
           ? currentUser.specialty.map((s: any) =>
@@ -218,12 +249,9 @@ export default function UserQuickEditForm({
         };
       }
       await updateUser({ id: formattedData?._id || '', data: formattedData });
-      reset();
-      onClose();
       enqueueSnackbar('Cập nhật thành công!');
       handleRefreshData();
       onUpdateSuccess?.();
-      // window.location.reload();
     } catch (error) {
       console.error(error);
       enqueueSnackbar('Cập nhật thất bại', { variant: 'error' });
@@ -237,6 +265,18 @@ export default function UserQuickEditForm({
         <DialogContent>
           <Box sx={{ gap: 2, mt: 2 }}>
             <Grid container spacing={2}>
+              <Grid item xs={12} sm={12}>
+                <RHFUploadAvatar
+                  name="avatarUrl"
+                  onDrop={handleDrop}
+                  maxSize={3145728}
+                  helperText={
+                    <span style={{ fontSize: '12px', color: '#888' }}>
+                      Cho phép: *.jpeg, *.jpg, *.png, dung lượng tối đa 3MB
+                    </span>
+                  }
+                />
+              </Grid>
               <Grid item xs={12} sm={6}>
                 <RHFTextField name="fullName" label="Họ và Tên" />
               </Grid>
@@ -246,7 +286,6 @@ export default function UserQuickEditForm({
               <Grid item xs={12} sm={6}>
                 <RHFTextField name="phoneNumber" label="Số điện thoại" />
               </Grid>
-
               {typeUser === 'doctor' && (
                 <>
                   <Grid item xs={12} sm={6}>

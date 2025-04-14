@@ -8,7 +8,7 @@ export default function OverviewAppPage() {
   return (
     <>
       <Helmet>
-        <title> Dashboard: App</title>
+        <title> Trang Quản Lý: Trang Chủ</title>
       </Helmet>
 
       <OverviewAppView />

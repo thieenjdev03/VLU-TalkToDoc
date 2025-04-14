@@ -42,8 +42,6 @@ import {
   TablePaginationCustom,
 } from 'src/components/table'; // Updated to use specialty API
 
-import { useUserData } from 'src/hooks/use-user-data';
-
 import { useGetSpecialties } from 'src/api/specialty';
 
 import { ISpecialtyItem } from 'src/types/specialties';
@@ -73,7 +71,7 @@ const TABLE_HEAD_DOCTOR = [
   { id: 'fullName', label: 'Họ & Tên', width: 200 },
   { id: 'hospital', label: 'Bệnh Viện', width: 400 },
   { id: 'rank', label: 'Cấp Bậc', width: 180 },
-  { id: 'specialty', label: 'Chuyên Khoa', width: 1000 },
+  { id: 'specialty', label: 'Chuyên Khoa', width: 500 },
   { id: 'city', label: 'Thành Phố', width: 220 },
   { id: 'phoneNumber', label: 'SĐT', width: 180 },
   { id: 'experienceYears', label: 'Kinh Nghiệm (Năm)', width: 120 },
@@ -116,20 +114,19 @@ export default function UserListView(props: {
     sortOrder: 'asc',
   });
   const settings = useSettingsContext();
-
   const confirm = useBoolean();
-
   const [tableData, setTableData] = useState<IUserItem[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState(defaultFilters);
+  const [specialtyList, setSpecialtyList] = useState<ISpecialtyItem[]>([]);
+  const [openQuickEditId, setOpenQuickEditId] = useState<string | null>(null);
   const { specialties } = useGetSpecialties({
     query: searchQuery,
     page: table.page + 1,
-    limit: table.rowsPerPage,
+    limit: 99,
     sortField: table.orderBy || 'name',
     sortOrder: table.order === 'asc' ? 'asc' : 'desc',
   });
-  const [specialtyList, setSpecialtyList] = useState<ISpecialtyItem[]>([]);
 
   const { users, usersLoading, usersError, usersValidating } = useGetUsers({
     typeUser,
@@ -140,6 +137,14 @@ export default function UserListView(props: {
     sortOrder: table.order || 'asc',
   });
 
+  const { hospitals } = useGetHospital({
+    query: searchQuery,
+    page: table.page + 1,
+    limit: 99,
+    sortField: table.orderBy || 'name',
+    sortOrder: table.order || 'asc',
+  });
+
   useEffect(() => {
     if (specialties?.data?.length) {
       setSpecialtyList(specialties?.data);
@@ -147,21 +152,15 @@ export default function UserListView(props: {
     if (users) {
       setTableData(users);
     }
-    console.log('data check', users);
-    if (usersLoading) {
+    if (usersLoading || usersError || usersValidating) {
       setTableData([]);
     }
-    if (usersError) {
-      setTableData([]);
-    }
-    if (usersValidating) {
-      setTableData([]);
-    }
-  }, [users, usersLoading, usersError, usersValidating, specialties]);
+  }, [users, usersLoading, usersError, usersValidating, specialties, table.rowsPerPage]);
+
   const dataFiltered = tableData;
   const dataInPage = dataFiltered.slice(
     table.page * table.rowsPerPage,
-    table.page * table.rowsPerPage + table.rowsPerPage
+    (table.page + 1) * table.rowsPerPage
   );
 
   const denseHeight = table.dense ? 56 : 56 + 20;
@@ -169,13 +168,7 @@ export default function UserListView(props: {
   const canReset = !isEqual(defaultFilters, filters);
 
   const notFound = (!dataInPage.length && canReset) || !dataInPage.length;
-  const { hospitals } = useGetHospital({
-    query: searchQuery,
-    page: table.page + 1,
-    limit: table.rowsPerPage,
-    sortField: table.orderBy || 'name',
-    sortOrder: table.order || 'asc',
-  });
+
   const debouncedSearch = useMemo(
     () =>
       debounce((query: string) => {
@@ -199,29 +192,20 @@ export default function UserListView(props: {
   const handleResetFilters = useCallback(() => {
     setFilters(defaultFilters);
   }, []);
+
   const { deleteUser } = useDeleteUser({ typeUser });
-  const { refreshUserData } = useUserData(typeUser, {
-    query: searchQuery,
-    page: table.page + 1,
-    limit: table.rowsPerPage,
-    sortField: table.orderBy || 'fullName',
-    sortOrder: table.order || 'asc',
-  });
-  const handleRefreshData = useCallback(() => {
-    refreshUserData();
-  }, [refreshUserData]);
+
   const handleDeleteRow = useCallback(
     async (id: string) => {
       try {
         await deleteUser(id);
-        handleRefreshData();
         enqueueSnackbar('Xoá người dùng thành công!', { variant: 'success' });
         table.onUpdatePageDeleteRow(dataInPage.length);
       } catch (err) {
         enqueueSnackbar('Không thể xoá người dùng!', { variant: 'error' });
       }
     },
-    [deleteUser, handleRefreshData, enqueueSnackbar, table, dataInPage.length]
+    [deleteUser, enqueueSnackbar, table, dataInPage.length]
   );
 
   const handleDeleteRows = useCallback(() => {
@@ -235,23 +219,7 @@ export default function UserListView(props: {
       totalRowsInPage: dataInPage.length,
       totalRowsFiltered: dataFiltered.length,
     });
-
-    handleRefreshData();
-  }, [
-    dataFiltered.length,
-    dataInPage.length,
-    enqueueSnackbar,
-    table,
-    tableData,
-    handleRefreshData,
-  ]);
-
-  // const handleEditRow = useCallback(
-  //   (id: string) => {
-  //     router.push(paths.dashboard.user.edit(id));
-  //   },
-  //   [router]
-  // );
+  }, [dataFiltered.length, dataInPage.length, enqueueSnackbar, table, tableData]);
 
   const handleFilterStatus = useCallback(
     (event: React.SyntheticEvent, newValue: string) => {
@@ -297,7 +265,6 @@ export default function UserListView(props: {
               <Button
                 variant="outlined"
                 color="inherit"
-                onClick={handleRefreshData}
                 startIcon={<Iconify icon="eva:refresh-fill" />}
               >
                 Làm mới
@@ -356,9 +323,7 @@ export default function UserListView(props: {
             <UserTableFiltersResult
               filters={filters}
               onFilters={handleFilters}
-              //
               onResetFilters={handleResetFilters}
-              //
               results={dataFiltered.length}
               sx={{ p: 2.5, pt: 0 }}
             />
@@ -402,24 +367,18 @@ export default function UserListView(props: {
                 />
 
                 <TableBody>
-                  {dataFiltered
-                    .slice(
-                      table.page * table.rowsPerPage,
-                      table.page * table.rowsPerPage + table.rowsPerPage
-                    )
-                    ?.map((row) => (
-                      <UserTableRow
-                        key={row._id}
-                        row={row}
-                        ranking={providerRanking}
-                        selected={table.selected.includes(row._id)}
-                        onSelectRow={() => table.onSelectRow(row._id)}
-                        onDeleteRow={() => handleDeleteRow(row._id)}
-                        typeUser={typeUser}
-                        hospitalList={hospitals?.data}
-                        handleRefreshData={handleRefreshData}
-                      />
-                    ))}
+                  {dataInPage.map((row) => (
+                    <UserTableRow
+                      key={row._id}
+                      row={row}
+                      ranking={providerRanking}
+                      selected={table.selected.includes(row._id)}
+                      onSelectRow={() => table.onSelectRow(row._id)}
+                      onDeleteRow={() => handleDeleteRow(row._id)}
+                      typeUser={typeUser}
+                      hospitalList={hospitals?.data}
+                    />
+                  ))}
 
                   <TableEmptyRows
                     height={denseHeight}

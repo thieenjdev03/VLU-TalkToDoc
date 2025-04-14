@@ -19,11 +19,13 @@ export default function DynamicFormMUI({
   setCurrentStep,
   onSelect,
   specialty,
+  formData,
 }: {
   config: Question[];
   setCurrentStep: (step: string) => void;
-  onSelect: (key: string) => void;
+  onSelect: (key: ISpecialtyItem) => void;
   specialty: ISpecialtyItem;
+  formData: FormValuesProps;
 }) {
   const schemaFields = config.reduce(
     (acc, item) => {
@@ -31,15 +33,12 @@ export default function DynamicFormMUI({
       const number = Yup.number();
 
       if (item.required) {
-        if (item.type === 'number') {
-          acc[item.key] = number.required(`${item.label} không được để trống`);
-        } else {
-          acc[item.key] = base.required(`${item.label} không được để trống`);
-        }
-      } else if (item.type === 'number') {
-        acc[item.key] = number;
+        acc[item.key] =
+          item.type === 'number'
+            ? number.required(`${item.label} không được để trống`)
+            : base.required(`${item.label} không được để trống`);
       } else {
-        acc[item.key] = base;
+        acc[item.key] = item.type === 'number' ? number : base;
       }
 
       return acc;
@@ -51,16 +50,17 @@ export default function DynamicFormMUI({
 
   const {
     control,
-    handleSubmit,
+    handleSubmit: formSubmit,
     formState: { errors },
   } = useForm({
     defaultValues: {},
     resolver: yupResolver(schema),
   });
+
   const userPatient = localStorage.getItem('userProfile');
   const onSubmit = (data: any) => {
     if (JSON.parse(userPatient || '{}')?.role === 'PATIENT') {
-      const case_data = {
+      const caseData = {
         ...data,
         rawJson: {
           answers: data,
@@ -68,18 +68,17 @@ export default function DynamicFormMUI({
         specialty,
         patient: userPatient,
       };
-      // Lưu vào localStorage
-      localStorage.setItem('booking_form_data_1', JSON.stringify(case_data));
+      localStorage.setItem('booking_form_data_1', JSON.stringify(caseData));
+      formData.answers = data;
     }
 
-    // Đi tiếp
     setCurrentStep('select-time-booking');
   };
 
   return (
     <Box
       component="form"
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={formSubmit(onSubmit)}
       noValidate
       sx={{ maxWidth: 600, mx: 'auto', mt: 4 }}
     >
@@ -91,55 +90,24 @@ export default function DynamicFormMUI({
           control={control}
           render={({ field }) => (
             <Box mb={3}>
-              {item.type === 'text' && (
-                <TextField
-                  {...field}
-                  label={item.label}
-                  fullWidth
-                  error={!!errors[item.key]}
-                  helperText={errors[item.key]?.message ? String(errors[item.key]?.message) : ''}
-                />
-              )}
-
-              {item.type === 'number' && (
-                <TextField
-                  {...field}
-                  label={item.label}
-                  fullWidth
-                  type="number"
-                  error={!!errors[item.key]}
-                  helperText={errors[item.key]?.message ? String(errors[item.key]?.message) : ''}
-                />
-              )}
-
-              {item.type === 'select' && (
-                <TextField
-                  {...field}
-                  select
-                  label={item.label}
-                  fullWidth
-                  error={!!errors[item.key]}
-                  helperText={errors[item.key]?.message ? String(errors[item.key]?.message) : ''}
-                >
-                  {item.options?.map((opt) => (
+              <TextField
+                {...field}
+                label={item.label}
+                fullWidth
+                error={!!errors[item.key]}
+                helperText={errors[item.key]?.message ? String(errors[item.key]?.message) : ''}
+                type={item.type === 'number' ? 'number' : undefined}
+                select={item.type === 'select'}
+                multiline={item.type === 'textarea'}
+                minRows={item.type === 'textarea' ? 3 : undefined}
+              >
+                {item.type === 'select' &&
+                  item.options?.map((opt) => (
                     <MenuItem key={String(opt)} value={String(opt)}>
                       {opt}
                     </MenuItem>
                   ))}
-                </TextField>
-              )}
-
-              {item.type === 'textarea' && (
-                <TextField
-                  {...field}
-                  label={item.label}
-                  fullWidth
-                  multiline
-                  minRows={3}
-                  error={!!errors[item.key]}
-                  helperText={errors[item.key]?.message ? String(errors[item.key]?.message) : ''}
-                />
-              )}
+              </TextField>
             </Box>
           )}
         />
@@ -149,7 +117,7 @@ export default function DynamicFormMUI({
         <Button
           onClick={() => {
             setCurrentStep('select-specialty');
-            onSelect('');
+            onSelect({} as ISpecialtyItem);
           }}
           type="button"
           variant="outlined"

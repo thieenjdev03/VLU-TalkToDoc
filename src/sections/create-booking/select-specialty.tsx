@@ -18,9 +18,11 @@ import { ISpecialtyItem } from 'src/types/specialties';
 export default function SelectSpecialty({
   onSelect,
   handleSelectCurrentStep,
+  formData,
 }: {
-  onSelect: (key: string) => void;
+  onSelect: (key: ISpecialtyItem) => void;
   handleSelectCurrentStep: (step: string) => void;
+  formData: FormValuesProps;
 }) {
   const [selected, setSelected] = useState<ISpecialtyItem | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
@@ -50,6 +52,7 @@ export default function SelectSpecialty({
     if (preview) {
       setSelected(preview);
       setModalOpen(false);
+      formData.specialty_id = preview.id;
     }
   };
 
@@ -74,8 +77,23 @@ export default function SelectSpecialty({
                   : 'border-[#078DEE] hover:shadow'
               }`}
           >
-            <span className="text-sm font-medium text-center">{s.name}</span>
-            <span className="text-sm font-medium text-center">({s.id})</span>
+            <div className="w-full h-full flex flex-col gap-1 items-center justify-center">
+              <img
+                src={
+                  s.avatarUrl ||
+                  'https://res.cloudinary.com/dut4zlbui/image/upload/v1744651244/ah43js2wcqzhtjkur5iz.svg'
+                }
+                alt={s.name}
+                className="w-full h-full object-cover"
+                style={{
+                  objectFit: 'cover',
+                  height: '40px',
+                  width: '40px',
+                }}
+              />
+              <span className="text-sm font-medium text-center">{s.name}</span>
+              {/* <span className="text-sm font-medium text-center">({s.id})</span> */}
+            </div>
           </button>
         ))}
       </div>
