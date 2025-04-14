@@ -13,7 +13,7 @@ type Props = {
 export default function TablePaginationCustom({
   dense,
   onChangeDense,
-  rowsPerPageOptions = [5, 10, 25],
+  rowsPerPageOptions = [10, 25, 50],
   sx,
   ...other
 }: Props & TablePaginationProps) {

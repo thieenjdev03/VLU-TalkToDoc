@@ -94,10 +94,11 @@ export function useNavData() {
       //   ],
       // },
 
-      // MANAGEMENT
+      // Admin Navigation
       // ----------------------------------------------------------------------
       {
-        subheader: t('management'),
+        hidden: user?.role !== 'ADMIN',
+        subheader: t('Quản lý hệ thống - Admin'),
         items: [
           // Patient Role
           {
@@ -282,7 +283,86 @@ export function useNavData() {
           // // },
         ],
       },
-
+      // Bệnh Nhân Navigation
+      {
+        hidden: user?.role !== 'PATIENT',
+        subheader: t('Quản lý hệ thống - Bệnh Nhân'),
+        items: [
+          // Patient Role
+          {
+            hidden: user?.role !== 'PATIENT',
+            title: t('Quản lý lịch hẹn'),
+            path: paths.dashboard.appointment.root,
+            icon: ICONS.medical,
+            children: [{ title: t('Danh Sách'), path: paths.dashboard.appointment.list }],
+          },
+          {
+            hidden: user?.role !== 'PATIENT',
+            title: t('Hồ sơ bệnh án'),
+            path: paths.dashboard.medicalRecord.root,
+            icon: ICONS.medical,
+            children: [{ title: t('Danh Sách'), path: paths.dashboard.medicalRecord.list }],
+          },
+          {
+            hidden: user?.role !== 'PATIENT',
+            title: t('Quản lý tài khoản'),
+            path: paths.dashboard.account.root,
+            icon: ICONS.user,
+            children: [
+              { title: t('Thông tin cá nhân'), path: paths.dashboard.account.profile },
+              { title: t('Đổi mật khẩu'), path: paths.dashboard.account.changePassword },
+              { title: t('Xoá tài khoản'), path: paths.dashboard.account.delete },
+            ],
+          },
+          {
+            hidden: user?.role !== 'PATIENT',
+            title: t('Quản lý toa thuốc'),
+            path: paths.dashboard.prescription.root,
+            icon: ICONS.medical,
+            children: [{ title: t('Danh sách'), path: paths.dashboard.prescription.list }],
+          },
+        ],
+      },
+      // Bác Sĩ Navigation
+      {
+        hidden: user?.role !== 'PATIENT',
+        subheader: t('Quản lý hệ thống - Bệnh Nhân'),
+        items: [
+          // Patient Role
+          {
+            hidden: user?.role !== 'PATIENT',
+            title: t('Quản lý lịch hẹn'),
+            path: paths.dashboard.appointment.root,
+            icon: ICONS.medical,
+            children: [{ title: t('Danh Sách'), path: paths.dashboard.appointment.list }],
+          },
+          {
+            hidden: user?.role !== 'PATIENT',
+            title: t('Hồ sơ bệnh án'),
+            path: paths.dashboard.medicalRecord.root,
+            icon: ICONS.medical,
+            children: [{ title: t('Danh Sách'), path: paths.dashboard.medicalRecord.list }],
+          },
+          {
+            hidden: user?.role !== 'PATIENT',
+            title: t('Quản lý tài khoản'),
+            path: paths.dashboard.account.root,
+            icon: ICONS.user,
+            children: [
+              { title: t('Thông tin cá nhân'), path: paths.dashboard.account.profile },
+              { title: t('Đổi mật khẩu'), path: paths.dashboard.account.changePassword },
+              { title: t('Xoá tài khoản'), path: paths.dashboard.account.delete },
+            ],
+          },
+          {
+            hidden: user?.role !== 'PATIENT',
+            title: t('Quản lý toa thuốc'),
+            path: paths.dashboard.prescription.root,
+            icon: ICONS.medical,
+            children: [{ title: t('Danh sách'), path: paths.dashboard.prescription.list }],
+          },
+        ],
+      },
       // // DEMO MENU STATES
       // {
       //   subheader: t(t('other_cases')),

@@ -166,15 +166,18 @@ export default function ProviderMedicineListPage() {
           action={
             <Button
               component={RouterLink}
-              href={`${paths.dashboard.medicine.import}`} // Updated to new ranking path
+              // href={`${paths.dashboard.medicine.import}`} // Updated to new ranking path
               variant="contained"
-              startIcon={<Iconify icon="mingcute:add-line" />}
+              onClick={() => setOpen(true)}
+              startIcon={<i className="fa-solid fa-pen-to-square" />}
             >
-              Tạo mới
+              Cập Nhật
             </Button>
           }
           sx={{
             mb: { xs: 3, md: 5 },
+            page: table.page,
+            rowsPerPage: table.rowsPerPage,
           }}
         />
 
@@ -205,8 +208,10 @@ export default function ProviderMedicineListPage() {
                     }
                   >
                     {['Hoạt Động', 'Đã Khoá'].includes(tab.value)
-                      ? tableData.filter((ranking) => ranking.status === tab.value).length
-                      : tableData.length}
+                      ? medicine?.data?.filter(
+                          (medicine: IMedicineItem) => medicine.status === tab.value
+                        ).length
+                      : medicine?.total}
                   </Label>
                 }
               />
@@ -224,7 +229,7 @@ export default function ProviderMedicineListPage() {
             <TableSelectedAction
               dense={table.dense}
               numSelected={table.selected.length}
-              rowCount={tableData.length}
+              rowCount={medicine?.data?.length || 0}
               onSelectAllRows={(checked) =>
                 table.onSelectAllRows(
                   checked,
@@ -246,7 +251,7 @@ export default function ProviderMedicineListPage() {
                   order={table.order}
                   orderBy={table.orderBy}
                   headLabel={TABLE_HEAD_MEDICINE} // Updated to use specialty table head
-                  rowCount={tableData.length}
+                  rowCount={medicine?.data?.length || 0}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
                   onSelectAllRows={(checked) =>

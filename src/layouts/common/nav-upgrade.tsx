@@ -12,6 +12,18 @@ import Label from 'src/components/label';
 export default function NavUpgrade() {
   const { user } = useMockedUser();
 
+  const handleShowRoleName = (role: string) => {
+    switch (role) {
+      case 'admin':
+        return 'Quản trị viên';
+      case 'doctor':
+        return 'Bác sĩ';
+      case 'patient':
+        return 'Bệnh nhân';
+      default:
+        return role;
+    }
+  };
   return (
     <Stack
       sx={{
@@ -43,12 +55,16 @@ export default function NavUpgrade() {
         </Box>
 
         <Stack spacing={0.5} sx={{ mb: 2, mt: 1.5, width: 1 }}>
-          <Typography variant="subtitle2" noWrap>
+          <Typography variant="subtitle1" noWrap>
             {user?.name}
           </Typography>
 
           <Typography variant="body2" noWrap sx={{ color: 'text.disabled' }}>
             {user?.email}
+          </Typography>
+
+          <Typography variant="body2" noWrap sx={{ color: 'text.disabled' }}>
+            Vai trò: {handleShowRoleName(user?.role.toLowerCase())}
           </Typography>
         </Stack>
       </Stack>

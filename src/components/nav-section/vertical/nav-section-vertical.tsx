@@ -12,14 +12,17 @@ import { NavProps, NavGroupProps } from '../types';
 function NavSectionVertical({ data, slotProps, ...other }: NavProps) {
   return (
     <Stack component="nav" id="nav-section-vertical" {...other}>
-      {data.map((group, index) => (
-        <Group
-          key={group.subheader || index}
-          subheader={group.subheader}
-          items={group.items}
-          slotProps={slotProps}
-        />
-      ))}
+      {data.map(
+        (group, index) =>
+          !group.hidden && (
+            <Group
+              key={group.subheader || index}
+              subheader={group.subheader}
+              items={group.items}
+              slotProps={slotProps}
+            />
+          )
+      )}
     </Stack>
   );
 }

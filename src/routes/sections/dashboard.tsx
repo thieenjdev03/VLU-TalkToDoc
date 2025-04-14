@@ -90,6 +90,9 @@ const MedicineImportNewPage = lazy(() => import('src/pages/dashboard/medicine/im
 
 // ----------------------------------------------------------------------
 
+// Config
+const ConfigEditorPage = lazy(() => import('src/pages/dashboard/config-editor/editor'));
+
 export const dashboardRoutes = [
   {
     path: 'dashboard',
@@ -111,6 +114,7 @@ export const dashboardRoutes = [
       { path: 'file', element: <OverviewFilePage /> },
       { path: 'create-booking', element: <BookingCreatePage /> },
       { path: 'list-booking', element: <BookingListPage /> },
+      { path: 'config', element: <ConfigEditorPage /> },
       {
         path: 'user',
         children: [

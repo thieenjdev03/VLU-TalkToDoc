@@ -16,6 +16,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  LinearProgress,
   CircularProgress,
 } from '@mui/material';
 
@@ -25,7 +26,12 @@ export default function CSVUploadModal({ open, onClose, onUpload }: any) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [csvData, setCsvData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState<number>(0);
   const [importResult, setImportResult] = useState<any>(null);
+  const [showErrors, setShowErrors] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [showDuplicates, setShowDuplicates] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,21 +63,55 @@ export default function CSVUploadModal({ open, onClose, onUpload }: any) {
     if (!selectedFile) return;
     const formData = new FormData();
     formData.append('file', selectedFile);
+    setProgress(0);
 
     try {
       setLoading(true);
-      const res = await fetch('http://localhost:3000/api/v1/medicines/import', {
-        method: 'POST',
-        body: formData,
-      });
-      if (!res.ok) throw new Error('Import lỗi');
-      const result = await res.json();
-      setImportResult(result);
-      onUpload?.(result);
-      enqueueSnackbar('Import thành công!', { variant: 'success' });
+      setUploading(true);
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', 'http://localhost:3000/api/v1/medicines/import');
+
+      xhr.upload.onprogress = function (event) {
+        if (event.lengthComputable) {
+          const percent = Math.round((event.loaded / event.total) * 99);
+          setProgress(percent);
+        }
+      };
+
+      xhr.onload = async function () {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          const result = JSON.parse(xhr.responseText);
+          setImportResult({
+            total: result.totalRows,
+            created: result?.success?.count || 0,
+            updated: result?.updated?.count || 0,
+            duplicateInBatch: result?.duplicates?.count || 0,
+            failed: result?.failed?.count || 0,
+            taskId: result?.taskId,
+            errors: result?.failed?.lines || [],
+            success: result?.success?.lines || [],
+            duplicates: result?.duplicates?.lines || [],
+          });
+          onUpload?.(result);
+          enqueueSnackbar('Import thành công!', { variant: 'success' });
+        } else {
+          enqueueSnackbar('Import thất bại.', { variant: 'error' });
+        }
+        setLoading(false);
+        setUploading(false);
+      };
+
+      xhr.onerror = function () {
+        enqueueSnackbar('Import thất bại.', { variant: 'error' });
+        setLoading(false);
+        setUploading(false);
+      };
+
+      xhr.send(formData);
     } catch (err) {
       console.error(err);
       enqueueSnackbar('Import thất bại.', { variant: 'error' });
+      setUploading(false);
     } finally {
       setLoading(false);
     }
@@ -140,6 +180,24 @@ export default function CSVUploadModal({ open, onClose, onUpload }: any) {
             Tải mẫu CSV
           </Button>
         </Box>
+        {uploading && (
+          <Box mt={3}>
+            <Typography variant="body2" color="text.secondary" mb={1}>
+              Đang tải file lên máy chủ: {progress}%
+            </Typography>
+            <LinearProgress variant="determinate" value={progress} />
+          </Box>
+        )}
+        {loading && (
+          <Box mt={3}>
+            <Typography variant="body2" color="text.secondary" mb={1}>
+              Đang tải lên: {progress}%
+            </Typography>
+            <Box sx={{ width: '100%' }}>
+              <LinearProgress variant="determinate" value={progress} />
+            </Box>
+          </Box>
+        )}
         {importResult && (
           <Box mt={4}>
             <Typography variant="subtitle1" fontWeight={700} color="primary" gutterBottom>
@@ -158,22 +216,13 @@ export default function CSVUploadModal({ open, onClose, onUpload }: any) {
               }}
             >
               <div>
-                <strong>Tổng dòng:</strong> {importResult.total}
-              </div>
-              <div>
-                <strong>Đã xử lý:</strong> {importResult.processed}
+                <strong>Tổng dòng dòng thuốc đã xử lý:</strong> {importResult.total}
               </div>
               <div>
                 <strong>Đã tạo mới:</strong> {importResult.created}
               </div>
               <div>
                 <strong>Đã cập nhật:</strong> {importResult.updated}
-              </div>
-              <div>
-                <strong>Trùng trong file:</strong> {importResult.duplicateInBatch}
-              </div>
-              <div>
-                <strong>Đã tồn tại:</strong> {importResult.alreadyExists}
               </div>
               <div>
                 <strong>Lỗi:</strong>{' '}
@@ -187,37 +236,90 @@ export default function CSVUploadModal({ open, onClose, onUpload }: any) {
                 </div>
               )}
             </Box>
+            <Box mt={2} display="flex" gap={2}>
+              <p style={{ fontWeight: 600, margin: '2px 0px' }}>Chọn để xem chi tiết:</p>
+              <Button
+                onClick={() => setShowSuccess(!showSuccess)}
+                size="small"
+                variant="outlined"
+                color="success"
+              >
+                ✅ Dòng đã tạo ({importResult?.success?.length})
+              </Button>
+              <Button
+                onClick={() => setShowDuplicates(!showDuplicates)}
+                size="small"
+                variant="outlined"
+                color="warning"
+              >
+                ⚠️ Dòng bị trùng ({importResult.duplicates?.length})
+              </Button>
+              <Button
+                onClick={() => setShowErrors(!showErrors)}
+                size="small"
+                variant="outlined"
+                color="error"
+              >
+                ❌ Dòng lỗi ({importResult?.errors?.length})
+              </Button>
+            </Box>
           </Box>
         )}
-        {csvData.length > 0 && (
-          <Box mt={4}>
-            <Typography fontWeight={600} color="primary" mb={2}>
-              Kiểm tra {csvData.length} dòng thuốc
-            </Typography>
+        {showSuccess && importResult?.success?.length > 0 && (
+          <Box mt={2}>
+            <Typography fontWeight={600}>✅ Dòng đã tạo</Typography>
             <Table size="small">
-              <TableHead sx={{ backgroundColor: '#f0f0f0' }}>
+              <TableHead>
                 <TableRow>
-                  <TableCell>Mã</TableCell>
-                  <TableCell>Tên thuốc</TableCell>
-                  <TableCell>SL</TableCell>
-                  <TableCell>Tần suất</TableCell>
-                  <TableCell>Refill</TableCell>
-                  <TableCell>Giá cuối</TableCell>
-                  <TableCell>Phí</TableCell>
-                  <TableCell>Phí kê đơn</TableCell>
+                  <TableCell>Dòng</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {csvData.map((row, idx) => (
+                {importResult.success.map((line: any, idx: number) => (
                   <TableRow key={idx}>
-                    <TableCell>{row.id}</TableCell>
-                    <TableCell>{row.name}</TableCell>
-                    <TableCell>{row.quantity}</TableCell>
-                    <TableCell>{row.frequency}</TableCell>
-                    <TableCell>{row.refill}</TableCell>
-                    <TableCell>{row.finalCost}</TableCell>
-                    <TableCell>{row.feeCost}</TableCell>
-                    <TableCell>{row.prescriptionFee}</TableCell>
+                    <TableCell>{JSON.stringify(line)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Box>
+        )}
+        {showDuplicates && importResult?.duplicates?.length > 0 && (
+          <Box mt={2}>
+            <Typography fontWeight={600}>⚠️ Dòng bị trùng</Typography>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Dòng</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {importResult.duplicates.map((line: any, idx: number) => (
+                  <TableRow key={idx}>
+                    <TableCell>{JSON.stringify(line)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Box>
+        )}
+        {showErrors && importResult?.errors?.length > 0 && (
+          <Box mt={2}>
+            <Typography fontWeight={600} m={2} ml={0}>
+              Số dòng thuốc import lỗi : {importResult?.errors?.length}
+            </Typography>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Dòng</TableCell>
+                  <TableCell>Lý do</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {importResult?.errors?.map((err: any, idx: number) => (
+                  <TableRow key={idx}>
+                    <TableCell>{err.line}</TableCell>
+                    <TableCell>{err.reason}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -225,15 +327,22 @@ export default function CSVUploadModal({ open, onClose, onUpload }: any) {
           </Box>
         )}
       </DialogContent>
-
-      <DialogActions sx={{ px: 3, py: 2 }}>
-        <Button onClick={onClose} variant="outlined" color="inherit">
-          Huỷ
-        </Button>
-        <Button onClick={handleUpload} variant="contained" disabled={!selectedFile || loading}>
-          {loading ? <CircularProgress size={20} color="inherit" /> : 'Xác nhận'}
-        </Button>
-      </DialogActions>
+      {!importResult ? (
+        <DialogActions sx={{ px: 3, py: 2 }}>
+          <Button onClick={onClose} variant="outlined" color="inherit">
+            Huỷ
+          </Button>
+          <Button onClick={handleUpload} variant="contained" disabled={!selectedFile || loading}>
+            {loading ? <CircularProgress size={20} color="inherit" /> : 'Xác nhận'}
+          </Button>
+        </DialogActions>
+      ) : (
+        <DialogActions sx={{ px: 3, py: 2 }}>
+          <Button onClick={onClose} variant="contained" color="inherit">
+            Hoàn Tất
+          </Button>
+        </DialogActions>
+      )}
     </Dialog>
   );
 }

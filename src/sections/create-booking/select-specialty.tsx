@@ -54,7 +54,7 @@ export default function SelectSpecialty({
   };
 
   return (
-    <div className="w-fit min-h-screen flex flex-col items-center px-4">
+    <div className="w-fit min-h-screen mx-auto flex flex-col items-center px-4">
       <h2 className="text-2xl md:text-3xl font-semibold text-[black] mb-10 text-center">
         Chọn chuyên khoa
       </h2>

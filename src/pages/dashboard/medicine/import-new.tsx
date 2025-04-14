@@ -162,7 +162,7 @@ export default function PreviewImportMedicine(props: any) {
             }}
           >
             <div>
-              <strong>Tổng dòng:</strong> {importResult.total}
+              <strong>Tổng dòng dòng thuốc đã xử lý:</strong> {importResult.total}
             </div>
             <div>
               <strong>Đã xử lý:</strong> {importResult.processed}

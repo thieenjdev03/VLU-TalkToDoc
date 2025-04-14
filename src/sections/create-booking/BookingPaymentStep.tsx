@@ -31,7 +31,7 @@ export default function BookingPayment({
         <div className="flex flex-col gap-6">
           <div className="bg-gray-50 border rounded-lg p-4 space-y-4">
             <p className="text-sm text-gray-500">
-              Mã đơn hàng:{' '}
+              Mã lịch hẹn:{' '}
               <strong className="text-gray-800">
                 {Math.random().toString(36).substring(2, 15)}
               </strong>

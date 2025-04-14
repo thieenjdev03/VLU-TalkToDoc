@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 
-import { BookingCreate } from 'src/sections/create-booking/view/create-view';
+import BookingCreate from 'src/sections/create-booking/view/create-view';
 // ----------------------------------------------------------------------
 
 export default function OverviewBookingPage() {

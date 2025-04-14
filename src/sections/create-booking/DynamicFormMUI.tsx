@@ -97,7 +97,7 @@ export default function DynamicFormMUI({
                   label={item.label}
                   fullWidth
                   error={!!errors[item.key]}
-                  helperText={errors[item.key]?.message}
+                  helperText={errors[item.key]?.message ? String(errors[item.key]?.message) : ''}
                 />
               )}
 
@@ -108,7 +108,7 @@ export default function DynamicFormMUI({
                   fullWidth
                   type="number"
                   error={!!errors[item.key]}
-                  helperText={errors[item.key]?.message}
+                  helperText={errors[item.key]?.message ? String(errors[item.key]?.message) : ''}
                 />
               )}
 
@@ -119,7 +119,7 @@ export default function DynamicFormMUI({
                   label={item.label}
                   fullWidth
                   error={!!errors[item.key]}
-                  helperText={errors[item.key]?.message}
+                  helperText={errors[item.key]?.message ? String(errors[item.key]?.message) : ''}
                 >
                   {item.options?.map((opt) => (
                     <MenuItem key={String(opt)} value={String(opt)}>
@@ -137,7 +137,7 @@ export default function DynamicFormMUI({
                   multiline
                   minRows={3}
                   error={!!errors[item.key]}
-                  helperText={errors[item.key]?.message}
+                  helperText={errors[item.key]?.message ? String(errors[item.key]?.message) : ''}
                 />
               )}
             </Box>

@@ -40,9 +40,16 @@ export default function PreviewImportMedicine() {
         body: formData,
       });
 
+      const result = await res.json();
+      console.log('Import result:', result);
+
       if (!res.ok) throw new Error('Import lỗi');
 
-      enqueueSnackbar('Import thành công!', { variant: 'success' });
+      enqueueSnackbar(
+        `Import hoàn tất: ${result.success.count} mới, ${result.updated.count} cập nhật, ${result.failed.count} lỗi, ${result.duplicates.count} trùng lặp.`,
+        { variant: 'success' }
+      );
+
       setCsvData([]);
       setSelectedFile(null);
       setShowPreview(false);
@@ -73,7 +80,7 @@ export default function PreviewImportMedicine() {
   const normalizeCSV = (row: any) => ({
     id: row.ID,
     name: row.Name,
-    quantity: row.Quanitty,
+    quantity: row.Quantity, // ✅ sửa thành đúng key
     frequency: row.Frequency,
     refill: row.Refill,
     finalCost: convertEuroToVND(row['Final Cost']),

@@ -8,6 +8,7 @@ import { NavProps, NavGroupProps } from '../types';
 // ----------------------------------------------------------------------
 
 function NavSectionHorizontal({ data, slotProps, sx, ...other }: NavProps) {
+  console.log(data);
   return (
     <Stack
       component="nav"
@@ -21,9 +22,12 @@ function NavSectionHorizontal({ data, slotProps, sx, ...other }: NavProps) {
       }}
       {...other}
     >
-      {data.map((group, index) => (
-        <Group key={group.subheader || index} items={group.items} slotProps={slotProps} />
-      ))}
+      {data.map(
+        (group, index) =>
+          !group.hidden && (
+            <Group key={group.subheader || index} items={group.items} slotProps={slotProps} />
+          )
+      )}
     </Stack>
   );
 }
@@ -32,7 +36,7 @@ export default memo(NavSectionHorizontal);
 
 // ----------------------------------------------------------------------
 
-function Group({ items, slotProps }: NavGroupProps) {
+function Group({ items, slotProps, hidden }: NavGroupProps & { hidden?: boolean }) {
   return (
     <>
       {items.map((list) => (

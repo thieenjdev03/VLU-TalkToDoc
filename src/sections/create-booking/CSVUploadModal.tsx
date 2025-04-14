@@ -163,7 +163,7 @@ export default function CSVUploadModal({ open, onClose, onUpload }: any) {
                 </div>
               )}
               <div>
-                <strong>Tổng dòng:</strong> {importResult.total}
+                <strong>Tổng dòng dòng thuốc đã xử lý:</strong> {importResult.total}
               </div>
               <div>
                 <strong>Đã xử lý:</strong> {importResult.processed}

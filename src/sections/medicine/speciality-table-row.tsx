@@ -25,7 +25,7 @@ export default function MedicineTableRow({ row, selected, onSelectRow }: Props) 
       <TableCell>
         <Typography variant="body1">{name}</Typography>
       </TableCell>
-      <TableCell>{formatCurrencyVND(price)}</TableCell>
+      <TableCell>{formatCurrencyVND(price * 24)}</TableCell>
       <TableCell>{quantity}</TableCell>
       <TableCell>
         <Typography variant="body2">{moment(updatedAt).format('DD/MM/YYYY') || '-'}</Typography>
