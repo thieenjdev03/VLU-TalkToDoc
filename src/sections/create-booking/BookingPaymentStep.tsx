@@ -68,7 +68,7 @@ export default function BookingPayment({
     };
     // Save updated form data to local storage or send to API
     localStorage.setItem('booking_form_data', JSON.stringify(updatedFormData));
-    setCurrentStep('payment-completed');
+    setCurrentStep('payment-step');
   };
 
   return (
