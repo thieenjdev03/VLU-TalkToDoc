@@ -285,8 +285,8 @@ export function useNavData() {
       },
       // Bệnh Nhân Navigation
       {
-        hidden: user?.role !== 'PATIENT',
-        subheader: t('Quản lý hệ thống - Bệnh Nhân'),
+        hidden: user?.role !== 'DOCTOR',
+        subheader: t('Quản lý hệ thống - Bác Sĩ'),
         items: [
           // Patient Role
           {
