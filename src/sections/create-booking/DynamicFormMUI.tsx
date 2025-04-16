@@ -20,12 +20,14 @@ export default function DynamicFormMUI({
   onSelect,
   specialty,
   formData,
+  handleSubmit,
 }: {
   config: Question[];
   setCurrentStep: (step: string) => void;
   onSelect: (key: ISpecialtyItem) => void;
   specialty: ISpecialtyItem;
   formData: FormValuesProps;
+  handleSubmit: (data: FormValuesProps) => void;
 }) {
   const schemaFields = config.reduce(
     (acc, item) => {
@@ -53,7 +55,7 @@ export default function DynamicFormMUI({
     handleSubmit: formSubmit,
     formState: { errors },
   } = useForm({
-    defaultValues: {},
+    defaultValues: formData.medicalForm,
     resolver: yupResolver(schema),
   });
 
@@ -65,12 +67,19 @@ export default function DynamicFormMUI({
         rawJson: {
           answers: data,
         },
-        specialty,
+        specialty: specialty._id,
         patient: userPatient,
       };
       localStorage.setItem('booking_form_data_1', JSON.stringify(caseData));
       formData.answers = data;
     }
+    const currentAppointment = JSON.parse(localStorage.getItem('current_appointment') || '{}');
+    handleSubmit({
+      ...currentAppointment,
+      medicalForm: {
+        data,
+      },
+    });
 
     setCurrentStep('select-time-booking');
   };
@@ -116,7 +125,7 @@ export default function DynamicFormMUI({
       <div className="flex gap-4 justify-between">
         <Button
           onClick={() => {
-            setCurrentStep('select-specialty');
+            setCurrentStep('select-specialty', true);
             onSelect({} as ISpecialtyItem);
           }}
           type="button"
@@ -126,7 +135,7 @@ export default function DynamicFormMUI({
           Trở Về
         </Button>
         <Button type="submit" variant="contained" color="primary">
-          Tiếp Theo
+          Tiếp Tục
         </Button>
       </div>
     </Box>

@@ -1,17 +1,24 @@
 import { useState } from 'react';
-import { FaCcVisa } from 'react-icons/fa';
-import { IoQrCode } from 'react-icons/io5';
 
 import { Button, TextField } from '@mui/material';
+
+import { createPaymentURL } from './api';
+
+const generateAppointmentCode = () => {
+  const randomSixDigits = Math.random().toString(36).substring(2, 8).toUpperCase();
+  return `AP-${randomSixDigits}`;
+};
 
 export default function BookingPayment({
   setCurrentStep,
   specialty,
   formData,
+  handleSubmit,
 }: {
   setCurrentStep: any;
   specialty: any;
   formData: any;
+  handleSubmit: any;
 }) {
   const data2 = localStorage.getItem('booking_form_data_2');
   const data1 = localStorage.getItem('booking_form_data_1');
@@ -31,6 +38,13 @@ export default function BookingPayment({
   const [discount, setDiscount] = useState<number>(0);
   const [paymentMethod, setPaymentMethod] = useState<string>('vnpay');
 
+  const [appointmentCode] = useState(() => {
+    const storedCode = localStorage.getItem('appointment_code');
+    if (storedCode) return storedCode;
+    const newCode = generateAppointmentCode();
+    localStorage.setItem('appointment_code', newCode);
+    return newCode;
+  });
   const handleApplyCoupon = () => {
     if (coupon === 'DISCOUNT10') {
       setDiscount(
@@ -40,35 +54,25 @@ export default function BookingPayment({
       setDiscount(0);
     }
   };
-
+  const userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}');
   const finalTotalFee = totalFee - discount;
 
-  const paymentOptions = [
-    { label: 'Thẻ Tín Dụng', value: 'credit', icon: <FaCcVisa className="text-xl" /> },
-    { label: 'VNPAY', value: 'vnpay', icon: <IoQrCode className="text-xl" /> },
-    {
-      label: 'Momo',
-      value: 'momo',
-      icon: (
-        <img
-          src="https://brandlogos.net/wp-content/uploads/2023/09/momo-logo_brandlogos.net_mtkvq-300x300.png"
-          alt="Momo"
-          className="w-6 h-6"
-        />
-      ),
-    },
-  ];
-
-  const handleSubmit = () => {
+  const handleSubmitConfirm = async () => {
     const updatedFormData = {
-      ...formData,
       paymentMethod,
       discount,
       totalFee: finalTotalFee,
     };
-    // Save updated form data to local storage or send to API
-    localStorage.setItem('booking_form_data', JSON.stringify(updatedFormData));
-    setCurrentStep('payment-step');
+    handleSubmit({
+      ...formData,
+      payment: updatedFormData,
+    });
+    const paymentURL = await createPaymentURL({
+      userId: userProfile?._id,
+      amount: finalTotalFee,
+    });
+    localStorage.removeItem('booking_step');
+    window.location.href = paymentURL?.paymentUrl;
   };
 
   return (
@@ -81,10 +85,7 @@ export default function BookingPayment({
         <div className="flex flex-col gap-6">
           <div className="bg-amber border border-gray-200 rounded-lg p-6 space-y-4">
             <p className="text-sm text-gray-500">
-              Mã lịch hẹn:{' '}
-              <strong className="text-gray-800">
-                {Math.random().toString(36).substring(2, 15)}
-              </strong>
+              Mã lịch hẹn: <strong className="text-gray-800">{formData.appointmentId}</strong>
             </p>
 
             <div className="flex gap-4 items-center">
@@ -137,7 +138,7 @@ export default function BookingPayment({
                     placeholder="Nhập mã giảm giá"
                     variant="outlined"
                     size="small"
-                    className="w-1/2"
+                    className=""
                   />
                   <Button variant="contained" onClick={handleApplyCoupon}>
                     Áp dụng
@@ -152,7 +153,7 @@ export default function BookingPayment({
           </div>
         </div>
         {/* Right Section */}
-        <div className="flex flex-col justify-between h-full w-full p-6 border border-gray-200 rounded-lg bg-gray-50 shadow-sm">
+        <div className="flex flex-col justify-between h-full w-full p-6 border border-gray-200 rounded-lg bg-white shadow-sm">
           <div>
             <div className="mb-6 flex flex-col items-start justify-start">
               <img
@@ -162,29 +163,8 @@ export default function BookingPayment({
               />
               <h3 className="text-xl font-semibold text-gray-800">Xác nhận thanh toán</h3>
               <p className="text-sm text-gray-600">
-                Vui lòng chọn phương thức thanh toán và kiểm tra thông tin lịch hẹn của bạn.
+                Vui lòng kiểm tra lại thanh toán và bấm tiếp tục để thanh toán.
               </p>
-            </div>
-
-            <div className="space-y-3">
-              <h3 className="text-xl font-semibold text-gray-800">Phương thức thanh toán:</h3>
-              <div className="flex gap-4">
-                {paymentOptions.map((option) => (
-                  <button
-                    key={option.value}
-                    type="button"
-                    onClick={() => setPaymentMethod(option.value)}
-                    className={`border rounded-lg px-4 py-3 flex items-center gap-2 shadow-sm transition-all ${
-                      paymentMethod === option.value
-                        ? 'border-blue-500 bg-blue-50 text-blue-600 ring-1 ring-blue-300'
-                        : 'border-gray-300 hover:border-blue-400 hover:bg-blue-50'
-                    }`}
-                  >
-                    {option.icon}
-                    <span className="font-medium">{option.label}</span>
-                  </button>
-                ))}
-              </div>
             </div>
           </div>
 
@@ -192,12 +172,12 @@ export default function BookingPayment({
             <Button
               variant="outlined"
               color="primary"
-              onClick={() => setCurrentStep('select-time-booking')}
+              onClick={() => setCurrentStep('select-time-booking', true)}
             >
-              Quay lại
+              Trở về
             </Button>
-            <Button variant="contained" color="primary" onClick={handleSubmit}>
-              Xác nhận & Thanh toán
+            <Button variant="contained" color="primary" onClick={handleSubmitConfirm}>
+              Thanh toán ngay
             </Button>
           </div>
         </div>

@@ -70,9 +70,9 @@ const TABLE_HEAD_DOCTOR = [
   { id: 'id', label: 'Mã Bác Sĩ', width: 200 },
   { id: 'fullName', label: 'Họ & Tên', width: 200 },
   { id: 'hospital', label: 'Bệnh Viện', width: 400 },
+  { id: 'position', label: 'Chức Vụ', width: 180 },
   { id: 'rank', label: 'Cấp Bậc', width: 180 },
   { id: 'specialty', label: 'Chuyên Khoa', width: 500 },
-  { id: 'city', label: 'Thành Phố', width: 220 },
   { id: 'phoneNumber', label: 'SĐT', width: 180 },
   { id: 'experienceYears', label: 'Kinh Nghiệm (Năm)', width: 120 },
   { id: 'licenseNo', label: 'Mã Giấy Phép', width: 180 },
@@ -120,14 +120,17 @@ export default function UserListView(props: {
   const [filters, setFilters] = useState(defaultFilters);
   const [specialtyList, setSpecialtyList] = useState<ISpecialtyItem[]>([]);
   const [openQuickEditId, setOpenQuickEditId] = useState<string | null>(null);
+
+  // Fetch specialties only when searchQuery changes
   const { specialties } = useGetSpecialties({
     query: searchQuery,
-    page: table.page + 1,
+    page: 1, // Changed to 1 to avoid multiple fetches
     limit: 99,
-    sortField: table.orderBy || 'name',
-    sortOrder: table.order === 'asc' ? 'asc' : 'desc',
+    sortField: 'name',
+    sortOrder: 'asc',
   });
 
+  // Fetch users only when typeUser, searchQuery, or filters change
   const { users, usersLoading, usersError, usersValidating } = useGetUsers({
     typeUser,
     query: searchQuery,
@@ -137,12 +140,13 @@ export default function UserListView(props: {
     sortOrder: table.order || 'asc',
   });
 
+  // Fetch hospitals only when searchQuery changes
   const { hospitals } = useGetHospital({
     query: searchQuery,
-    page: table.page + 1,
+    page: 1, // Changed to 1 to avoid multiple fetches
     limit: 99,
-    sortField: table.orderBy || 'name',
-    sortOrder: table.order || 'asc',
+    sortField: 'name',
+    sortOrder: 'asc',
   });
 
   useEffect(() => {
@@ -155,7 +159,7 @@ export default function UserListView(props: {
     if (usersLoading || usersError || usersValidating) {
       setTableData([]);
     }
-  }, [users, usersLoading, usersError, usersValidating, specialties, table.rowsPerPage]);
+  }, [users, usersLoading, usersError, usersValidating, specialties]);
 
   const dataFiltered = tableData;
   const dataInPage = dataFiltered.slice(

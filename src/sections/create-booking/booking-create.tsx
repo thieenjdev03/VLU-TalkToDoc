@@ -1,3 +1,4 @@
+import moment from 'moment';
 import { useState, useEffect } from 'react';
 
 import { Button, Avatar, TextField, Typography } from '@mui/material';
@@ -12,19 +13,21 @@ import formConfig from './common/formJson.json';
 import SelectSpecialty from './select-specialty';
 import BookingPayment from './BookingPaymentStep';
 import BookingSelectTime from './BookingSelectTime';
+import { createAppointment, updateAppointment } from './api';
 
 type Props = {
   currentRanking?: any;
 };
 
 type FormValuesProps = {
-  patientId: string;
-  doctorId: string;
-  specialtyId: string;
-  booking: {
+  patientObject: any;
+  doctorObject: any;
+  specialtyObject: any;
+  appointment: {
     date: string;
     slot: string;
     timezone: string;
+    appointmentId: string;
   };
   medicalForm: {
     symptoms: string;
@@ -38,10 +41,12 @@ type FormValuesProps = {
     paymentMethod: string;
   };
 };
-
-export default function RankingNewEditForm({ currentRanking }: Props) {
+export default function BookingCreate() {
   const [selected, setSelected] = useState<ISpecialtyItem | null>(null);
-  const [currentStep, setCurrentStep] = useState<string>('select-specialty');
+  const [currentStep, setCurrentStepState] = useState<string>(
+    () => localStorage.getItem('booking_step') || 'select-specialty'
+  );
+
   const { users: doctors } = useGetUsers({
     typeUser: 'doctor',
     query: '',
@@ -52,18 +57,30 @@ export default function RankingNewEditForm({ currentRanking }: Props) {
   });
 
   const [formData, setFormData] = useState<FormValuesProps>({
-    patientId: '',
-    doctorId: '',
-    specialtyId: '',
-    booking: { date: '', slot: '', timezone: '' },
+    patientObject: null,
+    doctorObject: null,
+    specialtyObject: null,
+    appointment: { date: '', slot: '', timezone: '' },
     medicalForm: { symptoms: '', pain_level: '' },
     payment: { platformFee: 0, doctorFee: 0, discount: 0, total: 0, paymentMethod: '' },
   });
 
+  const setCurrentStep = (step: string, back?: boolean) => {
+    if (back) {
+      setCurrentStepState(step);
+    } else {
+      setCurrentStepState(step);
+      localStorage.setItem('booking_step', step);
+    }
+  };
   useEffect(() => {
+    localStorage.setItem('booking_form_data', JSON.stringify(formData));
     console.log('formData', formData);
   }, [formData]);
 
+  useEffect(() => {
+    console.log('current step', currentStep);
+  }, [currentStep]);
   const handleSelect = (key: ISpecialtyItem) => {
     setSelected(key);
   };
@@ -71,55 +88,98 @@ export default function RankingNewEditForm({ currentRanking }: Props) {
   const handleSelectCurrentStep = (step: string) => {
     setCurrentStep(step);
   };
-
-  const handleSubmit = (formData: FormValuesProps) => {
-    // Submit the formData to the API
-    setFormData(formData);
+  const [currentAppointment, setCurrentAppointment] = useState<any>(null);
+  const handleSubmit = async (data: FormValuesProps) => {
+    const currentAppointmentStored = JSON.parse(
+      localStorage.getItem('current_appointment') || '{}'
+    );
+    setFormData(data);
+    if (data.specialtyObject && !currentAppointmentStored?._id) {
+      const res = await createAppointment({
+        specialty: data.specialtyObject._id,
+        timezone: moment().format('Z'),
+      });
+      setCurrentAppointment(res);
+      localStorage.setItem('current_appointment', JSON.stringify(res));
+    } else {
+      const formattedData = {
+        medicalForm: data.medicalForm || currentAppointmentStored?.medicalForm || {},
+        patient: data.patientObject?._id || currentAppointmentStored?.patient || '',
+        doctor: data.doctorObject?._id || currentAppointmentStored?.doctor || '',
+        specialty: data.specialtyObject?._id || currentAppointmentStored?.specialty || '',
+        slot: data.appointment?.slot || '',
+        date: data.appointment?.date || '',
+        payment: data.payment || currentAppointmentStored?.payment || {},
+      };
+      const res = await updateAppointment({
+        appointmentId: currentAppointmentStored?._id || '',
+        data: formattedData,
+      });
+      localStorage.setItem('current_appointment', JSON.stringify(res));
+      setCurrentAppointment(res);
+    }
   };
-
+  useEffect(() => {
+    console.log('formData', formData);
+  }, [formData]);
   return (
     <>
-      {currentStep === 'select-specialty' &&
-        (!selected ? (
-          <SelectSpecialty
-            handleSelectCurrentStep={handleSelectCurrentStep}
-            onSelect={handleSelect}
-            formData={formData}
-          />
-        ) : (
-          <DynamicFormMUI
-            setCurrentStep={setCurrentStep}
-            onSelect={handleSelect}
-            specialty={selected as ISpecialtyItem}
-            config={
-              formConfig
-                .find((item) => item?.specialty_id === selected?.id)
-                ?.fields?.map((field) => ({
-                  ...field,
-                  type: field.type as 'text' | 'select' | 'textarea' | 'number',
-                })) || []
-            }
-            formData={formData}
-          />
-        ))}
+      {currentStep === 'select-specialty' && (
+        <SelectSpecialty
+          handleSelectCurrentStep={handleSelectCurrentStep}
+          onSelect={handleSelect}
+          formData={formData}
+          setCurrentStep={setCurrentStep}
+          handleSubmit={handleSubmit}
+        />
+      )}
+      {currentStep === 'medical-form' && (
+        <DynamicFormMUI
+          setCurrentStep={setCurrentStep}
+          onSelect={handleSelect}
+          specialty={selected as ISpecialtyItem}
+          config={
+            formConfig
+              .find((item) => item?.specialty_id === selected?.id)
+              ?.fields?.map((field) => ({
+                ...field,
+                type: field.type as 'text' | 'select' | 'textarea' | 'number',
+              })) || []
+          }
+          formData={formData}
+          handleSubmit={handleSubmit}
+        />
+      )}
       {currentStep === 'select-time-booking' && (
         <BookingSelectTime
           doctors={doctors}
           setCurrentStep={(step) => setCurrentStep('confirm-payment-step')}
+          handleSubmit={handleSubmit}
+          formData={formData}
         />
       )}
       {currentStep === 'confirm-payment-step' && (
-        <BookingPayment setCurrentStep={setCurrentStep} specialty={selected} formData={formData} />
+        <BookingPayment
+          setCurrentStep={setCurrentStep}
+          specialty={selected as ISpecialtyItem}
+          formData={formData}
+          handleSubmit={handleSubmit}
+        />
       )}
       {currentStep === 'payment-step' && (
         <BookingConfirmPayment
           setCurrentStep={setCurrentStep}
-          specialty={selected}
+          specialty={selected as ISpecialtyItem}
           formData={formData}
+          handleSubmit={handleSubmit}
         />
       )}
       {currentStep === 'payment-completed' && (
-        <BookingPaymentCompleted setCurrentStep={setCurrentStep} formData={formData} />
+        <BookingPaymentCompleted
+          setCurrentStep={setCurrentStep}
+          formData={formData}
+          handleSubmit={handleSubmit}
+        />
       )}
     </>
   );
@@ -193,7 +253,7 @@ function BookingConfirmPayment({ setCurrentStep }: { setCurrentStep: any }) {
       </div>
 
       <div className="col-span-1 lg:col-span-2 flex justify-between mt-6">
-        <Button variant="outlined" onClick={() => setCurrentStep('confirm-payment-step')}>
+        <Button variant="outlined" onClick={() => setCurrentStep('select-time-booking', true)}>
           Trở về
         </Button>
         <Button variant="contained" onClick={() => setCurrentStep('payment-completed')}>

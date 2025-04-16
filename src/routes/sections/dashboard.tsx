@@ -88,6 +88,10 @@ const MedicineCreatePage = lazy(() => import('src/pages/dashboard/medicine/new')
 const MedicineImportUpdatePage = lazy(() => import('src/pages/dashboard/medicine/import-update'));
 const MedicineImportNewPage = lazy(() => import('src/pages/dashboard/medicine/import'));
 
+// APPOINTMENT
+const AppointmentListPage = lazy(() => import('src/pages/dashboard/appointment/list'));
+const AppointmentDetailsPage = lazy(() => import('src/pages/dashboard/appointment/details'));
+
 // ----------------------------------------------------------------------
 
 // Config
@@ -147,6 +151,13 @@ export const dashboardRoutes = [
           { element: <PharmacyListPage />, index: true },
           { path: 'list', element: <PharmacyListPage /> },
           { path: 'new', element: <PharmacyCreatePage /> },
+        ],
+      },
+      {
+        path: 'appointment',
+        children: [
+          { path: 'list', element: <AppointmentListPage /> },
+          { path: 'details', element: <AppointmentDetailsPage /> },
         ],
       },
       {

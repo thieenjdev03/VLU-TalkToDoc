@@ -1,24 +1,17 @@
+import moment from 'moment';
+
 import Link from '@mui/material/Link';
-import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
-import Divider from '@mui/material/Divider';
-import MenuItem from '@mui/material/MenuItem';
 import TableRow from '@mui/material/TableRow';
 import Checkbox from '@mui/material/Checkbox';
 import TableCell from '@mui/material/TableCell';
-import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import ListItemText from '@mui/material/ListItemText';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { fCurrency } from 'src/utils/format-number';
-import { fDate, fTime } from 'src/utils/format-time';
-
 import Label from 'src/components/label';
-import Iconify from 'src/components/iconify';
-import { ConfirmDialog } from 'src/components/custom-dialog';
-import CustomPopover, { usePopover } from 'src/components/custom-popover';
+import { usePopover } from 'src/components/custom-popover';
 
 import { IInvoice } from 'src/types/invoice';
 
@@ -41,48 +34,71 @@ export default function InvoiceTableRow({
   onEditRow,
   onDeleteRow,
 }: Props) {
-  const { sent, invoiceNumber, createDate, dueDate, status, invoiceTo, totalAmount } = row;
+  const { sent, orderId, createdAt, status, userInfo, amount } = row;
 
   const confirm = useBoolean();
-
   const popover = usePopover();
-
+  const renderStatus = (statusParams: string) => {
+    switch (statusParams) {
+      case 'paid':
+        return 'Đã thanh toán';
+      case 'pending':
+        return 'Chưa thanh toán';
+      case 'overdue':
+        return 'Quá hạn';
+      case 'canceled':
+        return 'Đã hủy';
+      case 'completed':
+        return 'Đã hoàn thành';
+      default:
+        return 'Chưa xác định';
+    }
+  };
   return (
     <>
       <TableRow hover selected={selected}>
         <TableCell padding="checkbox">
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell>
-
+        <TableCell padding="checkbox">
+          <Typography variant="body2" noWrap>
+            {orderId}
+          </Typography>
+        </TableCell>
         <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-          <Avatar alt={invoiceTo.name} sx={{ mr: 2 }}>
-            {invoiceTo.name.charAt(0).toUpperCase()}
+          <Avatar alt={userInfo?.name} sx={{ mr: 2 }}>
+            {userInfo?.name?.charAt(0).toUpperCase()}
           </Avatar>
-
-          <ListItemText
-            disableTypography
-            primary={
-              <Typography variant="body2" noWrap>
-                {invoiceTo.name}
-              </Typography>
-            }
-            secondary={
-              <Link
-                noWrap
-                variant="body2"
-                onClick={onViewRow}
-                sx={{ color: 'text.disabled', cursor: 'pointer' }}
-              >
-                {invoiceNumber}
-              </Link>
-            }
-          />
+          {userInfo?.name ? (
+            <ListItemText
+              disableTypography
+              primary={
+                <Typography variant="body2" noWrap>
+                  {userInfo?.name}
+                </Typography>
+              }
+              secondary={
+                <Link
+                  noWrap
+                  variant="body2"
+                  onClick={onViewRow}
+                  sx={{ color: 'text.disabled', cursor: 'pointer' }}
+                >
+                  {userInfo?.email}
+                </Link>
+              }
+            />
+          ) : (
+            <Typography variant="body2" noWrap>
+              Chưa xác định
+            </Typography>
+          )}
         </TableCell>
 
         <TableCell>
           <ListItemText
-            primary={fDate(createDate)}
-            secondary={fTime(createDate)}
+            primary={moment(createdAt).format('DD/MM/YYYY')}
+            secondary={moment(createdAt).format('HH:mm')}
             primaryTypographyProps={{ typography: 'body2', noWrap: true }}
             secondaryTypographyProps={{
               mt: 0.5,
@@ -92,22 +108,7 @@ export default function InvoiceTableRow({
           />
         </TableCell>
 
-        <TableCell>
-          <ListItemText
-            primary={fDate(dueDate)}
-            secondary={fTime(dueDate)}
-            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-            secondaryTypographyProps={{
-              mt: 0.5,
-              component: 'span',
-              typography: 'caption',
-            }}
-          />
-        </TableCell>
-
-        <TableCell>{fCurrency(totalAmount)}</TableCell>
-
-        <TableCell align="center">{sent}</TableCell>
+        <TableCell>{amount.toLocaleString()} VNĐ</TableCell>
 
         <TableCell>
           <Label
@@ -116,21 +117,23 @@ export default function InvoiceTableRow({
               (status === 'paid' && 'success') ||
               (status === 'pending' && 'warning') ||
               (status === 'overdue' && 'error') ||
+              (status === 'canceled' && 'error') ||
+              (status === 'completed' && 'success') ||
               'default'
             }
           >
-            {status}
+            {renderStatus(status)}
           </Label>
         </TableCell>
 
-        <TableCell align="right" sx={{ px: 1 }}>
+        {/* <TableCell align="right" sx={{ px: 1 }}>
           <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
             <Iconify icon="eva:more-vertical-fill" />
           </IconButton>
-        </TableCell>
+        </TableCell> */}
       </TableRow>
 
-      <CustomPopover
+      {/* <CustomPopover
         open={popover.open}
         onClose={popover.onClose}
         arrow="right-top"
@@ -168,8 +171,8 @@ export default function InvoiceTableRow({
           <Iconify icon="solar:trash-bin-trash-bold" />
           Delete
         </MenuItem>
-      </CustomPopover>
-
+      </CustomPopover> */}
+      {/* 
       <ConfirmDialog
         open={confirm.value}
         onClose={confirm.onFalse}
@@ -187,7 +190,7 @@ export default function InvoiceTableRow({
             Delete
           </Button>
         }
-      />
+      /> */}
     </>
   );
 }

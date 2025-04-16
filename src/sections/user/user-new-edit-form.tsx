@@ -181,10 +181,10 @@ export default function UserNewEditForm({
       typeUser === 'user' || typeUser === 'employee'
         ? Yup.string().required('Vị trí không được để trống')
         : Yup.string().optional(),
-    city:
-      typeUser === 'doctor'
-        ? Yup.string().required('Thành phố không được để trống')
-        : Yup.string().optional(),
+    // city:
+    //   typeUser === 'doctor'
+    //     ? Yup.string().required('Thành phố không được để trống')
+    //     : Yup.string().optional(),
     experienceYears:
       typeUser === 'doctor'
         ? Yup.string().required('Số năm kinh nghiệm không được để trống')
@@ -228,7 +228,8 @@ export default function UserNewEditForm({
         rank: currentUser?.rank || '',
         salary: currentUser?.salary || 0,
         specialty: currentUser?.specialty || [], // Là mảng string
-        city: currentUser?.city || '',
+        // city: currentUser?.city || '',
+        position: currentUser?.position || '',
         experienceYears: currentUser?.experienceYears || '',
         licenseNo: currentUser?.licenseNo || '',
       }),
@@ -265,7 +266,8 @@ export default function UserNewEditForm({
           specialty: data.specialty?.map((item: any) => item.value), // 👈 chỉ lấy ID
           rank: data.rank?.value, // 👈 chỉ gửi _id
           hospital: data.hospital?.value, // string ID
-          city: cities.find((c) => c.name === data.city), // full object (name, code, etc.)
+          // city: cities.find((c) => c.name === data.city), // full object (name, code, etc.)
+          position: data.position || '',
         };
       } else if (typeUser === 'patient') {
         path = paths.dashboard.user.list_patient;
@@ -468,7 +470,8 @@ export default function UserNewEditForm({
           getOptionLabel={(option: any) => (typeof option === 'string' ? option : option.label)}
           isOptionEqualToValue={(option: any, value: any) => option?.value === value?.value}
         />
-        {loadingCities ? (
+        <RHFTextField name="position" label="Chức Vụ" />
+        {/* {loadingCities ? (
           <RHFTextField
             name="city"
             label="Thành Phố/Tỉnh"
@@ -483,7 +486,7 @@ export default function UserNewEditForm({
             options={cityOptions}
             isOptionEqualToValue={(option, value) => option === value}
           />
-        )}
+        )} */}
         <RHFAutocomplete
           name="rank"
           label="Cấp Bậc"

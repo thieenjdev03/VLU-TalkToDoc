@@ -62,6 +62,11 @@ export const endpoints = {
   chat: '/api/chat',
   kanban: '/api/kanban',
   calendar: '/api/calendar',
+  appointment: {
+    list: '/appointments',
+    doctorConfirm: (id: string) => `/appointments/${id}/confirm`,
+    doctorReject: (id: string) => `/appointments/${id}/reject`,
+  },
   medicine: {
     list: '/api/v1/medicines',
     delete: '/api/v1/medicines',
@@ -145,5 +150,6 @@ export const endpoints = {
     delete: '/api/v1/users/:id',
     update: (id: string) => `/api/v1/users/${id}`,
     create: '/api/v1/users',
+    profile: '/api/v1/users/:id',
   },
 };

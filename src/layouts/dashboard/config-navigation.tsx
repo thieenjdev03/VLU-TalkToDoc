@@ -215,7 +215,7 @@ export function useNavData() {
               //   title: t('details'),
               //   path: paths.dashboard.invoice.demo.details,
               // },
-              { title: t('Tạo Hóa Đơn'), path: paths.dashboard.invoice.new },
+              // { title: t('Tạo Hóa Đơn'), path: paths.dashboard.invoice.new },
               // { title: t('edit'), path: paths.dashboard.invoice.demo.edit },
             ],
           },
@@ -283,39 +283,28 @@ export function useNavData() {
           // // },
         ],
       },
-      // Bệnh Nhân Navigation
+      // BÁC SĨ Navigation
       {
         hidden: user?.role !== 'DOCTOR',
         subheader: t('Quản lý hệ thống - Bác Sĩ'),
         items: [
           // Patient Role
           {
-            hidden: user?.role !== 'PATIENT',
+            hidden: user?.role !== 'DOCTOR',
             title: t('Quản lý lịch hẹn'),
             path: paths.dashboard.appointment.root,
             icon: ICONS.medical,
             children: [{ title: t('Danh Sách'), path: paths.dashboard.appointment.list }],
           },
           {
-            hidden: user?.role !== 'PATIENT',
-            title: t('Hồ sơ bệnh án'),
+            hidden: user?.role !== 'DOCTOR',
+            title: t('Quản lý bệnh án'),
             path: paths.dashboard.medicalRecord.root,
             icon: ICONS.medical,
             children: [{ title: t('Danh Sách'), path: paths.dashboard.medicalRecord.list }],
           },
           {
-            hidden: user?.role !== 'PATIENT',
-            title: t('Quản lý tài khoản'),
-            path: paths.dashboard.account.root,
-            icon: ICONS.user,
-            children: [
-              { title: t('Thông tin cá nhân'), path: paths.dashboard.account.profile },
-              { title: t('Đổi mật khẩu'), path: paths.dashboard.account.changePassword },
-              { title: t('Xoá tài khoản'), path: paths.dashboard.account.delete },
-            ],
-          },
-          {
-            hidden: user?.role !== 'PATIENT',
+            hidden: user?.role !== 'DOCTOR',
             title: t('Quản lý toa thuốc'),
             path: paths.dashboard.prescription.root,
             icon: ICONS.medical,
@@ -323,7 +312,7 @@ export function useNavData() {
           },
         ],
       },
-      // Bác Sĩ Navigation
+      // BỆNH NHÂN Navigation
       {
         hidden: user?.role !== 'PATIENT',
         subheader: t('Quản lý hệ thống - Bệnh Nhân'),

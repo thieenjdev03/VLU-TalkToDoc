@@ -140,3 +140,8 @@ export const useCreateUser = ({ typeUser }: Props) => {
     error,
   };
 };
+
+export const getUserById = async (id: string) => {
+  const response = await axiosInstanceV2.get(`${endpoints.users.profile}/${id}`);
+  return response.data;
+};

@@ -42,7 +42,6 @@ type Props = {
   typeUser: 'doctor' | 'patient' | 'employee' | 'user';
   ranking: { data: Ranking[] };
   hospitalList: any;
-  handleRefreshData: () => void;
   onUpdateSuccess?: () => void;
 };
 
@@ -54,7 +53,6 @@ export default function UserQuickEditForm({
   ranking,
   hospitalList,
   onUpdateSuccess,
-  handleRefreshData,
 }: Props) {
   const { enqueueSnackbar } = useSnackbar();
   const { updateUser } = useUpdateUser({ typeUser });
@@ -173,6 +171,7 @@ export default function UserQuickEditForm({
               typeof s === 'object' ? { value: s._id, label: s.name } : s
             )
           : [],
+        position: currentUser?.position || '',
         hospital:
           currentUser?.hospital && typeof currentUser.hospital === 'object'
             ? { value: currentUser.hospital._id, label: currentUser.hospital.name }
@@ -232,6 +231,7 @@ export default function UserQuickEditForm({
           ...data,
           rank: data.rank?.value,
           hospital: data.hospital?.value,
+          position: data.position || '',
           specialty: Array.isArray(data.specialty)
             ? data.specialty.map((item: any) => (typeof item === 'object' ? item.value : item))
             : [],
@@ -250,7 +250,7 @@ export default function UserQuickEditForm({
       }
       await updateUser({ id: formattedData?._id || '', data: formattedData });
       enqueueSnackbar('Cập nhật thành công!');
-      handleRefreshData();
+      onClose();
       onUpdateSuccess?.();
     } catch (error) {
       console.error(error);
@@ -318,6 +318,9 @@ export default function UserQuickEditForm({
                         option?.value === value?.value
                       }
                     />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <RHFTextField name="position" label="Chức Vụ" />
                   </Grid>
                   <Grid item xs={12} sm={6}>
                     <RHFAutocomplete

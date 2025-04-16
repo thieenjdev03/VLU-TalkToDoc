@@ -60,7 +60,6 @@ const TABLE_HEAD_MEDICINE = [
   { id: 'price', label: 'Giá Bán', width: '15%' },
   { id: 'quantity', label: 'Số Lượng', width: '10%' },
   { id: 'createdAt', label: 'Ngày Thêm', width: '20%' },
-  { id: '', label: '', width: '60px' },
 ];
 const defaultFilters: IMedicineTableFilters = {
   name: '',
@@ -90,7 +89,7 @@ export default function ProviderMedicineListPage() {
   });
   const [searchQuery, setSearchQuery] = useState('');
   const { medicine, medicineLoading, medicineError, medicineValidating } = useGetMedicine({
-    query: searchQuery,
+    keyword: searchQuery,
     page: table.page + 1,
     limit: table.rowsPerPage,
     sortField: table.orderBy || 'fullName',

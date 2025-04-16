@@ -15,13 +15,13 @@ type UpdateMedicineParams = {
   };
 };
 export const useGetMedicine = ({
-  query = '',
+  keyword = '',
   page = 1,
   limit = 10,
   sortField = 'name',
   sortOrder = 'asc',
 }: {
-  query?: string;
+  keyword?: string;
   page?: number;
   limit?: number;
   sortField?: string;
@@ -30,12 +30,12 @@ export const useGetMedicine = ({
   const URL = endpoints.medicine.search;
 
   const { data, isLoading, error, isValidating } = useSWR(
-    [URL, query, page, limit, sortField, sortOrder],
+    [URL, keyword, page, limit, sortField, sortOrder],
     () =>
       axiosInstanceV2
         .get(URL, {
           params: {
-            query,
+            keyword,
             page,
             limit,
             sortField,

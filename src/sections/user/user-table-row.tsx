@@ -92,8 +92,8 @@ export default function UserTableRow({
               </div>
             </TableCell>
             <TableCell>{hospital?.name || '-'}</TableCell>
+            <TableCell>{position || '-'}</TableCell>
             <TableCell>{rank?.name || '-'}</TableCell>
-
             <TableCell>
               <div className="flex flex-wrap gap-2">
                 {Array.isArray(specialty) && specialty.length > 0
@@ -108,7 +108,6 @@ export default function UserTableRow({
                   : '-'}
               </div>
             </TableCell>
-            <TableCell>{city?.name || '-'}</TableCell>
             <TableCell>{phoneNumber || '-'}</TableCell>
             <TableCell>{experienceYears ?? '-'}</TableCell>
             <TableCell>{licenseNo || '-'}</TableCell>

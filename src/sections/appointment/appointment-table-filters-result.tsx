@@ -9,21 +9,25 @@ import Stack, { StackProps } from '@mui/material/Stack';
 import Iconify from 'src/components/iconify';
 import { shortDateLabel } from 'src/components/custom-date-range-picker';
 
-import { IInvoiceTableFilters, IInvoiceTableFilterValue } from 'src/types/invoice';
+import { IOrderTableFilters, IOrderTableFilterValue } from 'src/types/order';
 
 // ----------------------------------------------------------------------
 
 type Props = StackProps & {
-  filters: IInvoiceTableFilters;
-  onFilters: (name: string, value: IInvoiceTableFilterValue) => void;
+  filters: IOrderTableFilters;
+  onFilters: (name: string, value: IOrderTableFilterValue) => void;
+  //
   onResetFilters: VoidFunction;
+  //
   results: number;
 };
 
-export default function InvoiceTableFiltersResult({
+export default function OrderTableFiltersResult({
   filters,
   onFilters,
+  //
   onResetFilters,
+  //
   results,
   ...other
 }: Props) {
@@ -33,30 +37,6 @@ export default function InvoiceTableFiltersResult({
     onFilters('name', '');
   }, [onFilters]);
 
-  const handleRemoveService = useCallback(
-    (inputValue: string) => {
-      const newValue = filters.service.filter((item) => item !== inputValue);
-
-      onFilters('service', newValue);
-    },
-    [filters.service, onFilters]
-  );
-  const renderStatus = (statusParams: string) => {
-    switch (statusParams) {
-      case 'paid':
-        return 'Đã thanh toán';
-      case 'pending':
-        return 'Chưa thanh toán';
-      case 'overdue':
-        return 'Quá hạn';
-      case 'canceled':
-        return 'Đã hủy';
-      case 'completed':
-        return 'Đã hoàn thành';
-      default:
-        return 'Chưa xác định';
-    }
-  };
   const handleRemoveStatus = useCallback(() => {
     onFilters('status', 'all');
   }, [onFilters]);
@@ -71,42 +51,25 @@ export default function InvoiceTableFiltersResult({
       <Box sx={{ typography: 'body2' }}>
         <strong>{results}</strong>
         <Box component="span" sx={{ color: 'text.secondary', ml: 0.25 }}>
-          kết quả tìm thấy
+          results found
         </Box>
       </Box>
 
       <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
-        {!!filters?.service?.length && (
-          <Block label="Dịch vụ:">
-            {filters?.service?.map((item) => (
-              <Chip
-                key={item}
-                label={item}
-                size="small"
-                onDelete={() => handleRemoveService(item)}
-              />
-            ))}
-          </Block>
-        )}
-
-        {filters?.status !== 'all' && (
-          <Block label="Trạng thái:">
-            <Chip
-              size="small"
-              label={renderStatus(filters?.status)}
-              onDelete={handleRemoveStatus}
-            />
+        {filters.status !== 'all' && (
+          <Block label="Status:">
+            <Chip size="small" label={filters.status} onDelete={handleRemoveStatus} />
           </Block>
         )}
 
         {filters.startDate && filters.endDate && (
-          <Block label="Ngày:">
+          <Block label="Date:">
             <Chip size="small" label={shortLabel} onDelete={handleRemoveDate} />
           </Block>
         )}
 
         {!!filters.name && (
-          <Block label="Từ khóa:">
+          <Block label="Keyword:">
             <Chip label={filters.name} size="small" onDelete={handleRemoveKeyword} />
           </Block>
         )}
@@ -116,7 +79,7 @@ export default function InvoiceTableFiltersResult({
           onClick={onResetFilters}
           startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
         >
-          Xóa
+          Clear
         </Button>
       </Stack>
     </Stack>

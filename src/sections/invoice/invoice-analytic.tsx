@@ -4,7 +4,7 @@ import { alpha } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 import CircularProgress from '@mui/material/CircularProgress';
 
-import { fCurrency, fShortenNumber } from 'src/utils/format-number';
+import { fShortenNumber } from 'src/utils/format-number';
 
 import Iconify from 'src/components/iconify';
 
@@ -58,10 +58,10 @@ export default function InvoiceAnalytic({ title, total, icon, color, percent, pr
         <Typography variant="subtitle1">{title}</Typography>
 
         <Box component="span" sx={{ color: 'text.disabled', typography: 'body2' }}>
-          {fShortenNumber(total)} invoices
+          {fShortenNumber(total)} hóa đơn
         </Box>
 
-        <Typography variant="subtitle2">{fCurrency(price)}</Typography>
+        <Typography variant="subtitle2">{price.toLocaleString()} VNĐ</Typography>
       </Stack>
     </Stack>
   );

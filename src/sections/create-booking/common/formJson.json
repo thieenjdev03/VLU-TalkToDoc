@@ -14,6 +14,52 @@
         "label": "Tình trạng kéo dài bao lâu?",
         "type": "text",
         "required": false
+      },
+      {
+        "key": "existing_conditions",
+        "label": "Bạn có đang mắc bệnh mãn tính nào không? (ví dụ: tiểu đường, huyết áp cao)",
+        "type": "textarea",
+        "required": false
+      },
+      {
+        "key": "current_medication",
+        "label": "Bạn có đang sử dụng loại thuốc nào không?",
+        "type": "textarea",
+        "required": false
+      },
+      {
+        "key": "allergies",
+        "label": "Bạn có bị dị ứng với thuốc hoặc thực phẩm nào không?",
+        "type": "textarea",
+        "required": false
+      },
+      {
+        "key": "recent_travel",
+        "label": "Bạn có đi du lịch hoặc ra nước ngoài gần đây không?",
+        "type": "select",
+        "options": ["Có", "Không"],
+        "required": false
+      },
+      {
+        "key": "covid_vaccine",
+        "label": "Bạn đã tiêm vắc xin COVID-19 chưa?",
+        "type": "select",
+        "options": ["Đã tiêm đủ 2 mũi", "Mới tiêm 1 mũi", "Chưa tiêm"],
+        "required": false
+      },
+      {
+        "key": "smoking",
+        "label": "Bạn có hút thuốc không?",
+        "type": "select",
+        "options": ["Không", "Có - ít", "Có - thường xuyên"],
+        "required": false
+      },
+      {
+        "key": "alcohol",
+        "label": "Bạn có uống rượu bia không?",
+        "type": "select",
+        "options": ["Không", "Thỉnh thoảng", "Thường xuyên"],
+        "required": false
       }
     ]
   },

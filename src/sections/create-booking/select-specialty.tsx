@@ -19,15 +19,18 @@ export default function SelectSpecialty({
   onSelect,
   handleSelectCurrentStep,
   formData,
+  setCurrentStep,
+  handleSubmit,
 }: {
   onSelect: (key: ISpecialtyItem) => void;
   handleSelectCurrentStep: (step: string) => void;
   formData: FormValuesProps;
+  setCurrentStep: (step: string) => void;
+  handleSubmit: (data: FormValuesProps) => void;
 }) {
   const [selected, setSelected] = useState<ISpecialtyItem | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [preview, setPreview] = useState<ISpecialtyItem | null>(null);
-
   const [specialtyList, setSpecialtyList] = useState<ISpecialtyItem[]>([]);
   const { specialties } = useGetSpecialties({
     query: '',
@@ -36,7 +39,7 @@ export default function SelectSpecialty({
     sortField: 'createdAt',
     sortOrder: 'desc',
   });
-
+  const userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}');
   useEffect(() => {
     if (specialties) {
       setSpecialtyList(specialties?.data || []);
@@ -101,7 +104,7 @@ export default function SelectSpecialty({
       <div className="flex items-center justify-between gap-6 mt-10 w-full">
         <Button
           onClick={() => {
-            handleSelectCurrentStep('');
+            setCurrentStep('medical-form');
           }}
           size="large"
           variant="outlined"
@@ -111,7 +114,16 @@ export default function SelectSpecialty({
         </Button>
         <Button
           disabled={!selected}
-          onClick={() => selected && onSelect(selected)}
+          onClick={() => {
+            setCurrentStep('medical-form');
+            if (selected) {
+              onSelect(selected);
+              handleSubmit({
+                specialtyObject: selected,
+                patientObject: userProfile,
+              });
+            }
+          }}
           size="large"
           variant="contained"
           color="primary"

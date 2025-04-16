@@ -15,6 +15,8 @@ import DoctorModal from '../user/detail-doctor';
 type Props = {
   doctors: IUserItem[];
   setCurrentStep: (step: string) => void;
+  formData: FormValuesProps;
+  handleSubmit: (data: FormValuesProps) => void;
 };
 
 const workingHoursByDay: Record<number, { start: string; end: string }> = {
@@ -43,19 +45,33 @@ const generateTimeSlots = (start: string, end: string, step = 30): string[] => {
   return slots;
 };
 
-export default function BookingSelectTime({ doctors, setCurrentStep }: Props) {
+export default function BookingSelectTime({
+  doctors,
+  setCurrentStep,
+  formData,
+  handleSubmit,
+}: Props) {
   const [selectedDoctor, setSelectedDoctor] = useState<IUserItem | null>(doctors[0] || null);
   const [selectedDate, setSelectedDate] = useState<dayjs.Dayjs | null>(dayjs());
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
-  const [parsedData, setParsedData] = useState<any>(null);
   const [openModal, setOpenModal] = useState<boolean>(false);
+  const selectedDayOfWeek = selectedDate?.day() ?? 0;
+  const workingHours = workingHoursByDay[selectedDayOfWeek];
+  const availableSlots = workingHours
+    ? generateTimeSlots(workingHours.start, workingHours.end)
+    : [];
 
-  useEffect(() => {
-    const savedData = localStorage.getItem('booking_form_data_1');
-    if (savedData) {
-      setParsedData(JSON.parse(savedData));
-    }
-  }, []);
+  const filteredDoctors = formData?.specialty?.id
+    ? doctors.filter((doc) => doc.specialty?.some((s) => s.id === formData.specialty.id))
+    : doctors;
+
+  const doctorOptions = filteredDoctors.map((doc) => ({
+    value: doc.id,
+    label: doc.fullName,
+    avatarUrl: doc.avatarUrl,
+    hospital: doc.hospital?.name,
+    base_price: doc.rank?.base_price,
+  }));
 
   useEffect(() => {
     const rawJson = {
@@ -66,44 +82,48 @@ export default function BookingSelectTime({ doctors, setCurrentStep }: Props) {
     localStorage.setItem('booking_form_data_2', JSON.stringify(rawJson));
   }, [selectedDoctor, selectedDate, selectedSlot]);
 
-  const selectedDayOfWeek = selectedDate?.day() ?? 0;
-  const workingHours = workingHoursByDay[selectedDayOfWeek];
-  const availableSlots = workingHours
-    ? generateTimeSlots(workingHours.start, workingHours.end)
-    : [];
-
-  const doctorOptions = doctors.map((doc) => ({
-    value: doc.id,
-    label: doc.fullName,
-    avatarUrl: doc.avatarUrl,
-    rank: doc.rank?.name,
-    base_price: doc.rank?.base_price,
-  }));
+  useEffect(() => {
+    if (filteredDoctors.length) {
+      setSelectedDoctor(filteredDoctors[0]);
+    }
+  }, [filteredDoctors]);
 
   const CustomOption = (props: any) => {
     const { data, innerRef, innerProps } = props;
     return (
       <div ref={innerRef} {...innerProps} className="p-2 hover:bg-gray-100 flex items-center gap-3">
         <Avatar src={data.avatarUrl} sx={{ width: 36, height: 36 }} />
-        <div>
+        <div className="flex flex-col">
           <Typography variant="body1" fontWeight="bold">
             {data.label}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            {data.rank}
+            {data.hospital}
+          </Typography>
+          <Typography variant="body2" fontWeight="medium">
+            {data.base_price?.toLocaleString()}đ
           </Typography>
         </div>
       </div>
     );
   };
-
   const CustomSingleValue = (props: any) => {
     const { data } = props;
     return (
       <selectComponents.SingleValue {...props}>
-        <div className="flex items-center gap-2">
-          <Avatar src={data.avatarUrl} sx={{ width: 24, height: 24 }} />
-          <span>{data.label}</span>
+        <div className="flex items-center gap-4 p-2 shadow-sm">
+          <Avatar src={data.avatarUrl} sx={{ width: 60, height: 60 }} />
+          <div className="flex flex-col">
+            <Typography variant="body1" fontWeight="bold">
+              {data.label}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {data.hospital}
+            </Typography>
+            <Typography variant="body2" fontWeight="medium">
+              {data.base_price?.toLocaleString()}đ
+            </Typography>
+          </div>
         </div>
       </selectComponents.SingleValue>
     );
@@ -112,10 +132,10 @@ export default function BookingSelectTime({ doctors, setCurrentStep }: Props) {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <div className="bg-white p-6 rounded-xl shadow max-w-screen-lg mx-auto space-y-8">
-        {parsedData && (
+        {formData && (
           <Typography variant="h6" gutterBottom>
             Chuyên khoa đã chọn:
-            <span className="font-normal"> {parsedData?.specialty?.name}</span>
+            <span className="font-normal"> {formData?.specialtyObject?.name}</span>
           </Typography>
         )}
         <div>
@@ -143,24 +163,6 @@ export default function BookingSelectTime({ doctors, setCurrentStep }: Props) {
             }}
             placeholder="Chọn bác sĩ..."
           />
-          {selectedDoctor && (
-            <div className="mt-4 p-4 border rounded-xl bg-gray-50 shadow-sm hover:shadow-md transition-all">
-              <div className="flex items-center gap-4">
-                <Avatar src={selectedDoctor.avatarUrl} sx={{ width: 56, height: 56 }} />
-                <div className="flex flex-col">
-                  <Typography variant="h6" className="font-semibold">
-                    {selectedDoctor.fullName}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {selectedDoctor.rank?.name}
-                  </Typography>
-                  <Typography variant="body2" className="font-medium">
-                    {selectedDoctor.rank?.base_price.toLocaleString()}đ
-                  </Typography>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -207,15 +209,42 @@ export default function BookingSelectTime({ doctors, setCurrentStep }: Props) {
                 </Typography>
               )}
             </div>
-            <Button
-              variant="contained"
-              onClick={() => setCurrentStep('payment-step')}
-              disabled={!selectedSlot || !selectedDate}
-              color="primary"
-              className="w-full primary-bg text-white"
-            >
-              Tiếp tục
-            </Button>
+            <div className="flex gap-2 justify-between w-full">
+              <Button
+                variant="outlined"
+                onClick={() => {
+                  setCurrentStep('medical-form');
+                  handleSubmit({
+                    ...formData,
+                    medicalForm: {
+                      ...formData.medicalForm,
+                    },
+                  });
+                }}
+                color="primary"
+                className="primary-bg text-white"
+              >
+                Trở về
+              </Button>
+              <Button
+                variant="contained"
+                onClick={() => {
+                  setCurrentStep('select-specialty');
+                  handleSubmit({
+                    doctorObject: selectedDoctor,
+                    appointment: {
+                      date: selectedDate?.format('YYYY-MM-DD'),
+                      slot: selectedSlot,
+                    },
+                  });
+                }}
+                disabled={!selectedSlot || !selectedDate}
+                color="primary"
+                className="primary-bg text-white"
+              >
+                Tiếp tục
+              </Button>
+            </div>
           </div>
         </div>
 
