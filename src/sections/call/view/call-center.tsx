@@ -1,5 +1,7 @@
 import { useRef, useState, useEffect } from 'react';
 
+import { Box, Grid, Paper, Stack, Alert, Button, TextField, Typography } from '@mui/material';
+
 // Stringee SDK load bằng <script> bên ngoài
 declare const StringeeClient: any;
 declare const StringeeCall: any;
@@ -32,20 +34,15 @@ export function CallCenter({ stringeeAccessToken, fromUserId, userInfor }: CallC
 
       client.connect(stringeeAccessToken);
 
-      client.on('connect', () => {
-        setClientConnected(true);
-      });
-
-      client.on('authenerror', (res: any) => {
+      client.on('connect', () => setClientConnected(true));
+      client.on('authenerror', () => {
         setClientConnected(false);
         setCallStatus('Lỗi xác thực');
       });
-
       client.on('disconnect', () => {
         setClientConnected(false);
         setCallStatus('Mất kết nối');
       });
-
       client.on('incomingcall', (incomingCallObj: any) => {
         setIncomingCall(incomingCallObj);
         setCallStatus('Có cuộc gọi đến');
@@ -78,21 +75,15 @@ export function CallCenter({ stringeeAccessToken, fromUserId, userInfor }: CallC
 
     call.on('addremotestream', (stream: any) => {
       const remoteVideo = document.getElementById('remoteVideo') as HTMLVideoElement;
-      if (remoteVideo) {
-        remoteVideo.srcObject = stream;
-      }
+      if (remoteVideo) remoteVideo.srcObject = stream;
     });
 
     call.on('addlocalstream', (stream: any) => {
       const localVideo = document.getElementById('localVideo') as HTMLVideoElement;
-      if (localVideo) {
-        localVideo.srcObject = stream;
-      }
+      if (localVideo) localVideo.srcObject = stream;
     });
 
-    call.on('signalingstate', (state: any) => {
-      setCallStatus(`Trạng thái: ${state.reason}`);
-    });
+    call.on('signalingstate', (state: any) => setCallStatus(`Trạng thái: ${state.reason}`));
   };
 
   const endCall = () => {
@@ -152,133 +143,123 @@ export function CallCenter({ stringeeAccessToken, fromUserId, userInfor }: CallC
   };
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-6">
-      {/* Login Status */}
-      <div className="flex items-center justify-between bg-gray-100 p-4 rounded shadow">
-        <div className="flex items-center space-x-4">
-          <span className="font-medium">User:</span>
-          <span className="text-blue-600">{fromUserId || 'Chưa đăng nhập'}</span>
-        </div>
-        <div className="text-sm text-gray-500">
-          {clientConnected ? 'Đã kết nối Stringee' : 'Đang kết nối...'}
-        </div>
-      </div>
+    <Box p={4} maxWidth="1000px" mx="auto">
+      <Paper elevation={3} sx={{ p: 2, mb: 4 }}>
+        <Stack direction="row" justifyContent="space-between" alignItems="center">
+          <Typography variant="h6">User: {fromUserId || 'Chưa đăng nhập'}</Typography>
+          <Typography variant="body2" color={clientConnected ? 'green' : 'error'}>
+            {clientConnected ? 'Đã kết nối Stringee' : 'Đang kết nối...'}
+          </Typography>
+        </Stack>
+      </Paper>
 
-      {/* Call Actions */}
-      <div className="space-y-4">
-        <div className="flex flex-wrap gap-4">
-          <input
-            type="text"
+      <Grid container spacing={2} mb={4}>
+        <Grid item>
+          <TextField
+            label="ID người nhận"
             value={toUserId}
             onChange={(e) => setToUserId(e.target.value)}
-            placeholder="ID người nhận"
-            className="border px-4 py-2 rounded w-60"
           />
-          <button
-            type="button"
+        </Grid>
+        <Grid item>
+          <Button
+            variant="contained"
+            color="success"
             onClick={() => makeCall(false)}
             disabled={!clientConnected || calling}
-            className="btn bg-green-500 hover:bg-green-600 text-white"
           >
             Voice Call
-          </button>
-          <button
-            type="button"
+          </Button>
+        </Grid>
+        <Grid item>
+          <Button
+            variant="contained"
+            color="primary"
             onClick={() => makeCall(true)}
             disabled={!clientConnected || calling}
-            className="btn bg-blue-500 hover:bg-blue-600 text-white"
           >
             Video Call
-          </button>
-          <button
-            type="button"
-            onClick={endCall}
-            disabled={!calling}
-            className="btn bg-red-500 hover:bg-red-600 text-white"
-          >
+          </Button>
+        </Grid>
+        <Grid item>
+          <Button variant="contained" color="error" onClick={endCall} disabled={!calling}>
             Hang Up
-          </button>
-        </div>
+          </Button>
+        </Grid>
+      </Grid>
 
-        {/* Advanced Call Actions */}
-        <div className="flex flex-wrap gap-4">
-          <button
-            type="button"
+      <Grid container spacing={2} mb={4}>
+        <Grid item>
+          <Button
+            variant="outlined"
             onClick={upgradeToVideoCall}
             disabled={!calling || isVideoCall}
-            className="btn bg-yellow-500 hover:bg-yellow-600 text-white"
           >
             Upgrade to Video
-          </button>
-          <button
-            type="button"
-            onClick={switchVoiceVideoCall}
-            disabled={!calling}
-            className="btn bg-purple-500 hover:bg-purple-600 text-white"
-          >
+          </Button>
+        </Grid>
+        <Grid item>
+          <Button variant="outlined" onClick={switchVoiceVideoCall} disabled={!calling}>
             Switch Voice/Video
-          </button>
-          <button
-            type="button"
-            onClick={mute}
-            disabled={!calling}
-            className="btn bg-gray-700 hover:bg-gray-800 text-white"
-          >
+          </Button>
+        </Grid>
+        <Grid item>
+          <Button variant="outlined" onClick={mute} disabled={!calling}>
             {isMuted ? 'Unmute' : 'Mute'}
-          </button>
-          <button
-            type="button"
-            onClick={enableVideo}
-            disabled={!calling}
-            className="btn bg-gray-800 hover:bg-gray-900 text-white"
-          >
+          </Button>
+        </Grid>
+        <Grid item>
+          <Button variant="outlined" onClick={enableVideo} disabled={!calling}>
             {isVideoEnabled ? 'Disable Video' : 'Enable Video'}
-          </button>
-        </div>
-      </div>
+          </Button>
+        </Grid>
+      </Grid>
 
-      {/* Call Status */}
-      <div className="text-center text-lg font-semibold text-indigo-600">{callStatus}</div>
+      {callStatus && (
+        <Alert severity="info" sx={{ mb: 4 }}>
+          {callStatus}
+        </Alert>
+      )}
 
-      {/* Incoming Call */}
       {incomingCall && (
-        <div className="bg-yellow-100 p-4 rounded shadow flex justify-between items-center">
+        <Alert
+          severity="warning"
+          sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+        >
           <span>
             Có cuộc gọi đến từ: <b>{incomingCall.from}</b>
           </span>
-          <div className="flex space-x-2">
-            <button
-              type="button"
-              onClick={answerIncomingCall}
-              className="btn bg-green-600 hover:bg-green-700 text-white"
-            >
+          <Box>
+            <Button color="success" onClick={answerIncomingCall}>
               Trả lời
-            </button>
-            <button
-              type="button"
-              onClick={rejectIncomingCall}
-              className="btn bg-red-600 hover:bg-red-700 text-white"
-            >
+            </Button>
+            <Button color="error" onClick={rejectIncomingCall}>
               Từ chối
-            </button>
-          </div>
-        </div>
+            </Button>
+          </Box>
+        </Alert>
       )}
 
-      {/* Video Streams */}
-      <div className="grid grid-cols-2 gap-4">
-        <video
-          id="localVideo"
-          playsInline
-          autoPlay
-          muted
-          className="w-full h-64 bg-black rounded"
-        />
-        <video id="remoteVideo" playsInline autoPlay className="w-full h-64 bg-black rounded">
-          <track kind="captions" />
-        </video>
-      </div>
-    </div>
+      <Grid container spacing={2}>
+        <Grid item xs={6}>
+          <video
+            id="localVideo"
+            playsInline
+            autoPlay
+            muted
+            style={{ width: '100%', height: '300px', background: 'black', borderRadius: '8px' }}
+          />
+        </Grid>
+        <Grid item xs={6}>
+          <video
+            id="remoteVideo"
+            playsInline
+            autoPlay
+            style={{ width: '100%', height: '300px', background: 'black', borderRadius: '8px' }}
+          />
+        </Grid>
+      </Grid>
+    </Box>
   );
 }
 
