@@ -122,7 +122,7 @@ export default function AccountPopover() {
 
           <Typography variant="body2" sx={{ mt: 1 }} noWrap>
             <div style={{ color: 'text.primary', fontWeight: 'bold', fontSize: '14px' }}>
-              Role: {handleShowRoleName(user?.role.toLowerCase())}
+              Vai Trò: {handleShowRoleName(user?.role.toLowerCase())}
             </div>
           </Typography>
         </Box>

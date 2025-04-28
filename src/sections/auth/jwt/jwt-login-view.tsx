@@ -58,6 +58,7 @@ export default function JwtLoginView() {
       const res = await login(data.username, data.password);
       localStorage.setItem('accessToken', res.accessToken);
       localStorage.setItem('userProfile', JSON.stringify(res.userProfile));
+      localStorage.setItem('stringeeToken', JSON.stringify(res.stringeeAccessToken));
       router.push(PATH_AFTER_LOGIN);
     } catch (error) {
       console.error(error);

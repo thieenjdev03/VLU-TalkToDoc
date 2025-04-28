@@ -8,8 +8,10 @@ import { SeoIllustration } from 'src/assets/illustrations';
 
 import { useSettingsContext } from 'src/components/settings';
 
-import AppWelcome from '../app-welcome';
+import CallCenter from 'src/sections/call/view/call-center';
+import CallComponent from 'src/sections/call/view/make-call';
 
+import AppWelcome from '../app-welcome';
 // ----------------------------------------------------------------------
 
 export default function OverviewAppView() {
@@ -17,7 +19,7 @@ export default function OverviewAppView() {
   const user = JSON.parse(userProfile || '{}');
   const navigate = useNavigate();
   const settings = useSettingsContext();
-
+  const stringeeToken = JSON.parse(localStorage.getItem('stringeeToken') || '{}');
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
       <Grid container spacing={3}>
@@ -39,7 +41,15 @@ export default function OverviewAppView() {
             }
           />
         </Grid>
+        <Grid xs={12} md={4}>
+          <CallComponent stringeeAccessToken={stringeeToken || ''} fromUserId={user?._id || ''} />
+        </Grid>
 
+        <CallCenter
+          stringeeAccessToken={stringeeToken || ''}
+          fromUserId={user?._id || ''}
+          userInfor={user}
+        />
         {/*         
         <Grid xs={12} md={4}>
           <AppFeatured list={_appFeatured} />

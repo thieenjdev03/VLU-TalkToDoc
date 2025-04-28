@@ -33,7 +33,7 @@ export default function BookingPayment({
   console.log('booking', booking);
   const PLATFORM_FEE = 50000;
   const doctorFee = booking?.doctor?.rank?.base_price || 0;
-  const totalFee = PLATFORM_FEE + doctorFee;
+  const totalFee = doctorFee;
   const [coupon, setCoupon] = useState<string>('');
   const [discount, setDiscount] = useState<number>(0);
   const [paymentMethod, setPaymentMethod] = useState<string>('vnpay');

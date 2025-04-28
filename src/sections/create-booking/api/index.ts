@@ -3,8 +3,9 @@ import axios from 'axios';
 const baseURL = 'http://localhost:3000';
 const headers = {
   accept: '*/*',
-  Authorization:
-    'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRoaWVuZGV2MDMiLCJzdWIiOiI2N2ZmN2FjYWE4MDcxNDIwMjhhYmJhZWUiLCJyb2xlIjoiUEFUSUVOVCIsImlhdCI6MTc0NDc5NzMyOCwiZXhwIjoxNzQ0ODgzNzI4fQ.LPz5q5xzJ36ErfMAgecfsbF7tavSltOqL-iqch6wERM',
+  Authorization: localStorage.getItem('accessToken')
+    ? `Bearer ${localStorage.getItem('accessToken') || ''}`
+    : '',
   'Content-Type': 'application/json',
 };
 const createPaymentURL = async (data: { userId: string; amount: number }) => {
