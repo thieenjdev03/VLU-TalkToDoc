@@ -75,12 +75,31 @@ export function CallCenter({ stringeeAccessToken, fromUserId, userInfor }: CallC
 
     call.on('addremotestream', (stream: any) => {
       const remoteVideo = document.getElementById('remoteVideo') as HTMLVideoElement;
-      if (remoteVideo) remoteVideo.srcObject = stream;
+      if (remoteVideo) {
+        remoteVideo.srcObject = stream;
+        remoteVideo.play().catch((err) => console.error('Lỗi phát video từ xa:', err));
+      }
     });
 
     call.on('addlocalstream', (stream: any) => {
       const localVideo = document.getElementById('localVideo') as HTMLVideoElement;
-      if (localVideo) localVideo.srcObject = stream;
+      if (localVideo) {
+        localVideo.srcObject = stream;
+        localVideo.play().catch((err) => console.error('Lỗi phát video local:', err));
+      }
+    });
+
+    call.on('addremotetrack', (track: any) => {
+      if (track.kind === 'audio') {
+        const remoteVideo = document.getElementById('remoteVideo') as HTMLVideoElement;
+        if (remoteVideo) {
+          const audioTrack = track.track;
+          if (audioTrack) {
+            const audioStream = new MediaStream([audioTrack]);
+            remoteVideo.srcObject = audioStream;
+          }
+        }
+      }
     });
 
     call.on('signalingstate', (state: any) => setCallStatus(`Trạng thái: ${state.reason}`));
@@ -98,6 +117,40 @@ export function CallCenter({ stringeeAccessToken, fromUserId, userInfor }: CallC
   const answerIncomingCall = () => {
     if (incomingCall) {
       incomingCall.answer();
+
+      incomingCall.on('addremotestream', (stream: any) => {
+        const remoteVideo = document.getElementById('remoteVideo') as HTMLVideoElement;
+        if (remoteVideo) {
+          remoteVideo.srcObject = stream;
+          remoteVideo.play().catch((err) => console.error('Lỗi phát video từ xa:', err));
+        }
+      });
+
+      incomingCall.on('addlocalstream', (stream: any) => {
+        const localVideo = document.getElementById('localVideo') as HTMLVideoElement;
+        if (localVideo) {
+          localVideo.srcObject = stream;
+          localVideo.play().catch((err) => console.error('Lỗi phát video local:', err));
+        }
+      });
+
+      incomingCall.on('addremotetrack', (track: any) => {
+        if (track.kind === 'audio') {
+          const remoteVideo = document.getElementById('remoteVideo') as HTMLVideoElement;
+          if (remoteVideo) {
+            const audioTrack = track.track;
+            if (audioTrack) {
+              const audioStream = new MediaStream([audioTrack]);
+              remoteVideo.srcObject = audioStream;
+            }
+          }
+        }
+      });
+
+      incomingCall.on('signalingstate', (state: any) =>
+        setCallStatus(`Trạng thái: ${state.reason}`)
+      );
+
       activeCallRef.current = incomingCall;
       setIncomingCall(null);
       setCalling(true);
