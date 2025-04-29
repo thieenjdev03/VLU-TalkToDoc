@@ -19,6 +19,8 @@ import {
   CircularProgress,
 } from '@mui/material';
 
+import { API_URL } from 'src/config-global';
+
 import { useSnackbar } from 'src/components/snackbar';
 
 export default function CSVUploadModal({ open, onClose, onUpload }: any) {
@@ -60,7 +62,7 @@ export default function CSVUploadModal({ open, onClose, onUpload }: any) {
 
     try {
       setLoading(true);
-      const res = await fetch('http://localhost:3000/api/v1/medicines/import', {
+      const res = await fetch(`${API_URL}/api/v1/medicines/import`, {
         method: 'POST',
         body: formData,
       });

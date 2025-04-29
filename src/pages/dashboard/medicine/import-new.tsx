@@ -16,6 +16,8 @@ import {
 
 import { paths } from 'src/routes/paths';
 
+import { API_URL } from 'src/config-global';
+
 import { useSnackbar } from 'src/components/snackbar';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 
@@ -59,7 +61,7 @@ export default function PreviewImportMedicine(props: any) {
 
     try {
       setLoading(true);
-      const res = await fetch('http://localhost:3000/api/v1/medicines/import', {
+      const res = await fetch(`${API_URL}/api/v1/medicines/import`, {
         method: 'POST',
         body: formData,
       });

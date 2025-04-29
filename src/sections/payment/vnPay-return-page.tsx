@@ -1,5 +1,7 @@
 import { useEffect } from 'react';
 
+import { API_URL } from 'src/config-global';
+
 export default function VnPayReturnPage(props: { setPaymentSuccess: (success: boolean) => void }) {
   const { setPaymentSuccess } = props;
   useEffect(() => {
@@ -15,7 +17,7 @@ export default function VnPayReturnPage(props: { setPaymentSuccess: (success: bo
 
     console.log('📦 Sending to backend:', payload);
 
-    fetch('http://localhost:3000/payment/vnpay-callback', {
+    fetch(`${API_URL}/payment/vnpay-callback`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

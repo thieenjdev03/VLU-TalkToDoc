@@ -1,5 +1,7 @@
 import axios, { AxiosRequestConfig } from 'axios';
 
+import { API_URL } from 'src/config-global';
+
 // ----------------------------------------------------------------------
 
 // axiosInstance v1
@@ -13,7 +15,7 @@ axiosInstance.interceptors.response.use(
 );
 
 const axiosInstanceV2 = axios.create({
-  baseURL: 'http://localhost:3000',
+  baseURL: `${API_URL}`,
   headers: {
     'Custom-Header': 'CustomValue',
     'Content-Type': 'application/json',

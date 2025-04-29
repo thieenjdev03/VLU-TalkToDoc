@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const baseURL = 'http://localhost:3000';
+import { API_URL } from 'src/config-global';
+
+const baseURL = `${API_URL}`;
 const headers = {
   accept: '*/*',
   Authorization: localStorage.getItem('accessToken')
@@ -9,7 +11,7 @@ const headers = {
   'Content-Type': 'application/json',
 };
 const createPaymentURL = async (data: { userId: string; amount: number }) => {
-  const response = await axios.post('http://localhost:3000/payment/create-payment-url', data);
+  const response = await axios.post(`${baseURL}/payment/create-payment-url`, data);
   return response.data;
 };
 

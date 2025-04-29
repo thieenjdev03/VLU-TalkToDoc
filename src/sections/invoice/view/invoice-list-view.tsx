@@ -23,6 +23,8 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 import { isAfter, isBetween } from 'src/utils/format-time';
 
+import { API_URL } from 'src/config-global';
+
 import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
@@ -46,7 +48,6 @@ import { IInvoice, IInvoiceTableFilters, IInvoiceTableFilterValue } from 'src/ty
 import InvoiceAnalytic from '../invoice-analytic';
 import InvoiceTableRow from '../invoice-table-row';
 import InvoiceTableFiltersResult from '../invoice-table-filters-result';
-
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -85,7 +86,7 @@ export default function InvoiceListView() {
   useEffect(() => {
     const getDataInvoices = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/payment/all-orders');
+        const response = await axios.get(`${API_URL}/payment/all-orders`);
         setTableData(response.data || []); // Ensure data is an array
       } catch (error) {
         console.error('Error fetching invoices:', error);

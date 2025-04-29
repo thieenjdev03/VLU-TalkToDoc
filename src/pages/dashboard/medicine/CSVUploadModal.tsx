@@ -19,6 +19,8 @@ import {
   CircularProgress,
 } from '@mui/material';
 
+import { API_URL } from 'src/config-global';
+
 import { useSnackbar } from 'src/components/snackbar';
 
 export default function CSVUploadModal({ open, onClose, onUpload }: any) {
@@ -66,7 +68,7 @@ export default function CSVUploadModal({ open, onClose, onUpload }: any) {
       setLoading(true);
       setUploading(true);
       const xhr = new XMLHttpRequest();
-      xhr.open('POST', 'http://localhost:3000/api/v1/medicines/import');
+      xhr.open('POST', `${API_URL}/api/v1/medicines/import`);
 
       xhr.upload.onprogress = function (event) {
         if (event.lengthComputable) {

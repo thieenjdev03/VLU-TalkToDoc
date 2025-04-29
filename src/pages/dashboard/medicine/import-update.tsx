@@ -15,6 +15,8 @@ import {
   CircularProgress,
 } from '@mui/material';
 
+import { API_URL } from 'src/config-global';
+
 import { useSnackbar } from 'src/components/snackbar';
 
 export default function PreviewImportMedicine() {
@@ -34,7 +36,7 @@ export default function PreviewImportMedicine() {
 
     try {
       setLoading(true);
-      const URL = 'http://localhost:3000/api/v1/medicines/import';
+      const URL = `${API_URL}/api/v1/medicines/import`;
       const res = await fetch(URL, {
         method: 'POST',
         body: formData,
