@@ -119,7 +119,6 @@ export default function UserListView(props: {
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState(defaultFilters);
   const [specialtyList, setSpecialtyList] = useState<ISpecialtyItem[]>([]);
-  const [openQuickEditId, setOpenQuickEditId] = useState<string | null>(null);
 
   // Fetch specialties only when searchQuery changes
   const { specialties } = useGetSpecialties({

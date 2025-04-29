@@ -8,10 +8,7 @@ import TableCell from '@mui/material/TableCell';
 import Typography from '@mui/material/Typography';
 import ListItemText from '@mui/material/ListItemText';
 
-import { useBoolean } from 'src/hooks/use-boolean';
-
 import Label from 'src/components/label';
-import { usePopover } from 'src/components/custom-popover';
 
 import { IInvoice } from 'src/types/invoice';
 
@@ -22,22 +19,11 @@ type Props = {
   selected: boolean;
   onSelectRow: VoidFunction;
   onViewRow: VoidFunction;
-  onEditRow: VoidFunction;
-  onDeleteRow: VoidFunction;
 };
 
-export default function InvoiceTableRow({
-  row,
-  selected,
-  onSelectRow,
-  onViewRow,
-  onEditRow,
-  onDeleteRow,
-}: Props) {
-  const { sent, orderId, createdAt, status, userInfo, amount } = row;
+export default function InvoiceTableRow({ row, selected, onSelectRow, onViewRow }: Props) {
+  const { orderId, createdAt, status, userInfo, amount } = row as any;
 
-  const confirm = useBoolean();
-  const popover = usePopover();
   const renderStatus = (statusParams: string) => {
     switch (statusParams) {
       case 'paid':

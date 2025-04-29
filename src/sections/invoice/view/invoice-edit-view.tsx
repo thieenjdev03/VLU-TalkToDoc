@@ -40,7 +40,7 @@ export default function InvoiceEditView({ id }: Props) {
         }}
       />
 
-      <InvoiceNewEditForm currentInvoice={currentInvoice} />
+      <InvoiceNewEditForm currentInvoice={currentInvoice as any} />
     </Container>
   );
 }

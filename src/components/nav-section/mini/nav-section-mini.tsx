@@ -10,9 +10,12 @@ import { NavProps, NavGroupProps } from '../types';
 function NavSectionMini({ data, slotProps, ...other }: NavProps) {
   return (
     <Stack component="nav" id="nav-section-mini" spacing={`${slotProps?.gap || 4}px`} {...other}>
-      {data.map((group, index) => (
-        <Group key={group.subheader || index} items={group.items} slotProps={slotProps} />
-      ))}
+      {data.map(
+        (group, index) =>
+          !group?.hidden && (
+            <Group key={group.subheader || index} items={group.items} slotProps={slotProps} />
+          )
+      )}
     </Stack>
   );
 }

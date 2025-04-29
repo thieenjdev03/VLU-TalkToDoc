@@ -24,9 +24,9 @@ export default function SelectSpecialty({
 }: {
   onSelect: (key: ISpecialtyItem) => void;
   handleSelectCurrentStep: (step: string) => void;
-  formData: FormValuesProps;
+  formData: any;
   setCurrentStep: (step: string) => void;
-  handleSubmit: (data: FormValuesProps) => void;
+  handleSubmit: (data: any) => void;
 }) {
   const [selected, setSelected] = useState<ISpecialtyItem | null>(null);
   const [modalOpen, setModalOpen] = useState(false);

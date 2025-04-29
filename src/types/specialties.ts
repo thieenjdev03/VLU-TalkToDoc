@@ -5,6 +5,7 @@ export interface ISpecialtyItem {
   description: string;
   status: string;
   value: string;
+  avatar: string;
   label: string;
   isActive: boolean;
   createdAt: string;

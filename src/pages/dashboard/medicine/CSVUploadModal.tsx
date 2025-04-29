@@ -1,6 +1,5 @@
 'use client';
 
-import Papa from 'papaparse';
 import React, { useState } from 'react';
 
 import {
@@ -24,7 +23,6 @@ import { useSnackbar } from 'src/components/snackbar';
 
 export default function CSVUploadModal({ open, onClose, onUpload }: any) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [csvData, setCsvData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState<number>(0);
   const [importResult, setImportResult] = useState<any>(null);
@@ -39,23 +37,22 @@ export default function CSVUploadModal({ open, onClose, onUpload }: any) {
     if (file) {
       setSelectedFile(file);
       setImportResult(null);
-      Papa.parse(file, {
-        header: true,
-        skipEmptyLines: true,
-        complete: (results) => {
-          const parsed = results.data.map((r: any) => ({
-            id: r.ID,
-            name: r.Name,
-            quantity: r.Quanitty,
-            frequency: r.Frequency,
-            refill: r.Refill,
-            finalCost: r['Final Cost'],
-            feeCost: r['Fee Cost'],
-            prescriptionFee: r['Prescription Fee'],
-          }));
-          setCsvData(parsed);
-        },
-      });
+      // Papa.parse(file, {
+      //   header: true,
+      //   skipEmptyLines: true,
+      //   complete: (results) => {
+      //     // const parsed = results.data.map((r: any) => ({
+      //     //   id: r.ID,
+      //     //   name: r.Name,
+      //     //   quantity: r.Quanitty,
+      //     //   frequency: r.Frequency,
+      //     //   refill: r.Refill,
+      //     //   finalCost: r['Final Cost'],
+      //     //   feeCost: r['Fee Cost'],
+      //     //   prescriptionFee: r['Prescription Fee'],
+      //     // }));
+      //   },
+      // });
     }
   };
 

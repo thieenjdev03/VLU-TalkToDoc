@@ -20,12 +20,10 @@ import { useSnackbar } from 'src/components/snackbar';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 
-import { IAppointmentItem } from 'src/types/appointment';
-
 // ----------------------------------------------------------------------
 
 type Props = {
-  row: IAppointmentItem;
+  row: any;
   selected: boolean;
   onViewRow: VoidFunction;
   onSelectRow: VoidFunction;
@@ -41,7 +39,7 @@ export default function AppointmentTableRow({
   onDeleteRow,
   typeUser,
 }: Props) {
-  const { appointmentId, patient, status, payment } = row;
+  const { appointmentId, patient, status, payment } = row as any;
   const quickEdit = useBoolean();
   const confirm = useBoolean();
   const popover = usePopover();

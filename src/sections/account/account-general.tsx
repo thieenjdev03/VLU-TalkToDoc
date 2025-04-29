@@ -20,7 +20,7 @@ export default function AccountGeneral() {
   return (
     <UserNewEditForm
       updateUserPage
-      currentUser={currentUser}
+      currentUser={currentUser as any}
       typeUser="patient"
       hospitals={[]}
       isSettingAccount

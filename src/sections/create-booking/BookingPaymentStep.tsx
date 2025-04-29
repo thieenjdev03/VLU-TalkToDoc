@@ -4,11 +4,6 @@ import { Button, TextField } from '@mui/material';
 
 import { createPaymentURL } from './api';
 
-const generateAppointmentCode = () => {
-  const randomSixDigits = Math.random().toString(36).substring(2, 8).toUpperCase();
-  return `AP-${randomSixDigits}`;
-};
-
 export default function BookingPayment({
   setCurrentStep,
   specialty,
@@ -30,21 +25,10 @@ export default function BookingPayment({
     ...parsedData1,
   };
 
-  console.log('booking', booking);
-  const PLATFORM_FEE = 50000;
   const doctorFee = booking?.doctor?.rank?.base_price || 0;
   const totalFee = doctorFee;
   const [coupon, setCoupon] = useState<string>('');
   const [discount, setDiscount] = useState<number>(0);
-  const [paymentMethod, setPaymentMethod] = useState<string>('vnpay');
-
-  const [appointmentCode] = useState(() => {
-    const storedCode = localStorage.getItem('appointment_code');
-    if (storedCode) return storedCode;
-    const newCode = generateAppointmentCode();
-    localStorage.setItem('appointment_code', newCode);
-    return newCode;
-  });
   const handleApplyCoupon = () => {
     if (coupon === 'DISCOUNT10') {
       setDiscount(
@@ -59,7 +43,6 @@ export default function BookingPayment({
 
   const handleSubmitConfirm = async () => {
     const updatedFormData = {
-      paymentMethod,
       discount,
       totalFee: finalTotalFee,
     };

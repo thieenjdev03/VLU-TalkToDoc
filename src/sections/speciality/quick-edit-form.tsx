@@ -65,7 +65,7 @@ export default function SpecialtyQuickEditForm({ currentSpecialty, open, onClose
   const {
     reset,
     handleSubmit,
-    formState: { isSubmitting, errors },
+    formState: { isSubmitting },
     control,
     setValue,
   } = methods;

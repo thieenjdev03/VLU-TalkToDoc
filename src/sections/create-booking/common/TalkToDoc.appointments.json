@@ -1,0 +1,269 @@
+[{
+  "_id": {
+    "$oid": "67ff4338ee511b9dff425217"
+  },
+  "appointmentId": "AP324313",
+  "patient": "67ff7acaa807142028abbaee",
+  "specialty": "67eaf20d2186add4b5811e03",
+  "timezone": "string",
+  "status": "CONFIRMED",
+  "payment": {},
+  "createdAt": {
+    "$date": "2025-04-16T05:42:16.579Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-16T06:07:56.255Z"
+  },
+  "__v": 0,
+  "date": "string",
+  "doctor": "67f6745b45bccd47d55f5c18",
+  "medicalForm": {},
+  "notes": "string",
+  "slot": "01",
+  "confirmedAt": {
+    "$date": "2025-04-16T06:07:56.252Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "67ff8c472a518b3e10658d21"
+  },
+  "appointmentId": "AP500369",
+  "patient": "67ff7acaa807142028abbaee",
+  "specialty": "67eaf20d2186add4b5811e02",
+  "timezone": "+01:00",
+  "status": "REJECTED",
+  "payment": {
+    "paymentMethod": "vnpay",
+    "discount": 0,
+    "totalFee": 200000,
+    "billing_status": "PAID"
+  },
+  "createdAt": {
+    "$date": "2025-04-16T10:53:59.289Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-16T17:52:53.067Z"
+  },
+  "__v": 0,
+  "date": "2025-04-17",
+  "doctor": "67f6745b45bccd47d55f5c18",
+  "medicalForm": {
+    "data": {
+      "pain_area": "1",
+      "pain_level": "1"
+    }
+  },
+  "slot": "15:00",
+  "confirmedAt": {
+    "$date": "2025-04-16T11:14:45.898Z"
+  },
+  "cancelledAt": {
+    "$date": "2025-04-16T17:52:53.067Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "67ffe27073c9e36c7867b3f9"
+  },
+  "appointmentId": "AP711435",
+  "patient": "67ff7acaa807142028abbaee",
+  "specialty": "67f54027d367ebed6751378e",
+  "timezone": "+01:00",
+  "status": "CONFIRMED",
+  "payment": {
+    "paymentMethod": "vnpay",
+    "discount": 0,
+    "totalFee": 400000,
+    "billing_status": "PAID"
+  },
+  "createdAt": {
+    "$date": "2025-04-16T17:01:36.187Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-16T17:56:15.965Z"
+  },
+  "__v": 0,
+  "date": "",
+  "doctor": "67f6745b45bccd47d55f5c18",
+  "medicalForm": {
+    "data": {
+      "mood": "1",
+      "sleep": "1"
+    }
+  },
+  "slot": "",
+  "confirmedAt": {
+    "$date": "2025-04-16T17:56:15.965Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "67ffe5c173c9e36c7867b4c8"
+  },
+  "appointmentId": "AP872870",
+  "patient": "67ff7acaa807142028abbaee",
+  "specialty": "67f54027d367ebed6751378e",
+  "timezone": "+01:00",
+  "status": "REJECTED",
+  "payment": {
+    "paymentMethod": "vnpay",
+    "discount": 0,
+    "totalFee": 170000,
+    "billing_status": "PAID"
+  },
+  "createdAt": {
+    "$date": "2025-04-16T17:15:45.610Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-16T17:54:25.710Z"
+  },
+  "__v": 0,
+  "date": "2025-04-16",
+  "doctor": "67f6745b45bccd47d55f5c18",
+  "medicalForm": {
+    "data": {
+      "mood": "1",
+      "sleep": "1"
+    }
+  },
+  "slot": "16:30",
+  "confirmedAt": {
+    "$date": "2025-04-16T17:43:21.724Z"
+  },
+  "cancelledAt": {
+    "$date": "2025-04-16T17:54:25.710Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "67fff81faf96798a601f9bbc"
+  },
+  "appointmentId": "AP622765",
+  "patient": "67ff7acaa807142028abbaee",
+  "specialty": "67eaf20d2186add4b5811e02",
+  "timezone": "+01:00",
+  "status": "PENDING",
+  "payment": {
+    "paymentMethod": "vnpay",
+    "discount": 10000,
+    "totalFee": 160000,
+    "billing_status": "PAID"
+  },
+  "createdAt": {
+    "$date": "2025-04-16T18:34:07.761Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-16T18:36:41.255Z"
+  },
+  "__v": 0,
+  "date": "2025-04-26",
+  "doctor": "67fe80c245117ed75e153c99",
+  "medicalForm": {
+    "data": {
+      "pain_area": "test",
+      "pain_level": "2"
+    }
+  },
+  "slot": "16:30"
+},
+{
+  "_id": {
+    "$oid": "6800d9f10bd11b3f0b1b3ec7"
+  },
+  "appointmentId": "AP891342",
+  "patient": "67f6745b45bccd47d55f5c13",
+  "specialty": "67eaf20d2186add4b5811e02",
+  "timezone": "+01:00",
+  "status": "PENDING",
+  "payment": {
+    "platformFee": 0,
+    "doctorFee": 0,
+    "discount": 0,
+    "total": 0,
+    "status": "UNPAID",
+    "paymentMethod": ""
+  },
+  "createdAt": {
+    "$date": "2025-04-17T10:37:37.327Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-17T10:37:44.593Z"
+  },
+  "__v": 0,
+  "date": "2025-04-17",
+  "doctor": "67f6745b45bccd47d55f5c13",
+  "medicalForm": {
+    "data": {
+      "pain_area": "1",
+      "pain_level": "2"
+    }
+  },
+  "slot": "16:30"
+},
+{
+  "_id": {
+    "$oid": "6800da2a0bd11b3f0b1b3ee8"
+  },
+  "appointmentId": "AP589910",
+  "patient": "67e3f1d36b4dbf9229f687c9",
+  "specialty": "67eaf20d2186add4b5811e05",
+  "timezone": "+01:00",
+  "status": "PENDING",
+  "payment": {
+    "paymentMethod": "vnpay",
+    "discount": 10000,
+    "totalFee": 190000,
+    "billing_status": "PAID"
+  },
+  "createdAt": {
+    "$date": "2025-04-17T10:38:34.945Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-17T10:54:44.954Z"
+  },
+  "__v": 0,
+  "date": "2025-04-25",
+  "doctor": "67f6745b45bccd47d55f5c13",
+  "medicalForm": {
+    "data": {
+      "neurologic_symptoms": "1"
+    }
+  },
+  "slot": "16:30"
+},
+{
+  "_id": {
+    "$oid": "680105f89380650c32dccee8"
+  },
+  "appointmentId": "AP183872",
+  "patient": "680104679380650c32dcce9a",
+  "specialty": "67f54027d367ebed6751378e",
+  "timezone": "+01:00",
+  "status": "CONFIRMED",
+  "payment": {
+    "paymentMethod": "vnpay",
+    "discount": 10000,
+    "totalFee": 190000,
+    "billing_status": "PAID"
+  },
+  "createdAt": {
+    "$date": "2025-04-17T13:45:28.684Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-17T14:02:56.993Z"
+  },
+  "__v": 0,
+  "date": "2025-04-25",
+  "doctor": "67f6745b45bccd47d55f5c1a",
+  "medicalForm": {
+    "data": {
+      "mood": "1",
+      "sleep": "1"
+    }
+  },
+  "slot": "15:00",
+  "confirmedAt": {
+    "$date": "2025-04-17T14:02:56.993Z"
+  }
+}]

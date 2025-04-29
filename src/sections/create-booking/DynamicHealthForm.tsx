@@ -1,17 +1,15 @@
-import { useState } from 'react';
-
 import { Button } from '@mui/material';
 
 export default function DynamicHealthForm({ questions }: { questions: any[] }) {
-  const [formData, setFormData] = useState<any>({});
-  console.log(questions);
   return (
     <div className="max-w-xl box-shadow-md rounded-md p-4 mt-10">
       <h2 className="text-xl font-bold">Câu hỏi sức khoẻ</h2>
       <form className="space-y-4">
         {questions.map((q, idx) => (
           <div key={idx}>
-            <label className="block font-medium mb-1">{q.label}</label>
+            <label htmlFor={q.key} className="block font-medium mb-1">
+              {q.label}
+            </label>
             {q.type === 'text' && <input type="text" className="w-full border p-2 rounded" />}
             {q.type === 'select' && (
               <select className="w-full border p-2 rounded">

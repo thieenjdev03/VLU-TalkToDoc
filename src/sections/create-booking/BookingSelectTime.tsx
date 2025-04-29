@@ -15,8 +15,8 @@ import DoctorModal from '../user/detail-doctor';
 type Props = {
   doctors: IUserItem[];
   setCurrentStep: (step: string) => void;
-  formData: FormValuesProps;
-  handleSubmit: (data: FormValuesProps) => void;
+  formData: any;
+  handleSubmit: (data: any) => void;
 };
 
 const workingHoursByDay: Record<number, { start: string; end: string }> = {
@@ -43,6 +43,48 @@ const generateTimeSlots = (start: string, end: string, step = 30): string[] => {
   }
 
   return slots;
+};
+
+const CustomOption = (props: any) => {
+  const { data, innerRef, innerProps } = props;
+  return (
+    <div ref={innerRef} {...innerProps} className="p-2 hover:bg-gray-100 flex items-center gap-3">
+      <Avatar src={data.avatarUrl} sx={{ width: 36, height: 36 }} />
+      <div className="flex flex-col">
+        <Typography variant="body1" fontWeight="bold">
+          {data.label}
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          {data.hospital}
+        </Typography>
+        <Typography variant="body2" fontWeight="medium">
+          {data.base_price?.toLocaleString()}đ
+        </Typography>
+      </div>
+    </div>
+  );
+};
+
+const CustomSingleValue = (props: any) => {
+  const { data } = props;
+  return (
+    <selectComponents.SingleValue {...props}>
+      <div className="flex items-center gap-4 p-2 shadow-sm">
+        <Avatar src={data.avatarUrl} sx={{ width: 60, height: 60 }} />
+        <div className="flex flex-col">
+          <Typography variant="body1" fontWeight="bold">
+            {data.label}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {data.hospital}
+          </Typography>
+          <Typography variant="body2" fontWeight="medium">
+            {data.base_price?.toLocaleString()}đ
+          </Typography>
+        </div>
+      </div>
+    </selectComponents.SingleValue>
+  );
 };
 
 export default function BookingSelectTime({
@@ -87,47 +129,6 @@ export default function BookingSelectTime({
       setSelectedDoctor(filteredDoctors[0]);
     }
   }, [filteredDoctors]);
-
-  const CustomOption = (props: any) => {
-    const { data, innerRef, innerProps } = props;
-    return (
-      <div ref={innerRef} {...innerProps} className="p-2 hover:bg-gray-100 flex items-center gap-3">
-        <Avatar src={data.avatarUrl} sx={{ width: 36, height: 36 }} />
-        <div className="flex flex-col">
-          <Typography variant="body1" fontWeight="bold">
-            {data.label}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            {data.hospital}
-          </Typography>
-          <Typography variant="body2" fontWeight="medium">
-            {data.base_price?.toLocaleString()}đ
-          </Typography>
-        </div>
-      </div>
-    );
-  };
-  const CustomSingleValue = (props: any) => {
-    const { data } = props;
-    return (
-      <selectComponents.SingleValue {...props}>
-        <div className="flex items-center gap-4 p-2 shadow-sm">
-          <Avatar src={data.avatarUrl} sx={{ width: 60, height: 60 }} />
-          <div className="flex flex-col">
-            <Typography variant="body1" fontWeight="bold">
-              {data.label}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {data.hospital}
-            </Typography>
-            <Typography variant="body2" fontWeight="medium">
-              {data.base_price?.toLocaleString()}đ
-            </Typography>
-          </div>
-        </div>
-      </selectComponents.SingleValue>
-    );
-  };
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>

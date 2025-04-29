@@ -62,6 +62,7 @@ const defaultFilters: IInvoiceTableFilters = {
   status: 'all',
   startDate: null,
   endDate: null,
+  service: [],
 };
 
 // ----------------------------------------------------------------------
@@ -92,7 +93,7 @@ export default function InvoiceListView() {
       }
     };
     getDataInvoices();
-  }, []);
+  }, [enqueueSnackbar]);
 
   const [filters, setFilters] = useState<IInvoiceTableFilters>(defaultFilters);
 
@@ -172,19 +173,6 @@ export default function InvoiceListView() {
     setFilters(defaultFilters);
   }, []);
 
-  const handleDeleteRow = useCallback(
-    (id: string) => {
-      const deleteRow = tableData.filter((row) => row._id !== id);
-
-      enqueueSnackbar('Delete success!');
-
-      setTableData(deleteRow);
-
-      table.onUpdatePageDeleteRow(dataInPage.length);
-    },
-    [dataInPage.length, enqueueSnackbar, table, tableData]
-  );
-
   const handleDeleteRows = useCallback(() => {
     const deleteRows = tableData.filter((row) => !table.selected.includes(row._id));
 
@@ -197,14 +185,6 @@ export default function InvoiceListView() {
       totalRowsFiltered: dataFiltered.length,
     });
   }, [dataFiltered.length, dataInPage.length, enqueueSnackbar, table, tableData]);
-
-  const handleEditRow = useCallback(
-    (id: string) => {
-      router.push(paths.dashboard.invoice.edit(id));
-    },
-    [router]
-  );
-
   const handleViewRow = useCallback(
     (id: string) => {
       router.push(paths.dashboard.invoice.details(id));
@@ -358,7 +338,7 @@ export default function InvoiceListView() {
               onSelectAllRows={(checked) => {
                 table.onSelectAllRows(
                   checked,
-                  dataFiltered.map((row) => row._id)
+                  dataFiltered.map((row: any) => row._id)
                 );
               }}
               action={
@@ -400,10 +380,7 @@ export default function InvoiceListView() {
                   numSelected={table.selected.length}
                   onSort={table.onSort}
                   onSelectAllRows={(checked) =>
-                    table.onSelectAllRows(
-                      checked,
-                      dataFiltered.map((row) => row._id)
-                    )
+                    table.onSelectAllRows(checked, dataFiltered?.map((row: any) => row._id))
                   }
                 />
 
@@ -413,15 +390,13 @@ export default function InvoiceListView() {
                       table.page * table.rowsPerPage,
                       table.page * table.rowsPerPage + table.rowsPerPage
                     )
-                    .map((row) => (
+                    .map((row: any) => (
                       <InvoiceTableRow
                         key={row.id}
                         row={row}
                         selected={table.selected.includes(row.id)}
                         onSelectRow={() => table.onSelectRow(row.id)}
                         onViewRow={() => handleViewRow(row.id)}
-                        onEditRow={() => handleEditRow(row.id)}
-                        onDeleteRow={() => handleDeleteRow(row.id)}
                       />
                     ))}
 
@@ -482,38 +457,40 @@ function applyFilter({
   filters,
   dateError,
 }: {
-  inputData: IInvoice[];
+  inputData: any;
   comparator: (a: any, b: any) => number;
   filters: IInvoiceTableFilters;
   dateError: boolean;
 }) {
   const { name = '', status = 'all', startDate = null, endDate = null } = filters || {};
 
-  const stabilizedThis = inputData.map((el, index) => [el, index] as const);
+  const stabilizedThis = inputData.map((el: any, index: any) => [el, index] as const);
 
-  stabilizedThis.sort((a, b) => {
+  stabilizedThis.sort((a: any, b: any) => {
     const order = comparator(a[0], b[0]);
     if (order !== 0) return order;
     return a[1] - b[1];
   });
 
-  inputData = stabilizedThis.map((el) => el[0]);
+  inputData = stabilizedThis.map((el: any) => el[0]);
 
   if (name) {
     inputData = inputData.filter(
-      (invoice) =>
+      (invoice: any) =>
         invoice.orderId.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
         invoice.userInfo.message.toLowerCase().indexOf(name.toLowerCase()) !== -1
     );
   }
 
   if (status !== 'all') {
-    inputData = inputData.filter((invoice) => invoice.status === status);
+    inputData = inputData.filter((invoice: any) => invoice.status === status);
   }
 
   if (!dateError) {
     if (startDate && endDate) {
-      inputData = inputData.filter((invoice) => isBetween(invoice.createdAt, startDate, endDate));
+      inputData = inputData.filter((invoice: any) =>
+        isBetween(invoice.createdAt, startDate, endDate)
+      );
     }
   }
 

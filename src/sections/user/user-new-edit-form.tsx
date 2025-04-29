@@ -91,7 +91,6 @@ export default function UserNewEditForm({
   hospitals,
   isSettingAccount,
 }: Props) {
-  console.log('currentUser:', currentUser);
   const router = useRouter();
   const { specialties } = useGetSpecialties({
     query: '',
@@ -114,8 +113,6 @@ export default function UserNewEditForm({
   const { updateUser } = useUpdateUser({ typeUser });
   const [cities, setCities] = useState<IProvince[]>([]);
   const [loadingCities, setLoadingCities] = useState<boolean>(false);
-  const { watch } = useForm();
-
   useEffect(() => {
     if (specialties?.data?.length) {
       setSpecialtyList(specialties?.data);
@@ -141,7 +138,7 @@ export default function UserNewEditForm({
       }
     };
     fetchCities();
-  }, []);
+  }, [enqueueSnackbar]);
   const formatNumber = (value: number | string) => {
     if (!value) return '';
     return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
@@ -251,9 +248,8 @@ export default function UserNewEditForm({
     control,
     setValue,
     handleSubmit,
-    formState: { isSubmitting, errors }, // Thêm errors để debug
+    formState: { isSubmitting },
   } = methods;
-  console.log('  Errors:', errors);
 
   const onSubmit = handleSubmit(async (data) => {
     try {

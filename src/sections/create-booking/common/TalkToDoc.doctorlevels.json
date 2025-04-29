@@ -1,0 +1,114 @@
+[{
+  "_id": {
+    "$oid": "67eaf2fe6e93ddb82f3d47c3"
+  },
+  "name": "Bác sĩ hạng 2",
+  "description": "Trưởng / Phó Phòng",
+  "base_price": 200000,
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-03-31T19:51:25.122Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-08T17:26:07.719Z"
+  },
+  "id": "DL614317",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67eaf2fe6e93ddb82f3d47c6"
+  },
+  "name": "Bác sĩ hạng 1",
+  "description": "Trưởng / Phó Bệnh Viện, Trưởng / Phó khoa, Nhiều năm kinh nghiệm",
+  "base_price": 250000,
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-03-31T19:51:28.122Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-08T17:26:11.156Z"
+  },
+  "id": "DL614320",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67f65c5d6964f39d44a14a5e"
+  },
+  "name": "Bác sĩ hạng đặc biệt",
+  "description": "Giáo sư, chuyên gia đầu ngành, từng công tác quốc tế",
+  "base_price": 500000,
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-04-09T11:39:09.606Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-09T11:39:09.606Z"
+  },
+  "id": "DL614334"
+},
+{
+  "_id": {
+    "$oid": "67f65c5d6964f39d44a14a5d"
+  },
+  "name": "Bác sĩ hạng 5",
+  "description": "Sinh viên Y khoa năm cuối, hỗ trợ tư vấn ban đầu",
+  "base_price": 120000,
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-04-09T11:39:09.606Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-09T11:39:09.606Z"
+  },
+  "id": "DL614333"
+},
+{
+  "_id": {
+    "$oid": "67f65c5d6964f39d44a14a5b"
+  },
+  "name": "Bác sĩ hạng 3",
+  "description": "Bác sĩ có chứng chỉ hành nghề, từng làm tại phòng khám",
+  "base_price": 180000,
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-04-09T11:39:09.606Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-09T11:39:09.606Z"
+  },
+  "id": "DL614331"
+},
+{
+  "_id": {
+    "$oid": "67f65c5d6964f39d44a14a5c"
+  },
+  "name": "Bác sĩ hạng 4",
+  "description": "Bác sĩ mới ra trường, đang thực tập tại bệnh viện tuyến huyện",
+  "base_price": 150000,
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-04-09T11:39:09.606Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-09T11:39:09.606Z"
+  },
+  "id": "DL614332"
+},
+{
+  "_id": {
+    "$oid": "67f65c5d6964f39d44a14a5f"
+  },
+  "name": "Bác sĩ hạng ưu tú",
+  "description": "Phó giáo sư, nhiều công trình nghiên cứu, giảng dạy đại học",
+  "base_price": 350000,
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-04-09T11:39:09.606Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-09T11:39:09.606Z"
+  },
+  "id": "DL614335"
+}]

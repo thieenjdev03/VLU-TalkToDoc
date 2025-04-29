@@ -1,0 +1,26 @@
+{
+  "type": "Compass Connections",
+  "version": {
+    "$numberInt": "1"
+  },
+  "connections": [
+    {
+      "id": "1c25062f-bbd4-48b4-9595-1087c6698bba",
+      "lastUsed": {
+        "$date": {
+          "$numberLong": "1745860924335"
+        }
+      },
+      "favorite": {
+        "name": "cluster0.n7eas.mongodb.net"
+      },
+      "savedConnectionType": "recent",
+      "connectionOptions": {
+        "connectionString": "mongodb+srv://thiendev03:Thien2003@cluster0.n7eas.mongodb.net/",
+        "oidc": {
+          "serializedState": "eyJvaWRjUGx1Z2luU3RhdGVWZXJzaW9uIjowLCJzdGF0ZSI6W119"
+        }
+      }
+    }
+  ]
+}

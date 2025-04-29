@@ -45,7 +45,6 @@ import {
   IAppointmentTableFilters,
   IAppointmentTableFilterValue,
 } from 'src/types/appointment'; // Cập nhật loại
-
 import AppointmentTableRow from '../appointment-table-row'; // Cập nhật thành phần
 import AppointmentTableToolbar from '../appointment-table-toolbar'; // Cập nhật thành phần
 // Cập nhật thành phần
@@ -81,11 +80,13 @@ const TABLE_HEAD_PATIENT = [
   { id: 'paid', label: 'Đã thanh toán', width: 140 },
   { id: '', width: 88 },
 ];
+
 const defaultFilters: IAppointmentTableFilters = {
   patient: '',
-  status: 'all',
+  status: {},
   startDate: null,
   endDate: null,
+  name: '',
 };
 
 // ----------------------------------------------------------------------
@@ -102,9 +103,9 @@ export default function AppointmentListView() {
   const confirm = useBoolean();
   const [tableData, setTableData] = useState<IAppointmentItem[]>([]); // Cập nhật để sử dụng lịch hẹn
 
-  const [filters, setFilters] = useState(defaultFilters);
+  const [filters, setFilters] = useState<IAppointmentTableFilters>(defaultFilters);
 
-  const dateError = isAfter(filters.startDate, filters.endDate);
+  const dateError = isAfter(filters?.startDate, filters?.endDate);
   const userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}');
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -143,9 +144,9 @@ export default function AppointmentListView() {
       console.log(appointments.data);
     };
     fetchAppointments();
-  }, []);
+  }, [userProfile?._id, userProfile.role]);
   const handleFilters = useCallback(
-    (name: string, value: IAppointmentTableFilterValue) => {
+    (name: any, value: IAppointmentTableFilterValue) => {
       table.onResetPage();
       setFilters((prevState) => ({
         ...prevState,
@@ -154,10 +155,6 @@ export default function AppointmentListView() {
     },
     [table]
   );
-
-  const handleResetFilters = useCallback(() => {
-    setFilters(defaultFilters);
-  }, []);
 
   const handleDeleteRow = useCallback(
     (id: string) => {
@@ -193,7 +190,7 @@ export default function AppointmentListView() {
   );
 
   const handleFilterStatus = useCallback(
-    (event: React.SyntheticEvent, newValue: string) => {
+    (event: React.SyntheticEvent, newValue: any) => {
       handleFilters('status', newValue);
     },
     [handleFilters]
@@ -255,8 +252,7 @@ export default function AppointmentListView() {
 
           <AppointmentTableToolbar
             filters={filters}
-            onFilters={handleFilters}
-            //
+            onFilters={handleFilters as any}
             dateError={dateError}
           />
 
@@ -280,7 +276,7 @@ export default function AppointmentListView() {
               onSelectAllRows={(checked) =>
                 table.onSelectAllRows(
                   checked,
-                  dataFiltered.map((row) => row._id) // Cập nhật để sử dụng _id
+                  dataFiltered.map((row: any) => row._id) // Cập nhật để sử dụng _id
                 )
               }
               action={
@@ -304,7 +300,7 @@ export default function AppointmentListView() {
                   onSelectAllRows={(checked) =>
                     table.onSelectAllRows(
                       checked,
-                      dataFiltered.map((row) => row._id) // Cập nhật để sử dụng _id
+                      dataFiltered.map((row: any) => row._id) // Cập nhật để sử dụng _id
                     )
                   }
                 />
@@ -392,15 +388,15 @@ function applyFilter({
 }) {
   const { status, patient, startDate, endDate } = filters;
 
-  const stabilizedThis = inputData.map((el, index) => [el, index] as const);
+  const stabilizedThis = inputData.map((el: any, index: any) => [el, index] as const);
 
-  stabilizedThis.sort((a, b) => {
+  stabilizedThis.sort((a: any, b: any) => {
     const order = comparator(a[0], b[0]);
     if (order !== 0) return order;
     return a[1] - b[1];
   });
 
-  inputData = stabilizedThis.map((el) => el[0]);
+  inputData = stabilizedThis.map((el: any) => el[0]);
 
   if (patient) {
     inputData = inputData.filter(

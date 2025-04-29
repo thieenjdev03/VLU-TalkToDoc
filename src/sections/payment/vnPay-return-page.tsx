@@ -34,7 +34,7 @@ export default function VnPayReturnPage(props: { setPaymentSuccess: (success: bo
         }
       })
       .catch((err) => console.error('🚨 Error verifying payment:', err));
-  }, []);
+  }, [setPaymentSuccess]);
 
   return (
     <div className="text-center mt-20">

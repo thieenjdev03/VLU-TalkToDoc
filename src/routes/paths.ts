@@ -119,6 +119,7 @@ export const paths = {
     appointment: {
       root: `${ROOTS.DASHBOARD}/appointment`,
       list: `${ROOTS.DASHBOARD}/appointment/list`,
+      details: (id: string) => `${ROOTS.DASHBOARD}/appointment/${id}`,
     },
     medicalRecord: {
       root: `${ROOTS.DASHBOARD}/medical-record`,

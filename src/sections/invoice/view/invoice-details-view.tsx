@@ -38,7 +38,7 @@ export default function InvoiceDetailsView({ id }: Props) {
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 
-      <InvoiceDetails invoice={currentInvoice} />
+      <InvoiceDetails invoice={currentInvoice as any} />
     </Container>
   );
 }

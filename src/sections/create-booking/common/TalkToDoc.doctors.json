@@ -1,0 +1,479 @@
+[{
+  "_id": {
+    "$oid": "67f6745b45bccd47d55f5c13"
+  },
+  "id": "DR0001",
+  "username": "minhthu01",
+  "password": "password123",
+  "email": "thu.minh@example.com",
+  "fullName": "BS. Nguyễn Minh Thư",
+  "birthDate": "1988-03-12",
+  "phoneNumber": "0901234567",
+  "avatarUrl": "https://img.freepik.com/free-photo/portrait-asian-doctor-woman-cross-arms-standing-medical-uniform-stethoscope-smiling-camera-white-background_1258-83220.jpg",
+  "isActive": true,
+  "city": {
+    "name": "Hanoi",
+    "code": 1,
+    "division_type": "City",
+    "codename": "hanoi",
+    "phone_code": 24
+  },
+  "specialty": [
+    "67eaf20d2186add4b5811e02"
+  ],
+  "hospital": "67eaf737b9f206baae6dbe64",
+  "experienceYears": 12,
+  "licenseNo": "MD000001",
+  "availability": [
+    {
+      "date": "2025-03-20",
+      "timeSlots": [
+        "08:00-09:00",
+        "10:00-11:00"
+      ]
+    }
+  ],
+  "rank": "67f65c5d6964f39d44a14a5c",
+  "position": "Phó Phòng",
+  "updatedAt": {
+    "$date": "2025-04-15T16:20:23.635Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "67f6745b45bccd47d55f5c16"
+  },
+  "id": "DR0004",
+  "username": "thanhha04",
+  "password": "password123",
+  "email": "ha.thanh@example.com",
+  "fullName": "BS. Phạm Thanh Hà",
+  "birthDate": "1990-02-01",
+  "phoneNumber": "0938383838",
+  "avatarUrl": "https://sohanews.sohacdn.com/thumb_w/660/2019/12/9/b1-15758670170691715081642.jpg",
+  "isActive": true,
+  "city": {
+    "name": "Hanoi",
+    "code": 1,
+    "division_type": "City",
+    "codename": "hanoi",
+    "phone_code": 24
+  },
+  "specialty": [
+    "67eaf20d2186add4b5811e02",
+    "67f54075d367ebed6751379d"
+  ],
+  "hospital": "67eaf737b9f206baae6dbe66",
+  "experienceYears": 7,
+  "licenseNo": "MD000004",
+  "availability": [
+    {
+      "date": "2025-03-20",
+      "timeSlots": [
+        "08:00-09:00",
+        "11:00-12:00"
+      ]
+    }
+  ],
+  "rank": "67f65c5d6964f39d44a14a5b",
+  "updatedAt": {
+    "$date": "2025-04-15T16:20:34.883Z"
+  },
+  "position": "Thực Tập Sinh"
+},
+{
+  "_id": {
+    "$oid": "67f6745b45bccd47d55f5c1a"
+  },
+  "id": "DR0008",
+  "username": "hieubinh08",
+  "password": "password123",
+  "email": "binh.hieu@example.com",
+  "fullName": "BS. Hiếu Bình",
+  "birthDate": "1992-11-25",
+  "phoneNumber": "0977888999",
+  "avatarUrl": "https://suckhoedoisong.qltns.mediacdn.vn/324455921873985536/2023/12/25/1-17035025379211648167770.png",
+  "isActive": true,
+  "city": {
+    "name": "Hanoi",
+    "code": 1,
+    "division_type": "City",
+    "codename": "hanoi",
+    "phone_code": 24
+  },
+  "specialty": [
+    "67f5414cd367ebed675137da",
+    "67f54027d367ebed6751378e"
+  ],
+  "hospital": "67eaf737b9f206baae6dbe67",
+  "experienceYears": 5,
+  "licenseNo": "MD000008",
+  "availability": [
+    {
+      "date": "2025-03-20",
+      "timeSlots": [
+        "09:00-10:00",
+        "14:00-15:00"
+      ]
+    }
+  ],
+  "rank": "67f65c5d6964f39d44a14a5c",
+  "updatedAt": {
+    "$date": "2025-04-15T16:19:46.915Z"
+  },
+  "position": "Trưởng Khoa"
+},
+{
+  "_id": {
+    "$oid": "67f6745b45bccd47d55f5c18"
+  },
+  "id": "DR0006",
+  "username": "quoctri06",
+  "password": "password123",
+  "email": "tri.quoc@example.com",
+  "fullName": "BS. Trần Quốc Trí",
+  "birthDate": "1978-06-15",
+  "phoneNumber": "0956677889",
+  "avatarUrl": "https://cafefcdn.com/203337114487263232/2023/2/24/photo-9-1677226171758167063525.jpg",
+  "isActive": true,
+  "city": {
+    "name": "Hanoi",
+    "code": 1,
+    "division_type": "City",
+    "codename": "hanoi",
+    "phone_code": 24
+  },
+  "specialty": [
+    "67eaf20d2186add4b5811e08",
+    "67f54137d367ebed675137d0",
+    "67eaf20d2186add4b5811e03",
+    "67f5414cd367ebed675137da"
+  ],
+  "hospital": "67eaf737b9f206baae6dbe64",
+  "experienceYears": 18,
+  "licenseNo": "MD000006",
+  "availability": [
+    {
+      "date": "2025-03-20",
+      "timeSlots": [
+        "10:00-11:00",
+        "16:00-17:00"
+      ]
+    }
+  ],
+  "rank": "67f65c5d6964f39d44a14a5f",
+  "updatedAt": {
+    "$date": "2025-04-15T16:20:02.274Z"
+  },
+  "position": "Thực Tập Sinh"
+},
+{
+  "_id": {
+    "$oid": "67f6745b45bccd47d55f5c1b"
+  },
+  "id": "DR0009",
+  "username": "hoangviet09",
+  "password": "password123",
+  "email": "viet.hoang@example.com",
+  "fullName": "BS. Hoàng Việt",
+  "birthDate": "1987-08-30",
+  "phoneNumber": "0988991122",
+  "avatarUrl": "https://benhvienvietduc.org/wp-content/uploads/2020/09/IMG-6625-copy-bs-nam1.jpg",
+  "isActive": true,
+  "city": {
+    "name": "Hanoi",
+    "code": 1,
+    "division_type": "City",
+    "codename": "hanoi",
+    "phone_code": 24
+  },
+  "specialty": [
+    "67eaf20d2186add4b5811e04",
+    "67f54027d367ebed6751378e",
+    "67eaf20d2186add4b5811e08",
+    "67f54137d367ebed675137d0"
+  ],
+  "hospital": "67eaf737b9f206baae6dbe64",
+  "experienceYears": 13,
+  "licenseNo": "MD000009",
+  "availability": [
+    {
+      "date": "2025-03-20",
+      "timeSlots": [
+        "08:00-09:00",
+        "11:00-12:00"
+      ]
+    }
+  ],
+  "rank": "67eaf2fe6e93ddb82f3d47c3",
+  "updatedAt": {
+    "$date": "2025-04-15T16:19:54.724Z"
+  },
+  "position": "Trưởng Phòng"
+},
+{
+  "_id": {
+    "$oid": "67f6745b45bccd47d55f5c14"
+  },
+  "id": "DR0002",
+  "username": "bachchinh02",
+  "password": "password123",
+  "email": "chinh.bach@example.com",
+  "fullName": "BS. Bạch Thị Chính",
+  "birthDate": "1982-05-20",
+  "phoneNumber": "0912345678",
+  "avatarUrl": "https://vnvc.vn/wp-content/uploads/2017/12/bac-si-bach-thi-chinh.png",
+  "isActive": true,
+  "city": {
+    "name": "Hanoi",
+    "code": 1,
+    "division_type": "City",
+    "codename": "hanoi",
+    "phone_code": 24
+  },
+  "specialty": [
+    "67eaf20d2186add4b5811e09"
+  ],
+  "hospital": "67eaf737b9f206baae6dbe67",
+  "experienceYears": 15,
+  "licenseNo": "MD000002",
+  "availability": [
+    {
+      "date": "2025-03-20",
+      "timeSlots": [
+        "08:00-09:00",
+        "14:00-15:00"
+      ]
+    }
+  ],
+  "rank": "67eaf2fe6e93ddb82f3d47c6",
+  "position": "Trưởng Phòng",
+  "updatedAt": {
+    "$date": "2025-04-15T16:20:15.628Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "67f6745b45bccd47d55f5c1c"
+  },
+  "id": "DR0010",
+  "username": "lethanhh10",
+  "password": "password123",
+  "email": "thanh.le@example.com",
+  "fullName": "BS. Lê Thanh Hương",
+  "birthDate": "1991-12-10",
+  "phoneNumber": "0911223344",
+  "avatarUrl": "https://thumbs.dreamstime.com/b/old-asian-female-medical-doctor-smiling-standing-isolated-white-background-asian-female-medical-doctor-103392779.jpg",
+  "isActive": true,
+  "city": {
+    "name": "Hanoi",
+    "code": 1,
+    "division_type": "City",
+    "codename": "hanoi",
+    "phone_code": 24
+  },
+  "specialty": [
+    "67f54027d367ebed6751378e",
+    "67f5401bd367ebed67513786",
+    "67eaf20d2186add4b5811e02",
+    "67f54075d367ebed6751379d",
+    "67eaf20d2186add4b5811e03"
+  ],
+  "hospital": "67eaf737b9f206baae6dbe65",
+  "experienceYears": 9,
+  "licenseNo": "MD000010",
+  "availability": [
+    {
+      "date": "2025-03-20",
+      "timeSlots": [
+        "10:00-11:00",
+        "13:00-14:00"
+      ]
+    }
+  ],
+  "rank": "67f65c5d6964f39d44a14a5d",
+  "updatedAt": {
+    "$date": "2025-04-15T16:21:18.175Z"
+  },
+  "position": ""
+},
+{
+  "_id": {
+    "$oid": "67f6745b45bccd47d55f5c1d"
+  },
+  "id": "DR0011",
+  "username": "user01",
+  "password": "password123",
+  "email": "user01@example.com",
+  "fullName": "BS. Phạm Yến Nhi",
+  "birthDate": "1991-12-10",
+  "phoneNumber": "0911223344",
+  "avatarUrl": "https://img.freepik.com/premium-photo/young-asian-female-doctor-grey_296537-1123.jpg",
+  "isActive": true,
+  "city": {
+    "name": "Hanoi",
+    "code": 1,
+    "division_type": "City",
+    "codename": "hanoi",
+    "phone_code": 24
+  },
+  "specialty": [
+    "67f54027d367ebed6751378e",
+    "67f5401bd367ebed67513786",
+    "67eaf20d2186add4b5811e02",
+    "67f54075d367ebed6751379d",
+    "67eaf20d2186add4b5811e03"
+  ],
+  "hospital": "67eaf737b9f206baae6dbe65",
+  "experienceYears": 9,
+  "licenseNo": "MD000010",
+  "availability": [
+    {
+      "date": "2025-03-20",
+      "timeSlots": [
+        "10:00-11:00",
+        "13:00-14:00"
+      ]
+    }
+  ],
+  "rank": "67f65c5d6964f39d44a14a5d",
+  "updatedAt": {
+    "$date": "2025-04-15T16:21:08.906Z"
+  },
+  "position": ""
+},
+{
+  "_id": {
+    "$oid": "67fe80c245117ed75e153c99"
+  },
+  "id": "DR0012",
+  "username": "user02",
+  "password": "password123",
+  "email": "user02@example.com",
+  "fullName": "BS. Phạm Quỳnh Như",
+  "birthDate": "1991-12-10",
+  "phoneNumber": "0911223344",
+  "avatarUrl": "https://static.vecteezy.com/system/resources/previews/004/520/002/large_2x/portrait-of-beautiful-female-doctor-of-asian-ethnicity-in-uniform-with-stethoscope-smiling-and-looking-at-the-camera-in-hospital-s-clinic-one-person-who-has-expertise-in-professional-treatment-free-photo.jpg",
+  "isActive": true,
+  "city": {
+    "name": "Hanoi",
+    "code": 1,
+    "division_type": "City",
+    "codename": "hanoi",
+    "phone_code": 24
+  },
+  "specialty": [
+    "67f54027d367ebed6751378e",
+    "67f5401bd367ebed67513786",
+    "67eaf20d2186add4b5811e02",
+    "67f54075d367ebed6751379d",
+    "67eaf20d2186add4b5811e03"
+  ],
+  "hospital": "67eaf737b9f206baae6dbe65",
+  "experienceYears": 9,
+  "licenseNo": "MD000010",
+  "availability": [
+    {
+      "date": "2025-03-20",
+      "timeSlots": [
+        "10:00-11:00",
+        "13:00-14:00"
+      ]
+    }
+  ],
+  "rank": "67f65c5d6964f39d44a14a5d",
+  "updatedAt": {
+    "$date": "2025-04-15T16:21:27.308Z"
+  },
+  "position": "Phó Khoa"
+},
+{
+  "_id": {
+    "$oid": "67fe80c245117ed75e153c9b"
+  },
+  "id": "DR0014",
+  "username": "user04",
+  "password": "password123",
+  "email": "user04@example.com",
+  "fullName": "BS. Nguyễn Quốc Nam",
+  "birthDate": "1991-12-10",
+  "phoneNumber": "0911223344",
+  "avatarUrl": "https://img.freepik.com/free-photo/smiling-asian-male-doctor-pointing-upwards_1262-18321.jpg",
+  "isActive": true,
+  "city": {
+    "name": "Hồ Chí Minh",
+    "code": 1,
+    "division_type": "City",
+    "codename": "hcm",
+    "phone_code": 24
+  },
+  "specialty": [
+    "67f54027d367ebed6751378e",
+    "67f5401bd367ebed67513786",
+    "67eaf20d2186add4b5811e02",
+    "67f54027d367ebed6751378e",
+    "67f54075d367ebed6751379d",
+    "67eaf20d2186add4b5811e03"
+  ],
+  "hospital": "67eaf737b9f206baae6dbe65",
+  "experienceYears": 9,
+  "licenseNo": "MD000010",
+  "availability": [
+    {
+      "date": "2025-03-20",
+      "timeSlots": [
+        "10:00-11:00",
+        "13:00-14:00"
+      ]
+    }
+  ],
+  "rank": "67f65c5d6964f39d44a14a5d",
+  "updatedAt": {
+    "$date": "2025-04-14T15:34:35.345Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "67fe80c245117ed75e153c9a"
+  },
+  "id": "DR0013",
+  "username": "user03",
+  "password": "password123",
+  "email": "user03@example.com",
+  "fullName": "BS. Nguyễn Quốc Khải",
+  "birthDate": "1991-12-10",
+  "phoneNumber": "0911223344",
+  "avatarUrl": "https://t4.ftcdn.net/jpg/03/10/37/43/360_F_310374365_fiIJLNqEeYVbXO0PpyUauQvZRreCMEdr.jpg",
+  "isActive": true,
+  "city": {
+    "name": "Hồ Chí Minh",
+    "code": 1,
+    "division_type": "City",
+    "codename": "hcm",
+    "phone_code": 24
+  },
+  "specialty": [
+    "67f54027d367ebed6751378e",
+    "67f5401bd367ebed67513786",
+    "67eaf20d2186add4b5811e02",
+    "67f54075d367ebed6751379d",
+    "67eaf20d2186add4b5811e03"
+  ],
+  "hospital": "67eaf737b9f206baae6dbe65",
+  "experienceYears": 9,
+  "licenseNo": "MD000010",
+  "availability": [
+    {
+      "date": "2025-03-20",
+      "timeSlots": [
+        "10:00-11:00",
+        "13:00-14:00"
+      ]
+    }
+  ],
+  "rank": "67f65c5d6964f39d44a14a5d",
+  "updatedAt": {
+    "$date": "2025-04-15T16:21:24.346Z"
+  },
+  "position": "Trưởng Khoa"
+}]

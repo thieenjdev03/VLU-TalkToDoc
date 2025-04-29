@@ -9,7 +9,6 @@ import { SeoIllustration } from 'src/assets/illustrations';
 import { useSettingsContext } from 'src/components/settings';
 
 import CallCenter from 'src/sections/call/view/call-center';
-import CallComponent from 'src/sections/call/view/make-call';
 
 import AppWelcome from '../app-welcome';
 // ----------------------------------------------------------------------
@@ -41,10 +40,6 @@ export default function OverviewAppView() {
             }
           />
         </Grid>
-        <Grid xs={12} md={4}>
-          <CallComponent stringeeAccessToken={stringeeToken || ''} fromUserId={user?._id || ''} />
-        </Grid>
-
         <CallCenter
           stringeeAccessToken={stringeeToken || ''}
           fromUserId={user?._id || ''}

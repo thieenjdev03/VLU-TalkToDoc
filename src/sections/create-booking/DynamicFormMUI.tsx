@@ -23,11 +23,11 @@ export default function DynamicFormMUI({
   handleSubmit,
 }: {
   config: Question[];
-  setCurrentStep: (step: string) => void;
+  setCurrentStep: (step: string, back?: boolean) => void;
   onSelect: (key: ISpecialtyItem) => void;
   specialty: ISpecialtyItem;
-  formData: FormValuesProps;
-  handleSubmit: (data: FormValuesProps) => void;
+  formData: any;
+  handleSubmit: (data: any) => void;
 }) {
   const schemaFields = config.reduce(
     (acc, item) => {

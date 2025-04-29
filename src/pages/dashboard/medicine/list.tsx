@@ -208,7 +208,7 @@ export default function ProviderMedicineListPage() {
                   >
                     {['Hoạt Động', 'Đã Khoá'].includes(tab.value)
                       ? medicine?.data?.filter(
-                          (medicine: IMedicineItem) => medicine.status === tab.value
+                          (_medicine: IMedicineItem) => _medicine.status === tab.value
                         ).length
                       : medicine?.total}
                   </Label>

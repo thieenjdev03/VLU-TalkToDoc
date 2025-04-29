@@ -35,7 +35,6 @@ type Props = {
   hospitalList: any;
   ranking: any;
   onUpdateSuccess?: () => void;
-  handleRefreshData: () => void;
 };
 
 export default function UserTableRow({
@@ -47,7 +46,6 @@ export default function UserTableRow({
   hospitalList,
   ranking,
   onUpdateSuccess,
-  handleRefreshData,
 }: Props) {
   const {
     fullName,
@@ -230,11 +228,6 @@ export default function UserTableRow({
         onUpdateSuccess={() => {
           quickEdit.onFalse();
           onUpdateSuccess?.();
-        }}
-        handleRefreshData={handleRefreshData}
-        onUploadAvatarSuccess={() => {
-          // Giữ modal mở khi upload ảnh avatar thành công
-          quickEdit.onTrue();
         }}
       />
 

@@ -25,7 +25,9 @@ export type IInvoiceItem = {
 };
 
 export type IInvoice = {
+  _id: string;
   id: string;
+  invoiceId: string;
   sent: number;
   dueDate: Date;
   taxes: number;

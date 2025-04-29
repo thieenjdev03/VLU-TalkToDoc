@@ -3,8 +3,6 @@ import { useRef, useState, useEffect } from 'react';
 import { Box, Grid, Paper, Stack, Alert, Button, TextField, Typography } from '@mui/material';
 
 // Stringee SDK load bằng <script> bên ngoài
-declare const StringeeClient: any;
-declare const StringeeCall: any;
 
 interface CallComponentProps {
   stringeeAccessToken: string;
@@ -12,7 +10,7 @@ interface CallComponentProps {
   userInfor: any;
 }
 
-export function CallCenter({ stringeeAccessToken, fromUserId, userInfor }: CallComponentProps) {
+function CallCenter({ stringeeAccessToken, fromUserId, userInfor }: CallComponentProps) {
   const stringeeClientRef = useRef<any>(null);
   const activeCallRef = useRef<any>(null);
 

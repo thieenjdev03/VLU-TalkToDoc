@@ -73,7 +73,7 @@ export default function UserQuickEditForm({
       }
     };
     fetchCities();
-  }, []);
+  }, [enqueueSnackbar]);
 
   const cityOptions = cities.map((city) => city.name);
 
@@ -216,7 +216,6 @@ export default function UserQuickEditForm({
   });
 
   const {
-    reset,
     handleSubmit,
     setValue,
     formState: { isSubmitting, errors },
