@@ -6,7 +6,6 @@
   },
   "plugins": ["perfectionist", "unused-imports", "@typescript-eslint", "prettier"],
   "extends": ["airbnb", "airbnb-typescript", "airbnb/hooks", "prettier"],
-  "import/no-extraneous-dependencies": ["error", { "devDependencies": true }],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaVersion": "latest",
