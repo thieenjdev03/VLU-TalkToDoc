@@ -299,7 +299,9 @@ function CallCenter({ stringeeAccessToken, fromUserId, userInfor }: CallComponen
             autoPlay
             muted
             style={{ width: '100%', height: '300px', background: 'black', borderRadius: '8px' }}
-          />
+          >
+            <track kind="captions" src="captions.vtt" srcLang="en" label="English" default />
+          </video>
         </Grid>
         <Grid item xs={6}>
           <video
@@ -307,7 +309,9 @@ function CallCenter({ stringeeAccessToken, fromUserId, userInfor }: CallComponen
             playsInline
             autoPlay
             style={{ width: '100%', height: '300px', background: 'black', borderRadius: '8px' }}
-          />
+          >
+            <track kind="captions" src="captions.vtt" srcLang="en" label="English" default />
+          </video>
         </Grid>
       </Grid>
     </Box>
