@@ -32,7 +32,7 @@ export default function SpecialtyQuickEditForm({ currentSpecialty, open, onClose
   const { enqueueSnackbar } = useSnackbar();
   const { updateSpecialty } = useUpdateSpecialty();
   const [render, setRender] = useState(false);
-
+  console.log('currentSpecialty:', currentSpecialty);
   const NewSpecialtySchema = useMemo(
     () =>
       Yup.object().shape({
@@ -40,7 +40,7 @@ export default function SpecialtyQuickEditForm({ currentSpecialty, open, onClose
         description: Yup.string().required('Mô tả không được để trống'),
         status: Yup.string().required('Kích hoạt không được để trống'),
         isActive: Yup.boolean(),
-        avatarUrl: Yup.string().url('Đường dẫn ảnh không hợp lệ'),
+        avatarUrl: Yup.string().nullable().url('Đường dẫn ảnh không hợp lệ'),
       }),
     []
   );
@@ -52,7 +52,7 @@ export default function SpecialtyQuickEditForm({ currentSpecialty, open, onClose
       description: currentSpecialty?.description || '',
       status: currentSpecialty?.status || 'isActive',
       isActive: currentSpecialty?.isActive || false,
-      avatarUrl: currentSpecialty?.avatar || '',
+      avatarUrl: currentSpecialty?.avatarUrl || '',
     }),
     [currentSpecialty]
   );
@@ -122,7 +122,7 @@ export default function SpecialtyQuickEditForm({ currentSpecialty, open, onClose
                 name="avatarUrl"
                 maxSize={3145728}
                 onDrop={handleDrop}
-                accept={{ 'image/*': ['.jpeg', '.jpg', '.png', '.gif'] }} // giới hạn định dạng ảnh
+                accept={{ 'image/*': ['.jpeg', '.jpg', '.png', '.gif'] }}
                 helperText={
                   <Typography
                     variant="caption"

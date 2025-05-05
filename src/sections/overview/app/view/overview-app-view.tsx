@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import Button from '@mui/material/Button';
@@ -8,12 +9,13 @@ import { SeoIllustration } from 'src/assets/illustrations';
 
 import { useSettingsContext } from 'src/components/settings';
 
-import CallCenter from 'src/sections/call/view/call-center';
+import CallCenterModal from 'src/sections/call/view/call-center-modal';
 
 import AppWelcome from '../app-welcome';
 // ----------------------------------------------------------------------
 
 export default function OverviewAppView() {
+  const [openCall, setOpenCall] = useState(false);
   const userProfile = localStorage.getItem('userProfile');
   const user = JSON.parse(userProfile || '{}');
   const navigate = useNavigate();
@@ -40,7 +42,13 @@ export default function OverviewAppView() {
             }
           />
         </Grid>
-        <CallCenter
+        {/* <Button variant="contained" color="primary" onClick={() => setOpenCall(true)}>
+          Gọi điện
+        </Button> */}
+        <CallCenterModal
+          currentAppointment={null}
+          open={openCall}
+          onClose={() => setOpenCall(false)}
           stringeeAccessToken={stringeeToken || ''}
           fromUserId={user?._id || ''}
           userInfor={user}

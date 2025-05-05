@@ -1,16 +1,21 @@
+import { Icon } from '@iconify/react';
 import { useRef, useState, useEffect } from 'react';
 
-import { Box, Grid, Paper, Stack, Alert, Button, TextField, Typography } from '@mui/material';
-
-// Stringee SDK load bằng <script> bên ngoài
+import { Box, Stack, Alert, Button, TextField, Typography, IconButton } from '@mui/material';
 
 interface CallComponentProps {
   stringeeAccessToken: string;
   fromUserId: string;
   userInfor: any;
+  currentAppointment: any;
 }
 
-function CallCenter({ stringeeAccessToken, fromUserId, userInfor }: CallComponentProps) {
+function CallCenter({
+  stringeeAccessToken,
+  fromUserId,
+  userInfor,
+  currentAppointment,
+}: CallComponentProps) {
   const stringeeClientRef = useRef<any>(null);
   const activeCallRef = useRef<any>(null);
 
@@ -22,7 +27,6 @@ function CallCenter({ stringeeAccessToken, fromUserId, userInfor }: CallComponen
   const [isVideoEnabled, setIsVideoEnabled] = useState(true);
   const [callStatus, setCallStatus] = useState('Chưa bắt đầu');
   const [isVideoCall, setIsVideoCall] = useState(true);
-
   useEffect(() => {
     if (!stringeeAccessToken) return;
 
@@ -43,7 +47,7 @@ function CallCenter({ stringeeAccessToken, fromUserId, userInfor }: CallComponen
       });
       client.on('incomingcall', (incomingCallObj: any) => {
         setIncomingCall(incomingCallObj);
-        setCallStatus('Có cuộc gọi đến');
+        // setCallStatus('Có cuộc gọi đến');
       });
     }
   }, [stringeeAccessToken]);
@@ -75,7 +79,28 @@ function CallCenter({ stringeeAccessToken, fromUserId, userInfor }: CallComponen
       const remoteVideo = document.getElementById('remoteVideo') as HTMLVideoElement;
       if (remoteVideo) {
         remoteVideo.srcObject = stream;
+        remoteVideo.onloadedmetadata = () => {
+          remoteVideo
+            .play()
+            .catch((err) => console.error('Lỗi phát video từ xa (sau loadedmetadata):', err));
+        };
+      }
+    });
+
+    call.on('remotestreamremoved', () => {
+      const remoteVideo = document.getElementById('remoteVideo') as HTMLVideoElement;
+      if (remoteVideo) {
+        remoteVideo.srcObject = null;
+        remoteVideo.pause();
+        remoteVideo.load();
         remoteVideo.play().catch((err) => console.error('Lỗi phát video từ xa:', err));
+      }
+      const localVideo = document.getElementById('localVideo') as HTMLVideoElement;
+      if (localVideo) {
+        localVideo.srcObject = null;
+        localVideo.pause();
+        localVideo.load();
+        localVideo.play().catch((err) => console.error('Lỗi phát video local:', err));
       }
     });
 
@@ -84,19 +109,6 @@ function CallCenter({ stringeeAccessToken, fromUserId, userInfor }: CallComponen
       if (localVideo) {
         localVideo.srcObject = stream;
         localVideo.play().catch((err) => console.error('Lỗi phát video local:', err));
-      }
-    });
-
-    call.on('addremotetrack', (track: any) => {
-      if (track.kind === 'audio') {
-        const remoteVideo = document.getElementById('remoteVideo') as HTMLVideoElement;
-        if (remoteVideo) {
-          const audioTrack = track.track;
-          if (audioTrack) {
-            const audioStream = new MediaStream([audioTrack]);
-            remoteVideo.srcObject = audioStream;
-          }
-        }
       }
     });
 
@@ -113,47 +125,34 @@ function CallCenter({ stringeeAccessToken, fromUserId, userInfor }: CallComponen
   };
 
   const answerIncomingCall = () => {
-    if (incomingCall) {
-      incomingCall.answer();
+    if (!incomingCall) return;
 
-      incomingCall.on('addremotestream', (stream: any) => {
-        const remoteVideo = document.getElementById('remoteVideo') as HTMLVideoElement;
-        if (remoteVideo) {
-          remoteVideo.srcObject = stream;
-          remoteVideo.play().catch((err) => console.error('Lỗi phát video từ xa:', err));
-        }
-      });
+    activeCallRef.current = incomingCall;
 
-      incomingCall.on('addlocalstream', (stream: any) => {
-        const localVideo = document.getElementById('localVideo') as HTMLVideoElement;
-        if (localVideo) {
-          localVideo.srcObject = stream;
-          localVideo.play().catch((err) => console.error('Lỗi phát video local:', err));
-        }
-      });
+    activeCallRef.current.on('addlocalstream', (stream: MediaStream) => {
+      const localVideo = document.getElementById('localVideo') as HTMLVideoElement;
+      if (localVideo) {
+        localVideo.srcObject = stream;
+        localVideo.onloadedmetadata = () => {
+          localVideo
+            .play()
+            .catch((err) => console.error('Lỗi phát video local (sau loadedmetadata):', err));
+        };
+      }
+    });
 
-      incomingCall.on('addremotetrack', (track: any) => {
-        if (track.kind === 'audio') {
-          const remoteVideo = document.getElementById('remoteVideo') as HTMLVideoElement;
-          if (remoteVideo) {
-            const audioTrack = track.track;
-            if (audioTrack) {
-              const audioStream = new MediaStream([audioTrack]);
-              remoteVideo.srcObject = audioStream;
-            }
-          }
-        }
-      });
+    activeCallRef.current.on('addremotestream', (stream: MediaStream) => {
+      const remoteVideo = document.getElementById('remoteVideo') as HTMLVideoElement;
+      if (remoteVideo) {
+        remoteVideo.srcObject = stream;
+        remoteVideo.play().catch(console.error);
+      }
+    });
 
-      incomingCall.on('signalingstate', (state: any) =>
-        setCallStatus(`Trạng thái: ${state.reason}`)
-      );
-
-      activeCallRef.current = incomingCall;
-      setIncomingCall(null);
-      setCalling(true);
-      setCallStatus('Đã trả lời cuộc gọi');
-    }
+    activeCallRef.current.answer(); // ✅ CHỈ gọi sau khi đăng ký xong event
+    setIncomingCall(null);
+    setCalling(true);
+    setCallStatus('Đã trả lời cuộc gọi');
   };
 
   const rejectIncomingCall = () => {
@@ -178,142 +177,368 @@ function CallCenter({ stringeeAccessToken, fromUserId, userInfor }: CallComponen
     }
   };
 
-  const upgradeToVideoCall = () => {
-    if (activeCallRef.current && !isVideoCall) {
-      activeCallRef.current.upgradeToVideoCall();
-      setIsVideoCall(true);
-      setCallStatus('Đã nâng cấp lên video call');
-    }
-  };
-
-  const switchVoiceVideoCall = () => {
-    if (activeCallRef.current) {
-      activeCallRef.current.switchVoiceVideoCall();
-      setCallStatus('Đã chuyển đổi voice/video');
-    }
-  };
-
   return (
-    <Box p={4} maxWidth="1000px" mx="auto">
-      <Paper elevation={3} sx={{ p: 2, mb: 4 }}>
-        <Stack direction="row" justifyContent="space-between" alignItems="center">
-          <Typography variant="h6">User: {fromUserId || 'Chưa đăng nhập'}</Typography>
-          <Typography variant="body2" color={clientConnected ? 'green' : 'error'}>
-            {clientConnected ? 'Đã kết nối Stringee' : 'Đang kết nối...'}
-          </Typography>
-        </Stack>
-      </Paper>
-
-      <Grid container spacing={2} mb={4}>
-        <Grid item>
-          <TextField
-            label="ID người nhận"
-            value={toUserId}
-            onChange={(e) => setToUserId(e.target.value)}
-          />
-        </Grid>
-        <Grid item>
-          <Button
-            variant="contained"
-            color="success"
-            onClick={() => makeCall(false)}
-            disabled={!clientConnected || calling}
-          >
-            Voice Call
-          </Button>
-        </Grid>
-        <Grid item>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => makeCall(true)}
-            disabled={!clientConnected || calling}
-          >
-            Video Call
-          </Button>
-        </Grid>
-        <Grid item>
-          <Button variant="contained" color="error" onClick={endCall} disabled={!calling}>
-            Hang Up
-          </Button>
-        </Grid>
-      </Grid>
-
-      <Grid container spacing={2} mb={4}>
-        <Grid item>
-          <Button
-            variant="outlined"
-            onClick={upgradeToVideoCall}
-            disabled={!calling || isVideoCall}
-          >
-            Upgrade to Video
-          </Button>
-        </Grid>
-        <Grid item>
-          <Button variant="outlined" onClick={switchVoiceVideoCall} disabled={!calling}>
-            Switch Voice/Video
-          </Button>
-        </Grid>
-        <Grid item>
-          <Button variant="outlined" onClick={mute} disabled={!calling}>
-            {isMuted ? 'Unmute' : 'Mute'}
-          </Button>
-        </Grid>
-        <Grid item>
-          <Button variant="outlined" onClick={enableVideo} disabled={!calling}>
-            {isVideoEnabled ? 'Disable Video' : 'Enable Video'}
-          </Button>
-        </Grid>
-      </Grid>
-
+    <Box display="flex flex-col gap-2" height="100vh">
       {callStatus && (
-        <Alert severity="info" sx={{ mb: 4 }}>
+        <Alert severity="info" sx={{ mt: 2, width: '100%' }}>
           {callStatus}
         </Alert>
       )}
-
-      {incomingCall && (
-        <Alert
-          severity="warning"
-          sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+      <Box
+        bgcolor="#f9fafb"
+        p={{ xs: 1, sm: 2 }}
+        borderRight="1px solid #e5e7eb"
+        display="flex"
+        flexDirection={{ xs: 'column', sm: 'row' }}
+        alignItems={{ xs: 'flex-start', sm: 'center' }}
+        gap={{ xs: 2, sm: 3 }}
+      >
+        {/* Logo */}
+        <Box
+          sx={{
+            width: { xs: '100%', sm: 120 },
+            display: 'flex',
+            justifyContent: 'center',
+          }}
         >
-          <span>
-            Có cuộc gọi đến từ: <b>{incomingCall.from}</b>
-          </span>
-          <Box>
-            <Button color="success" onClick={answerIncomingCall}>
-              Trả lời
-            </Button>
-            <Button color="error" onClick={rejectIncomingCall}>
-              Từ chối
-            </Button>
-          </Box>
-        </Alert>
-      )}
+          <img
+            src="https://res.cloudinary.com/dut4zlbui/image/upload/v1746366836/geiw8b1qgv3w7sia9o4h.png"
+            alt="Logo"
+            style={{ maxHeight: '50px', objectFit: 'contain' }}
+          />
+        </Box>
 
-      <Grid container spacing={2}>
-        <Grid item xs={6}>
-          <video
-            id="localVideo"
-            playsInline
-            autoPlay
-            muted
-            style={{ width: '100%', height: '300px', background: 'black', borderRadius: '8px' }}
+        {/* Divider */}
+        <Typography
+          variant="h6"
+          color="text.disabled"
+          sx={{ display: { xs: 'none', sm: 'block' } }}
+        >
+          |
+        </Typography>
+
+        {/* Appointment Info */}
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 2, sm: 4 }} width="100%">
+          <Stack spacing={0.5} width={{ xs: '100%', sm: 'auto' }}>
+            <Typography variant="body2" color="text.secondary">
+              Bác sĩ:{' '}
+              <Typography component="span" fontWeight="500" color="text.primary">
+                {currentAppointment?.doctor?.fullName || '---'}
+              </Typography>
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Bệnh nhân:{' '}
+              <Typography component="span" fontWeight="500" color="text.primary">
+                {currentAppointment?.patient?.fullName || '---'}
+              </Typography>
+            </Typography>
+            <Typography
+              sx={{
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                maxWidth: '100%',
+              }}
+              variant="body2"
+              color="text.secondary"
+            >
+              Bệnh nhân ID:{' '}
+              <Typography
+                sx={{
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  maxWidth: '100%',
+                }}
+                width="100%"
+                component="span"
+                fontWeight="500"
+                color="text.primary"
+              >
+                {currentAppointment?.patient?._id || '---'}
+              </Typography>
+            </Typography>
+            <Typography
+              sx={{
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                maxWidth: '100%',
+              }}
+              variant="body2"
+              color="text.secondary"
+            >
+              Bác Sĩ ID:{' '}
+              <Typography component="span" fontWeight="500" color="text.primary">
+                {currentAppointment?.doctor?._id || '---'}
+              </Typography>
+            </Typography>
+          </Stack>
+
+          <Stack spacing={0.5} width={{ xs: '100%', sm: 'auto' }}>
+            <Typography variant="body2" color="text.secondary">
+              Ngày:{' '}
+              <Typography component="span" fontWeight="500" color="text.primary">
+                {currentAppointment?.date || '---'}
+              </Typography>
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Giờ:{' '}
+              <Typography component="span" fontWeight="500" color="text.primary">
+                {currentAppointment?.slot || '---'}
+              </Typography>
+            </Typography>
+          </Stack>
+        </Stack>
+      </Box>
+      <Box width="100%" display="flex" flexDirection="column" gap={2} alignItems="center">
+        <TextField
+          label="Call to"
+          value={toUserId}
+          onChange={(e) => setToUserId(e.target.value)}
+          sx={{
+            mt: 2,
+            width: { xs: '100%', sm: '300px' },
+            maxWidth: '300px',
+          }}
+        />
+
+        <Stack
+          direction={{ xs: 'column', sm: 'row' }}
+          spacing={2}
+          mt={2}
+          width={{ xs: '100%', sm: 'auto' }}
+        >
+          <Button variant="contained" onClick={() => makeCall(false)} disabled={!clientConnected}>
+            Voice Call
+          </Button>
+          <Button variant="contained" onClick={() => makeCall(true)} disabled={!clientConnected}>
+            Video Call
+          </Button>
+        </Stack>
+
+        {incomingCall && (
+          <Box
+            sx={{
+              mt: 2,
+              px: 3,
+              py: 2,
+              borderRadius: 4,
+              bgcolor: '#333',
+              color: 'white',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              width: '50%',
+              boxShadow: 4,
+            }}
           >
-            <track kind="captions" src="captions.vtt" srcLang="en" label="English" default />
-          </video>
-        </Grid>
-        <Grid item xs={6}>
-          <video
-            id="remoteVideo"
-            playsInline
-            autoPlay
-            style={{ width: '100%', height: '300px', background: 'black', borderRadius: '8px' }}
+            <Box>
+              <Typography variant="body2" color="gray">
+                Cuộc gọi đến
+              </Typography>
+              <Typography variant="h6" fontWeight="bold">
+                {incomingCall.from || 'Người gọi'}
+              </Typography>
+            </Box>
+
+            <Stack direction="row" spacing={2}>
+              <IconButton
+                onClick={answerIncomingCall}
+                sx={{
+                  bgcolor: 'green',
+                  '&:hover': { bgcolor: 'darkgreen' },
+                  color: 'white',
+                  width: 48,
+                  height: 48,
+                }}
+              >
+                <Icon icon="mdi:phone" width={24} height={24} />
+              </IconButton>
+
+              <IconButton
+                onClick={rejectIncomingCall}
+                sx={{
+                  bgcolor: 'red',
+                  '&:hover': { bgcolor: 'darkred' },
+                  color: 'white',
+                  width: 48,
+                  height: 48,
+                }}
+              >
+                <Icon icon="mdi:phone-hangup" width={24} height={24} />
+              </IconButton>
+
+              <IconButton
+                sx={{
+                  bgcolor: 'gray',
+                  '&:hover': { bgcolor: 'darkgray' },
+                  color: 'white',
+                  width: 48,
+                  height: 48,
+                }}
+              >
+                <Icon icon="mdi:email-outline" width={24} height={24} />
+              </IconButton>
+            </Stack>
+          </Box>
+        )}
+      </Box>
+      <Box
+        flex={1}
+        display="flex"
+        flexDirection="column"
+        justifyContent="center"
+        alignItems="center"
+        p={{ xs: 2, sm: 4 }}
+      >
+        <Box
+          width="100%"
+          borderRadius={2}
+          overflow="hidden"
+          boxShadow={3}
+          display="flex"
+          flexDirection={{ xs: 'column', sm: 'row' }}
+          gap={2}
+        >
+          <Box
+            width={{ xs: '100%', sm: '50%' }}
+            height={{ xs: '200px', sm: '300px' }}
+            overflow="hidden"
+            boxShadow={3}
           >
-            <track kind="captions" src="captions.vtt" srcLang="en" label="English" default />
-          </video>
-        </Grid>
-      </Grid>
+            <video
+              id="remoteVideo"
+              playsInline
+              autoPlay
+              muted={false}
+              style={{
+                width: '100%',
+                height: '100%',
+                backgroundColor: '#424141',
+                objectFit: 'cover',
+              }}
+            >
+              <track kind="captions" src="" label="English" />
+            </video>
+          </Box>
+          <Box
+            width={{ xs: '100%', sm: '50%' }}
+            height={{ xs: '200px', sm: '300px' }}
+            overflow="hidden"
+            boxShadow={3}
+          >
+            <video
+              id="localVideo"
+              playsInline
+              autoPlay
+              muted
+              style={{
+                width: '100%',
+                height: '100%',
+                backgroundColor: '#424141',
+                objectFit: 'cover',
+              }}
+            />
+          </Box>
+        </Box>
+
+        <Stack
+          direction="row"
+          spacing={3}
+          mt={4}
+          justifyContent="center"
+          flexWrap="wrap"
+          gap={{ xs: 2, sm: 3 }}
+          sx={{
+            '& > button': {
+              width: { xs: 48, sm: 56 },
+              height: { xs: 48, sm: 56 },
+              borderRadius: '50%',
+              transition: 'all 0.2s ease',
+              boxShadow: 2,
+              '&:hover': {
+                transform: 'scale(1.1)',
+                opacity: 0.9,
+              },
+            },
+          }}
+        >
+          {/* Mic Button */}
+          <Button
+            variant="contained"
+            onClick={mute}
+            sx={{
+              backgroundColor: isMuted ? 'warning.main' : 'primary.main',
+              '&:hover': {
+                backgroundColor: isMuted ? 'warning.dark' : 'primary.dark',
+              },
+            }}
+          >
+            <Icon icon={isMuted ? 'mdi:microphone-off' : 'mdi:microphone'} width={24} height={24} />
+          </Button>
+
+          {/* Camera Button */}
+          <Button
+            variant="contained"
+            onClick={enableVideo}
+            sx={{
+              backgroundColor: isVideoEnabled ? 'primary.main' : 'warning.main',
+              '&:hover': {
+                backgroundColor: isVideoEnabled ? 'primary.dark' : 'warning.dark',
+              },
+            }}
+          >
+            <Icon icon={isVideoEnabled ? 'mdi:video' : 'mdi:video-off'} width={24} height={24} />
+          </Button>
+
+          {/* Chat Button */}
+          <Button
+            variant="contained"
+            sx={{
+              backgroundColor: 'grey.200',
+              color: 'grey.800',
+              '&:hover': {
+                backgroundColor: 'grey.300',
+              },
+            }}
+          >
+            <Icon icon="mdi:chat-outline" width={24} height={24} />
+          </Button>
+
+          {/* Record Button */}
+          <Button
+            variant="contained"
+            sx={{
+              backgroundColor: 'error.main',
+              '&:hover': {
+                backgroundColor: 'error.dark',
+              },
+            }}
+          >
+            <Icon icon="mdi:record-circle" width={24} height={24} />
+          </Button>
+
+          {/* End Call */}
+          <Button
+            variant="contained"
+            onClick={endCall}
+            disabled={!calling}
+            sx={{
+              backgroundColor: 'error.main',
+              '&:hover': {
+                backgroundColor: 'error.dark',
+              },
+              '&.Mui-disabled': {
+                backgroundColor: 'grey.300',
+                color: 'grey.500',
+              },
+            }}
+          >
+            <Icon icon="mdi:phone-hangup" width={24} height={24} />
+          </Button>
+        </Stack>
+      </Box>
     </Box>
   );
 }

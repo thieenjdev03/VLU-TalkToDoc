@@ -42,13 +42,14 @@ import { IPharmacyItem, IPharmacyTableFilters } from 'src/types/pharmacy'; // Up
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD_PHARMACY = [
-  { id: '_id', label: 'Mã Nhà Thuốc', width: 100 },
+  { id: '_id', label: 'Mã Nhà Thuốc', width: '15%' },
   { id: 'name', label: 'Tên Nhà Thuốc', width: '20%' },
   { id: 'address', label: 'Địa Chỉ', width: '20%' },
-  { id: 'city', label: 'Thành Phố', width: '20%' },
-  { id: 'phoneNumber', label: 'Số Điện Thoại', width: '20%' },
+  { id: 'city', label: 'Thành Phố', width: '10%' },
+  { id: 'phoneNumber', label: 'Số Điện Thoại', width: '10%' },
   { id: 'is24Hours', label: 'Hoạt Động 24/7', width: '10%' },
   { id: 'isActive', label: 'Kích Hoạt', width: '10%' },
+  { id: '', label: '', width: '10%' },
 ];
 const defaultFilters: IPharmacyTableFilters = {
   name: '',
@@ -83,9 +84,12 @@ export default function PharmaciesListPage() {
     }
   );
 
+  const [total, setTotal] = useState(0);
+
   useEffect(() => {
     if (pharmacies?.data?.length) {
       setTableData(pharmacies?.data);
+      setTotal(pharmacies?.total);
     } else if (pharmaciesLoading || pharmaciesError || pharmaciesValidating) {
       setTableData([]);
     }
@@ -221,11 +225,12 @@ export default function PharmaciesListPage() {
                       onEditRow={() => handleEditRow(row._id)}
                     />
                   ))}
-
-                  <TableEmptyRows
-                    height={denseHeight}
-                    emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
-                  />
+                  {tableData.length === 0 && (
+                    <TableEmptyRows
+                      height={denseHeight}
+                      emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
+                    />
+                  )}
 
                   <TableNoData notFound={notFound} />
                 </TableBody>
@@ -233,7 +238,7 @@ export default function PharmaciesListPage() {
             </Scrollbar>
           </TableContainer>
           <TablePaginationCustom
-            count={tableData.length}
+            count={total}
             page={table.page}
             rowsPerPage={table.rowsPerPage}
             onPageChange={table.onChangePage}

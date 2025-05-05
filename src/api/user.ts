@@ -20,22 +20,14 @@ export const useGetUsers = ({
   query = '',
   page = 1,
   limit = 10,
-  sortField = 'fullName',
-  sortOrder = 'asc',
+  sortField = 'updatedAt',
+  sortOrder = 'desc',
 }: Props) => {
-  const baseURL = useMemo(() => {
-    if (typeUser === 'doctor') return endpoints.doctors.list;
-    if (typeUser === 'patient') return endpoints.patients.list;
-    if (typeUser === 'employee') return endpoints.employees.list;
-    if (typeUser === 'user') return endpoints.users.list;
-    return '';
-  }, [typeUser]);
-
   // Create search endpoint with query params if provided
   const URL = useMemo(() => {
-    if (!query && page === 1 && limit === 10 && sortField === 'fullName' && sortOrder === 'asc') {
-      return baseURL; // Use original endpoint if no search params
-    }
+    // if (!query && page === 1 && limit === 10 && sortField === 'createAt' && sortOrder === 'asc') {
+    //   return baseURL; // Use original endpoint if no search params
+    // }
 
     const searchURLs = {
       doctor: endpoints.doctors.search,
@@ -55,7 +47,7 @@ export const useGetUsers = ({
     queryParams.append('sortOrder', sortOrder);
 
     return `${searchURL}?${queryParams.toString()}`;
-  }, [baseURL, query, page, limit, sortField, sortOrder, typeUser]);
+  }, [query, page, limit, sortField, sortOrder, typeUser]);
 
   const { data, isLoading, error, isValidating } = useSWR(
     URL ? [URL, { method: 'GET' }] : null,
@@ -71,6 +63,7 @@ export const useGetUsers = ({
       usersEmpty: !isLoading && (!data || data.length === 0),
       usersURL: URL,
       mutateUsers: () => mutate(URL),
+      usersTotal: data?.total || 0,
     }),
     [data, error, isLoading, isValidating, URL]
   );
@@ -141,7 +134,16 @@ export const useCreateUser = ({ typeUser }: Props) => {
   };
 };
 
-export const getUserById = async (id: string) => {
-  const response = await axiosInstanceV2.get(`${endpoints.users.profile}/${id}`);
-  return response.data;
+export const getUserById = async (id: string, role: string) => {
+  const handleURL = (userId: string, userRole: string) => {
+    if (userRole === 'doctor') return endpoints.doctors.profile(userId);
+    if (userRole === 'patient') return endpoints.patients.profile(userId);
+    if (userRole === 'employee') return endpoints.employees.profile(userId);
+    if (userRole === 'user') return endpoints.users.profile(userId);
+    return '';
+  };
+
+  const baseURL = handleURL(id, role);
+  const response = await axiosInstanceV2.get(baseURL);
+  return response.data || null;
 };

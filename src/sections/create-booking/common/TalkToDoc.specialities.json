@@ -1,0 +1,231 @@
+[{
+  "_id": {
+    "$oid": "67eaf20d2186add4b5811e09"
+  },
+  "name": "Sản phụ khoa",
+  "description": "Chăm sóc sức khỏe phụ nữ",
+  "isActive": true,
+  "config": {},
+  "createdAt": {
+    "$date": "2025-03-31T19:47:28.911Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-15T14:56:48.802Z"
+  },
+  "id": "SP573521",
+  "__v": 0,
+  "avatarUrl": "https://res.cloudinary.com/dut4zlbui/image/upload/v1744729005/tbxf2wrfeax1hdmz2csq.svg"
+},
+{
+  "_id": {
+    "$oid": "67eaf20d2186add4b5811e02"
+  },
+  "name": "Xương khớp",
+  "description": "Chỉnh hình xương khớp",
+  "isActive": true,
+  "config": {},
+  "createdAt": {
+    "$date": "2025-03-31T19:47:21.911Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-15T16:28:29.559Z"
+  },
+  "id": "SP573514",
+  "__v": 0,
+  "avatarUrl": "https://res.cloudinary.com/dut4zlbui/image/upload/v1744734507/gej35dqsctn1upwxywys.svg"
+},
+{
+  "_id": {
+    "$oid": "67eaf20d2186add4b5811e05"
+  },
+  "name": "Thần kinh",
+  "description": "Điều trị các bệnh về thần kinh",
+  "isActive": true,
+  "config": {},
+  "createdAt": {
+    "$date": "2025-03-31T19:47:24.911Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-17T13:44:49.304Z"
+  },
+  "id": "SP573517",
+  "__v": 0,
+  "avatarUrl": "https://res.cloudinary.com/dut4zlbui/image/upload/v1744897484/m7hmtirdg5qnyvjkhbcz.svg"
+},
+{
+  "_id": {
+    "$oid": "67eaf20d2186add4b5811e0b"
+  },
+  "name": "Mắt",
+  "description": "Khám và điều trị bệnh về mắt",
+  "isActive": true,
+  "config": {},
+  "createdAt": {
+    "$date": "2025-03-31T19:47:30.911Z"
+  },
+  "updatedAt": {
+    "$date": "2025-03-31T19:47:30.911Z"
+  },
+  "id": "SP573523",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67eaf20d2186add4b5811e08"
+  },
+  "name": "Tiêu hóa",
+  "description": "Chuyên khoa tiêu hóa",
+  "isActive": true,
+  "config": {},
+  "createdAt": {
+    "$date": "2025-03-31T19:47:27.911Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-15T16:29:17.400Z"
+  },
+  "id": "SP573520",
+  "__v": 0,
+  "avatarUrl": "https://res.cloudinary.com/dut4zlbui/image/upload/v1744734555/pzlgskcg7p3qz8yzqesa.svg"
+},
+{
+  "_id": {
+    "$oid": "67eaf20d2186add4b5811e03"
+  },
+  "name": "Tim mạch",
+  "description": "Khám và điều trị bệnh tim",
+  "isActive": true,
+  "config": {},
+  "createdAt": {
+    "$date": "2025-03-31T19:47:22.911Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-15T16:05:18.266Z"
+  },
+  "id": "SP573515",
+  "__v": 0,
+  "avatarUrl": "https://res.cloudinary.com/dut4zlbui/image/upload/v1744733115/gl2yeynk1iy20u7yh5d4.svg"
+},
+{
+  "_id": {
+    "$oid": "67eaf20d2186add4b5811e07"
+  },
+  "name": "Hô hấp",
+  "description": "Khám và điều trị bệnh về hô hấp",
+  "isActive": true,
+  "config": {},
+  "createdAt": {
+    "$date": "2025-03-31T19:47:26.911Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-15T14:56:01.745Z"
+  },
+  "id": "SP573519",
+  "__v": 0,
+  "avatarUrl": "https://res.cloudinary.com/dut4zlbui/image/upload/v1744728957/syjprkaj1unmirye9g1v.svg"
+},
+{
+  "_id": {
+    "$oid": "67f5401bd367ebed67513786"
+  },
+  "name": "Đa khoa Tư nhân",
+  "description": "Khám tổng quát, xử lý các vấn đề sức khỏe cơ bản, hướng dẫn chăm sóc và điều trị ban đầu.",
+  "isActive": true,
+  "config": {},
+  "createdAt": {
+    "$date": "2025-04-08T15:26:19.272Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-15T16:28:41.066Z"
+  },
+  "id": "SP596278",
+  "__v": 0,
+  "avatarUrl": "https://res.cloudinary.com/dut4zlbui/image/upload/v1744734518/x7v32hc5vjgazeoqnubd.svg"
+},
+{
+  "_id": {
+    "$oid": "67f54027d367ebed6751378e"
+  },
+  "name": "Tâm thần học",
+  "description": "Tư vấn và điều trị các vấn đề liên quan đến lo âu, trầm cảm, stress và sức khỏe tinh thần.",
+  "isActive": true,
+  "config": {},
+  "createdAt": {
+    "$date": "2025-04-08T15:26:31.185Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-08T15:30:02.381Z"
+  },
+  "id": "SP717225",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67f54075d367ebed6751379d"
+  },
+  "name": "Tiền mãn kinh",
+  "description": "Hỗ trợ phụ nữ trong giai đoạn tiền mãn kinh và mãn kinh: nội tiết, rối loạn giấc ngủ, thay đổi cảm xúc.",
+  "isActive": true,
+  "config": {},
+  "createdAt": {
+    "$date": "2025-04-08T15:27:49.579Z"
+  },
+  "updatedAt": {
+    "$date": "2025-05-04T13:05:49.322Z"
+  },
+  "id": "SP381348",
+  "__v": 0,
+  "avatarUrl": "https://res.cloudinary.com/dut4zlbui/image/upload/v1746363946/xcnuzjkgltbm9pyabg73.svg"
+},
+{
+  "_id": {
+    "$oid": "67f540a7d367ebed675137ad"
+  },
+  "name": "Giảm cân & Dinh dưỡng",
+  "description": "Hướng dẫn kế hoạch giảm cân lành mạnh, kiểm soát cân nặng và tư vấn dinh dưỡng phù hợp.",
+  "isActive": true,
+  "config": {},
+  "createdAt": {
+    "$date": "2025-04-08T15:28:39.503Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-15T14:56:34.215Z"
+  },
+  "id": "SP568081",
+  "__v": 0,
+  "avatarUrl": ""
+},
+{
+  "_id": {
+    "$oid": "67f54137d367ebed675137d0"
+  },
+  "name": "Tiêu hoá – Gan mật",
+  "description": "Khám và điều trị các bệnh về dạ dày, đại tràng, gan, mật, trào ngược, tiêu chảy, táo bón.",
+  "isActive": true,
+  "config": {},
+  "createdAt": {
+    "$date": "2025-04-08T15:31:03.025Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-08T15:31:03.025Z"
+  },
+  "id": "SP243660",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67f5414cd367ebed675137da"
+  },
+  "name": "Sức khỏe sinh lý ",
+  "description": "Tư vấn các vấn đề sinh lý, quan hệ tình dục an toàn, bệnh lây truyền qua đường tình dục (STDs).",
+  "isActive": true,
+  "config": {},
+  "createdAt": {
+    "$date": "2025-04-08T15:31:24.065Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-15T14:57:27.494Z"
+  },
+  "id": "SP164404",
+  "__v": 0,
+  "avatarUrl": "https://res.cloudinary.com/dut4zlbui/image/upload/v1744729044/rxvgf6cuvjfbkzvlrbbm.svg"
+}]

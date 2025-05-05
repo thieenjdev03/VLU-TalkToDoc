@@ -1,14 +1,14 @@
 import axios from 'axios';
 import * as Yup from 'yup';
 import { useMemo, useState, useEffect } from 'react';
-import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { useForm, Resolver, Controller } from 'react-hook-form';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
+import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 import Switch from '@mui/material/Switch';
-import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
 import LoadingButton from '@mui/lab/LoadingButton';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -24,7 +24,6 @@ import { useCreateUser, useUpdateUser } from 'src/api/user';
 import Label from 'src/components/label';
 import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, {
-  RHFSwitch,
   RHFTextField,
   RHFAutocomplete,
   RHFUploadAvatar,
@@ -40,7 +39,7 @@ type Ranking = {
 };
 type Props = {
   currentUser?: IUserItem;
-  typeUser: 'user' | 'doctor' | 'employee' | 'patient';
+  typeUser: 'user' | 'doctor' | 'employee' | 'patient' | 'admin';
   hospitals: any;
   isSettingAccount?: boolean;
   updateUserPage?: boolean;
@@ -96,7 +95,7 @@ export default function UserNewEditForm({
     query: '',
     page: 1,
     limit: 10,
-    sortField: '',
+    sortField: 'updatedAt',
     sortOrder: 'desc',
   });
   const [specialtyList, setSpecialtyList] = useState<ISpecialtyItem[]>([]);
@@ -109,8 +108,12 @@ export default function UserNewEditForm({
   });
 
   const { enqueueSnackbar } = useSnackbar();
-  const { createUser } = useCreateUser({ typeUser });
-  const { updateUser } = useUpdateUser({ typeUser });
+  const { createUser } = useCreateUser({
+    typeUser: typeUser as 'user' | 'doctor' | 'employee' | 'patient' | 'all',
+  });
+  const { updateUser } = useUpdateUser({
+    typeUser: typeUser as 'user' | 'doctor' | 'employee' | 'patient' | 'all',
+  });
   const [cities, setCities] = useState<IProvince[]>([]);
   const [loadingCities, setLoadingCities] = useState<boolean>(false);
   useEffect(() => {
@@ -148,99 +151,117 @@ export default function UserNewEditForm({
   const parseNumber = (value: string) => value.replace(/,/g, '');
 
   const cityOptions = cities.map((city) => city.name);
-  const NewUserSchema = Yup.object().shape({
-    fullName: Yup.string().required('Họ & tên không được để trống'),
-    username: Yup.string().required('Tên tài khoản không được để trống'),
-    password: Yup.string().required('Mật khẩu không được để trống'),
-    email: Yup.string().required('Email không được để trống').email('Email không hợp lệ'),
-    phoneNumber: Yup.string().required('Số điện thoại không được để trống'),
-    avatarUrl: Yup.string().optional(), // Updated validation
-    status: Yup.string(),
-    isActive: Yup.boolean(),
-    isVerified: Yup.boolean(),
-    gender:
-      typeUser === 'patient'
-        ? Yup.string().required('Giới tính không được để trống')
-        : Yup.string().optional(),
-    birthDate:
-      typeUser === 'patient'
-        ? Yup.string().required('Ngày sinh không được để trống')
-        : Yup.string().optional(),
-    address:
-      typeUser === 'patient'
-        ? Yup.string().required('Địa chỉ không được để trống')
-        : Yup.string().optional(),
-    company:
-      typeUser === 'user'
-        ? Yup.string().required('Bệnh viện không được để trống')
-        : Yup.string().optional(),
-    position:
-      typeUser === 'user' || typeUser === 'employee'
-        ? Yup.string().required('Vị trí không được để trống')
-        : Yup.string().optional(),
-    // city:
-    //   typeUser === 'doctor'
-    //     ? Yup.string().required('Thành phố không được để trống')
-    //     : Yup.string().optional(),
-    experienceYears:
-      typeUser === 'doctor'
-        ? Yup.string().required('Số năm kinh nghiệm không được để trống')
-        : Yup.string().optional(),
-    licenseNo:
-      typeUser === 'doctor'
-        ? Yup.string().required('Mã giấy phép không được để trống')
-        : Yup.string().optional(),
-    department:
-      typeUser === 'employee'
-        ? Yup.string().required('Bộ phận không được để trống')
-        : Yup.string().optional(),
-    salary:
-      typeUser === 'employee' || typeUser === 'doctor'
-        ? Yup.string().required('Lương không được để trống')
-        : Yup.string().optional(),
-    emergencyContact:
-      typeUser === 'user'
-        ? Yup.array().required('Liên hệ khẩn cấp không được để trống')
-        : Yup.array().optional(),
-  }) as Yup.ObjectSchema<FormValuesProps>;
+  const NewUserSchema = useMemo(() => {
+    switch (typeUser) {
+      case 'doctor':
+        return Yup.object().shape({
+          fullName: Yup.string().required('Họ và Tên không được để trống'),
+          email: Yup.string().required('Email không được để trống').email('Email không hợp lệ'),
+          phoneNumber: Yup.string().required('Số điện thoại không được để trống'),
+          experienceYears: Yup.number().required('Số năm kinh nghiệm không được để trống'),
+          licenseNo: Yup.string().required('Mã giấy phép không được để trống'),
+        });
+      case 'patient':
+        return Yup.object().shape({
+          fullName: Yup.string().required('Họ và Tên không được để trống'),
+          email: Yup.string().email('Email không hợp lệ'),
+          phoneNumber: Yup.string().required('Số điện thoại không được để trống'),
+          address: Yup.string().required('Địa chỉ không được để trống'),
+          birthDate: Yup.string().required('Ngày sinh không được để trống'),
+          gender: Yup.string().required('Giới tính không được để trống'),
+        });
+      case 'employee':
+        return Yup.object().shape({
+          fullName: Yup.string().required('Họ và Tên không được để trống'),
+          email: Yup.string().required('Email không được để trống').email('Email không hợp lệ'),
+          phoneNumber: Yup.string().required('Số điện thoại không được để trống'),
+          position: Yup.string().required('Vai trò không được để trống'),
+          department: Yup.string().required('Bộ phận không được để trống'),
+        });
+      default:
+        return Yup.object().shape({});
+    }
+  }, [typeUser]);
+  const handleDrop = async (acceptedFiles: File[]) => {
+    const file = acceptedFiles[0];
+    if (file) {
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', 'talktodoc_unsigned');
 
+        const response = await fetch('https://api.cloudinary.com/v1_1/dut4zlbui/image/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        const data = await response.json();
+
+        if (data.secure_url) {
+          setValue('avatarUrl', data.secure_url, { shouldValidate: true });
+          console.log('imageUrl:', data.secure_url);
+        } else {
+          enqueueSnackbar('Không thể lấy được đường dẫn ảnh từ Cloudinary!', { variant: 'error' });
+        }
+      } catch (error) {
+        console.error('Upload error:', error);
+        enqueueSnackbar('Upload ảnh thất bại!', { variant: 'error' });
+      }
+    }
+  };
   const defaultValues = useMemo(
     () => ({
       fullName: currentUser?.fullName || '',
-      username: currentUser?.username || '',
-      password: currentUser?.password || '',
       email: currentUser?.email || '',
-      status: currentUser?.status || 'isActive',
-      isActive: currentUser?.isActive || true,
-      avatarUrl: currentUser?.avatarUrl || '',
+      isActive: currentUser?.isActive || false,
       phoneNumber: currentUser?.phoneNumber || '',
-      isVerified: currentUser?.isVerified || true,
-      ...(typeUser === 'user' && {
-        company: currentUser?.company || '',
-        position: currentUser?.position || '',
-        emergencyContact: currentUser?.emergencyContact || [],
-      }),
+      avatarUrl: currentUser?.avatarUrl || '',
       ...(typeUser === 'doctor' && {
-        hospital: currentUser?.hospital || '',
-        rank: currentUser?.rank || '',
-        salary: currentUser?.salary || 0,
-        specialty: currentUser?.specialty || [], // Là mảng string
-        // city: currentUser?.city || '',
+        specialty: Array.isArray(currentUser?.specialty)
+          ? currentUser.specialty.map((s: any) =>
+              typeof s === 'object' ? { value: s._id, label: s.name } : s
+            )
+          : [],
         position: currentUser?.position || '',
-        experienceYears: currentUser?.experienceYears || '',
+        hospital:
+          currentUser?.hospital && typeof currentUser.hospital === 'object'
+            ? { value: currentUser.hospital._id, label: currentUser.hospital.name }
+            : '',
+        rank:
+          currentUser?.rank && typeof currentUser.rank === 'object'
+            ? { value: currentUser.rank._id, label: currentUser.rank.name }
+            : '',
+        experienceYears: currentUser?.experienceYears || 0,
         licenseNo: currentUser?.licenseNo || '',
       }),
+      ...(typeUser === 'patient' && {
+        address: currentUser?.address || '',
+        birthDate: currentUser?.birthDate ? currentUser.birthDate.split('T')[0] : '',
+        gender: currentUser?.gender || '',
+      }),
       ...(typeUser === 'employee' && {
-        hospital: currentUser?.hospital || '',
-        salary: currentUser?.salary || 0,
+        hospital:
+          currentUser?.hospital && typeof currentUser.hospital === 'object'
+            ? { value: currentUser.hospital._id, label: currentUser.hospital.name }
+            : '',
+        department: currentUser?.department || '',
+        specialty: Array.isArray(currentUser?.specialty)
+          ? currentUser.specialty.map((s: any) =>
+              typeof s === 'object' ? { value: s._id, label: s.name } : s
+            )
+          : [],
         position: currentUser?.position || '',
+        salary: currentUser?.salary || 0,
+        city:
+          currentUser?.city && typeof currentUser.city === 'object'
+            ? currentUser.city.name
+            : currentUser?.city || '',
       }),
     }),
     [currentUser, typeUser]
   );
-
-  const methods = useForm<FormValuesProps>({
-    resolver: yupResolver(NewUserSchema) as any,
+  const methods = useForm({
+    resolver: yupResolver(NewUserSchema) as Resolver<any>,
     defaultValues,
   });
   const {
@@ -277,7 +298,10 @@ export default function UserNewEditForm({
         };
       }
       if (updateUserPage) {
-        await updateUser({ id: currentUser?._id || '', data: { avatarUrl: data?.avatarUrl } });
+        await updateUser({
+          id: currentUser?._id || '',
+          data: { avatarUrl: data?.avatarUrl, ...formattedData },
+        });
         reset();
         enqueueSnackbar(currentUser ? 'Cập nhật thành công!' : 'Tạo mới thành công!');
       } else {
@@ -287,6 +311,7 @@ export default function UserNewEditForm({
         router.push(path || '');
       }
     } catch (err) {
+      enqueueSnackbar('Lỗi khi tạo tài khoản!', { variant: 'error' });
       console.error(err);
     }
   });
@@ -318,7 +343,7 @@ export default function UserNewEditForm({
       >
         <RHFTextField name="email" label="Email" />
       </Box>
-      <FormControlLabel
+      {/* <FormControlLabel
         control={
           <Controller
             name="isActive"
@@ -333,7 +358,7 @@ export default function UserNewEditForm({
           />
         }
         label="Kích hoạt"
-      />
+      /> */}
     </Box>
   );
 
@@ -352,17 +377,7 @@ export default function UserNewEditForm({
   );
 
   const renderPatientFields = (
-    <Box
-      rowGap={3}
-      columnGap={2}
-      display="grid"
-      gridTemplateColumns={{
-        xs: 'repeat(1, 1fr)',
-        sm: 'repeat(1, 1fr)',
-      }}
-    >
-      {renderBasicFields}
-      <RHFTextField name="address" label="Địa chỉ" />
+    <Box sx={{ mb: 5 }}>
       <Box
         rowGap={3}
         columnGap={2}
@@ -372,53 +387,45 @@ export default function UserNewEditForm({
           sm: 'repeat(1, 1fr)',
         }}
       >
-        <RHFTextField name="birthDate" label="Ngày sinh" />
-        <RHFAutocomplete
-          name="gender"
-          label="Giới tính"
-          options={[
-            { value: 'male', label: 'Nam' },
-            { value: 'female', label: 'Nữ' },
-            { value: 'other', label: 'Khác' },
-          ]}
-          getOptionLabel={(option) => (typeof option === 'string' ? option : option.label)}
-          isOptionEqualToValue={(option, value: any) =>
-            typeof option === 'string' ? option === value : option.value === value
-          }
-          onChange={(event, newValue: any) =>
-            setValue('gender', newValue.value, { shouldValidate: true })
-          }
-        />
+        {renderBasicFields}
+        <RHFTextField name="address" label="Địa chỉ" />
+        <Box
+          rowGap={3}
+          columnGap={2}
+          display="grid"
+          gridTemplateColumns={{
+            xs: 'repeat(1, 1fr)',
+            sm: 'repeat(1, 1fr)',
+          }}
+        >
+          <RHFTextField
+            name="birthDate"
+            label="Ngày sinh"
+            type="date"
+            InputLabelProps={{
+              shrink: true,
+            }}
+          />
+          <RHFAutocomplete
+            name="gender"
+            label="Giới tính"
+            options={[
+              { value: 'male', label: 'Nam' },
+              { value: 'female', label: 'Nữ' },
+              { value: 'other', label: 'Khác' },
+            ]}
+            getOptionLabel={(option) => (typeof option === 'string' ? option : option.label)}
+            isOptionEqualToValue={(option, value: any) =>
+              typeof option === 'string' ? option === value : option.value === value
+            }
+            onChange={(event, newValue: any) =>
+              setValue('gender', newValue.value, { shouldValidate: true })
+            }
+          />
+        </Box>
       </Box>
     </Box>
   );
-  const handleDrop = async (acceptedFiles: File[]) => {
-    const file = acceptedFiles[0];
-    if (file) {
-      try {
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('upload_preset', 'talktodoc_unsigned');
-
-        const response = await fetch('https://api.cloudinary.com/v1_1/dut4zlbui/image/upload', {
-          method: 'POST',
-          body: formData,
-        });
-
-        const data = await response.json();
-
-        if (data.secure_url) {
-          setValue('avatarUrl', data.secure_url, { shouldValidate: true });
-          console.log('imageUrl:', data.secure_url);
-        } else {
-          enqueueSnackbar('Không thể lấy được đường dẫn ảnh từ Cloudinary!', { variant: 'error' });
-        }
-      } catch (error) {
-        console.error('Upload error:', error);
-        enqueueSnackbar('Upload ảnh thất bại!', { variant: 'error' });
-      }
-    }
-  };
 
   const hospitalOptions =
     hospitals?.map((hospital: any) => ({
@@ -436,16 +443,8 @@ export default function UserNewEditForm({
         sm: 'repeat(1, 1fr)',
       }}
     >
-      <Box
-        rowGap={3}
-        columnGap={2}
-        display="grid"
-        gridTemplateColumns={{
-          xs: 'repeat(1, 1fr)',
-          sm: 'repeat(1, 1fr)',
-        }}
-      >
-        {renderBasicFields}
+      {renderBasicFields}
+      <Grid item xs={12} sm={6}>
         <RHFAutocomplete
           name="specialty"
           label="Chuyên khoa"
@@ -455,9 +454,12 @@ export default function UserNewEditForm({
             label: item.name,
           }))}
           getOptionLabel={(option) => (typeof option === 'string' ? option : option.label)}
-          isOptionEqualToValue={(option: any, value: any) => option?.value === value?.value}
-          // Không cần custom onChange nếu bạn giữ nguyên object
+          isOptionEqualToValue={(option, value: any) =>
+            typeof option === 'string' ? option === value : option.value === value
+          }
         />
+      </Grid>
+      <Grid item xs={12} sm={6}>
         <RHFAutocomplete
           name="hospital"
           label="Bệnh Viện"
@@ -466,23 +468,11 @@ export default function UserNewEditForm({
           getOptionLabel={(option: any) => (typeof option === 'string' ? option : option.label)}
           isOptionEqualToValue={(option: any, value: any) => option?.value === value?.value}
         />
+      </Grid>
+      <Grid item xs={12} sm={6}>
         <RHFTextField name="position" label="Chức Vụ" />
-        {/* {loadingCities ? (
-          <RHFTextField
-            name="city"
-            label="Thành Phố/Tỉnh"
-            disabled
-            placeholder="Loading cities..."
-          />
-        ) : (
-          <RHFAutocomplete
-            name="city"
-            label="Thành Phố/Tỉnh"
-            placeholder="Chọn thành Phố/Tỉnh"
-            options={cityOptions}
-            isOptionEqualToValue={(option, value) => option === value}
-          />
-        )} */}
+      </Grid>
+      <Grid item xs={12} sm={6}>
         <RHFAutocomplete
           name="rank"
           label="Cấp Bậc"
@@ -494,9 +484,13 @@ export default function UserNewEditForm({
           getOptionLabel={(option: any) => (typeof option === 'string' ? option : option.label)}
           isOptionEqualToValue={(option: any, value: any) => option?.value === value?.value}
         />
-        <RHFTextField name="experienceYears" label="Kinh nghiệm (năm)" />
+      </Grid>
+      <Grid item xs={12} sm={6}>
+        <RHFTextField name="experienceYears" label="Số năm kinh nghiệm" />
+      </Grid>
+      <Grid item xs={12} sm={6}>
         <RHFTextField name="licenseNo" label="Mã giấy phép" />
-      </Box>
+      </Grid>
     </Box>
   );
 
@@ -552,19 +546,19 @@ export default function UserNewEditForm({
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
       <Grid container spacing={3}>
-        {typeUser === 'doctor' && (
+        {(typeUser === 'doctor' || typeUser === 'patient') && (
           <Grid xs={12} md={4}>
             <Card sx={{ pt: 10, pb: 5, px: 3 }}>
               {currentUser && (
                 <Label
                   color={
-                    (currentUser.status === 'active' && 'success') ||
-                    (currentUser.status === 'banned' && 'error') ||
+                    (currentUser.isActive === true && 'success') ||
+                    (currentUser.isActive === false && 'error') ||
                     'warning'
                   }
                   sx={{ position: 'absolute', top: 24, right: 24 }}
                 >
-                  {currentUser.status}
+                  {currentUser.isActive ? 'Kích hoạt' : 'Khóa'}
                 </Label>
               )}
 
@@ -596,15 +590,13 @@ export default function UserNewEditForm({
                   labelPlacement="start"
                   control={
                     <Controller
-                      name="status"
+                      name="isActive"
                       control={control}
                       render={({ field }) => (
                         <Switch
                           {...field}
-                          checked={field.value !== 'active'}
-                          onChange={(event) =>
-                            field.onChange(event.target.checked ? 'banned' : 'active')
-                          }
+                          checked={field.value}
+                          onChange={(event) => field.onChange(event.target.checked)}
                         />
                       )}
                     />
@@ -612,7 +604,7 @@ export default function UserNewEditForm({
                   label={
                     <>
                       <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-                        Khóa tài khoản
+                        Kích hoạt tài khoản
                       </Typography>
                       <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                         Vô hiệu hóa tài khoản người dùng
@@ -623,19 +615,19 @@ export default function UserNewEditForm({
                 />
               )}
 
-              <RHFSwitch
-                name="isVerified"
-                labelPlacement="start"
-                label={
-                  <>
-                    <Typography variant="subtitle2" sx={{ mb: 0.5 }} />
-                    Xác thực email
-                    <Typography variant="body2" sx={{ color: 'text.secondary' }} />
-                    Tắt tính năng này sẽ tự động gửi email xác thực cho người dùng
-                  </>
-                }
-                sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
-              />
+              {/* <RHFSwitch
+                  name="isVerified"
+                  labelPlacement="start"
+                  label={
+                    <>
+                      <Typography variant="subtitle2" sx={{ mb: 0.5 }} />
+                      Xác thực email
+                      <Typography variant="body2" sx={{ color: 'text.secondary' }} />
+                      Tắt tính năng này sẽ tự động gửi email xác thực cho người dùng
+                    </>
+                  }
+                  sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
+                /> */}
             </Card>
           </Grid>
         )}

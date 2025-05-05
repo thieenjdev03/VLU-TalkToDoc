@@ -81,7 +81,7 @@ export default function UserQuickEditForm({
     query: '',
     page: 1,
     limit: 10,
-    sortField: '',
+    sortField: 'updatedAt',
     sortOrder: 'desc',
   });
   const [specialtyList, setSpecialtyList] = useState<ISpecialtyItem[]>([]);
@@ -135,7 +135,7 @@ export default function UserQuickEditForm({
       try {
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('upload_preset', 'talktodoc_unsigned'); // 👈 đổi theo preset của bạn
+        formData.append('upload_preset', 'talktodoc_unsigned');
 
         const response = await fetch('https://api.cloudinary.com/v1_1/dut4zlbui/image/upload', {
           method: 'POST',
@@ -146,13 +146,13 @@ export default function UserQuickEditForm({
 
         if (data.secure_url) {
           setValue('avatarUrl', data.secure_url, { shouldValidate: true });
-          // enqueueSnackbar('Tải ảnh lên thành công!');
+          console.log('imageUrl:', data.secure_url);
         } else {
-          enqueueSnackbar('Không thể lấy link ảnh từ Cloudinary', { variant: 'error' });
+          enqueueSnackbar('Không thể lấy được đường dẫn ảnh từ Cloudinary!', { variant: 'error' });
         }
       } catch (error) {
         console.error('Upload error:', error);
-        enqueueSnackbar('Tải ảnh lên thất bại!', { variant: 'error' });
+        enqueueSnackbar('Upload ảnh thất bại!', { variant: 'error' });
       }
     }
   };

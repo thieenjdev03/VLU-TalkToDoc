@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 
 import {
+  Link,
   Button,
   Dialog,
   Typography,
@@ -10,6 +11,8 @@ import {
   DialogContent,
   DialogActions,
 } from '@mui/material';
+
+import { RouterLink } from 'src/routes/components';
 
 import { useGetSpecialties } from 'src/api/specialty';
 
@@ -102,16 +105,15 @@ export default function SelectSpecialty({
       </div>
 
       <div className="flex items-center justify-between gap-6 mt-10 w-full">
-        <Button
-          onClick={() => {
-            setCurrentStep('medical-form');
-          }}
-          size="large"
-          variant="outlined"
-          color="primary"
+        <Link
+          component={RouterLink}
+          href="/dashboard"
+          sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0' }}
         >
-          Trở Về
-        </Button>
+          <Button size="large" variant="outlined" color="primary">
+            Trở Về
+          </Button>
+        </Link>
         <Button
           disabled={!selected}
           onClick={() => {

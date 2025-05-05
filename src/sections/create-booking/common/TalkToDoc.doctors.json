@@ -144,7 +144,6 @@
     "phone_code": 24
   },
   "specialty": [
-    "67eaf20d2186add4b5811e08",
     "67f54137d367ebed675137d0",
     "67eaf20d2186add4b5811e03",
     "67f5414cd367ebed675137da"
@@ -411,7 +410,6 @@
     "67f54027d367ebed6751378e",
     "67f5401bd367ebed67513786",
     "67eaf20d2186add4b5811e02",
-    "67f54027d367ebed6751378e",
     "67f54075d367ebed6751379d",
     "67eaf20d2186add4b5811e03"
   ],
@@ -429,8 +427,9 @@
   ],
   "rank": "67f65c5d6964f39d44a14a5d",
   "updatedAt": {
-    "$date": "2025-04-14T15:34:35.345Z"
-  }
+    "$date": "2025-05-01T09:53:13.703Z"
+  },
+  "position": ""
 },
 {
   "_id": {
@@ -476,4 +475,37 @@
     "$date": "2025-04-15T16:21:24.346Z"
   },
   "position": "Trưởng Khoa"
+},
+{
+  "_id": {
+    "$oid": "681754a6d4ffecc16eb10e13"
+  },
+  "username": "sontung1",
+  "password": "123123",
+  "email": "thien.onlined33333r.doctor@gkim.vn",
+  "fullName": "Sơn Tùng",
+  "phoneNumber": "1238458094618",
+  "isActive": true,
+  "avatarUrl": "https://res.cloudinary.com/dut4zlbui/image/upload/v1746359436/sasnihvry6hefqzsfwl2.jpg",
+  "city": null,
+  "role": "doctor",
+  "specialty": [
+    "67eaf20d2186add4b5811e05",
+    "67eaf20d2186add4b5811e02",
+    "67f54075d367ebed6751379d"
+  ],
+  "hospital": "67eaf737b9f206baae6dbe67",
+  "experienceYears": 1,
+  "licenseNo": "MD123456",
+  "rank": "67f65c5d6964f39d44a14a5b",
+  "position": "Trưởng Khoa",
+  "availability": [],
+  "createdAt": {
+    "$date": "2025-05-04T11:51:02.941Z"
+  },
+  "updatedAt": {
+    "$date": "2025-05-04T11:51:02.941Z"
+  },
+  "id": "DR309179",
+  "__v": 0
 }]

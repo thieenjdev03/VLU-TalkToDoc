@@ -63,11 +63,11 @@ export default function SpecialtyTableRow({
       <TableCell>
         <Typography variant="body2">{description || '-'}</Typography>
       </TableCell>
+      <TableCell>{moment(updatedAt).format('L')}</TableCell>
       {/* Hiển thị trạng thái */}
       <TableCell>
         <Checkbox checked={isActive} disabled />
       </TableCell>
-      <TableCell>{moment(updatedAt).format('L')}</TableCell>
     </>
   );
   console.log(row);

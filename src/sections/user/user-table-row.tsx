@@ -120,7 +120,7 @@ export default function UserTableRow({
           <>
             <TableCell>{id}</TableCell>
             <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-              <Avatar alt={fullName} src={avatarUrl?.preview || ''} sx={{ mr: 2 }} />
+              <Avatar alt={fullName} src={avatarUrl || ''} sx={{ mr: 2 }} />
               <ListItemText primary={fullName} secondary={email} />
             </TableCell>
             <TableCell>{phoneNumber}</TableCell>
@@ -139,7 +139,7 @@ export default function UserTableRow({
           <>
             <TableCell>{id}</TableCell>
             <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-              <Avatar alt={fullName} src={avatarUrl?.preview} sx={{ mr: 2 }} />
+              <Avatar alt={fullName} src={avatarUrl || ''} sx={{ mr: 2 }} />
               <ListItemText primary={fullName} secondary={email} />
             </TableCell>
             <TableCell>{phoneNumber}</TableCell>
@@ -225,10 +225,6 @@ export default function UserTableRow({
         onClose={quickEdit.onFalse}
         ranking={ranking}
         hospitalList={hospitalOptions}
-        onUpdateSuccess={() => {
-          quickEdit.onFalse();
-          onUpdateSuccess?.();
-        }}
       />
 
       <CustomPopover

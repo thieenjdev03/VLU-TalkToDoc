@@ -108,6 +108,7 @@ export const endpoints = {
     me: '/api/auth/me',
     login: '/api/v1/auth/login',
     register: '/api/auth/register',
+    generalSettings: '/api/v1/form-config',
   },
   mail: {
     list: '/api/mail/list',
@@ -131,6 +132,7 @@ export const endpoints = {
     delete: '/api/v1/doctors/:id',
     update: (id: string) => `/api/v1/doctors/${id}`,
     create: '/api/v1/doctors',
+    profile: (id: string) => `/api/v1/doctors/${id}`,
   },
   patients: {
     search: '/api/v1/patients/search',
@@ -138,6 +140,7 @@ export const endpoints = {
     delete: '/api/v1/patients/:id',
     update: (id: string) => `/api/v1/patients/${id}`,
     create: '/api/v1/patients',
+    profile: (id: string) => `/api/v1/patients/${id}`,
   },
   employees: {
     search: '/api/v1/employees/search',
@@ -145,6 +148,7 @@ export const endpoints = {
     delete: '/api/v1/employees/:id',
     update: (id: string) => `/api/v1/employees/${id}`,
     create: '/api/v1/employees',
+    profile: (id: string) => `/api/v1/employees/${id}`,
   },
   users: {
     search: '/api/v1/users/search',
@@ -152,6 +156,6 @@ export const endpoints = {
     delete: '/api/v1/users/:id',
     update: (id: string) => `/api/v1/users/${id}`,
     create: '/api/v1/users',
-    profile: '/api/v1/users/:id',
+    profile: (id: string) => `/api/v1/users/${id}`,
   },
 };

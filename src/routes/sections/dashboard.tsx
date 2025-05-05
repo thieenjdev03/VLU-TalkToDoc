@@ -122,7 +122,7 @@ export const dashboardRoutes = [
       {
         path: 'user',
         children: [
-          { element: <UserProfilePage />, index: true },
+          { element: <UserDoctorListPage />, index: true },
           { path: 'profile', element: <UserProfilePage /> },
           { path: 'cards', element: <UserCardsPage /> },
           { path: 'list', element: <UserListPage /> },
@@ -157,6 +157,7 @@ export const dashboardRoutes = [
         path: 'appointment',
         children: [
           { path: 'list', element: <AppointmentListPage /> },
+          { path: '', element: <AppointmentListPage /> },
           { path: 'details', element: <AppointmentDetailsPage /> },
         ],
       },

@@ -35,7 +35,6 @@ import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 import {
   useTable,
   emptyRows,
-  TableNoData,
   TableEmptyRows,
   TableHeadCustom,
   TableSelectedAction,
@@ -110,8 +109,8 @@ export default function UserListView(props: {
     query: '',
     page: 1,
     limit: 10,
-    sortField: '',
-    sortOrder: 'asc',
+    sortField: 'updatedAt',
+    sortOrder: 'desc',
   });
   const settings = useSettingsContext();
   const confirm = useBoolean();
@@ -125,18 +124,18 @@ export default function UserListView(props: {
     query: searchQuery,
     page: 1, // Changed to 1 to avoid multiple fetches
     limit: 99,
-    sortField: 'name',
-    sortOrder: 'asc',
+    sortField: 'updatedAt',
+    sortOrder: 'desc',
   });
 
   // Fetch users only when typeUser, searchQuery, or filters change
-  const { users, usersLoading, usersError, usersValidating } = useGetUsers({
+  const { users, usersLoading, usersError, usersValidating, usersTotal } = useGetUsers({
     typeUser,
     query: searchQuery,
     page: table.page + 1,
     limit: table.rowsPerPage,
-    sortField: table.orderBy || 'fullName',
-    sortOrder: table.order || 'asc',
+    sortField: table.orderBy || 'updatedAt',
+    sortOrder: table.order || 'desc',
   });
 
   // Fetch hospitals only when searchQuery changes
@@ -144,8 +143,8 @@ export default function UserListView(props: {
     query: searchQuery,
     page: 1, // Changed to 1 to avoid multiple fetches
     limit: 99,
-    sortField: 'name',
-    sortOrder: 'asc',
+    sortField: 'updatedAt',
+    sortOrder: 'desc',
   });
 
   useEffect(() => {
@@ -161,16 +160,10 @@ export default function UserListView(props: {
   }, [users, usersLoading, usersError, usersValidating, specialties]);
 
   const dataFiltered = tableData;
-  const dataInPage = dataFiltered.slice(
-    table.page * table.rowsPerPage,
-    (table.page + 1) * table.rowsPerPage
-  );
 
   const denseHeight = table.dense ? 56 : 56 + 20;
 
   const canReset = !isEqual(defaultFilters, filters);
-
-  const notFound = (!dataInPage.length && canReset) || !dataInPage.length;
 
   const debouncedSearch = useMemo(
     () =>
@@ -203,12 +196,12 @@ export default function UserListView(props: {
       try {
         await deleteUser(id);
         enqueueSnackbar('Xoá người dùng thành công!', { variant: 'success' });
-        table.onUpdatePageDeleteRow(dataInPage.length);
+        table.onUpdatePageDeleteRow(tableData.length);
       } catch (err) {
         enqueueSnackbar('Không thể xoá người dùng!', { variant: 'error' });
       }
     },
-    [deleteUser, enqueueSnackbar, table, dataInPage.length]
+    [deleteUser, enqueueSnackbar, table, tableData.length]
   );
 
   const handleDeleteRows = useCallback(() => {
@@ -219,10 +212,10 @@ export default function UserListView(props: {
     setTableData(deleteRows);
 
     table.onUpdatePageDeleteRows({
-      totalRowsInPage: dataInPage.length,
+      totalRowsInPage: tableData.length,
       totalRowsFiltered: dataFiltered.length,
     });
-  }, [dataFiltered.length, dataInPage.length, enqueueSnackbar, table, tableData]);
+  }, [dataFiltered.length, enqueueSnackbar, table, tableData]);
 
   const handleFilterStatus = useCallback(
     (event: React.SyntheticEvent, newValue: string) => {
@@ -370,7 +363,7 @@ export default function UserListView(props: {
                 />
 
                 <TableBody>
-                  {dataInPage.map((row) => (
+                  {tableData.map((row) => (
                     <UserTableRow
                       key={row._id}
                       row={row}
@@ -382,19 +375,18 @@ export default function UserListView(props: {
                       hospitalList={hospitals?.data}
                     />
                   ))}
-
-                  <TableEmptyRows
-                    height={denseHeight}
-                    emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
-                  />
-
-                  <TableNoData notFound={notFound} />
+                  {tableData.length === 0 && (
+                    <TableEmptyRows
+                      height={denseHeight}
+                      emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
+                    />
+                  )}
                 </TableBody>
               </Table>
             </Scrollbar>
           </TableContainer>
           <TablePaginationCustom
-            count={dataFiltered.length}
+            count={usersTotal}
             page={table.page}
             rowsPerPage={table.rowsPerPage}
             onPageChange={table.onChangePage}

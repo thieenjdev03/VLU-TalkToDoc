@@ -10,8 +10,8 @@ export const useGetSpecialties = ({
   query = '',
   page = 1,
   limit = 10,
-  sortField = 'name',
-  sortOrder = 'asc',
+  sortField = 'updatedAt',
+  sortOrder = 'desc',
 }: {
   query?: string;
   page?: number;
@@ -31,6 +31,7 @@ export const useGetSpecialties = ({
             page,
             limit,
             sortOrder,
+            sortField,
           },
         })
         .then((res) => res.data)

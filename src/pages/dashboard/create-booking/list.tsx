@@ -70,18 +70,19 @@ export default function HospitalListPage() {
   const editDialog = useBoolean();
   const { deleteHospital } = useDeleteHospital();
   const [searchQuery, setSearchQuery] = useState('');
-
+  const [total, setTotal] = useState(0);
   const { hospitals, hospitalsLoading, hospitalsError, hospitalsValidating } = useGetHospital({
     query: searchQuery,
     page: table.page + 1,
     limit: table.rowsPerPage,
-    sortField: table.orderBy || 'name',
+    sortField: table.orderBy || 'updatedAt',
     sortOrder: table.order === 'asc' ? 'asc' : 'desc',
   });
 
   useEffect(() => {
     if (hospitals?.data?.length) {
       setTableData(hospitals?.data);
+      setTotal(hospitals?.total);
     } else if (hospitalsLoading || hospitalsError || hospitalsValidating) {
       setTableData([]);
     }
@@ -208,11 +209,12 @@ export default function HospitalListPage() {
                       onEditRow={() => handleEditRow(row._id)}
                     />
                   ))}
-
-                  <TableEmptyRows
-                    height={denseHeight}
-                    emptyRows={emptyRows(table.page, table.rowsPerPage, tableData?.length)}
-                  />
+                  {tableData.length === 0 && (
+                    <TableEmptyRows
+                      height={denseHeight}
+                      emptyRows={emptyRows(table.page, table.rowsPerPage, tableData?.length)}
+                    />
+                  )}
 
                   <TableNoData notFound={notFound} />
                 </TableBody>
@@ -220,7 +222,7 @@ export default function HospitalListPage() {
             </Scrollbar>
           </TableContainer>
           <TablePaginationCustom
-            count={tableData?.length}
+            count={total}
             page={table.page}
             rowsPerPage={table.rowsPerPage}
             onPageChange={table.onChangePage}

@@ -126,6 +126,7 @@ export default function DynamicFormMUI({
         <Button
           onClick={() => {
             setCurrentStep('select-specialty', true);
+            localStorage.setItem('booking_step', 'select-specialty');
             onSelect({} as ISpecialtyItem);
           }}
           type="button"

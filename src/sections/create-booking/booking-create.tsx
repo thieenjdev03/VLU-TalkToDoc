@@ -9,7 +9,6 @@ import { ISpecialtyItem } from 'src/types/specialties';
 
 // ----------------------------------------------------------------------
 import DynamicFormMUI from './DynamicFormMUI';
-import formConfig from './common/formJson.json';
 import SelectSpecialty from './select-specialty';
 import BookingPayment from './BookingPaymentStep';
 import BookingSelectTime from './BookingSelectTime';
@@ -42,7 +41,8 @@ export default function BookingCreate() {
   const [currentStep, setCurrentStepState] = useState<string>(
     () => localStorage.getItem('booking_step') || 'select-specialty'
   );
-
+  const [generalSettings, setGeneralSettings] = useState<any>(null);
+  const [medicalFormConfig, setMedicalFormConfig] = useState<any>(null);
   const { users: doctors } = useGetUsers({
     typeUser: 'doctor',
     query: '',
@@ -64,6 +64,7 @@ export default function BookingCreate() {
   const setCurrentStep = (step: string, back?: boolean) => {
     if (back) {
       setCurrentStepState(step);
+      localStorage.setItem('booking_step', step);
     } else {
       setCurrentStepState(step);
       localStorage.setItem('booking_step', step);
@@ -115,6 +116,13 @@ export default function BookingCreate() {
   useEffect(() => {
     console.log('formData', formData);
   }, [formData]);
+
+  useEffect(() => {
+    const settings = JSON.parse(localStorage.getItem('generalSettings') || '{}');
+    setGeneralSettings(settings);
+    const medicalForm = JSON.parse(localStorage.getItem('generalSettings') || '{}');
+    setMedicalFormConfig(medicalForm?.general_setting?.form_json);
+  }, []);
   return (
     <>
       {currentStep === 'select-specialty' && (
@@ -132,9 +140,9 @@ export default function BookingCreate() {
           onSelect={handleSelect}
           specialty={selected as ISpecialtyItem}
           config={
-            formConfig
-              .find((item) => item?.specialty_id === selected?.id)
-              ?.fields?.map((field) => ({
+            medicalFormConfig
+              ?.find((item: any) => item?.specialty_id === selected?.id)
+              ?.fields?.map((field: any) => ({
                 ...field,
                 type: field.type as 'text' | 'select' | 'textarea' | 'number',
               })) || []
@@ -146,7 +154,10 @@ export default function BookingCreate() {
       {currentStep === 'select-time-booking' && (
         <BookingSelectTime
           doctors={doctors}
-          setCurrentStep={(step) => setCurrentStep('confirm-payment-step')}
+          setCurrentStep={(step) => {
+            localStorage.setItem('booking_step', step);
+            setCurrentStep(step, true);
+          }}
           handleSubmit={handleSubmit}
           formData={formData}
         />

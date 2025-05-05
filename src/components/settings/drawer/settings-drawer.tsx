@@ -12,9 +12,7 @@ import { paper } from 'src/theme/css';
 import Iconify from '../../iconify';
 import Scrollbar from '../../scrollbar';
 import BaseOptions from './base-option';
-import LayoutOptions from './layout-options';
 import PresetsOptions from './presets-options';
-import StretchOptions from './stretch-options';
 import { useSettingsContext } from '../context';
 import FullScreenOption from './fullscreen-option';
 
@@ -39,7 +37,7 @@ export default function SettingsDrawer() {
       sx={{ py: 2, pr: 1, pl: 2.5 }}
     >
       <Typography variant="h6" sx={{ flexGrow: 1 }}>
-        Settings
+        Tuỳ chỉnh giao diện
       </Typography>
 
       <Tooltip title="Reset">
@@ -59,7 +57,7 @@ export default function SettingsDrawer() {
   const renderMode = (
     <div>
       <Typography variant="caption" component="div" sx={{ ...labelStyles }}>
-        Mode
+        Chế độ
       </Typography>
 
       <BaseOptions
@@ -74,7 +72,7 @@ export default function SettingsDrawer() {
   const renderContrast = (
     <div>
       <Typography variant="caption" component="div" sx={{ ...labelStyles }}>
-        Contrast
+        Tương phản
       </Typography>
 
       <BaseOptions
@@ -89,7 +87,7 @@ export default function SettingsDrawer() {
   const renderDirection = (
     <div>
       <Typography variant="caption" component="div" sx={{ ...labelStyles }}>
-        Direction
+        Chiều Hướng
       </Typography>
 
       <BaseOptions
@@ -103,7 +101,7 @@ export default function SettingsDrawer() {
 
   const renderLayout = (
     <div>
-      <Typography variant="caption" component="div" sx={{ ...labelStyles }}>
+      {/* <Typography variant="caption" component="div" sx={{ ...labelStyles }}>
         Layout
       </Typography>
 
@@ -111,13 +109,13 @@ export default function SettingsDrawer() {
         value={settings.themeLayout}
         onChange={(newValue: string) => settings.onUpdate('themeLayout', newValue)}
         options={['vertical', 'horizontal', 'mini']}
-      />
+      /> */}
     </div>
   );
 
   const renderStretch = (
     <div>
-      <Typography
+      {/* <Typography
         variant="caption"
         component="div"
         sx={{
@@ -135,14 +133,14 @@ export default function SettingsDrawer() {
       <StretchOptions
         value={settings.themeStretch}
         onChange={() => settings.onUpdate('themeStretch', !settings.themeStretch)}
-      />
+      /> */}
     </div>
   );
 
   const renderPresets = (
     <div>
       <Typography variant="caption" component="div" sx={{ ...labelStyles }}>
-        Presets
+        Màu Sắc
       </Typography>
 
       <PresetsOptions

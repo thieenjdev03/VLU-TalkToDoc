@@ -400,11 +400,12 @@ export default function InvoiceListView() {
                         onViewRow={() => handleViewRow(row.id)}
                       />
                     ))}
-
-                  <TableEmptyRows
-                    height={denseHeight}
-                    emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
-                  />
+                  {dataFiltered.length === 0 && (
+                    <TableEmptyRows
+                      height={denseHeight}
+                      emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
+                    />
+                  )}
 
                   <TableNoData notFound={notFound} />
                 </TableBody>

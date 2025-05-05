@@ -10,22 +10,24 @@ import Stack from '@mui/material/Stack';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import LoadingButton from '@mui/lab/LoadingButton';
+import { useTheme, useMediaQuery } from '@mui/material';
 import InputAdornment from '@mui/material/InputAdornment';
 
 import { useRouter, useSearchParams } from 'src/routes/hooks';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { useLogin } from 'src/api/auth';
 import { PATH_AFTER_LOGIN } from 'src/config-global';
+import { useLogin, getFormConfigById } from 'src/api/auth';
 
 import Iconify from 'src/components/iconify';
 import FormProvider, { RHFTextField } from 'src/components/hook-form';
 
 import './login.css';
-// ----------------------------------------------------------------------
 
 export default function JwtLoginView() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const { login } = useLogin();
   const router = useRouter();
 
@@ -44,44 +46,51 @@ export default function JwtLoginView() {
 
   const methods = useForm({
     resolver: yupResolver(LoginSchema),
+    defaultValues: {
+      username: '',
+      password: '',
+    },
   });
 
   const {
-    reset,
     handleSubmit,
     formState: { isSubmitting },
   } = methods;
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      // await login?.(data.email, data.password);
       const res = await login(data.username, data.password);
       localStorage.setItem('accessToken', res.accessToken);
       localStorage.setItem('userProfile', JSON.stringify(res.userProfile));
       localStorage.setItem('stringeeToken', JSON.stringify(res.stringeeAccessToken));
       router.push(PATH_AFTER_LOGIN);
+      const formConfig = await getFormConfigById('6800dd76b0ca284dcc67cde4');
+      const parsedSetting = typeof formConfig === 'string' ? JSON.parse(formConfig) : formConfig;
+
+      localStorage.setItem('generalSettings', parsedSetting.general_setting);
     } catch (error) {
       console.error(error);
-      reset();
       setErrorMsg(typeof error === 'string' ? error : error.message);
     }
   });
+
   useEffect(() => {
     if (accessToken) {
       router.push(returnTo || PATH_AFTER_LOGIN);
     }
   }, [accessToken, router, returnTo]);
+
   const renderHead = (
     <Box alignItems="center" justifyContent="center" display="flex" flexDirection="column">
       <img
-        src="https://res.cloudinary.com/dut4zlbui/image/upload/v1741544458/iotwczgmwylmpvklj1mu.png"
+        src="https://res.cloudinary.com/dut4zlbui/image/upload/v1746087113/r8fxpcrmefstk2jn90a3.png"
         alt="logo"
-        width={200}
-        height={200}
+        width={isMobile ? 150 : 200}
+        height={isMobile ? 150 : 200}
       />
-      <Stack spacing={2} sx={{ mb: 5 }} textAlign="center">
-        <Typography variant="h4">Chào mừng trở lại</Typography>
-        <Typography fontSize={20} fontWeight={600} color="text.secondary">
+      <Stack spacing={2} sx={{ mb: isMobile ? 3 : 5 }} textAlign="center">
+        <Typography variant={isMobile ? 'h5' : 'h4'}>Chào mừng trở lại</Typography>
+        <Typography fontSize={isMobile ? 16 : 20} fontWeight={600} color="text.secondary">
           Đăng nhập ngay!
         </Typography>
         <Stack direction="row" spacing={0.5} />
@@ -90,12 +99,13 @@ export default function JwtLoginView() {
   );
 
   const renderForm = (
-    <Stack spacing={2.5}>
-      <RHFTextField name="username" label="Tài khoản" />
+    <Stack spacing={isMobile ? 2 : 2.5}>
+      <RHFTextField name="username" label="Tài khoản" size={isMobile ? 'small' : 'medium'} />
       <RHFTextField
         name="password"
         label="Mật khẩu"
         type={password.value ? 'text' : 'password'}
+        size={isMobile ? 'small' : 'medium'}
         InputProps={{
           endAdornment: (
             <InputAdornment position="end">
@@ -114,7 +124,7 @@ export default function JwtLoginView() {
       <LoadingButton
         fullWidth
         color="inherit"
-        size="large"
+        size={isMobile ? 'medium' : 'large'}
         type="submit"
         variant="contained"
         loading={isSubmitting}
@@ -126,7 +136,16 @@ export default function JwtLoginView() {
   );
 
   return (
-    <Stack sx={{ minWidth: '460px', ml: 'auto', mr: 'auto' }} className="login-page-wrapper">
+    <Stack
+      sx={{
+        minWidth: isMobile ? '90%' : '460px',
+        width: isMobile ? '90%' : '460px',
+        ml: 'auto',
+        mr: 'auto',
+        p: isMobile ? 2 : 0,
+      }}
+      className="login-page-wrapper"
+    >
       {renderHead}
       {!!errorMsg && (
         <Alert severity="error" sx={{ mb: 3 }}>

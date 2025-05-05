@@ -23,7 +23,7 @@ import CustomPopover, { usePopover } from 'src/components/custom-popover';
 const OPTIONS = [
   {
     label: 'Trang chủ',
-    linkTo: '/',
+    linkTo: paths.dashboard.root,
   },
   // {
   //   label: 'Thông tin cá nhân',
@@ -34,7 +34,20 @@ const OPTIONS = [
     linkTo: paths.dashboard.user.account,
   },
 ];
-
+const OPTIONS_ADMIN = [
+  {
+    label: 'Trang chủ',
+    linkTo: paths.dashboard.root,
+  },
+  // {
+  //   label: 'Thông tin cá nhân',
+  //   linkTo: paths.dashboard.user.profile,
+  // },
+  // {
+  //   label: 'Cài đặt tài khoản',
+  //   linkTo: paths.dashboard.user.account,
+  // },
+];
 // ----------------------------------------------------------------------
 
 export default function AccountPopover() {
@@ -98,7 +111,7 @@ export default function AccountPopover() {
         }}
       >
         <Avatar
-          src={user?.photoURL}
+          src={user?.avatarUrl}
           alt={user?.name}
           sx={{
             width: 36,
@@ -130,11 +143,17 @@ export default function AccountPopover() {
         <Divider sx={{ borderStyle: 'dashed' }} />
 
         <Stack sx={{ p: 1 }}>
-          {OPTIONS.map((option) => (
-            <MenuItem key={option.label} onClick={() => handleClickItem(option.linkTo)}>
-              {option.label}
-            </MenuItem>
-          ))}
+          {user?.role === 'ADMIN'
+            ? OPTIONS_ADMIN.map((option) => (
+                <MenuItem key={option.label} onClick={() => handleClickItem(option.linkTo)}>
+                  {option.label}
+                </MenuItem>
+              ))
+            : OPTIONS.map((option) => (
+                <MenuItem key={option.label} onClick={() => handleClickItem(option.linkTo)}>
+                  {option.label}
+                </MenuItem>
+              ))}
         </Stack>
 
         <Divider sx={{ borderStyle: 'dashed' }} />

@@ -19,7 +19,6 @@ import SettingsButton from '../common/settings-button';
 import AccountPopover from '../common/account-popover';
 import ContactsPopover from '../common/contacts-popover';
 import LanguagePopover from '../common/language-popover';
-import NotificationsPopover from '../common/notifications-popover';
 
 // ----------------------------------------------------------------------
 
@@ -63,7 +62,7 @@ export default function Header({ onOpenNav }: Props) {
       >
         <LanguagePopover />
 
-        <NotificationsPopover />
+        {/* <NotificationsPopover /> */}
 
         <ContactsPopover />
 

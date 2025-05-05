@@ -13,7 +13,7 @@ export default function UserCreatePage(props: {
     query: '',
     page: 1,
     limit: 10,
-    sortField: '',
+    sortField: 'createdAt',
     sortOrder: 'desc',
   });
   console.log('hospitals', hospitals);

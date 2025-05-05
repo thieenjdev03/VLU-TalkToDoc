@@ -29,6 +29,11 @@ type Props = {
   onSelectRow: VoidFunction;
   typeUser: string;
   onDeleteRow: VoidFunction;
+  openCall: boolean;
+  setOpenCall: (open: boolean) => void;
+  stringeeToken: string;
+  user: any;
+  setCurrentAppointment: (appointment: any) => void;
 };
 
 export default function AppointmentTableRow({
@@ -38,6 +43,11 @@ export default function AppointmentTableRow({
   onSelectRow,
   onDeleteRow,
   typeUser,
+  openCall,
+  setOpenCall,
+  stringeeToken,
+  setCurrentAppointment,
+  user,
 }: Props) {
   const { appointmentId, patient, status, payment } = row as any;
   const quickEdit = useBoolean();
@@ -45,7 +55,10 @@ export default function AppointmentTableRow({
   const popover = usePopover();
   const { enqueueSnackbar } = useSnackbar(); // thêm dòng này
   const [loading, setLoading] = useState(false);
-
+  const handleOpenCall = () => {
+    setCurrentAppointment(row);
+    setOpenCall(true);
+  };
   console.log('row check', row);
   const handleDoctorConfirm = async (accepted: boolean) => {
     try {
@@ -55,11 +68,14 @@ export default function AppointmentTableRow({
         accepted,
       };
       const res = await doctorConfirmAppointment(data);
-      if (!res.error) {
+      if (res) {
         enqueueSnackbar(accepted ? 'Đã chấp nhận lịch hẹn thành công!' : 'Đã từ chối lịch hẹn!', {
-          variant: accepted ? 'success' : 'error',
+          variant: 'success',
         });
         setLoading(false);
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
       } else {
         enqueueSnackbar('Có lỗi xảy ra khi cập nhật lịch hẹn.', { variant: 'error' });
         setLoading(false);
@@ -108,8 +124,6 @@ export default function AppointmentTableRow({
       </TableCell>
 
       <TableCell>{payment?.totalFee?.toLocaleString('vi-VN') || 0}đ</TableCell>
-
-      <TableCell>{payment?.paymentMethod?.toUpperCase() || '-'}</TableCell>
 
       <TableCell align="center">
         {status === 'PENDING' && typeUser === 'DOCTOR' ? (
@@ -162,6 +176,19 @@ export default function AppointmentTableRow({
           disabled
         />
       </TableCell>
+      <TableCell>
+        {row?.status === 'CONFIRMED' && (
+          <Button
+            sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+            variant="contained"
+            color="primary"
+            onClick={handleOpenCall}
+          >
+            <Iconify icon="ic:outline-phone-forwarded" />
+            <span>Gọi</span>
+          </Button>
+        )}
+      </TableCell>
       <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
         <Tooltip title="Sửa nhanh" placement="top" arrow>
           <IconButton color={quickEdit.value ? 'inherit' : 'default'} onClick={quickEdit.onTrue}>
@@ -207,15 +234,13 @@ export default function AppointmentTableRow({
           secondaryTypographyProps={{ mt: 0.5, component: 'span', typography: 'caption' }}
         />
       </TableCell>
-      <TableCell>{row.doctor.phoneNumber || '-'}</TableCell>
+      <TableCell>{row?.doctor?.phoneNumber || '-'}</TableCell>
 
       <TableCell>
         <Typography variant="body2">{row.specialty?.name}</Typography>
       </TableCell>
 
       <TableCell>{payment?.totalFee?.toLocaleString('vi-VN') || 0}đ</TableCell>
-
-      <TableCell>{payment?.paymentMethod?.toUpperCase() || '-'}</TableCell>
 
       <TableCell align="center">
         <Label
@@ -242,6 +267,19 @@ export default function AppointmentTableRow({
           }}
           disabled
         />
+      </TableCell>
+      <TableCell>
+        {row?.status === 'CONFIRMED' && (
+          <Button
+            sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+            variant="contained"
+            color="primary"
+            onClick={handleOpenCall}
+          >
+            <Iconify icon="ic:outline-phone-forwarded" />
+            <span>Gọi</span>
+          </Button>
+        )}
       </TableCell>
       <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
         <Tooltip title="Sửa nhanh" placement="top" arrow>

@@ -39,29 +39,31 @@ export default function NavList({ data, depth, slotProps }: NavListProps) {
 
   return (
     <>
-      <NavItem
-        ref={navRef}
-        open={openMenu}
-        onMouseEnter={handleOpenMenu}
-        onMouseLeave={handleCloseMenu}
-        //
-        title={data.title}
-        path={data.path}
-        icon={data.icon}
-        info={data.info}
-        roles={data.roles}
-        caption={data.caption}
-        disabled={data.disabled}
-        //
-        depth={depth}
-        hasChild={!!data.children}
-        externalLink={data.path.includes('http')}
-        currentRole={slotProps?.currentRole}
-        //
-        active={active}
-        className={active ? 'active' : ''}
-        sx={depth === 1 ? slotProps?.rootItem : slotProps?.subItem}
-      />
+      {!data.hidden && (
+        <NavItem
+          ref={navRef}
+          open={openMenu}
+          onMouseEnter={handleOpenMenu}
+          onMouseLeave={handleCloseMenu}
+          //
+          title={data.title}
+          path={data.path}
+          icon={data.icon}
+          info={data.info}
+          roles={data.roles}
+          caption={data.caption}
+          disabled={data.disabled}
+          //
+          depth={depth}
+          hasChild={!!data.children}
+          externalLink={data.path.includes('http')}
+          currentRole={slotProps?.currentRole}
+          //
+          active={active}
+          className={active ? 'active' : ''}
+          sx={depth === 1 ? slotProps?.rootItem : slotProps?.subItem}
+        />
+      )}
 
       {!!data.children && (
         <Popover
@@ -100,7 +102,13 @@ function NavSubList({ data, depth, slotProps }: NavSubListProps) {
   return (
     <Stack spacing={0.5}>
       {data.map((list) => (
-        <NavList key={list.title} data={list} depth={depth + 1} slotProps={slotProps} />
+        <NavList
+          key={list.title}
+          data={list}
+          depth={depth + 1}
+          slotProps={slotProps}
+          hidden={list.hidden}
+        />
       ))}
     </Stack>
   );

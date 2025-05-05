@@ -54,11 +54,12 @@ import {
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'Tất Cả' }, ...USER_STATUS_OPTIONS];
 const TABLE_HEAD_SPECIALTY = [
-  { id: 'id', label: 'Mã Chuyên Khoa', width: 100 },
+  { id: 'id', label: 'Mã Cấp Bậc', width: '20%' },
   { id: 'name', label: 'Tên Cấp Bậc', width: '20%' },
   { id: 'description', label: 'Mô Tả', width: '20%' },
   { id: 'base_price', label: 'Lương / Giờ', width: '20%' },
-  { id: 'isActive', label: 'Kích Hoạt', width: '20%' },
+  { id: 'isActive', label: 'Kích Hoạt', width: '10%' },
+  { id: '', label: '', width: '10%' },
 ];
 const defaultFilters: IRankingTableFilters = {
   name: '',
@@ -277,12 +278,12 @@ export default function ProviderRankingListPage() {
                       onEditRow={() => handleEditRow(row._id)}
                     />
                   ))}
-
-                  <TableEmptyRows
-                    height={denseHeight}
-                    emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
-                  />
-
+                  {tableData.length === 0 && (
+                    <TableEmptyRows
+                      height={denseHeight}
+                      emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
+                    />
+                  )}
                   <TableNoData notFound={notFound} />
                 </TableBody>
               </Table>

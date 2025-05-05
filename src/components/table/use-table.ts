@@ -20,11 +20,11 @@ export default function useTable(props?: UseTableProps): ReturnType {
 
   const [page, setPage] = useState(props?.defaultCurrentPage || 0);
 
-  const [orderBy, setOrderBy] = useState(props?.defaultOrderBy || 'name');
+  const [orderBy, setOrderBy] = useState(props?.defaultOrderBy || 'updatedAt');
 
   const [rowsPerPage, setRowsPerPage] = useState(props?.defaultRowsPerPage || 10);
 
-  const [order, setOrder] = useState<'asc' | 'desc'>(props?.defaultOrder || 'asc');
+  const [order, setOrder] = useState<'asc' | 'desc'>(props?.defaultOrder || 'desc');
 
   const [selected, setSelected] = useState<string[]>(props?.defaultSelected || []);
 

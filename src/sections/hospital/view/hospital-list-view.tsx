@@ -203,11 +203,12 @@ export default function HospitalListView() {
                         onRefreshData={handleRefreshData}
                       />
                     ))}
-
-                  <TableEmptyRows
-                    height={denseHeight}
-                    emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
-                  />
+                  {dataFiltered.length === 0 && (
+                    <TableEmptyRows
+                      height={denseHeight}
+                      emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
+                    />
+                  )}
 
                   <TableNoData notFound={notFound} />
                 </TableBody>

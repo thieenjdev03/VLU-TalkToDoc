@@ -20,7 +20,6 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { isAfter, isBetween } from 'src/utils/format-time';
 
 import { getAllAppointment } from 'src/api/appointment';
-// Cập nhật để sử dụng lịch hẹn
 
 import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
@@ -40,71 +39,68 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
+import CallCenterModal from 'src/sections/call/view/call-center-modal';
+
 import {
   IAppointmentItem,
   IAppointmentTableFilters,
   IAppointmentTableFilterValue,
-} from 'src/types/appointment'; // Cập nhật loại
-import AppointmentTableRow from '../appointment-table-row'; // Cập nhật thành phần
-import AppointmentTableToolbar from '../appointment-table-toolbar'; // Cập nhật thành phần
-// Cập nhật thành phần
+} from 'src/types/appointment';
 
-// ----------------------------------------------------------------------
+import AppointmentTableRow from '../appointment-table-row';
+import AppointmentTableToolbar from '../appointment-table-toolbar';
 
 const STATUS_OPTIONS = [
   { value: 'all', label: 'Tất cả' },
+  { value: 'PENDING', label: 'Chờ xác nhận' },
   { value: 'CONFIRMED', label: 'Đã xác nhận' },
   { value: 'REJECTED', label: 'Đã hủy' },
-]; // Cập nhật tùy chọn trạng thái
+];
+
 const TABLE_HEAD = [
-  { id: 'appointmentId', label: 'Mã lịch hẹn', width: 140 },
-  { id: 'patient', label: 'Bệnh nhân' },
-  { id: 'bookingDate', label: 'Ngày khám', width: 140 },
-  { id: 'specialty', label: 'Chuyên khoa', width: 120 },
-  { id: 'totalFee', label: 'Chi phí', width: 120 },
-  { id: 'paymentMethod', label: 'Phương thức thanh toán', width: 120 },
-  { id: 'status', label: 'Trạng thái', width: 220, align: 'center' },
-  { id: 'paid', label: 'Đã thanh toán', width: 120 },
-  { id: '', width: 40 },
+  { id: 'appointmentId', label: 'Mã lịch hẹn', width: { xs: 100, sm: 140 } },
+  { id: 'patient', label: 'Bệnh nhân', width: { xs: '15%', sm: '20%' } },
+  { id: 'bookingDate', label: 'Ngày khám', width: { xs: 100, sm: 140 } },
+  { id: 'specialty', label: 'Chuyên khoa', width: { xs: 100, sm: 120 } },
+  { id: 'totalFee', label: 'Chi phí', width: { xs: 100, sm: 120 } },
+  { id: 'status', label: 'Trạng thái', width: { xs: 120, sm: 220 }, align: 'center' },
+  { id: 'paid', label: 'Đã thanh toán', width: { xs: 100, sm: 120 } },
+  { id: 'paymentMethod', label: 'Thao tác', width: { xs: 100, sm: 120 } },
+  { id: '', width: { xs: 30, sm: 40 } },
 ];
 
 const TABLE_HEAD_PATIENT = [
-  { id: 'appointmentId', label: 'Mã lịch hẹn', width: 140 },
-  { id: 'doctor', label: 'Bác sĩ' },
-  { id: 'bookingDate', label: 'Ngày khám', width: 140 },
-  { id: 'phoneNumber', label: 'Số điện thoại', width: 120 },
-  { id: 'specialty', label: 'Chuyên khoa', width: 140 },
-  { id: 'totalFee', label: 'Chi phí', width: 120 },
-  { id: 'paymentMethod', label: 'Thanh toán', width: 120 },
-  { id: 'status', label: 'Trạng thái', width: 220, align: 'center' },
-  { id: 'paid', label: 'Đã thanh toán', width: 140 },
-  { id: '', width: 88 },
+  { id: 'appointmentId', label: 'Mã lịch hẹn', width: { xs: 100, sm: 140 } },
+  { id: 'doctor', label: 'Bác sĩ', width: { xs: '15%', sm: '20%' } },
+  { id: 'bookingDate', label: 'Ngày khám', width: { xs: 100, sm: 140 } },
+  { id: 'phoneNumber', label: 'Số điện thoại', width: { xs: 100, sm: 120 } },
+  { id: 'specialty', label: 'Chuyên khoa', width: { xs: 100, sm: 140 } },
+  { id: 'totalFee', label: 'Chi phí', width: { xs: 100, sm: 120 } },
+  { id: 'status', label: 'Trạng thái', width: { xs: 120, sm: 220 }, align: 'center' },
+  { id: 'paid', label: 'Đã thanh toán', width: { xs: 100, sm: 140 } },
+  { id: 'paymentMethod', label: 'Thao tác', width: { xs: 100, sm: 120 } },
+  { id: '', width: { xs: 60, sm: 88 } },
 ];
 
 const defaultFilters: IAppointmentTableFilters = {
   patient: '',
-  status: {},
+  status: 'all',
   startDate: null,
   endDate: null,
   name: '',
 };
 
-// ----------------------------------------------------------------------
-
 export default function AppointmentListView() {
   const { enqueueSnackbar } = useSnackbar();
-
   const table = useTable({ defaultOrderBy: 'appointmentId' });
-
   const settings = useSettingsContext();
-
   const router = useRouter();
-
   const confirm = useBoolean();
-  const [tableData, setTableData] = useState<IAppointmentItem[]>([]); // Cập nhật để sử dụng lịch hẹn
-
+  const [tableData, setTableData] = useState<IAppointmentItem[]>([]);
+  const [openCall, setOpenCall] = useState(false);
   const [filters, setFilters] = useState<IAppointmentTableFilters>(defaultFilters);
-
+  const [currentAppointment, setCurrentAppointment] = useState<IAppointmentItem | null>(null);
+  const stringeeToken = JSON.parse(localStorage.getItem('stringeeToken') || '{}');
   const dateError = isAfter(filters?.startDate, filters?.endDate);
   const userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}');
   const dataFiltered = applyFilter({
@@ -125,6 +121,7 @@ export default function AppointmentListView() {
     !!filters.patient || filters.status !== 'all' || (!!filters.startDate && !!filters.endDate);
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
+
   useEffect(() => {
     const fetchAppointments = async () => {
       const appointments = await getAllAppointment();
@@ -141,10 +138,10 @@ export default function AppointmentListView() {
       } else {
         setTableData(appointments.data);
       }
-      console.log(appointments.data);
     };
     fetchAppointments();
   }, [userProfile?._id, userProfile.role]);
+
   const handleFilters = useCallback(
     (name: any, value: IAppointmentTableFilterValue) => {
       table.onResetPage();
@@ -158,24 +155,18 @@ export default function AppointmentListView() {
 
   const handleDeleteRow = useCallback(
     (id: string) => {
-      const deleteRow = tableData.filter((row) => row._id !== id); // Cập nhật để sử dụng _id
-
+      const deleteRow = tableData.filter((row) => row._id !== id);
       enqueueSnackbar('Xóa thành công!');
-
       setTableData(deleteRow);
-
       table.onUpdatePageDeleteRow(dataInPage.length);
     },
     [dataInPage.length, enqueueSnackbar, table, tableData]
   );
 
   const handleDeleteRows = useCallback(() => {
-    const deleteRows = tableData.filter((row) => !table.selected.includes(row._id)); // Cập nhật để sử dụng _id
-
+    const deleteRows = tableData.filter((row) => !table.selected.includes(row._id));
     enqueueSnackbar('Xóa thành công!');
-
     setTableData(deleteRows);
-
     table.onUpdatePageDeleteRows({
       totalRowsInPage: dataInPage.length,
       totalRowsFiltered: dataFiltered.length,
@@ -184,7 +175,7 @@ export default function AppointmentListView() {
 
   const handleViewRow = useCallback(
     (id: string) => {
-      router.push(paths.dashboard.appointment.details(id)); // Cập nhật đường dẫn
+      router.push(paths.dashboard.appointment.details(id));
     },
     [router]
   );
@@ -238,12 +229,15 @@ export default function AppointmentListView() {
                       ((tab.value === 'all' || tab.value === filters.status) && 'filled') || 'soft'
                     }
                     color={
+                      (tab.value === 'PENDING' && 'warning') ||
                       (tab.value === 'CONFIRMED' && 'success') ||
                       (tab.value === 'CANCELLED' && 'error') ||
                       'default'
                     }
                   >
-                    {tableData.filter((appointment) => appointment.status === tab.value).length}
+                    {tab.value === 'all'
+                      ? tableData?.length
+                      : tableData.filter((appointment) => appointment.status === tab.value).length}
                   </Label>
                 }
               />
@@ -320,14 +314,19 @@ export default function AppointmentListView() {
                         onSelectRow={() => table.onSelectRow(row._id)} // Cập nhật để sử dụng _id
                         onDeleteRow={() => handleDeleteRow(row._id)} // Cập nhật để sử dụng _id
                         onViewRow={() => handleViewRow(row._id)} // Cập nhật để sử dụng _id
+                        openCall={openCall}
+                        setOpenCall={setOpenCall}
+                        stringeeToken={stringeeToken || ''}
+                        user={userProfile}
+                        setCurrentAppointment={setCurrentAppointment}
                       />
                     ))}
-
-                  <TableEmptyRows
-                    height={denseHeight}
-                    emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
-                  />
-
+                  {dataFiltered.length === 0 && (
+                    <TableEmptyRows
+                      height={denseHeight}
+                      emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
+                    />
+                  )}
                   <TableNoData notFound={notFound} />
                 </TableBody>
               </Table>
@@ -346,7 +345,14 @@ export default function AppointmentListView() {
           />
         </Card>
       </Container>
-
+      <CallCenterModal
+        open={openCall}
+        onClose={() => setOpenCall(false)}
+        stringeeAccessToken={stringeeToken || ''}
+        fromUserId={userProfile?._id || ''}
+        userInfor={userProfile}
+        currentAppointment={currentAppointment}
+      />
       <ConfirmDialog
         open={confirm.value}
         onClose={confirm.onFalse}
