@@ -58,7 +58,7 @@ export default function HeaderSimple() {
             color="inherit"
             sx={{ typography: 'subtitle2' }}
           >
-            Need help?
+            Cần trợ giúp?
           </Link>
         </Stack>
       </Toolbar>
