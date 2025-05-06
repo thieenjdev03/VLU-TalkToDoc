@@ -97,6 +97,10 @@ export type IUserItem = {
   emergencyContact: any[];
   fullName: string;
   department: string;
+  registrationStatus: 'pending' | 'approved' | 'rejected' | 'updating' | undefined;
+  wallet: {
+    balance: number;
+  };
   username: string;
   city: any;
   medicalHistory: any[];

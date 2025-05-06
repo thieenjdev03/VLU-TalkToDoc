@@ -66,17 +66,18 @@ const TABLE_HEAD_PATIENT = [
 ];
 
 const TABLE_HEAD_DOCTOR = [
-  { id: 'id', label: 'Mã Bác Sĩ', width: 200 },
-  { id: 'fullName', label: 'Họ & Tên', width: 200 },
-  { id: 'hospital', label: 'Bệnh Viện', width: 400 },
-  { id: 'position', label: 'Chức Vụ', width: 180 },
-  { id: 'rank', label: 'Cấp Bậc', width: 180 },
-  { id: 'specialty', label: 'Chuyên Khoa', width: 500 },
-  { id: 'phoneNumber', label: 'SĐT', width: 180 },
-  { id: 'experienceYears', label: 'Kinh Nghiệm (Năm)', width: 120 },
-  { id: 'licenseNo', label: 'Mã Giấy Phép', width: 180 },
-  { id: 'status', label: 'Kích hoạt', width: 100 },
-  { id: '', width: 88 },
+  { id: 'id', label: 'Mã Bác Sĩ', minWidth: 100 },
+  { id: 'fullName', label: 'Họ & Tên', minWidth: 180 },
+  { id: 'hospital', label: 'Bệnh Viện', minWidth: 200 },
+  { id: 'position', label: 'Chức Vụ', minWidth: 160 },
+  { id: 'rank', label: 'Cấp Bậc', minWidth: 150 },
+  { id: 'specialty', label: 'Chuyên Khoa', minWidth: 260 },
+  { id: 'phoneNumber', label: 'SĐT', minWidth: 140 },
+  { id: 'experienceYears', label: 'Kinh Nghiệm (Năm)', minWidth: 100 },
+  { id: 'licenseNo', label: 'Mã Giấy Phép', minWidth: 100 },
+  { id: 'status', label: 'Kích hoạt', minWidth: 80 },
+  { id: 'registrationStatus', label: 'Trạng thái đăng ký', minWidth: 240 },
+  { id: '', width: 72 }, // nút hành động (edit/delete)
 ];
 
 const TABLE_HEAD_EMPLOYEE = [
@@ -118,7 +119,7 @@ export default function UserListView(props: {
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState(defaultFilters);
   const [specialtyList, setSpecialtyList] = useState<ISpecialtyItem[]>([]);
-
+  console.log('confirm check data', confirm);
   // Fetch specialties only when searchQuery changes
   const { specialties } = useGetSpecialties({
     query: searchQuery,
@@ -261,6 +262,9 @@ export default function UserListView(props: {
               <Button
                 variant="outlined"
                 color="inherit"
+                onClick={() => {
+                  window.location.reload();
+                }}
                 startIcon={<Iconify icon="eva:refresh-fill" />}
               >
                 Làm mới
@@ -324,7 +328,7 @@ export default function UserListView(props: {
               sx={{ p: 2.5, pt: 0 }}
             />
           )}
-          <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
+          <TableContainer sx={{ position: 'relative', overflow: 'unset', minWidth: '1020px' }}>
             <TableSelectedAction
               dense={table.dense}
               numSelected={table.selected.length}

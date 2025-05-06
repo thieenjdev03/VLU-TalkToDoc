@@ -122,6 +122,7 @@ export default function AccountPopover() {
           {user?.name?.charAt(0).toUpperCase()}
         </Avatar>
       </IconButton>
+      <Divider sx={{ borderStyle: 'dashed' }} />
 
       <CustomPopover open={popover.open} onClose={popover.onClose} sx={{ width: 200, p: 0 }}>
         <Box sx={{ p: 2, pb: 1.5 }}>
@@ -142,6 +143,14 @@ export default function AccountPopover() {
 
         <Divider sx={{ borderStyle: 'dashed' }} />
 
+        <Box sx={{ px: 2, py: 1 }}>
+          <Typography variant="body2" sx={{ mt: 1 }} noWrap>
+            <div style={{ color: 'text.primary', fontWeight: 'normal', fontSize: '14px' }}>
+              Số dư: <span style={{ color: 'green' }}>{user?.wallet?.balance || 0} VNĐ</span>
+            </div>
+          </Typography>
+        </Box>
+        <Divider sx={{ borderStyle: 'dashed' }} />
         <Stack sx={{ p: 1 }}>
           {user?.role === 'ADMIN'
             ? OPTIONS_ADMIN.map((option) => (

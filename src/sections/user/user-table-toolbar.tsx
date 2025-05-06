@@ -2,14 +2,10 @@ import { useCallback } from 'react';
 
 import Stack from '@mui/material/Stack';
 import MenuItem from '@mui/material/MenuItem';
-import Checkbox from '@mui/material/Checkbox';
 import TextField from '@mui/material/TextField';
-import InputLabel from '@mui/material/InputLabel';
 import IconButton from '@mui/material/IconButton';
-import FormControl from '@mui/material/FormControl';
-import OutlinedInput from '@mui/material/OutlinedInput';
+import { SelectChangeEvent } from '@mui/material/Select';
 import InputAdornment from '@mui/material/InputAdornment';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
 
 import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
@@ -87,43 +83,43 @@ export default function UserTableToolbar({
           pr: { xs: 2.5, md: 1 },
         }}
       >
-        {/* Dropdown chọn chuyên khoa */}
+        {/* Dropdown chọn chuyên khoa
         {typeUser === 'patient' || typeUser === 'user' ? (
           <div />
         ) : (
-          <FormControl
-            sx={{
-              flexShrink: 0,
-              width: { xs: 1, md: 200 },
-            }}
-          >
-            <InputLabel>{renderTextForFilter()}</InputLabel>
+          // <FormControl
+          //   sx={{
+          //     flexShrink: 0,
+          //     width: { xs: 1, md: 200 },
+          //   }}
+          // >
+          //   <InputLabel>{renderTextForFilter()}</InputLabel>
 
-            <Select
-              multiple
-              value={filters.specialty}
-              onChange={handleFilterSpecialty}
-              input={<OutlinedInput label="Chuyên Khoa" />}
-              renderValue={(selected) => selected.map((value) => value).join(', ')}
-              MenuProps={{
-                PaperProps: {
-                  sx: { maxHeight: 240 },
-                },
-              }}
-            >
-              {roleOptions.map((option) => (
-                <MenuItem key={option} value={option}>
-                  <Checkbox
-                    disableRipple
-                    size="small"
-                    checked={filters.specialty.includes(option)}
-                  />
-                  {option}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        )}
+          //   <Select
+          //     multiple
+          //     value={filters.specialty}
+          //     onChange={handleFilterSpecialty}
+          //     input={<OutlinedInput label="Chuyên Khoa" />}
+          //     renderValue={(selected) => selected.map((value) => value).join(', ')}
+          //     MenuProps={{
+          //       PaperProps: {
+          //         sx: { maxHeight: 240 },
+          //       },
+          //     }}
+          //   >
+          //     {roleOptions.map((option) => (
+          //       <MenuItem key={option} value={option}>
+          //         <Checkbox
+          //           disableRipple
+          //           size="small"
+          //           checked={filters.specialty.includes(option)}
+          //         />
+          //         {option}
+          //       </MenuItem>
+          //     ))}
+          //   </Select>
+          // </FormControl>
+        )} */}
 
         {/* Ô tìm kiếm */}
         <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>

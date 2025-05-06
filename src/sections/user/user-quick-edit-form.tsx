@@ -42,7 +42,6 @@ type Props = {
   typeUser: 'doctor' | 'patient' | 'employee' | 'user';
   ranking: { data: Ranking[] };
   hospitalList: any;
-  onUpdateSuccess?: () => void;
 };
 
 export default function UserQuickEditForm({
@@ -52,7 +51,6 @@ export default function UserQuickEditForm({
   typeUser,
   ranking,
   hospitalList,
-  onUpdateSuccess,
 }: Props) {
   const { enqueueSnackbar } = useSnackbar();
   const { updateUser } = useUpdateUser({ typeUser });
@@ -143,15 +141,12 @@ export default function UserQuickEditForm({
         });
 
         const data = await response.json();
-
         if (data.secure_url) {
           setValue('avatarUrl', data.secure_url, { shouldValidate: true });
-          console.log('imageUrl:', data.secure_url);
         } else {
           enqueueSnackbar('Không thể lấy được đường dẫn ảnh từ Cloudinary!', { variant: 'error' });
         }
       } catch (error) {
-        console.error('Upload error:', error);
         enqueueSnackbar('Upload ảnh thất bại!', { variant: 'error' });
       }
     }
@@ -249,8 +244,6 @@ export default function UserQuickEditForm({
       }
       await updateUser({ id: formattedData?._id || '', data: formattedData });
       enqueueSnackbar('Cập nhật thành công!');
-      onClose();
-      onUpdateSuccess?.();
     } catch (error) {
       console.error(error);
       enqueueSnackbar('Cập nhật thất bại', { variant: 'error' });
@@ -260,7 +253,9 @@ export default function UserQuickEditForm({
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
       <FormProvider methods={methods} onSubmit={onSubmit}>
-        <DialogTitle>Cập nhật thông tin người dùng</DialogTitle>
+        <DialogTitle sx={{ fontFamily: 'Roboto, sans-serif' }}>
+          Cập nhật thông tin người dùng
+        </DialogTitle>
         <DialogContent>
           <Box sx={{ gap: 2, mt: 2 }}>
             <Grid container spacing={2}>

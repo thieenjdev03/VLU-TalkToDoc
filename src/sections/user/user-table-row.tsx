@@ -1,4 +1,6 @@
 import moment from 'moment';
+import { useState } from 'react';
+import { enqueueSnackbar } from 'notistack';
 
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
@@ -15,6 +17,8 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 import { formatCurrencyVND } from 'src/utils/formatCurrency';
 
+import { useUpdateUser } from 'src/api/user';
+
 import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
@@ -22,10 +26,9 @@ import CustomPopover, { usePopover } from 'src/components/custom-popover';
 
 import { IUserItem } from 'src/types/user';
 
+import StatusOption from './StatusOption';
 import UserQuickEditForm from './user-quick-edit-form';
-
 // ----------------------------------------------------------------------
-
 type Props = {
   selected: boolean;
   row: IUserItem;
@@ -34,7 +37,6 @@ type Props = {
   typeUser: 'user' | 'doctor' | 'employee' | 'patient';
   hospitalList: any;
   ranking: any;
-  onUpdateSuccess?: () => void;
 };
 
 export default function UserTableRow({
@@ -45,7 +47,6 @@ export default function UserTableRow({
   typeUser,
   hospitalList,
   ranking,
-  onUpdateSuccess,
 }: Props) {
   const {
     fullName,
@@ -67,6 +68,8 @@ export default function UserTableRow({
     id,
     isActive,
     salary,
+    registrationStatus,
+    _id,
   } = row;
 
   const confirm = useBoolean();
@@ -76,6 +79,22 @@ export default function UserTableRow({
     value: item._id,
     label: item.name,
   }));
+  const { updateUser } = useUpdateUser({ typeUser });
+  const [currentValueStatus, setCurrentValueStatus] = useState(row.registrationStatus);
+  const handleChangeStatus = async (val: string) => {
+    try {
+      await updateUser({
+        id: _id,
+        data: {
+          registrationStatus: val,
+        },
+      });
+      setCurrentValueStatus(val as any);
+      enqueueSnackbar('Cập nhật trạng thái thành công', { variant: 'success' });
+    } catch (error) {
+      enqueueSnackbar('Cập nhật trạng thái thất bại', { variant: 'error' });
+    }
+  };
 
   const renderCells = () => {
     switch (typeUser) {
@@ -111,6 +130,16 @@ export default function UserTableRow({
             <TableCell>{licenseNo || '-'}</TableCell>
             <TableCell>
               <Checkbox checked={isActive} disabled />
+            </TableCell>
+            <TableCell>
+              <StatusOption
+                value={currentValueStatus || registrationStatus}
+                onChange={async (val) => {
+                  if (val) {
+                    await handleChangeStatus(val);
+                  }
+                }}
+              />{' '}
             </TableCell>
           </>
         );

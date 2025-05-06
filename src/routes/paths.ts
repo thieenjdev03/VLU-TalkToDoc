@@ -180,6 +180,7 @@ export const paths = {
       create: `${ROOTS.DASHBOARD}/booking/create`,
     },
     user: {
+      wallet: `${ROOTS.DASHBOARD}/user/wallet`,
       root: `${ROOTS.DASHBOARD}/user`,
       new: `${ROOTS.DASHBOARD}/user/new`,
       list_doctor: `${ROOTS.DASHBOARD}/user/list-doctor`,

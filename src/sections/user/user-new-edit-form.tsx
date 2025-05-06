@@ -9,6 +9,7 @@ import Card from '@mui/material/Card';
 import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 import Switch from '@mui/material/Switch';
+import Divider from '@mui/material/Divider';
 import Typography from '@mui/material/Typography';
 import LoadingButton from '@mui/lab/LoadingButton';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -584,7 +585,16 @@ export default function UserNewEditForm({
                   }
                 />
               </Box>
-
+              {updateUserPage && (
+                <Stack direction="row" spacing={2} padding={1}>
+                  <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
+                    Thông tin số dư:
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                    <span style={{ color: 'green' }}>{currentUser?.wallet?.balance || 0} VNĐ</span>
+                  </Typography>
+                </Stack>
+              )}
               {currentUser && (
                 <FormControlLabel
                   labelPlacement="start"
@@ -603,12 +613,15 @@ export default function UserNewEditForm({
                   }
                   label={
                     <>
-                      <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-                        Kích hoạt tài khoản
-                      </Typography>
-                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                        Vô hiệu hóa tài khoản người dùng
-                      </Typography>
+                      <Divider sx={{ borderStyle: 'dashed' }} />
+                      <Stack direction="column" spacing={1} padding={1}>
+                        <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
+                          Kích hoạt tài khoản
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                          Vô hiệu hóa tài khoản người dùng
+                        </Typography>
+                      </Stack>
                     </>
                   }
                   sx={{ mx: 0, mb: 3, width: 1, justifyContent: 'space-between' }}
