@@ -19,15 +19,19 @@ const customStyles: StylesConfig<StatusOption, false> = {
     ...base,
     display: 'none',
   }),
-  option: (base, state) => ({
-    ...base,
-    backgroundColor: state.isSelected
-      ? state.data.color
-      : state.isFocused
-        ? `${state.data.color}22`
-        : 'white',
-    color: state.isSelected ? 'white' : 'black',
-  }),
+  option: (base, state) => {
+    let backgroundColor = 'white';
+    if (state.isSelected) {
+      backgroundColor = state.data.color;
+    } else if (state.isFocused) {
+      backgroundColor = `${state.data.color}22`;
+    }
+    return {
+      ...base,
+      backgroundColor,
+      color: state.isSelected ? 'white' : 'black',
+    };
+  },
   singleValue: (base, state) => ({
     ...base,
     color: state.data.color,

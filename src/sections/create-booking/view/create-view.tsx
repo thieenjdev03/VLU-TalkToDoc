@@ -15,6 +15,7 @@ import BookingCreate from '../booking-create';
 export default function BookingCreateView() {
   const settings = useSettingsContext();
   const [generalSettings, setGeneralSettings] = useState<any>(null);
+  console.log(generalSettings);
   useEffect(() => {
     const getFormConfig = async () => {
       const formConfig = await getFormConfigById('6800dd76b0ca284dcc67cde4');

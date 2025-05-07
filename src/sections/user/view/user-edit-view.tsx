@@ -43,7 +43,7 @@ export default function UserEditView({ id }: Props) {
         }}
       />
       <UserNewEditForm
-        currentUser={currentUser}
+        currentUser={currentUser as any}
         typeUser={currentUser?.role as 'user' | 'doctor' | 'employee'}
         hospitals={[]}
       />

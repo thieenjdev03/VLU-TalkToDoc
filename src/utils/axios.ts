@@ -68,6 +68,7 @@ export const endpoints = {
     list: '/appointments',
     doctorConfirm: (id: string) => `/appointments/${id}/confirm`,
     doctorReject: (id: string) => `/appointments/${id}/reject`,
+    delete: (id: string) => `/appointments/${id}`,
   },
   medicine: {
     list: '/api/v1/medicines',

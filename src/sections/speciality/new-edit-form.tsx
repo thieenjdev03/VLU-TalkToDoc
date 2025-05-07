@@ -63,7 +63,7 @@ export default function SpecialtyNewEditForm({ currentSpecialty }: Props) {
     control,
     handleSubmit,
     setValue,
-    formState: { isSubmitting, errors },
+    formState: { isSubmitting },
   } = methods;
 
   const onSubmit = handleSubmit(async (data) => {

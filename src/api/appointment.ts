@@ -13,3 +13,8 @@ export const doctorConfirmAppointment = async (data: any) => {
   const response = await axiosInstanceV2.patch(endpoints.appointment.doctorReject(data.id));
   return response.data;
 };
+
+export const deleteAppointment = async (id: string) => {
+  const response = await axiosInstanceV2.delete(endpoints.appointment.delete(id));
+  return response.data;
+};

@@ -10,8 +10,10 @@ const headers = {
     : '',
   'Content-Type': 'application/json',
 };
-const createPaymentURL = async (data: { userId: string; amount: number }) => {
-  const response = await axios.post(`${baseURL}/payment/create-payment-url`, data);
+const createPaymentURL = async (data: { patient: string; amount: number }) => {
+  const response = await axios.post(`${baseURL}/payment/create-payment-url`, data, {
+    headers,
+  });
   return response.data;
 };
 

@@ -4,7 +4,6 @@ import Stack from '@mui/material/Stack';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
-import { SelectChangeEvent } from '@mui/material/Select';
 import InputAdornment from '@mui/material/InputAdornment';
 
 import Iconify from 'src/components/iconify';
@@ -44,31 +43,6 @@ export default function UserTableToolbar({
     },
     [onFilters, onSearchChange]
   );
-
-  const handleFilterSpecialty = useCallback(
-    (event: SelectChangeEvent<string[]>) => {
-      onFilters(
-        'specialty',
-        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
-      );
-    },
-    [onFilters]
-  );
-  const renderTextForFilter = () => {
-    if (typeUser === 'user') {
-      return 'Người dùng';
-    }
-    if (typeUser === 'doctor') {
-      return 'Chuyên Khoa';
-    }
-    if (typeUser === 'employee') {
-      return 'Bộ Phận';
-    }
-    if (typeUser === 'patient') {
-      return '';
-    }
-    return 'Chuyên khoa';
-  };
   return (
     <>
       <Stack

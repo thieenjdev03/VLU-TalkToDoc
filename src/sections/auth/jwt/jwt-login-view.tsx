@@ -60,6 +60,7 @@ export default function JwtLoginView() {
   const onSubmit = handleSubmit(async (data) => {
     try {
       const res = await login(data.username, data.password);
+      localStorage.setItem('user', JSON.stringify(res.user));
       localStorage.setItem('accessToken', res.accessToken);
       localStorage.setItem('userProfile', JSON.stringify(res.userProfile));
       localStorage.setItem('stringeeToken', JSON.stringify(res.stringeeAccessToken));

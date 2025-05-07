@@ -27,6 +27,7 @@ function CallCenter({
   const [isVideoEnabled, setIsVideoEnabled] = useState(true);
   const [callStatus, setCallStatus] = useState('Chưa bắt đầu');
   const [isVideoCall, setIsVideoCall] = useState(true);
+  console.log(isVideoCall);
   useEffect(() => {
     if (!stringeeAccessToken) return;
 

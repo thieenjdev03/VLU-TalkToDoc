@@ -53,37 +53,6 @@ interface IProvince {
   codename: string;
   phone_code: number;
 }
-
-type FormValuesProps = {
-  fullName: string;
-  username: string;
-  password: string;
-  email: string;
-  phoneNumber: string;
-  status: string;
-  isActive: boolean;
-  avatarUrl: string; // Changed to string to store the image URL
-  isVerified: boolean;
-  rank?: {
-    _id: string;
-    value: string;
-    name: string;
-  };
-  company?: string;
-  position?: string;
-  specialty?: string[] | any;
-  city?: string;
-  experienceYears?: string;
-  licenseNo?: string;
-  gender?: string;
-  birthDate?: string;
-  address?: string;
-  hospital?: any;
-  department?: string;
-  salary?: number;
-  emergencyContact?: string[];
-};
-
 export default function UserNewEditForm({
   currentUser,
   typeUser,

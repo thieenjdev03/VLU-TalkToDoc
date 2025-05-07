@@ -12,7 +12,7 @@ import { Stack, Tooltip, Checkbox, IconButton, Typography } from '@mui/material'
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { doctorConfirmAppointment } from 'src/api/appointment';
+import { deleteAppointment, doctorConfirmAppointment } from 'src/api/appointment';
 
 import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
@@ -53,13 +53,14 @@ export default function AppointmentTableRow({
   const quickEdit = useBoolean();
   const confirm = useBoolean();
   const popover = usePopover();
-  const { enqueueSnackbar } = useSnackbar(); // thêm dòng này
+  const { enqueueSnackbar } = useSnackbar();
   const [loading, setLoading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const handleOpenCall = () => {
     setCurrentAppointment(row);
     setOpenCall(true);
   };
-  console.log('row check', row);
+
   const handleDoctorConfirm = async (accepted: boolean) => {
     try {
       setLoading(true);
@@ -83,6 +84,44 @@ export default function AppointmentTableRow({
     } catch (error) {
       enqueueSnackbar('Có lỗi xảy ra khi cập nhật lịch hẹn.', { variant: 'error' });
       setLoading(false);
+    }
+  };
+
+  // Hàm xoá lịch hẹn sử dụng fetch với phương thức DELETE
+  const handleDeleteAppointment = async () => {
+    if (user?.role !== 'ADMIN') {
+      enqueueSnackbar('Bạn không có quyền xoá lịch hẹn.', { variant: 'error' });
+      return;
+    }
+    if (!row?._id) {
+      enqueueSnackbar('Không tìm thấy ID lịch hẹn để xoá.', { variant: 'error' });
+      return;
+    }
+    setDeleting(true);
+    try {
+      const token = user?.accessToken || localStorage.getItem('accessToken') || '';
+      if (!token) {
+        enqueueSnackbar('Không tìm thấy token xác thực.', { variant: 'error' });
+        setDeleting(false);
+        return;
+      }
+
+      const res = await deleteAppointment(row._id);
+
+      if (res.ok) {
+        enqueueSnackbar('Xoá lịch hẹn thành công!', { variant: 'success' });
+        setDeleting(false);
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      } else {
+        const data = await res.json().catch(() => ({}));
+        enqueueSnackbar(data?.message || 'Có lỗi xảy ra khi xoá lịch hẹn.', { variant: 'error' });
+        setDeleting(false);
+      }
+    } catch (err) {
+      enqueueSnackbar('Có lỗi xảy ra khi xoá lịch hẹn.', { variant: 'error' });
+      setDeleting(false);
     }
   };
 
@@ -262,9 +301,7 @@ export default function AppointmentTableRow({
         <Checkbox
           checked={row?.payment?.billing_status === 'PAID'}
           color={row?.payment?.billing_status === 'PAID' ? 'success' : 'error'}
-          onChange={() => {
-            // Handle checkbox change logic here if needed
-          }}
+          onChange={() => {}}
           disabled
         />
       </TableCell>
@@ -325,12 +362,10 @@ export default function AppointmentTableRow({
           <Button
             variant="contained"
             color="error"
-            onClick={() => {
-              onDeleteRow(); // Changed from the incorrect syntax
-              confirm.onFalse(); // This will close the modal
-            }}
+            onClick={handleDeleteAppointment}
+            disabled={deleting}
           >
-            Xoá
+            {deleting ? 'Đang xoá...' : 'Xoá'}
           </Button>
         }
       />

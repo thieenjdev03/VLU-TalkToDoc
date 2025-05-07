@@ -42,6 +42,7 @@ export default function BookingCreate() {
     () => localStorage.getItem('booking_step') || 'select-specialty'
   );
   const [generalSettings, setGeneralSettings] = useState<any>(null);
+  console.log(generalSettings);
   const [medicalFormConfig, setMedicalFormConfig] = useState<any>(null);
   const { users: doctors } = useGetUsers({
     typeUser: 'doctor',
