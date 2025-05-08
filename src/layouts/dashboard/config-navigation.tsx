@@ -202,13 +202,13 @@ export function useNavData() {
             children: [{ title: t('Danh Sách'), path: paths.dashboard.appointment.list }],
           },
           // // ORDER
-          {
-            hidden: user?.role !== 'ADMIN',
-            title: t('Quản Lý Bệnh Án'),
-            path: paths.dashboard.order.root,
-            icon: ICONS.order,
-            children: [{ title: t('Danh Sách'), path: paths.dashboard.order.root }],
-          },
+          // {
+          //   hidden: user?.role !== 'ADMIN',
+          //   title: t('Quản Lý Bệnh Án'),
+          //   path: paths.dashboard.order.root,
+          //   icon: ICONS.order,
+          //   children: [{ title: t('Danh Sách'), path: paths.dashboard.order.root }],
+          // },
 
           // // INVOICE
           {
