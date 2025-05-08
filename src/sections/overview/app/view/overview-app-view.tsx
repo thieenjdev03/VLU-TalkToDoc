@@ -9,8 +9,6 @@ import { SeoIllustration } from 'src/assets/illustrations';
 
 import { useSettingsContext } from 'src/components/settings';
 
-import CallCenterModal from 'src/sections/call/view/call-center-modal';
-
 import AppWelcome from '../app-welcome';
 // ----------------------------------------------------------------------
 
@@ -25,34 +23,58 @@ export default function OverviewAppView() {
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
       <Grid container spacing={3}>
         <Grid xs={12} md={8}>
-          <AppWelcome
-            title={`Xin chào 👋, ${user?.fullName}`}
-            description="Chúng tôi rất vui khi được đồng hành cùng bạn trong hành trình chăm sóc sức khỏe."
-            img={<SeoIllustration />}
-            action={
-              <Button
-                onClick={() => {
-                  navigate('/dashboard/create-booking');
-                }}
-                variant="contained"
-                color="primary"
-              >
-                Đặt Lịch Hẹn Ngay
-              </Button>
-            }
-          />
+          {user?.role === 'ADMIN' && (
+            <AppWelcome
+              title={`Xin chào 👋, Quản trị viên ${user?.fullName || ''}`}
+              description="Chào mừng bạn đến với trang quản trị hệ thống. Bạn có thể quản lý người dùng, lịch hẹn, bác sĩ và các chức năng khác tại đây."
+              img={<SeoIllustration />}
+              action={
+                <Button
+                  onClick={() => navigate('/dashboard/user')}
+                  variant="contained"
+                  color="primary"
+                >
+                  Quản lý người dùng
+                </Button>
+              }
+            />
+          )}
+          {user?.role === 'DOCTOR' && (
+            <AppWelcome
+              title={`Xin chào 👋,${user?.fullName || ''}`}
+              description="Chào mừng bạn đến với trang quản lý lịch hẹn. Hãy kiểm tra và xác nhận các lịch hẹn của bạn."
+              img={<SeoIllustration />}
+              action={
+                <Button
+                  onClick={() => navigate('/dashboard/appointment/list')}
+                  variant="contained"
+                  color="primary"
+                >
+                  Xem lịch hẹn của tôi
+                </Button>
+              }
+            />
+          )}
+          {user?.role === 'PATIENT' && (
+            <AppWelcome
+              title={`Xin chào 👋, ${user?.fullName || ''}`}
+              description="Chúng tôi rất vui khi được đồng hành cùng bạn trong hành trình chăm sóc sức khỏe."
+              img={<SeoIllustration />}
+              action={
+                <Button
+                  onClick={() => navigate('/dashboard/create-booking')}
+                  variant="contained"
+                  color="primary"
+                >
+                  Đặt Lịch Hẹn Ngay
+                </Button>
+              }
+            />
+          )}
         </Grid>
         {/* <Button variant="contained" color="primary" onClick={() => setOpenCall(true)}>
           Gọi điện
         </Button> */}
-        <CallCenterModal
-          currentAppointment={null}
-          open={openCall}
-          onClose={() => setOpenCall(false)}
-          stringeeAccessToken={stringeeToken || ''}
-          fromUserId={user?._id || ''}
-          userInfor={user}
-        />
         {/*         
         <Grid xs={12} md={4}>
           <AppFeatured list={_appFeatured} />
