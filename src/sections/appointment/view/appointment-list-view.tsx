@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 
 import Tab from '@mui/material/Tab';
+import { Box } from '@mui/material';
 import Tabs from '@mui/material/Tabs';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
@@ -19,6 +20,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 import { isAfter, isBetween } from 'src/utils/format-time';
 
+import { useGetUsers } from 'src/api/user';
 import { getAllAppointment } from 'src/api/appointment';
 
 import Label from 'src/components/label';
@@ -40,6 +42,7 @@ import {
 } from 'src/components/table';
 
 import CallCenterModal from 'src/sections/call/view/call-center-modal';
+import IncomingCallPopup from 'src/sections/call/view/call-incomming-popup';
 
 import {
   IAppointmentItem,
@@ -47,6 +50,7 @@ import {
   IAppointmentTableFilterValue,
 } from 'src/types/appointment';
 
+import '../styles/index.scss';
 import AppointmentTableRow from '../appointment-table-row';
 import AppointmentTableToolbar from '../appointment-table-toolbar';
 
@@ -65,21 +69,22 @@ const TABLE_HEAD = [
   { id: 'totalFee', label: 'Chi phí', width: { xs: 100, sm: 120 } },
   { id: 'status', label: 'Trạng thái', width: { xs: 120, sm: 220 }, align: 'center' },
   { id: 'paid', label: 'Đã thanh toán', width: { xs: 100, sm: 120 } },
-  { id: 'paymentMethod', label: 'Thao tác', width: { xs: 100, sm: 120 } },
+  { id: 'ctaButton', label: 'Thao tác', width: { xs: 100, sm: 120 } },
   { id: '', width: { xs: 30, sm: 40 } },
 ];
 
 const TABLE_HEAD_PATIENT = [
-  { id: 'appointmentId', label: 'Mã lịch hẹn', width: { xs: 100, sm: 140 } },
-  { id: 'doctor', label: 'Bác sĩ', width: { xs: '15%', sm: '20%' } },
-  { id: 'bookingDate', label: 'Ngày khám', width: { xs: 100, sm: 140 } },
-  { id: 'phoneNumber', label: 'Số điện thoại', width: { xs: 100, sm: 120 } },
-  { id: 'specialty', label: 'Chuyên khoa', width: { xs: 100, sm: 140 } },
-  { id: 'totalFee', label: 'Chi phí', width: { xs: 100, sm: 120 } },
-  { id: 'status', label: 'Trạng thái', width: { xs: 120, sm: 220 }, align: 'center' },
-  { id: 'paid', label: 'Đã thanh toán', width: { xs: 100, sm: 140 } },
-  { id: 'paymentMethod', label: 'Thao tác', width: { xs: 100, sm: 120 } },
-  { id: '', width: { xs: 60, sm: 88 } },
+  { id: 'appointmentId', label: 'Mã lịch hẹn', minWidth: { xs: 100, sm: 140 } },
+  { id: 'doctor', label: 'Bác sĩ', minWidth: { xs: '15%', sm: '20%' } },
+  { id: 'bookingDate', label: 'Ngày khám', minWidth: { xs: 100, sm: 140 } },
+  { id: 'phoneNumber', label: 'Số điện thoại', minWidth: { xs: 100, sm: 130 } },
+  { id: 'specialty', label: 'Chuyên khoa', minWidth: { xs: 100, sm: 140 } },
+  { id: 'totalFee', label: 'Chi phí', minWidth: { xs: 100, sm: 120 } },
+  { id: 'status', label: 'Trạng thái', minWidth: { xs: 100, sm: 120 }, align: 'center' },
+  { id: 'paid', label: 'Đã thanh toán', minWidth: { xs: 100, sm: 140 }, align: 'center' },
+  { id: 'ctaButton', label: 'Thao tác', minWidth: { xs: 100, sm: 120 }, align: 'center' },
+  { id: 'cancelReason', label: 'Lý do hủy', minWidth: { xs: 120, sm: 140 }, align: 'center' },
+  { id: '', minWidth: { xs: 60, sm: 88 } },
 ];
 
 const defaultFilters: IAppointmentTableFilters = {
@@ -103,6 +108,7 @@ export default function AppointmentListView() {
   const stringeeToken = JSON.parse(localStorage.getItem('stringeeToken') || '{}');
   const dateError = isAfter(filters?.startDate, filters?.endDate);
   const userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+  const [showIncomingCallPopup, setShowIncomingCallPopup] = useState(false);
   const dataFiltered = applyFilter({
     inputData: tableData,
     comparator: getComparator(table.order, table.orderBy),
@@ -121,6 +127,15 @@ export default function AppointmentListView() {
     !!filters.patient || filters.status !== 'all' || (!!filters.startDate && !!filters.endDate);
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
+
+  const { users: doctorsList } = useGetUsers({
+    typeUser: 'doctor',
+    query: '',
+    page: 1,
+    limit: 99,
+    sortField: 'createdAt',
+    sortOrder: 'desc',
+  });
 
   useEffect(() => {
     const fetchAppointments = async () => {
@@ -249,19 +264,6 @@ export default function AppointmentListView() {
             onFilters={handleFilters as any}
             dateError={dateError}
           />
-
-          {/* {canReset && (
-            <AppointmentTableFiltersResult
-              filters={filters}
-              onFilters={handleFilters}
-              //
-              onResetFilters={handleResetFilters}
-              //
-              results={dataFiltered.length}
-              sx={{ p: 2.5, pt: 0 }}
-            />
-          )} */}
-
           <TableContainer sx={{ position: 'relative', overflow: 'auto' }}>
             <TableSelectedAction
               dense={table.dense}
@@ -283,7 +285,10 @@ export default function AppointmentListView() {
             />
 
             <Scrollbar>
-              <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
+              <Table
+                size={table.dense ? 'small' : 'medium'}
+                sx={{ minWidth: 960, overflowX: 'auto' }}
+              >
                 <TableHeadCustom
                   order={table.order}
                   orderBy={table.orderBy}
@@ -307,6 +312,7 @@ export default function AppointmentListView() {
                     )
                     .map((row) => (
                       <AppointmentTableRow
+                        doctorsList={doctorsList}
                         key={row._id} // Cập nhật để sử dụng _id
                         row={row}
                         typeUser={userProfile.role}
@@ -314,9 +320,7 @@ export default function AppointmentListView() {
                         onSelectRow={() => table.onSelectRow(row._id)} // Cập nhật để sử dụng _id
                         onDeleteRow={() => handleDeleteRow(row._id)} // Cập nhật để sử dụng _id
                         onViewRow={() => handleViewRow(row._id)} // Cập nhật để sử dụng _id
-                        openCall={openCall}
                         setOpenCall={setOpenCall}
-                        stringeeToken={stringeeToken || ''}
                         user={userProfile}
                         setCurrentAppointment={setCurrentAppointment}
                       />
@@ -346,6 +350,7 @@ export default function AppointmentListView() {
         </Card>
       </Container>
       <CallCenterModal
+        callStatus="Ended"
         open={openCall}
         onClose={() => setOpenCall(false)}
         stringeeAccessToken={stringeeToken || ''}
@@ -353,6 +358,19 @@ export default function AppointmentListView() {
         userInfor={userProfile}
         currentAppointment={currentAppointment}
       />
+      {/* Incoming Call Popup */}
+      {showIncomingCallPopup && (
+        <Box sx={{ position: 'fixed', top: 100, right: 20, zIndex: 1000 }}>
+          <IncomingCallPopup
+            fullName="Nguyễn Văn A"
+            avatarUrl="https://example.com/avatar.jpg"
+            role={userProfile.role}
+            specialtyName="Nội tổng quát"
+            onAccept={() => console.log('Accepted')}
+            onReject={() => console.log('Rejected')}
+          />
+        </Box>
+      )}
       <ConfirmDialog
         open={confirm.value}
         onClose={confirm.onFalse}

@@ -20,6 +20,8 @@ import { useSnackbar } from 'src/components/snackbar';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 
+import BookingTimeModal from './appointment-reschedule-modal';
+
 // ----------------------------------------------------------------------
 
 type Props = {
@@ -29,11 +31,12 @@ type Props = {
   onSelectRow: VoidFunction;
   typeUser: string;
   onDeleteRow: VoidFunction;
-  openCall: boolean;
   setOpenCall: (open: boolean) => void;
-  stringeeToken: string;
   user: any;
   setCurrentAppointment: (appointment: any) => void;
+  doctorsList: any[];
+  // Nếu có prop để mở modal sửa lịch, cần truyền vào đây, ví dụ:
+  // onOpenEditModal?: VoidFunction;
 };
 
 export default function AppointmentTableRow({
@@ -43,11 +46,10 @@ export default function AppointmentTableRow({
   onSelectRow,
   onDeleteRow,
   typeUser,
-  openCall,
   setOpenCall,
-  stringeeToken,
   setCurrentAppointment,
-  user,
+  doctorsList,
+  user, // onOpenEditModal, // Nếu có prop này
 }: Props) {
   const { appointmentId, patient, status, payment } = row as any;
   const quickEdit = useBoolean();
@@ -56,9 +58,29 @@ export default function AppointmentTableRow({
   const { enqueueSnackbar } = useSnackbar();
   const [loading, setLoading] = useState(false);
   const [deleting, setDeleting] = useState(false);
+
+  // Vấn đề: Khi click vào IconButton "Sửa Lịch", chỉ gọi quickEdit.onTrue(),
+  // nhưng không có component/modal nào render dựa vào quickEdit.value hoặc editForm.value.
+  // => Modal sửa lịch sẽ không hiện ra vì không có gì lắng nghe quickEdit.value hoặc editForm.value.
+  // Giả sử modal sửa lịch nằm ở component cha, cần truyền prop mở modal lên cha (ví dụ: onOpenEditModal).
+  // Nếu muốn mở modal ở đây, cần render modal dựa vào quickEdit.value hoặc editForm.value.
+
   const handleOpenCall = () => {
     setCurrentAppointment(row);
     setOpenCall(true);
+  };
+
+  // Sửa lại hàm này để dùng cho nút sửa lịch
+  const handleEditAppointment = () => {
+    // Nếu có prop onOpenEditModal thì gọi nó
+    // if (onOpenEditModal) {
+    //   setCurrentAppointment(row);
+    //   onOpenEditModal();
+    //   return;
+    // }
+    // Nếu muốn mở modal tại đây, cần render modal dựa vào quickEdit.value hoặc editForm.value
+    quickEdit.onTrue();
+    setCurrentAppointment(row);
   };
 
   const handleDoctorConfirm = async (accepted: boolean) => {
@@ -229,8 +251,12 @@ export default function AppointmentTableRow({
         )}
       </TableCell>
       <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
-        <Tooltip title="Sửa nhanh" placement="top" arrow>
-          <IconButton color={quickEdit.value ? 'inherit' : 'default'} onClick={quickEdit.onTrue}>
+        <Tooltip title="Sửa Lịch" placement="top" arrow>
+          <IconButton
+            color={quickEdit.value ? 'inherit' : 'default'}
+            // onClick={quickEdit.onTrue}
+            onClick={handleEditAppointment}
+          >
             <Iconify icon="solar:pen-bold" />
           </IconButton>
         </Tooltip>
@@ -297,7 +323,7 @@ export default function AppointmentTableRow({
         </Label>
       </TableCell>
 
-      <TableCell>
+      <TableCell align="center">
         <Checkbox
           checked={row?.payment?.billing_status === 'PAID'}
           color={row?.payment?.billing_status === 'PAID' ? 'success' : 'error'}
@@ -305,7 +331,12 @@ export default function AppointmentTableRow({
           disabled
         />
       </TableCell>
-      <TableCell>
+
+      <TableCell align="center">
+        <Typography variant="body2">{row.cancelReason || '-'}</Typography>
+      </TableCell>
+
+      <TableCell align="center">
         {row?.status === 'CONFIRMED' && (
           <Button
             sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
@@ -319,8 +350,12 @@ export default function AppointmentTableRow({
         )}
       </TableCell>
       <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
-        <Tooltip title="Sửa nhanh" placement="top" arrow>
-          <IconButton color={quickEdit.value ? 'inherit' : 'default'} onClick={quickEdit.onTrue}>
+        <Tooltip title="Sửa Lịch" placement="top" arrow>
+          <IconButton
+            color={quickEdit.value ? 'inherit' : 'default'}
+            // onClick={quickEdit.onTrue}
+            onClick={handleEditAppointment}
+          >
             <Iconify icon="solar:pen-bold" />
           </IconButton>
         </Tooltip>
@@ -331,9 +366,28 @@ export default function AppointmentTableRow({
       </TableCell>
     </TableRow>
   );
+
+  // Giải thích:
+  // - Khi click vào nút sửa lịch, chỉ gọi quickEdit.onTrue() hoặc handleEditAppointment().
+  // - Nhưng không có modal nào render dựa vào quickEdit.value hoặc editForm.value ở đây.
+  // - Để modal hiện ra, cần render component modal sửa lịch ở đây, ví dụ:
+  //   {quickEdit.value && <EditAppointmentModal open={quickEdit.value} onClose={quickEdit.onFalse} appointment={row} />}
+  // - Hoặc truyền prop mở modal lên component cha.
+
   return (
     <>
       {typeUser === 'PATIENT' ? patientField : doctorField}
+
+      {/* Ví dụ: render modal sửa lịch nếu quickEdit.value true */}
+      {/* 
+      {quickEdit.value && (
+        <EditAppointmentModal
+          open={quickEdit.value}
+          onClose={quickEdit.onFalse}
+          appointment={row}
+        />
+      )}
+      */}
 
       <CustomPopover
         open={popover.open}
@@ -352,7 +406,19 @@ export default function AppointmentTableRow({
           Xoá
         </MenuItem>
       </CustomPopover>
-
+      <BookingTimeModal
+        open={quickEdit.value}
+        onClose={() => quickEdit.onFalse()}
+        doctors={doctorsList}
+        defaultData={{
+          doctor: row?.doctor,
+          date: row?.appointment?.date || '',
+          slot: row?.appointment?.slot || '',
+        }}
+        onConfirm={(payload: any) => {
+          console.log('Updated:', payload);
+        }}
+      />
       <ConfirmDialog
         open={confirm.value || false}
         onClose={confirm.onFalse}

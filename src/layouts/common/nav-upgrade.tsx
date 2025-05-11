@@ -32,7 +32,7 @@ export default function NavUpgrade() {
     >
       <Stack alignItems="center">
         <Box sx={{ position: 'relative' }}>
-          <Avatar src={user?.photoURL} alt={user?.name} sx={{ width: 48, height: 48 }}>
+          <Avatar src={user?.avatarUrl} alt={user?.name} sx={{ width: 48, height: 48 }}>
             {user?.name?.charAt(0).toUpperCase()}
           </Avatar>
 

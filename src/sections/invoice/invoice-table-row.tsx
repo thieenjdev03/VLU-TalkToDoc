@@ -52,15 +52,15 @@ export default function InvoiceTableRow({ row, selected, onSelectRow, onViewRow 
           </Typography>
         </TableCell>
         <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-          <Avatar alt={userInfo?.name} sx={{ mr: 2 }}>
-            {userInfo?.name?.charAt(0).toUpperCase()}
+          <Avatar alt={userInfo?.fullName} src={userInfo?.avatarUrl} sx={{ mr: 2 }}>
+            {userInfo?.fullName?.charAt(0).toUpperCase()}
           </Avatar>
-          {userInfo?.name ? (
+          {userInfo?.fullName ? (
             <ListItemText
               disableTypography
               primary={
                 <Typography variant="body2" noWrap>
-                  {userInfo?.name}
+                  {userInfo?.fullName}
                 </Typography>
               }
               secondary={

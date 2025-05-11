@@ -1,6 +1,10 @@
 export interface IAppointmentItem {
   _id: string;
   appointmentId: string;
+  appointment: {
+    date: string;
+    slot: string;
+  };
   patient: IPatientItem;
   doctor: any;
   status: string;

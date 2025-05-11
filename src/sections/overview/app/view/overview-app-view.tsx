@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import Button from '@mui/material/Button';
@@ -13,12 +12,10 @@ import AppWelcome from '../app-welcome';
 // ----------------------------------------------------------------------
 
 export default function OverviewAppView() {
-  const [openCall, setOpenCall] = useState(false);
   const userProfile = localStorage.getItem('userProfile');
   const user = JSON.parse(userProfile || '{}');
   const navigate = useNavigate();
   const settings = useSettingsContext();
-  const stringeeToken = JSON.parse(localStorage.getItem('stringeeToken') || '{}');
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
       <Grid container spacing={3}>

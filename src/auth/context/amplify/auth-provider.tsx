@@ -189,6 +189,7 @@ export function AuthProvider({ children }: Props) {
   // LOGOUT
   const logout = useCallback(async () => {
     await signOut();
+    localStorage.clear();
     dispatch({
       type: Types.LOGOUT,
     });

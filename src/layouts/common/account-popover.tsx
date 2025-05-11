@@ -67,13 +67,7 @@ export default function AccountPopover() {
       await logout();
       popover.onClose();
       router.replace('/auth/jwt/login');
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('user');
-      localStorage.removeItem('userProfile');
-      localStorage.removeItem('stringeeToken');
-      localStorage.removeItem('booking_form_data');
-      localStorage.removeItem('booking_form_data_1');
-      localStorage.removeItem('booking_form_data_2');
+      localStorage.clear();
     } catch (error) {
       console.error(error);
       enqueueSnackbar('Unable to logout!', { variant: 'error' });

@@ -10,14 +10,11 @@ export type IChatAttachment = {
   modifiedAt: Date;
 };
 
-export type IChatMessage = {
-  id: string;
-  body: string;
-  createdAt: Date;
-  senderId: string;
-  contentType: string;
-  attachments: IChatAttachment[];
-};
+export interface IChatMessage {
+  _id: string;
+  role: 'user' | 'assistant';
+  content: string;
+}
 
 export type IChatParticipant = {
   id: string;
@@ -31,15 +28,18 @@ export type IChatParticipant = {
   status: 'online' | 'offline' | 'alway' | 'busy';
 };
 
-export type IChatConversation = {
-  id: string;
-  type: string;
-  unreadCount: number;
+export interface IChatConversation {
+  _id: string;
   messages: IChatMessage[];
-  participants: IChatParticipant[];
-};
+  user_id: string;
+}
 
 export type IChatConversations = {
   byId: Record<string, IChatConversation>;
   allIds: string[];
 };
+
+export interface IChatResponse {
+  reply: string;
+  messages: IChatMessage[];
+}

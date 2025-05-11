@@ -52,67 +52,123 @@ export default function PaymentView() {
         alignItems: 'center',
       }}
     >
-      {currentPath.search.includes('vnp_Amount') && !paymentSuccess ? (
-        <VnPayReturnPage setPaymentSuccess={setPaymentSuccess} />
-      ) : (
-        <>
-          <div className="flex items-center justify-center mb-4">
-            <svg
-              className="text-green-500 w-20 h-20 animate-bounce"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
-          </div>
-          <Typography variant="h3" gutterBottom>
-            Thanh toán thành công!
-          </Typography>
-          {appointmentDetails && (
-            <Typography variant="body1" sx={{ color: 'text.secondary', maxWidth: 500, mx: 'auto' }}>
-              Thông tin lịch hẹn:
-              <br />
-              Mã lịch hẹn: {appointmentDetails.appointmentId}
-              <br />
-              Bác sĩ: {appointmentDetails.doctor.fullName}
-              <br />
-              Chuyên khoa: {appointmentDetails.specialty.name}
-              <br />
-              Ngày: {appointmentDetails.booking.date}
-              <br />
-              Giờ hẹn: {appointmentDetails.booking.slot}
-              <br />
-              Tổng chi phí: {appointmentDetails.payment.totalFee.toLocaleString('vi-VN')}đ
-            </Typography>
-          )}
-          <div className="flex justify-center gap-4 mt-6">
-            <Button
-              variant="outlined"
-              onClick={() => {
-                navigate(paths.dashboard.root);
-                localStorage.removeItem('current_appointment');
-              }}
-            >
-              Về trang chính
-            </Button>
-            <Button
-              variant="contained"
-              onClick={() => {
-                navigate(paths.dashboard.appointment.list);
-                localStorage.removeItem('current_appointment');
-              }}
-            >
-              Xem danh sách lịch hẹn
-            </Button>
-          </div>
-        </>
-      )}
+      {(() => {
+        if (currentPath.search.includes('vnp_Amount') && paymentSuccess === false) {
+          return (
+            <div className="flex flex-col items-center justify-center">
+              <div className="flex items-center justify-center mb-4">
+                <svg
+                  className="text-red-500 w-20 h-20 animate-bounce"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </div>
+              <Typography variant="h3" gutterBottom>
+                Thanh toán thất bại!
+              </Typography>
+              <Typography
+                variant="body1"
+                sx={{ color: 'text.secondary', maxWidth: 500, mx: 'auto' }}
+              >
+                Đã có lỗi xảy ra trong quá trình thanh toán. Vui lòng thử lại hoặc liên hệ hỗ trợ.
+              </Typography>
+              <div className="flex justify-center gap-4 mt-6">
+                <Button
+                  variant="outlined"
+                  onClick={() => {
+                    navigate(paths.dashboard.root);
+                    localStorage.removeItem('current_appointment');
+                  }}
+                >
+                  Về trang chính
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    navigate(paths.dashboard.appointment.list);
+                    localStorage.removeItem('current_appointment');
+                  }}
+                >
+                  Xem danh sách lịch hẹn
+                </Button>
+              </div>
+            </div>
+          );
+        }
+        if (currentPath.search.includes('vnp_Amount') && paymentSuccess === true) {
+          return (
+            <>
+              <div className="flex items-center justify-center mb-4">
+                <svg
+                  className="text-green-500 w-20 h-20 animate-bounce"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              </div>
+              <Typography variant="h3" gutterBottom>
+                Thanh toán thành công!
+              </Typography>
+              {appointmentDetails && (
+                <Typography
+                  variant="body1"
+                  sx={{ color: 'text.secondary', maxWidth: 500, mx: 'auto' }}
+                >
+                  Thông tin lịch hẹn:
+                  <br />
+                  Mã lịch hẹn: {appointmentDetails.appointmentId}
+                  <br />
+                  Bác sĩ: {appointmentDetails.doctor.fullName}
+                  <br />
+                  Chuyên khoa: {appointmentDetails.specialty.name}
+                  <br />
+                  Ngày: {appointmentDetails.booking.date}
+                  <br />
+                  Giờ hẹn: {appointmentDetails.booking.slot}
+                  <br />
+                  Tổng chi phí: {appointmentDetails.payment.totalFee.toLocaleString('vi-VN')}đ
+                </Typography>
+              )}
+              <div className="flex justify-center gap-4 mt-6">
+                <Button
+                  variant="outlined"
+                  onClick={() => {
+                    navigate(paths.dashboard.root);
+                    localStorage.removeItem('current_appointment');
+                  }}
+                >
+                  Về trang chính
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    navigate(paths.dashboard.appointment.list);
+                    localStorage.removeItem('current_appointment');
+                  }}
+                >
+                  Xem danh sách lịch hẹn
+                </Button>
+              </div>
+            </>
+          );
+        }
+        return <VnPayReturnPage setPaymentSuccess={setPaymentSuccess} />;
+      })()}
     </Container>
   );
 }

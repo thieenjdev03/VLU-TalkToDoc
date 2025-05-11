@@ -1,7 +1,7 @@
 import { Icon } from '@iconify/react';
 import { useRef, useState, useEffect } from 'react';
 
-import { Box, Stack, Alert, Button, TextField, Typography, IconButton } from '@mui/material';
+import { Box, Stack, Alert, Button, Typography } from '@mui/material';
 
 interface CallComponentProps {
   stringeeAccessToken: string;
@@ -10,7 +10,7 @@ interface CallComponentProps {
   currentAppointment: any;
 }
 
-function CallCenter({
+export default function CallCenter({
   stringeeAccessToken,
   fromUserId,
   userInfor,
@@ -27,6 +27,10 @@ function CallCenter({
   const [isVideoEnabled, setIsVideoEnabled] = useState(true);
   const [callStatus, setCallStatus] = useState('Chưa bắt đầu');
   const [isVideoCall, setIsVideoCall] = useState(true);
+  const [openCall, setOpenCall] = useState(false);
+  const [isIncomingCall, setIsIncomingCall] = useState(false);
+  const [callerInfo, setCallerInfo] = useState<any>(null);
+
   console.log(isVideoCall);
   useEffect(() => {
     if (!stringeeAccessToken) return;
@@ -52,17 +56,21 @@ function CallCenter({
       });
     }
   }, [stringeeAccessToken]);
-
+  console.log('userInfor', userInfor);
   const makeCall = (video = true) => {
-    if (!clientConnected || !toUserId) {
+    if (!clientConnected || !currentAppointment?.doctor?.id) {
       setCallStatus('Chưa kết nối hoặc thiếu ID người nhận');
       return;
     }
+    console.log('currentAppointment', currentAppointment);
     setIsVideoCall(video);
+    const callFromId = userInfor?.id;
+    const callToId = currentAppointment?.doctor?.id;
+
     const call = new (window as any).StringeeCall(
       stringeeClientRef.current,
-      fromUserId,
-      toUserId,
+      callFromId,
+      callToId,
       video
     );
 
@@ -177,18 +185,26 @@ function CallCenter({
       setIsVideoEnabled(!isVideoEnabled);
     }
   };
-
+  const initialPatientName = userInfor?.fullName
+    ? userInfor.fullName
+        .split(' ')
+        .map((w: string) => w[0])
+        .join('')
+        .toUpperCase()
+    : 'KH';
+  const initialDoctorName = currentAppointment?.doctor?.fullName
+    ? currentAppointment?.doctor?.fullName
+        .split(' ')
+        .map((w: string) => w[0])
+        .join('')
+        .toUpperCase()
+    : 'BS';
   return (
-    <Box display="flex flex-col gap-2" height="100vh">
-      {callStatus && (
-        <Alert severity="info" sx={{ mt: 2, width: '100%' }}>
-          {callStatus}
-        </Alert>
-      )}
+    <Box display="flex flex-col gap-2">
       <Box
         bgcolor="#f9fafb"
         p={{ xs: 1, sm: 2 }}
-        borderRight="1px solid #e5e7eb"
+        borderRadius={2}
         display="flex"
         flexDirection={{ xs: 'column', sm: 'row' }}
         alignItems={{ xs: 'flex-start', sm: 'center' }}
@@ -233,47 +249,6 @@ function CallCenter({
                 {currentAppointment?.patient?.fullName || '---'}
               </Typography>
             </Typography>
-            <Typography
-              sx={{
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-                maxWidth: '100%',
-              }}
-              variant="body2"
-              color="text.secondary"
-            >
-              Bệnh nhân ID:{' '}
-              <Typography
-                sx={{
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                  maxWidth: '100%',
-                }}
-                width="100%"
-                component="span"
-                fontWeight="500"
-                color="text.primary"
-              >
-                {currentAppointment?.patient?._id || '---'}
-              </Typography>
-            </Typography>
-            <Typography
-              sx={{
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-                maxWidth: '100%',
-              }}
-              variant="body2"
-              color="text.secondary"
-            >
-              Bác Sĩ ID:{' '}
-              <Typography component="span" fontWeight="500" color="text.primary">
-                {currentAppointment?.doctor?._id || '---'}
-              </Typography>
-            </Typography>
           </Stack>
 
           <Stack spacing={0.5} width={{ xs: '100%', sm: 'auto' }}>
@@ -292,7 +267,7 @@ function CallCenter({
           </Stack>
         </Stack>
       </Box>
-      <Box width="100%" display="flex" flexDirection="column" gap={2} alignItems="center">
+      {/* <Box width="100%" display="flex" flexDirection="column" gap={2} alignItems="center">
         <TextField
           label="Call to"
           value={toUserId}
@@ -384,7 +359,7 @@ function CallCenter({
             </Stack>
           </Box>
         )}
-      </Box>
+      </Box> */}
       <Box
         flex={1}
         display="flex"
@@ -398,16 +373,14 @@ function CallCenter({
           borderRadius={2}
           overflow="hidden"
           boxShadow={3}
-          display="flex"
-          flexDirection={{ xs: 'column', sm: 'row' }}
-          gap={2}
+          position="relative"
+          sx={{
+            height: { xs: '580px', sm: '580px' },
+            backgroundColor: '#000',
+          }}
         >
-          <Box
-            width={{ xs: '100%', sm: '50%' }}
-            height={{ xs: '200px', sm: '300px' }}
-            overflow="hidden"
-            boxShadow={3}
-          >
+          {/* Remote Video */}
+          <Box width="100%" height="100%" sx={{ position: 'relative', zIndex: 1 }}>
             <video
               id="remoteVideo"
               playsInline
@@ -416,34 +389,119 @@ function CallCenter({
               style={{
                 width: '100%',
                 height: '100%',
-                backgroundColor: '#424141',
                 objectFit: 'cover',
+                backgroundColor: '#',
               }}
             >
               <track kind="captions" src="" label="English" />
             </video>
-          </Box>
-          <Box
-            width={{ xs: '100%', sm: '50%' }}
-            height={{ xs: '200px', sm: '300px' }}
-            overflow="hidden"
-            boxShadow={3}
-          >
-            <video
-              id="localVideo"
-              playsInline
-              autoPlay
-              muted
-              style={{
-                width: '100%',
-                height: '100%',
+            <Box
+              sx={{
+                width: 100,
+                height: 100,
+                borderRadius: '50%',
                 backgroundColor: '#424141',
-                objectFit: 'cover',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 24,
+                fontWeight: 'bold',
+                color: 'white',
+                position: 'absolute',
+                right: '50%',
+                bottom: '50%',
+                transform: 'translateX(50%)',
               }}
-            />
+            >
+              {initialDoctorName}
+            </Box>
+          </Box>
+
+          {/* Local Video - Small preview at bottom right */}
+          <Box
+            sx={{
+              position: 'absolute',
+              bottom: 16,
+              right: 16,
+              width: '180px',
+              height: '120px',
+              borderRadius: 2,
+              overflow: 'hidden',
+              boxShadow: 3,
+              zIndex: 2,
+              backgroundColor: '#424141',
+            }}
+          >
+            <Box
+              sx={{
+                borderRadius: '50%',
+                backgroundColor: '#424141',
+                position: 'relative',
+                height: '100%',
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <video
+                id="localVideo"
+                playsInline
+                autoPlay
+                muted
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  zIndex: 1,
+                }}
+              />
+              {(callStatus || !isVideoCall) && (
+                <Box
+                  sx={{
+                    backgroundColor: '#424141',
+                    fontWeight: 'bold',
+                    color: 'white',
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 2,
+                  }}
+                >
+                  <Box
+                    sx={{
+                      width: 100,
+                      height: 100,
+                      borderRadius: '50%',
+                      backgroundColor: '#424141',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 24,
+                      fontWeight: 'bold',
+                      color: 'white',
+                    }}
+                  >
+                    {initialPatientName}
+                  </Box>
+                </Box>
+              )}
+            </Box>
           </Box>
         </Box>
-
+        {callStatus && (
+          <Alert severity="info" sx={{ mt: 2, width: '100%' }}>
+            {callStatus}
+          </Alert>
+        )}
         <Stack
           direction="row"
           spacing={3}
@@ -519,6 +577,19 @@ function CallCenter({
           >
             <Icon icon="mdi:record-circle" width={24} height={24} />
           </Button>
+          {/* Make Call */}
+          <Button
+            variant="contained"
+            onClick={() => makeCall(true)}
+            sx={{
+              backgroundColor: 'success.main',
+              '&:hover': {
+                backgroundColor: 'success.dark',
+              },
+            }}
+          >
+            <Icon icon="mdi:phone" width={24} height={24} />
+          </Button>
 
           {/* End Call */}
           <Button
@@ -543,5 +614,3 @@ function CallCenter({
     </Box>
   );
 }
-
-export default CallCenter;

@@ -1,155 +1,65 @@
-import { sub } from 'date-fns';
-import { useRef, useMemo, useState, useCallback } from 'react';
+import { useState, ChangeEvent } from 'react';
 
-import Stack from '@mui/material/Stack';
-import InputBase from '@mui/material/InputBase';
-import IconButton from '@mui/material/IconButton';
+import SendIcon from '@mui/icons-material/Send';
+import ImageIcon from '@mui/icons-material/Image';
+import { Paper, InputBase, IconButton } from '@mui/material';
 
-import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hooks';
+interface Props {
+  onSendMessage: (message: string) => void;
+  onUploadImage?: (file: File) => void;
+  disabled?: boolean;
+}
 
-import { useMockedUser } from 'src/hooks/use-mocked-user';
-
-import uuidv4 from 'src/utils/uuidv4';
-
-import { sendMessage, createConversation } from 'src/api/chat';
-
-import Iconify from 'src/components/iconify';
-
-import { IChatParticipant } from 'src/types/chat';
-
-// ----------------------------------------------------------------------
-
-type Props = {
-  recipients: IChatParticipant[];
-  onAddRecipients: (recipients: IChatParticipant[]) => void;
-  //
-  disabled: boolean;
-  selectedConversationId: string;
-};
-
-export default function ChatMessageInput({
-  recipients,
-  onAddRecipients,
-  //
-  disabled,
-  selectedConversationId,
-}: Props) {
-  const router = useRouter();
-
-  const { user } = useMockedUser();
-
-  const fileRef = useRef<HTMLInputElement>(null);
-
+export default function ChatMessageInput({ onSendMessage, onUploadImage, disabled }: Props) {
   const [message, setMessage] = useState('');
 
-  const myContact = useMemo(
-    () => ({
-      id: `${user?.id}`,
-      role: `${user?.role}`,
-      email: `${user?.email}`,
-      address: `${user?.address}`,
-      name: `${user?.name}`,
-      lastActivity: new Date(),
-      avatarUrl: `${user?.photoURL}`,
-      phoneNumber: `${user?.phoneNumber}`,
-      status: 'online' as 'online' | 'offline' | 'alway' | 'busy',
-    }),
-    [user]
-  );
+  const handleSend = () => {
+    if (!message.trim()) return;
+    onSendMessage(message.trim());
+    setMessage('');
+  };
 
-  const messageData = useMemo(
-    () => ({
-      id: uuidv4(),
-      attachments: [],
-      body: message,
-      contentType: 'text',
-      createdAt: sub(new Date(), { minutes: 1 }),
-      senderId: myContact.id,
-    }),
-    [message, myContact.id]
-  );
-
-  const conversationData = useMemo(
-    () => ({
-      id: uuidv4(),
-      messages: [messageData],
-      participants: [...recipients, myContact],
-      type: recipients.length > 1 ? 'GROUP' : 'ONE_TO_ONE',
-      unreadCount: 0,
-    }),
-    [messageData, myContact, recipients]
-  );
-
-  const handleAttach = useCallback(() => {
-    if (fileRef.current) {
-      fileRef.current.click();
+  const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      handleSend();
     }
-  }, []);
+  };
 
-  const handleChangeMessage = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    setMessage(event.target.value);
-  }, []);
-
-  const handleSendMessage = useCallback(
-    async (event: React.KeyboardEvent<HTMLInputElement>) => {
-      try {
-        if (event.key === 'Enter') {
-          if (message) {
-            if (selectedConversationId) {
-              await sendMessage(selectedConversationId, messageData);
-            } else {
-              const res = await createConversation(conversationData);
-
-              router.push(`${paths.dashboard.chat}?id=${res.conversation.id}`);
-
-              onAddRecipients([]);
-            }
-          }
-          setMessage('');
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    },
-    [conversationData, message, messageData, onAddRecipients, router, selectedConversationId]
-  );
+  const handleImageUpload = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file && onUploadImage) {
+      onUploadImage(file);
+    }
+  };
 
   return (
-    <>
+    <Paper
+      elevation={3}
+      sx={{
+        p: '8px 12px',
+        display: 'flex',
+        alignItems: 'center',
+        borderRadius: '32px',
+        m: 2,
+      }}
+    >
+      <IconButton component="label" disabled={disabled}>
+        <ImageIcon />
+        <input type="file" accept="image/*" hidden onChange={handleImageUpload} />
+      </IconButton>
+
       <InputBase
+        sx={{ ml: 1, flex: 1 }}
+        placeholder="Nhập tin nhắn..."
         value={message}
-        onKeyUp={handleSendMessage}
-        onChange={handleChangeMessage}
-        placeholder="Type a message"
+        onChange={(e) => setMessage(e.target.value)}
+        onKeyUp={handleKeyUp}
         disabled={disabled}
-        startAdornment={
-          <IconButton>
-            <Iconify icon="eva:smiling-face-fill" />
-          </IconButton>
-        }
-        endAdornment={
-          <Stack direction="row" sx={{ flexShrink: 0 }}>
-            <IconButton onClick={handleAttach}>
-              <Iconify icon="solar:gallery-add-bold" />
-            </IconButton>
-            <IconButton onClick={handleAttach}>
-              <Iconify icon="eva:attach-2-fill" />
-            </IconButton>
-            <IconButton>
-              <Iconify icon="solar:microphone-bold" />
-            </IconButton>
-          </Stack>
-        }
-        sx={{
-          px: 1,
-          height: 56,
-          flexShrink: 0,
-          borderTop: (theme) => `solid 1px ${theme.palette.divider}`,
-        }}
       />
 
-      <input type="file" ref={fileRef} style={{ display: 'none' }} />
-    </>
+      <IconButton color="primary" onClick={handleSend} disabled={!message.trim() || disabled}>
+        <SendIcon />
+      </IconButton>
+    </Paper>
   );
 }

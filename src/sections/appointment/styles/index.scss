@@ -1,0 +1,30 @@
+.reschedule-modal-container {
+    .MuiDateCalendar-root {
+        width: 400px;
+
+        .MuiButtonBase-root {
+            width: 44px;
+            height: 44px;
+
+            &.MuiPickersDay-root {
+                font-size: 1rem;
+            }
+
+            &.Mui-selected {
+                background-color: #2065D1;
+            }
+        }
+    }
+}
+
+.MuiDialog-root:has(.cta-button-group-minimized) {
+    height: fit-content;
+
+    .MuiBackdrop-root {
+        height: fit-content;
+
+        .MuiDialog-container {
+            height: fit-content;
+        }
+    }
+}

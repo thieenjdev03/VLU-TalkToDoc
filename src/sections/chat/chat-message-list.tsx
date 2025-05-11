@@ -1,50 +1,33 @@
-import Box from '@mui/material/Box';
+import { Box, Stack } from '@mui/material';
 
 import Scrollbar from 'src/components/scrollbar';
-import Lightbox, { useLightBox } from 'src/components/lightbox';
 
-import { IChatMessage, IChatParticipant } from 'src/types/chat';
+import { IChatMessage } from 'src/types/chat';
 
-import { useMessagesScroll } from './hooks';
 import ChatMessageItem from './chat-message-item';
 
 // ----------------------------------------------------------------------
 
-type Props = {
+interface Props {
   messages: IChatMessage[];
-  participants: IChatParticipant[];
-};
+  userProfile: any;
+}
 
-export default function ChatMessageList({ messages = [], participants }: Props) {
-  const { messagesEndRef } = useMessagesScroll(messages);
-
-  const slides = messages
-    .filter((message) => message.contentType === 'image')
-    .map((message) => ({ src: message.body }));
-
-  const lightbox = useLightBox(slides);
-
+export default function ChatMessageList({ messages, userProfile }: Props) {
   return (
-    <>
-      <Scrollbar ref={messagesEndRef} sx={{ px: 3, py: 5, height: 1 }}>
-        <Box>
+    <Box sx={{ flexGrow: 1, overflow: 'hidden', px: 2 }}>
+      <Scrollbar sx={{ height: 1 }}>
+        <Stack spacing={2} sx={{ py: 3, minHeight: 1 }}>
           {messages.map((message) => (
             <ChatMessageItem
-              key={message.id}
+              key={message._id}
               message={message}
-              participants={participants}
-              onOpenLightbox={() => lightbox.onOpen(message.body)}
+              isCurrentUser={message.role === 'user'}
+              userProfile={userProfile}
             />
           ))}
-        </Box>
+        </Stack>
       </Scrollbar>
-
-      <Lightbox
-        index={lightbox.selected}
-        slides={slides}
-        open={lightbox.open}
-        close={lightbox.onClose}
-      />
-    </>
+    </Box>
   );
 }

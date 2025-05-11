@@ -1,154 +1,61 @@
-import { formatDistanceToNowStrict } from 'date-fns';
+import { Box, Stack, Avatar, Typography } from '@mui/material';
 
-import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
-import Avatar from '@mui/material/Avatar';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
+import { IChatMessage } from 'src/types/chat';
 
-import { useMockedUser } from 'src/hooks/use-mocked-user';
-
-import Iconify from 'src/components/iconify';
-
-import { IChatMessage, IChatParticipant } from 'src/types/chat';
-
-import { useGetMessage } from './hooks';
-
-// ----------------------------------------------------------------------
-
-type Props = {
+interface Props {
   message: IChatMessage;
-  participants: IChatParticipant[];
-  onOpenLightbox: (value: string) => void;
-};
+  isCurrentUser: boolean;
+  userProfile: any;
+}
 
-export default function ChatMessageItem({ message, participants, onOpenLightbox }: Props) {
-  const { user } = useMockedUser();
-
-  const { me, senderDetails, hasImage } = useGetMessage({
-    message,
-    participants,
-    currentUserId: `${user?.id}`,
-  });
-
-  const { firstName, avatarUrl } = senderDetails;
-
-  const { body, createdAt } = message;
-
-  const renderInfo = (
-    <Typography
-      noWrap
-      variant="caption"
-      sx={{
-        mb: 1,
-        color: 'text.disabled',
-        ...(!me && {
-          mr: 'auto',
-        }),
-      }}
-    >
-      {!me && `${firstName},`} &nbsp;
-      {formatDistanceToNowStrict(new Date(createdAt), {
-        addSuffix: true,
-      })}
-    </Typography>
-  );
-
-  const renderBody = (
-    <Stack
-      sx={{
-        p: 1.5,
-        minWidth: 48,
-        maxWidth: 320,
-        borderRadius: 1,
-        typography: 'body2',
-        bgcolor: 'background.neutral',
-        ...(me && {
-          color: 'grey.800',
-          bgcolor: 'primary.lighter',
-        }),
-        ...(hasImage && {
-          p: 0,
-          bgcolor: 'transparent',
-        }),
-      }}
-    >
-      {hasImage ? (
-        <Box
-          component="img"
-          alt="attachment"
-          src={body}
-          onClick={() => onOpenLightbox(body)}
-          sx={{
-            minHeight: 220,
-            borderRadius: 1.5,
-            cursor: 'pointer',
-            '&:hover': {
-              opacity: 0.9,
-            },
-          }}
-        />
-      ) : (
-        body
-      )}
-    </Stack>
-  );
-
-  const renderActions = (
+export default function ChatMessageItem({ message, isCurrentUser, userProfile }: Props) {
+  return (
     <Stack
       direction="row"
-      className="message-actions"
-      sx={{
-        pt: 0.5,
-        opacity: 0,
-        top: '100%',
-        left: 0,
-        position: 'absolute',
-        transition: (theme) =>
-          theme.transitions.create(['opacity'], {
-            duration: theme.transitions.duration.shorter,
-          }),
-        ...(me && {
-          left: 'unset',
-          right: 0,
-        }),
-      }}
+      justifyContent={isCurrentUser ? 'flex-end' : 'flex-start'}
+      alignItems="flex-start"
+      spacing={1.5}
+      sx={{ mb: 2 }}
     >
-      <IconButton size="small">
-        <Iconify icon="solar:reply-bold" width={16} />
-      </IconButton>
-      <IconButton size="small">
-        <Iconify icon="eva:smiling-face-fill" width={16} />
-      </IconButton>
-      <IconButton size="small">
-        <Iconify icon="solar:trash-bin-trash-bold" width={16} />
-      </IconButton>
-    </Stack>
-  );
+      {!isCurrentUser && (
+        <Avatar
+          src="https://res.cloudinary.com/dut4zlbui/image/upload/v1741543982/favicon-doctor.png"
+          alt="TalkToDoc A.I"
+          sx={{ width: 36, height: 36 }}
+        />
+      )}
 
-  return (
-    <Stack direction="row" justifyContent={me ? 'flex-end' : 'unset'} sx={{ mb: 5 }}>
-      {!me && <Avatar alt={firstName} src={avatarUrl} sx={{ width: 32, height: 32, mr: 2 }} />}
+      <Box maxWidth="70%">
+        {!isCurrentUser && (
+          <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600, mb: 0.5 }}>
+            TalkToDoc A.I
+          </Typography>
+        )}
 
-      <Stack alignItems="flex-end">
-        {renderInfo}
-
-        <Stack
-          direction="row"
-          alignItems="center"
+        <Box
           sx={{
-            position: 'relative',
-            '&:hover': {
-              '& .message-actions': {
-                opacity: 1,
-              },
-            },
+            px: 2,
+            py: 1.5,
+            borderRadius: 2,
+            backgroundColor: isCurrentUser ? 'primary.main' : '#e5f0fc',
+            color: isCurrentUser ? '#fff' : '#000',
+            wordBreak: 'break-word',
+            fontSize: 14,
+            fontWeight: 400,
+            boxShadow: 1,
           }}
         >
-          {renderBody}
-          {renderActions}
-        </Stack>
-      </Stack>
+          {message.content}
+        </Box>
+      </Box>
+
+      {isCurrentUser && (
+        <Avatar
+          src={userProfile?.avatarUrl || '/assets/images/avatar/avatar_default.jpg'}
+          alt="You"
+          sx={{ width: 36, height: 36 }}
+        />
+      )}
     </Stack>
   );
 }

@@ -333,6 +333,11 @@ export function useNavData() {
             children: [{ title: t('Danh Sách'), path: paths.dashboard.appointment.list }],
           },
           {
+            title: t('chat'),
+            path: paths.dashboard.chat,
+            icon: ICONS.chat,
+          },
+          {
             hidden: user?.role !== 'PATIENT',
             title: t('Hồ sơ bệnh án'),
             path: paths.dashboard.medicalRecord.root,

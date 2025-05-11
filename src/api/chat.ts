@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { useMemo } from 'react';
 import keyBy from 'lodash/keyBy';
 import useSWR, { mutate } from 'swr';
@@ -6,12 +7,11 @@ import { fetcher, endpoints, axiosInstance } from 'src/utils/axios';
 
 import {
   IChatMessage,
+  IChatResponse,
   IChatParticipant,
   IChatConversation,
   IChatConversations,
 } from 'src/types/chat';
-
-// ----------------------------------------------------------------------
 
 const options = {
   revalidateIfStale: false,
@@ -19,10 +19,11 @@ const options = {
   revalidateOnReconnect: false,
 };
 
-export function useGetContacts() {
-  const URL = [endpoints.chat, { params: { endpoint: 'contacts' } }];
+const API_URL = 'http://localhost:3000';
 
-  const { data, isLoading, error, isValidating } = useSWR(URL, fetcher, options);
+export function useGetContacts() {
+  const url = [endpoints.chat, { params: { endpoint: 'contacts' } }];
+  const { data, isLoading, error, isValidating } = useSWR(url, fetcher, options);
 
   const memoizedValue = useMemo(
     () => ({
@@ -30,7 +31,7 @@ export function useGetContacts() {
       contactsLoading: isLoading,
       contactsError: error,
       contactsValidating: isValidating,
-      contactsEmpty: !isLoading && !data?.contacts.length,
+      contactsEmpty: !isLoading && !(data?.contacts && data.contacts.length),
     }),
     [data?.contacts, error, isLoading, isValidating]
   );
@@ -38,17 +39,13 @@ export function useGetContacts() {
   return memoizedValue;
 }
 
-// ----------------------------------------------------------------------
-
 export function useGetConversations() {
-  const URL = [endpoints.chat, { params: { endpoint: 'conversations' } }];
-
-  const { data, isLoading, error, isValidating } = useSWR(URL, fetcher, options);
+  const url = [endpoints.chat, { params: { endpoint: 'conversations' } }];
+  const { data, isLoading, error, isValidating } = useSWR(url, fetcher, options);
 
   const memoizedValue = useMemo(() => {
     const byId = keyBy(data?.conversations, 'id') || {};
-    const allIds = Object.keys(byId) || [];
-
+    const allIds = Object.keys(byId);
     return {
       conversations: {
         byId,
@@ -64,14 +61,12 @@ export function useGetConversations() {
   return memoizedValue;
 }
 
-// ----------------------------------------------------------------------
-
 export function useGetConversation(conversationId: string) {
-  const URL = conversationId
+  const url = conversationId
     ? [endpoints.chat, { params: { conversationId, endpoint: 'conversation' } }]
     : '';
 
-  const { data, isLoading, error, isValidating } = useSWR(URL, fetcher, options);
+  const { data, isLoading, error, isValidating } = useSWR(url, fetcher, options);
 
   const memoizedValue = useMemo(
     () => ({
@@ -86,63 +81,40 @@ export function useGetConversation(conversationId: string) {
   return memoizedValue;
 }
 
-// ----------------------------------------------------------------------
-
-export async function sendMessage(conversationId: string, messageData: IChatMessage) {
-  const CONVERSATIONS_URL = [endpoints.chat, { params: { endpoint: 'conversations' } }];
-
-  const CONVERSATION_URL = [
+// Giao diện local: cập nhật message vào conversation (SWR mutate)
+export async function localSendMessage(conversationId: string, messageData: IChatMessage) {
+  const conversationsUrl = [endpoints.chat, { params: { endpoint: 'conversations' } }];
+  const conversationUrl = [
     endpoints.chat,
-    {
-      params: { conversationId, endpoint: 'conversation' },
-    },
+    { params: { conversationId, endpoint: 'conversation' } },
   ];
 
-  /**
-   * Work on server
-   */
-  // const data = { conversationId, messageData };
-  // await axiosInstance.put(endpoints.chat, data);
-
-  /**
-   * Work in local
-   */
   mutate(
-    CONVERSATION_URL,
+    conversationUrl,
     (currentData: any) => {
-      const { conversation: currentConversation } = currentData;
-
-      const conversation = {
-        ...currentConversation,
-        messages: [...currentConversation.messages, messageData],
-      };
-
+      if (!currentData?.conversation) return currentData;
       return {
-        conversation,
+        conversation: {
+          ...currentData.conversation,
+          messages: [...currentData.conversation.messages, messageData],
+        },
       };
     },
     false
   );
 
-  /**
-   * Work in local
-   */
   mutate(
-    CONVERSATIONS_URL,
+    conversationsUrl,
     (currentData: any) => {
-      const { conversations: currentConversations } = currentData;
-
-      const conversations: IChatConversation[] = currentConversations.map(
+      if (!currentData?.conversations) return currentData;
+      const conversations: IChatConversation[] = currentData.conversations.map(
         (conversation: IChatConversation) =>
-          conversation.id === conversationId
-            ? {
-                ...conversation,
-                messages: [...conversation.messages, messageData],
-              }
+          conversation._id === conversationId
+            ? { ...conversation, messages: [...conversation.messages, messageData] }
             : conversation
       );
-
       return {
+        ...currentData,
         conversations,
       };
     },
@@ -150,24 +122,18 @@ export async function sendMessage(conversationId: string, messageData: IChatMess
   );
 }
 
-// ----------------------------------------------------------------------
-
 export async function createConversation(conversationData: IChatConversation) {
-  const URL = [endpoints.chat, { params: { endpoint: 'conversations' } }];
-
-  /**
-   * Work on server
-   */
+  const url = [endpoints.chat, { params: { endpoint: 'conversations' } }];
   const data = { conversationData };
   const res = await axiosInstance.post(endpoints.chat, data);
 
-  /**
-   * Work in local
-   */
   mutate(
-    URL,
+    url,
     (currentData: any) => {
-      const conversations: IChatConversation[] = [...currentData.conversations, conversationData];
+      const conversations: IChatConversation[] = [
+        ...(currentData?.conversations || []),
+        conversationData,
+      ];
       return {
         ...currentData,
         conversations,
@@ -179,32 +145,17 @@ export async function createConversation(conversationData: IChatConversation) {
   return res.data;
 }
 
-// ----------------------------------------------------------------------
-
 export async function clickConversation(conversationId: string) {
-  const URL = endpoints.chat;
+  const url = endpoints.chat;
 
-  /**
-   * Work on server
-   */
-  // await axiosInstance.get(URL, { params: { conversationId, endpoint: 'mark-as-seen' } });
-
-  /**
-   * Work in local
-   */
   mutate(
-    [
-      URL,
-      {
-        params: { endpoint: 'conversations' },
-      },
-    ],
+    [url, { params: { endpoint: 'conversations' } }],
     (currentData: any) => {
+      if (!currentData?.conversations) return currentData;
       const conversations: IChatConversations = currentData.conversations.map(
         (conversation: IChatConversation) =>
-          conversation.id === conversationId ? { ...conversation, unreadCount: 0 } : conversation
+          conversation._id === conversationId ? { ...conversation, unreadCount: 0 } : conversation
       );
-
       return {
         ...currentData,
         conversations,
@@ -212,4 +163,40 @@ export async function clickConversation(conversationId: string) {
     },
     false
   );
+}
+
+// API thực tế cho AI chat
+export async function createChat(userId: string): Promise<IChatConversation> {
+  const response = await axios.post(`${API_URL}/chat`, {
+    user_id: userId,
+  });
+  return response.data;
+}
+
+export async function sendMessageToAI(
+  chatId: string,
+  message: string,
+  userId: string
+): Promise<IChatResponse> {
+  const response = await axios.post(`${API_URL}/chat/${chatId}`, {
+    message,
+    user_id: userId,
+  });
+  return response.data;
+}
+
+export function useGetChat(chatId: string) {
+  // Chưa implement, trả về null để tránh lỗi
+  return {
+    conversation: null,
+    conversationError: null,
+  };
+}
+
+export function useGetChats() {
+  // Chưa implement, trả về mặc định
+  return {
+    conversations: [],
+    conversationsLoading: false,
+  };
 }

@@ -1,54 +1,42 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
+import Alert from '@mui/material/Alert';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
+import IconButton from '@mui/material/IconButton';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import { paths } from 'src/routes/paths';
 import { useRouter, useSearchParams } from 'src/routes/hooks';
 
 import { useMockedUser } from 'src/hooks/use-mocked-user';
 
-import { useGetContacts, useGetConversation, useGetConversations } from 'src/api/chat';
+import { createChat, useGetChat, sendMessageToAI } from 'src/api/chat';
 
+import Iconify from 'src/components/iconify';
 import { useSettingsContext } from 'src/components/settings';
 
-import { IChatParticipant } from 'src/types/chat';
-
-import ChatNav from '../chat-nav';
-import ChatRoom from '../chat-room';
 import ChatMessageList from '../chat-message-list';
 import ChatMessageInput from '../chat-message-input';
 import ChatHeaderDetail from '../chat-header-detail';
-import ChatHeaderCompose from '../chat-header-compose';
+import { useChatHistory } from '../hooks/use-chat-history';
 
 // ----------------------------------------------------------------------
 
 export default function ChatView() {
   const router = useRouter();
-
   const { user } = useMockedUser();
-
   const settings = useSettingsContext();
-
   const searchParams = useSearchParams();
 
   const selectedConversationId = searchParams.get('id') || '';
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const [recipients, setRecipients] = useState<IChatParticipant[]>([]);
-
-  const { contacts } = useGetContacts();
-
-  const { conversations, conversationsLoading } = useGetConversations();
-
-  const { conversation, conversationError } = useGetConversation(`${selectedConversationId}`);
-
-  const participants: IChatParticipant[] = conversation
-    ? conversation.participants.filter(
-        (participant: IChatParticipant) => participant.id !== `${user?.id}`
-      )
-    : [];
+  const { conversationError } = useGetChat(selectedConversationId);
+  const { messages, addMessages, clearHistory } = useChatHistory(selectedConversationId);
 
   useEffect(() => {
     if (conversationError || !selectedConversationId) {
@@ -56,34 +44,43 @@ export default function ChatView() {
     }
   }, [conversationError, router, selectedConversationId]);
 
-  const handleAddRecipients = useCallback((selected: IChatParticipant[]) => {
-    setRecipients(selected);
-  }, []);
+  const handleSendMessage = async (message: string) => {
+    try {
+      setIsLoading(true);
+      setError(null);
 
-  const details = !!conversation;
+      if (!selectedConversationId) {
+        // Create new chat if no conversation selected
+        const newChat = await createChat(user?.id || '');
+        router.push(`${paths.dashboard.chat}?id=${newChat._id}`);
+      }
+
+      const response = await sendMessageToAI(selectedConversationId, message, user?.id || '');
+
+      addMessages(response.messages);
+    } catch (err) {
+      console.error('Error sending message:', err);
+      setError('Có lỗi xảy ra khi gửi tin nhắn. Vui lòng thử lại.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const renderHead = (
     <Stack
       direction="row"
       alignItems="center"
       flexShrink={0}
-      sx={{ pr: 1, pl: 2.5, py: 1, minHeight: 72 }}
+      sx={{ pr: 1, pl: 2.5, py: 1, minHeight: 72, backgroundColor: 'primary.main' }}
     >
-      {selectedConversationId ? (
-        <>{details && <ChatHeaderDetail participants={participants} />}</>
-      ) : (
-        <ChatHeaderCompose contacts={contacts} onAddRecipients={handleAddRecipients} />
-      )}
-    </Stack>
-  );
+      <ChatHeaderDetail />
 
-  const renderNav = (
-    <ChatNav
-      contacts={contacts}
-      conversations={conversations}
-      loading={conversationsLoading}
-      selectedConversationId={selectedConversationId}
-    />
+      <Stack flexGrow={1} />
+
+      <IconButton onClick={clearHistory} color="error">
+        <Iconify icon="solar:trash-bin-trash-bold" />
+      </IconButton>
+    </Stack>
   );
 
   const renderMessages = (
@@ -94,15 +91,21 @@ export default function ChatView() {
         overflow: 'hidden',
       }}
     >
-      <ChatMessageList messages={conversation?.messages} participants={participants} />
+      {error && (
+        <Alert severity="error" sx={{ mx: 2, mt: 2 }}>
+          {error}
+        </Alert>
+      )}
 
-      <ChatMessageInput
-        recipients={recipients}
-        onAddRecipients={handleAddRecipients}
-        //
-        selectedConversationId={selectedConversationId}
-        disabled={!recipients.length && !selectedConversationId}
-      />
+      {isLoading && (
+        <Stack alignItems="center" sx={{ py: 2 }}>
+          <CircularProgress />
+        </Stack>
+      )}
+
+      <ChatMessageList messages={messages} userProfile={user} />
+
+      <ChatMessageInput onSendMessage={handleSendMessage} disabled={isLoading} />
     </Stack>
   );
 
@@ -114,34 +117,21 @@ export default function ChatView() {
           mb: { xs: 3, md: 5 },
         }}
       >
-        Chat
+        Chat với AI
       </Typography>
 
-      <Stack component={Card} direction="row" sx={{ height: '72vh' }}>
-        {renderNav}
+      <Stack component={Card} sx={{ height: '72vh' }}>
+        {renderHead}
 
         <Stack
           sx={{
             width: 1,
             height: 1,
             overflow: 'hidden',
+            borderTop: (theme) => `solid 1px ${theme.palette.divider}`,
           }}
         >
-          {renderHead}
-
-          <Stack
-            direction="row"
-            sx={{
-              width: 1,
-              height: 1,
-              overflow: 'hidden',
-              borderTop: (theme) => `solid 1px ${theme.palette.divider}`,
-            }}
-          >
-            {renderMessages}
-
-            {details && <ChatRoom conversation={conversation} participants={participants} />}
-          </Stack>
+          {renderMessages}
         </Stack>
       </Stack>
     </Container>
