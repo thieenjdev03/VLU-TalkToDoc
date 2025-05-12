@@ -1,21 +1,24 @@
-import { useMemo } from 'react';
+import { useMemo } from 'react'
 
-import { paths } from 'src/routes/paths';
+import { paths } from 'src/routes/paths'
 
-import { useTranslate } from 'src/locales';
+import { useTranslate } from 'src/locales'
 
 // import Iconify from 'src/components/iconify';
-import SvgColor from 'src/components/svg-color';
+import SvgColor from 'src/components/svg-color'
 
 // ----------------------------------------------------------------------
 
 const icon = (name: string) => (
-  <SvgColor src={`/assets/icons/navbar/${name}.svg`} sx={{ width: 1, height: 1 }} />
+  <SvgColor
+    src={`/assets/icons/navbar/${name}.svg`}
+    sx={{ width: 1, height: 1 }}
+  />
   // OR
   // <Iconify icon="fluent:mail-24-filled" />
   // https://icon-sets.iconify.design/solar/
   // https://www.streamlinehq.com/icons
-);
+)
 
 const ICONS = {
   job: icon('ic_job'),
@@ -43,16 +46,16 @@ const ICONS = {
   analytics: icon('ic_analytics'),
   dashboard: icon('ic_dashboard'),
   drug: icon('ic_drug'),
-  medical: icon('ic_medical'),
-};
+  medical: icon('ic_medical')
+}
 
 // ----------------------------------------------------------------------
 
 export function useNavData() {
-  const { t } = useTranslate();
-  const userProfile = localStorage.getItem('userProfile');
-  const user = JSON.parse(userProfile || '{}');
-  console.log('user', user);
+  const { t } = useTranslate()
+  const userProfile = localStorage.getItem('userProfile')
+  const user = JSON.parse(userProfile || '{}')
+  console.log('user', user)
 
   const data = useMemo(
     () => [
@@ -106,14 +109,21 @@ export function useNavData() {
             title: t('Quản lý lịch hẹn'),
             path: paths.dashboard.appointment.root,
             icon: ICONS.medical,
-            children: [{ title: t('Danh Sách'), path: paths.dashboard.appointment.list }],
+            children: [
+              { title: t('Danh Sách'), path: paths.dashboard.appointment.list }
+            ]
           },
           {
             hidden: user?.role !== 'PATIENT',
             title: t('Hồ sơ bệnh án'),
             path: paths.dashboard.medicalRecord.root,
             icon: ICONS.medical,
-            children: [{ title: t('Danh Sách'), path: paths.dashboard.medicalRecord.list }],
+            children: [
+              {
+                title: t('Danh Sách'),
+                path: paths.dashboard.medicalRecord.list
+              }
+            ]
           },
           // {
           //   hidden: user?.role !== 'PATIENT',
@@ -142,13 +152,19 @@ export function useNavData() {
             children: [
               // { title: t('Thông tin'), path: paths.dashboard.user.root },
               // { title: t('cards'), path: paths.dashboard.user.cards },
-              { title: t('Bệnh Nhân'), path: paths.dashboard.user.list_patient },
-              { title: t('Nhân viên'), path: paths.dashboard.user.list_employee },
-              { title: t('Bác Sĩ'), path: paths.dashboard.user.list_doctor },
+              {
+                title: t('Bệnh Nhân'),
+                path: paths.dashboard.user.list_patient
+              },
+              {
+                title: t('Nhân viên'),
+                path: paths.dashboard.user.list_employee
+              },
+              { title: t('Bác Sĩ'), path: paths.dashboard.user.list_doctor }
               // { title: t('Tạo Người Dùng'), path: paths.dashboard.user.new },
               // { title: t('Chỉnh Sửa Thông Tin Cá Nhân'), path: paths.dashboard.user.demo.edit },
               // { title: t('Thông Tin Tài Khoản'), path: paths.dashboard.user.account },
-            ],
+            ]
           },
 
           // Specialties
@@ -158,13 +174,22 @@ export function useNavData() {
             path: paths.dashboard.specialties.root,
             icon: ICONS.medical,
             children: [
-              { title: t('Chuyên Khoa'), path: paths.dashboard.specialties.root },
+              {
+                title: t('Chuyên Khoa'),
+                path: paths.dashboard.specialties.root
+              },
               { title: t('Nhà Thuốc'), path: paths.dashboard.pharmacies.list },
-              { title: t('Cấp Bậc'), path: paths.dashboard.ranking_doctor.list },
+              {
+                title: t('Cấp Bậc'),
+                path: paths.dashboard.ranking_doctor.list
+              },
               { title: t('Bệnh Viện'), path: paths.dashboard.hospital.list },
               { title: t('Thuốc'), path: paths.dashboard.medicine.list },
-              { title: t('Cấu hình chức năng'), path: paths.dashboard.config.root },
-            ],
+              {
+                title: t('Cấu hình chức năng'),
+                path: paths.dashboard.config.root
+              }
+            ]
           },
           // {
           //   title: t('Quản Lý Nhà Thuốc'),
@@ -199,7 +224,9 @@ export function useNavData() {
             title: t('Quản lý lịch hẹn'),
             path: paths.dashboard.appointment.root,
             icon: ICONS.medical,
-            children: [{ title: t('Danh Sách'), path: paths.dashboard.appointment.list }],
+            children: [
+              { title: t('Danh Sách'), path: paths.dashboard.appointment.list }
+            ]
           },
           // // ORDER
           // {
@@ -217,16 +244,20 @@ export function useNavData() {
             path: paths.dashboard.invoice.root,
             icon: ICONS.invoice,
             children: [
-              { title: t('Danh Sách'), path: paths.dashboard.invoice.root },
+              { title: t('Danh Sách'), path: paths.dashboard.invoice.root }
               // {
               //   title: t('details'),
               //   path: paths.dashboard.invoice.demo.details,
               // },
               // { title: t('Tạo Hóa Đơn'), path: paths.dashboard.invoice.new },
               // { title: t('edit'), path: paths.dashboard.invoice.demo.edit },
-            ],
+            ]
           },
-
+          {
+            title: t('chat'),
+            path: paths.dashboard.chat,
+            icon: ICONS.chat
+          }
           // // // BLOG
           // {
           //   title: t('blog'),
@@ -288,7 +319,7 @@ export function useNavData() {
           // //   path: paths.dashboard.kanban,
           // //   icon: ICONS.kanban,
           // // },
-        ],
+        ]
       },
       // BÁC SĨ Navigation
       {
@@ -301,8 +332,10 @@ export function useNavData() {
             title: t('Quản lý lịch hẹn'),
             path: paths.dashboard.appointment.root,
             icon: ICONS.medical,
-            children: [{ title: t('Danh Sách'), path: paths.dashboard.appointment.list }],
-          },
+            children: [
+              { title: t('Danh Sách'), path: paths.dashboard.appointment.list }
+            ]
+          }
           // {
           //   hidden: user?.role !== 'DOCTOR',
           //   title: t('Quản lý bệnh án'),
@@ -317,7 +350,7 @@ export function useNavData() {
           //   icon: ICONS.medical,
           //   children: [{ title: t('Danh sách'), path: paths.dashboard.prescription.list }],
           // },
-        ],
+        ]
       },
       // BỆNH NHÂN Navigation
       {
@@ -330,20 +363,27 @@ export function useNavData() {
             title: t('Quản lý lịch hẹn'),
             path: paths.dashboard.appointment.root,
             icon: ICONS.medical,
-            children: [{ title: t('Danh Sách'), path: paths.dashboard.appointment.list }],
+            children: [
+              { title: t('Danh Sách'), path: paths.dashboard.appointment.list }
+            ]
           },
           {
             title: t('chat'),
             path: paths.dashboard.chat,
-            icon: ICONS.chat,
+            icon: ICONS.chat
           },
           {
             hidden: user?.role !== 'PATIENT',
             title: t('Hồ sơ bệnh án'),
             path: paths.dashboard.medicalRecord.root,
             icon: ICONS.medical,
-            children: [{ title: t('Danh Sách'), path: paths.dashboard.medicalRecord.list }],
-          },
+            children: [
+              {
+                title: t('Danh Sách'),
+                path: paths.dashboard.medicalRecord.list
+              }
+            ]
+          }
           // {
           //   hidden: user?.role !== 'PATIENT',
           //   title: t('Quản lý tài khoản'),
@@ -362,8 +402,8 @@ export function useNavData() {
           //   icon: ICONS.medical,
           //   children: [{ title: t('Danh sách'), path: paths.dashboard.prescription.list }],
           // },
-        ],
-      },
+        ]
+      }
       // // DEMO MENU STATES
       // {
       //   subheader: t(t('other_cases')),
@@ -452,7 +492,7 @@ export function useNavData() {
       // },
     ],
     [t, user?.role]
-  );
+  )
 
-  return data;
+  return data
 }

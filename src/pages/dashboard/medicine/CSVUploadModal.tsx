@@ -1,6 +1,6 @@
-'use client';
+'use client'
 
-import React, { useState } from 'react';
+import React, { useState } from 'react'
 
 import {
   Box,
@@ -16,29 +16,29 @@ import {
   DialogContent,
   DialogActions,
   LinearProgress,
-  CircularProgress,
-} from '@mui/material';
+  CircularProgress
+} from '@mui/material'
 
-import { API_URL } from 'src/config-global';
+import { API_URL } from 'src/config-global'
 
-import { useSnackbar } from 'src/components/snackbar';
+import { useSnackbar } from 'src/components/snackbar'
 
 export default function CSVUploadModal({ open, onClose, onUpload }: any) {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [progress, setProgress] = useState<number>(0);
-  const [importResult, setImportResult] = useState<any>(null);
-  const [showErrors, setShowErrors] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [showDuplicates, setShowDuplicates] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const { enqueueSnackbar } = useSnackbar();
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [progress, setProgress] = useState<number>(0)
+  const [importResult, setImportResult] = useState<any>(null)
+  const [showErrors, setShowErrors] = useState(false)
+  const [showSuccess, setShowSuccess] = useState(false)
+  const [showDuplicates, setShowDuplicates] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const { enqueueSnackbar } = useSnackbar()
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+    const file = e.target.files?.[0]
     if (file) {
-      setSelectedFile(file);
-      setImportResult(null);
+      setSelectedFile(file)
+      setImportResult(null)
       // Papa.parse(file, {
       //   header: true,
       //   skipEmptyLines: true,
@@ -56,30 +56,30 @@ export default function CSVUploadModal({ open, onClose, onUpload }: any) {
       //   },
       // });
     }
-  };
+  }
 
   const handleUpload = async () => {
-    if (!selectedFile) return;
-    const formData = new FormData();
-    formData.append('file', selectedFile);
-    setProgress(0);
+    if (!selectedFile) return
+    const formData = new FormData()
+    formData.append('file', selectedFile)
+    setProgress(0)
 
     try {
-      setLoading(true);
-      setUploading(true);
-      const xhr = new XMLHttpRequest();
-      xhr.open('POST', `${API_URL}/api/v1/medicines/import`);
+      setLoading(true)
+      setUploading(true)
+      const xhr = new XMLHttpRequest()
+      xhr.open('POST', `${API_URL}/api/v1/medicines/import`)
 
-      xhr.upload.onprogress = function (event) {
+      xhr.upload.onprogress = function handleProgress(event) {
         if (event.lengthComputable) {
-          const percent = Math.round((event.loaded / event.total) * 99);
-          setProgress(percent);
+          const percent = Math.round((event.loaded / event.total) * 99)
+          setProgress(percent)
         }
-      };
+      }
 
-      xhr.onload = async function () {
+      xhr.onload = async function handleLoad() {
         if (xhr.status >= 200 && xhr.status < 300) {
-          const result = JSON.parse(xhr.responseText);
+          const result = JSON.parse(xhr.responseText)
           setImportResult({
             total: result.totalRows,
             created: result?.success?.count || 0,
@@ -89,36 +89,36 @@ export default function CSVUploadModal({ open, onClose, onUpload }: any) {
             taskId: result?.taskId,
             errors: result?.failed?.lines || [],
             success: result?.success?.lines || [],
-            duplicates: result?.duplicates?.lines || [],
-          });
-          onUpload?.(result);
-          enqueueSnackbar('Import thành công!', { variant: 'success' });
+            duplicates: result?.duplicates?.lines || []
+          })
+          onUpload?.(result)
+          enqueueSnackbar('Import thành công!', { variant: 'success' })
         } else {
-          enqueueSnackbar('Import thất bại.', { variant: 'error' });
+          enqueueSnackbar('Import thất bại.', { variant: 'error' })
         }
-        setLoading(false);
-        setUploading(false);
-      };
+        setLoading(false)
+        setUploading(false)
+      }
 
-      xhr.onerror = function () {
-        enqueueSnackbar('Import thất bại.', { variant: 'error' });
-        setLoading(false);
-        setUploading(false);
-      };
+      xhr.onerror = function handleError() {
+        enqueueSnackbar('Import thất bại.', { variant: 'error' })
+        setLoading(false)
+        setUploading(false)
+      }
 
-      xhr.send(formData);
+      xhr.send(formData)
     } catch (err) {
-      console.error(err);
-      enqueueSnackbar('Import thất bại.', { variant: 'error' });
-      setUploading(false);
+      console.error(err)
+      enqueueSnackbar('Import thất bại.', { variant: 'error' })
+      setUploading(false)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleDownloadSample = () => {
-    window.open('/sample-template.csv');
-  };
+    window.open('/sample-template.csv')
+  }
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
@@ -137,14 +137,15 @@ export default function CSVUploadModal({ open, onClose, onUpload }: any) {
             transition: 'all 0.2s ease',
             '&:hover': {
               backgroundColor: '#f3f4f6',
-              borderColor: '#60a5fa',
-            },
+              borderColor: '#60a5fa'
+            }
           }}
           onClick={() => document.getElementById('csv-file-input')?.click()}
         >
           <i className="fa-solid fa-cloud-arrow-up fa-2xl text-gray-500 mb-3" />
           <Typography fontSize={15} color="text.secondary">
-            <strong className="text-blue-600">Nhấn hoặc kéo thả</strong> để chọn file CSV
+            <strong className="text-blue-600">Nhấn hoặc kéo thả</strong> để chọn
+            file CSV
           </Typography>
           <Typography fontSize={13} mt={1} color="gray">
             Chấp nhận định dạng <code>.csv</code> và <code>.xlsx</code>
@@ -160,7 +161,13 @@ export default function CSVUploadModal({ open, onClose, onUpload }: any) {
         </Box>
 
         {selectedFile && (
-          <Box mt={2} display="flex" alignItems="center" justifyContent="center" gap={1}>
+          <Box
+            mt={2}
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            gap={1}
+          >
             <i className="fa-solid fa-file-csv text-green-600" />
             <Typography>{selectedFile.name}</Typography>
           </Box>
@@ -199,7 +206,12 @@ export default function CSVUploadModal({ open, onClose, onUpload }: any) {
         )}
         {importResult && (
           <Box mt={4}>
-            <Typography variant="subtitle1" fontWeight={700} color="primary" gutterBottom>
+            <Typography
+              variant="subtitle1"
+              fontWeight={700}
+              color="primary"
+              gutterBottom
+            >
               ✅ Kết quả Import
             </Typography>
             <Box
@@ -211,11 +223,12 @@ export default function CSVUploadModal({ open, onClose, onUpload }: any) {
                 backgroundColor: '#f9fafb',
                 borderRadius: 2,
                 p: 2,
-                mt: 1,
+                mt: 1
               }}
             >
               <div>
-                <strong>Tổng dòng dòng thuốc đã xử lý:</strong> {importResult.total}
+                <strong>Tổng dòng dòng thuốc đã xử lý:</strong>{' '}
+                {importResult.total}
               </div>
               <div>
                 <strong>Đã tạo mới:</strong> {importResult.created}
@@ -225,7 +238,9 @@ export default function CSVUploadModal({ open, onClose, onUpload }: any) {
               </div>
               <div>
                 <strong>Lỗi:</strong>{' '}
-                <span style={{ color: importResult.failed > 0 ? 'red' : 'green' }}>
+                <span
+                  style={{ color: importResult.failed > 0 ? 'red' : 'green' }}
+                >
                   {importResult.failed}
                 </span>
               </div>
@@ -236,7 +251,9 @@ export default function CSVUploadModal({ open, onClose, onUpload }: any) {
               )}
             </Box>
             <Box mt={2} display="flex" gap={2}>
-              <p style={{ fontWeight: 600, margin: '2px 0px' }}>Chọn để xem chi tiết:</p>
+              <p style={{ fontWeight: 600, margin: '2px 0px' }}>
+                Chọn để xem chi tiết:
+              </p>
               <Button
                 onClick={() => setShowSuccess(!showSuccess)}
                 size="small"
@@ -331,8 +348,16 @@ export default function CSVUploadModal({ open, onClose, onUpload }: any) {
           <Button onClick={onClose} variant="outlined" color="inherit">
             Huỷ
           </Button>
-          <Button onClick={handleUpload} variant="contained" disabled={!selectedFile || loading}>
-            {loading ? <CircularProgress size={20} color="inherit" /> : 'Xác nhận'}
+          <Button
+            onClick={handleUpload}
+            variant="contained"
+            disabled={!selectedFile || loading}
+          >
+            {loading ? (
+              <CircularProgress size={20} color="inherit" />
+            ) : (
+              'Xác nhận'
+            )}
           </Button>
         </DialogActions>
       ) : (
@@ -343,5 +368,5 @@ export default function CSVUploadModal({ open, onClose, onUpload }: any) {
         </DialogActions>
       )}
     </Dialog>
-  );
+  )
 }

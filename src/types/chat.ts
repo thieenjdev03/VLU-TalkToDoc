@@ -1,45 +1,54 @@
 // ----------------------------------------------------------------------
 
 export type IChatAttachment = {
-  name: string;
-  size: number;
-  type: string;
-  path: string;
-  preview: string;
-  createdAt: Date;
-  modifiedAt: Date;
-};
+  id: string
+  name: string
+  size: number
+  type: string
+  url: string
+  preview: string
+  createdAt: Date
+  modifiedAt: Date
+}
 
 export interface IChatMessage {
-  _id: string;
-  role: 'user' | 'assistant';
-  content: string;
+  id: string
+  _id: string
+  body: string
+  content: string
+  contentType: string
+  attachments: IChatAttachment[]
+  createdAt: string
+  senderId: string
+  role: string
 }
 
-export type IChatParticipant = {
-  id: string;
-  name: string;
-  role: string;
-  email: string;
-  address: string;
-  avatarUrl: string;
-  phoneNumber: string;
-  lastActivity: Date;
-  status: 'online' | 'offline' | 'alway' | 'busy';
-};
+export interface IChatParticipant {
+  id: string
+  name: string
+  status: 'online' | 'offline' | 'away'
+  avatarUrl: string
+  role: string
+  address?: string
+  phoneNumber?: string
+  email?: string
+}
 
 export interface IChatConversation {
-  _id: string;
-  messages: IChatMessage[];
-  user_id: string;
+  id: string
+  _id: string
+  participants: IChatParticipant[]
+  messages: IChatMessage[]
+  unreadCount: number
+  type: 'single' | 'group'
 }
 
-export type IChatConversations = {
-  byId: Record<string, IChatConversation>;
-  allIds: string[];
-};
+export interface IChatConversations {
+  byId: Record<string, IChatConversation>
+  allIds: string[]
+}
 
 export interface IChatResponse {
-  reply: string;
-  messages: IChatMessage[];
+  reply: string
+  messages: IChatMessage[]
 }

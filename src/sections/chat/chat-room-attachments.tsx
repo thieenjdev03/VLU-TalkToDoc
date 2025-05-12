@@ -1,28 +1,28 @@
-import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
-import ListItemText from '@mui/material/ListItemText';
-import ListItemButton from '@mui/material/ListItemButton';
+import Box from '@mui/material/Box'
+import Stack from '@mui/material/Stack'
+import ListItemText from '@mui/material/ListItemText'
+import ListItemButton from '@mui/material/ListItemButton'
 
-import { useBoolean } from 'src/hooks/use-boolean';
+import { useBoolean } from 'src/hooks/use-boolean'
 
-import { fDateTime } from 'src/utils/format-time';
+import { fDateTime } from 'src/utils/format-time'
 
-import Iconify from 'src/components/iconify';
-import Scrollbar from 'src/components/scrollbar';
-import FileThumbnail from 'src/components/file-thumbnail';
+import Iconify from 'src/components/iconify'
+import Scrollbar from 'src/components/scrollbar'
+import FileThumbnail from 'src/components/file-thumbnail'
 
-import { IChatAttachment } from 'src/types/chat';
+import { IChatAttachment } from 'src/types/chat'
 
 // ----------------------------------------------------------------------
 
 type Props = {
-  attachments: IChatAttachment[];
-};
+  attachments: IChatAttachment[]
+}
 
 export default function ChatRoomAttachments({ attachments }: Props) {
-  const collapse = useBoolean(true);
+  const collapse = useBoolean(true)
 
-  const totalAttachments = attachments.length;
+  const totalAttachments = attachments.length
 
   const renderBtn = (
     <ListItemButton
@@ -36,7 +36,7 @@ export default function ChatRoomAttachments({ attachments }: Props) {
         flexGrow: 'unset',
         typography: 'overline',
         color: 'text.secondary',
-        bgcolor: 'background.neutral',
+        bgcolor: 'background.neutral'
       }}
     >
       <Box component="span" sx={{ flexGrow: 1 }}>
@@ -51,7 +51,7 @@ export default function ChatRoomAttachments({ attachments }: Props) {
         }
       />
     </ListItemButton>
-  );
+  )
 
   const renderContent = (
     <Scrollbar sx={{ px: 2, py: 2.5 }}>
@@ -73,12 +73,12 @@ export default function ChatRoomAttachments({ attachments }: Props) {
               borderRadius: 1,
               overflow: 'hidden',
               position: 'relative',
-              backgroundColor: 'background.neutral',
+              backgroundColor: 'background.neutral'
             }}
           >
             <FileThumbnail
               imageView
-              file={attachment.preview}
+              file={attachment.url}
               onDownload={() => console.info('DOWNLOAD')}
               sx={{ width: 28, height: 28 }}
             />
@@ -86,23 +86,23 @@ export default function ChatRoomAttachments({ attachments }: Props) {
 
           <ListItemText
             primary={attachment.name}
-            secondary={fDateTime(attachment.createdAt)}
+            secondary={fDateTime(new Date(attachment.createdAt))}
             primaryTypographyProps={{
               noWrap: true,
-              typography: 'body2',
+              typography: 'body2'
             }}
             secondaryTypographyProps={{
               mt: 0.25,
               noWrap: true,
               component: 'span',
               typography: 'caption',
-              color: 'text.disabled',
+              color: 'text.disabled'
             }}
           />
         </Stack>
       ))}
     </Scrollbar>
-  );
+  )
 
   return (
     <>
@@ -112,14 +112,14 @@ export default function ChatRoomAttachments({ attachments }: Props) {
         sx={{
           overflow: 'hidden',
           height: collapse.value ? 1 : 0,
-          transition: (theme) =>
+          transition: theme =>
             theme.transitions.create(['height'], {
-              duration: theme.transitions.duration.shorter,
-            }),
+              duration: theme.transitions.duration.shorter
+            })
         }}
       >
         {renderContent}
       </Box>
     </>
-  );
+  )
 }

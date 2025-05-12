@@ -1,41 +1,41 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react'
 
-import Box from '@mui/material/Box';
-import Badge from '@mui/material/Badge';
-import Avatar from '@mui/material/Avatar';
-import Collapse from '@mui/material/Collapse';
-import ListItemText from '@mui/material/ListItemText';
-import ListItemButton from '@mui/material/ListItemButton';
+import Box from '@mui/material/Box'
+import Badge from '@mui/material/Badge'
+import Avatar from '@mui/material/Avatar'
+import Collapse from '@mui/material/Collapse'
+import ListItemText from '@mui/material/ListItemText'
+import ListItemButton from '@mui/material/ListItemButton'
 
-import { useBoolean } from 'src/hooks/use-boolean';
+import { useBoolean } from 'src/hooks/use-boolean'
 
-import Iconify from 'src/components/iconify';
-import Scrollbar from 'src/components/scrollbar';
+import Iconify from 'src/components/iconify'
+import Scrollbar from 'src/components/scrollbar'
 
-import { IChatParticipant } from 'src/types/chat';
+import { IChatParticipant } from 'src/types/chat'
 
-import ChatRoomParticipantDialog from './chat-room-participant-dialog';
+import ChatRoomParticipantDialog from './chat-room-participant-dialog'
 
 // ----------------------------------------------------------------------
 
 type Props = {
-  participants: IChatParticipant[];
-};
+  participants: IChatParticipant[]
+}
 
 export default function ChatRoomGroup({ participants }: Props) {
-  const [selected, setSelected] = useState<IChatParticipant | null>(null);
+  const [selected, setSelected] = useState<IChatParticipant | null>(null)
 
-  const collapse = useBoolean(true);
+  const collapse = useBoolean(true)
 
   const handleOpen = useCallback((participant: IChatParticipant) => {
-    setSelected(participant);
-  }, []);
+    setSelected(participant)
+  }, [])
 
   const handleClose = () => {
-    setSelected(null);
-  };
+    setSelected(null)
+  }
 
-  const totalParticipants = participants.length;
+  const totalParticipants = participants.length
 
   const renderBtn = (
     <ListItemButton
@@ -48,7 +48,7 @@ export default function ChatRoomGroup({ participants }: Props) {
         flexGrow: 'unset',
         typography: 'overline',
         color: 'text.secondary',
-        bgcolor: 'background.neutral',
+        bgcolor: 'background.neutral'
       }}
     >
       <Box component="span" sx={{ flexGrow: 1 }}>
@@ -56,17 +56,24 @@ export default function ChatRoomGroup({ participants }: Props) {
       </Box>
       <Iconify
         width={16}
-        icon={collapse.value ? 'eva:arrow-ios-downward-fill' : 'eva:arrow-ios-forward-fill'}
+        icon={
+          collapse.value
+            ? 'eva:arrow-ios-downward-fill'
+            : 'eva:arrow-ios-forward-fill'
+        }
       />
     </ListItemButton>
-  );
+  )
 
   const renderContent = (
     <Scrollbar sx={{ height: 56 * 4 }}>
-      {participants.map((participant) => (
-        <ListItemButton key={participant.id} onClick={() => handleOpen(participant)}>
+      {participants.map(participant => (
+        <ListItemButton
+          key={participant.id}
+          onClick={() => handleOpen(participant)}
+        >
           <Badge
-            variant={participant.status}
+            variant={participant.status === 'online' ? 'dot' : 'standard'}
             anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
           >
             <Avatar alt={participant.name} src={participant.avatarUrl} />
@@ -78,18 +85,18 @@ export default function ChatRoomGroup({ participants }: Props) {
             secondary={participant.role}
             primaryTypographyProps={{
               noWrap: true,
-              typography: 'subtitle2',
+              typography: 'subtitle2'
             }}
             secondaryTypographyProps={{
               noWrap: true,
               component: 'span',
-              typography: 'caption',
+              typography: 'caption'
             }}
           />
         </ListItemButton>
       ))}
     </Scrollbar>
-  );
+  )
 
   return (
     <>
@@ -100,8 +107,12 @@ export default function ChatRoomGroup({ participants }: Props) {
       </div>
 
       {selected && (
-        <ChatRoomParticipantDialog participant={selected} open={!!selected} onClose={handleClose} />
+        <ChatRoomParticipantDialog
+          participant={selected}
+          open={!!selected}
+          onClose={handleClose}
+        />
       )}
     </>
-  );
+  )
 }

@@ -1,65 +1,77 @@
-import { useCallback } from 'react';
-import { formatDistanceToNowStrict } from 'date-fns';
+import { useCallback } from 'react'
+import { formatDistanceToNowStrict } from 'date-fns'
 
-import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
-import Badge from '@mui/material/Badge';
-import Avatar from '@mui/material/Avatar';
-import Typography from '@mui/material/Typography';
-import AvatarGroup from '@mui/material/AvatarGroup';
-import ListItemText from '@mui/material/ListItemText';
-import ListItemButton from '@mui/material/ListItemButton';
+import Box from '@mui/material/Box'
+import Stack from '@mui/material/Stack'
+import Badge from '@mui/material/Badge'
+import Avatar from '@mui/material/Avatar'
+import Typography from '@mui/material/Typography'
+import AvatarGroup from '@mui/material/AvatarGroup'
+import ListItemText from '@mui/material/ListItemText'
+import ListItemButton from '@mui/material/ListItemButton'
 
-import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hooks';
+import { paths } from 'src/routes/paths'
+import { useRouter } from 'src/routes/hooks'
 
-import { useResponsive } from 'src/hooks/use-responsive';
-import { useMockedUser } from 'src/hooks/use-mocked-user';
+import { useResponsive } from 'src/hooks/use-responsive'
+import { useMockedUser } from 'src/hooks/use-mocked-user'
 
-import { clickConversation } from 'src/api/chat';
+import { clickConversation } from 'src/api/chat'
 
-import { IChatConversation } from 'src/types/chat';
+import { IChatConversation } from 'src/types/chat'
 
-import { useGetNavItem } from './hooks';
+import { useGetNavItem } from './hooks'
 
 // ----------------------------------------------------------------------
 
 type Props = {
-  selected: boolean;
-  collapse: boolean;
-  onCloseMobile: VoidFunction;
-  conversation: IChatConversation;
-};
+  selected: boolean
+  collapse: boolean
+  onCloseMobile: VoidFunction
+  conversation: IChatConversation
+}
 
-export default function ChatNavItem({ selected, collapse, conversation, onCloseMobile }: Props) {
-  const { user } = useMockedUser();
+export default function ChatNavItem({
+  selected,
+  collapse,
+  conversation,
+  onCloseMobile
+}: Props) {
+  const { user } = useMockedUser()
 
-  const mdUp = useResponsive('up', 'md');
+  const mdUp = useResponsive('up', 'md')
 
-  const router = useRouter();
+  const router = useRouter()
 
-  const { group, name, displayText, participants, lastActivity, hasOnlineInGroup } = useGetNavItem({
+  const {
+    group,
+    name,
+    displayText,
+    participants,
+    lastActivity,
+    hasOnlineInGroup
+  } = useGetNavItem({
     conversation,
-    currentUserId: `${user?.id}`,
-  });
+    currentUserId: `${user?.id}`
+  })
 
-  const singleParticipant = participants[0];
+  const singleParticipant = participants[0]
 
-  const { avatarUrl, status } = singleParticipant;
+  const { avatarUrl, status } = singleParticipant
 
   const handleClickConversation = useCallback(async () => {
     try {
       if (!mdUp) {
-        onCloseMobile();
+        onCloseMobile()
       }
 
-      await clickConversation(conversation.id);
+      await clickConversation(conversation.id)
 
-      router.push(`${paths.dashboard.chat}?id=${conversation.id}`);
+      router.push(`${paths.dashboard.chat}?id=${conversation.id}`)
     } catch (error) {
-      console.error(error);
+      console.error(error)
     }
-  }, [conversation.id, mdUp, onCloseMobile, router]);
+  }, [conversation.id, mdUp, onCloseMobile, router])
 
   const renderGroup = (
     <Badge
@@ -67,18 +79,26 @@ export default function ChatNavItem({ selected, collapse, conversation, onCloseM
       anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
     >
       <AvatarGroup variant="compact" sx={{ width: 48, height: 48 }}>
-        {participants.slice(0, 2).map((participant) => (
-          <Avatar key={participant.id} alt={participant.name} src={participant.avatarUrl} />
+        {participants.slice(0, 2).map(participant => (
+          <Avatar
+            key={participant.id}
+            alt={participant.name}
+            src={participant.avatarUrl}
+          />
         ))}
       </AvatarGroup>
     </Badge>
-  );
+  )
 
   const renderSingle = (
-    <Badge key={status} variant={status} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
+    <Badge
+      key={status}
+      variant={status === 'online' ? 'dot' : 'standard'}
+      anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+    >
       <Avatar alt={name} src={avatarUrl} sx={{ width: 48, height: 48 }} />
     </Badge>
-  );
+  )
 
   return (
     <ListItemButton
@@ -88,8 +108,8 @@ export default function ChatNavItem({ selected, collapse, conversation, onCloseM
         py: 1.5,
         px: 2.5,
         ...(selected && {
-          bgcolor: 'action.selected',
-        }),
+          bgcolor: 'action.selected'
+        })
       }}
     >
       <Badge
@@ -107,14 +127,16 @@ export default function ChatNavItem({ selected, collapse, conversation, onCloseM
             primary={name}
             primaryTypographyProps={{
               noWrap: true,
-              variant: 'subtitle2',
+              variant: 'subtitle2'
             }}
             secondary={displayText}
             secondaryTypographyProps={{
               noWrap: true,
               component: 'span',
               variant: conversation.unreadCount ? 'subtitle2' : 'body2',
-              color: conversation.unreadCount ? 'text.primary' : 'text.secondary',
+              color: conversation.unreadCount
+                ? 'text.primary'
+                : 'text.secondary'
             }}
           />
 
@@ -126,11 +148,11 @@ export default function ChatNavItem({ selected, collapse, conversation, onCloseM
               sx={{
                 mb: 1.5,
                 fontSize: 12,
-                color: 'text.disabled',
+                color: 'text.disabled'
               }}
             >
               {formatDistanceToNowStrict(new Date(lastActivity), {
-                addSuffix: false,
+                addSuffix: false
               })}
             </Typography>
 
@@ -140,7 +162,7 @@ export default function ChatNavItem({ selected, collapse, conversation, onCloseM
                   width: 8,
                   height: 8,
                   bgcolor: 'info.main',
-                  borderRadius: '50%',
+                  borderRadius: '50%'
                 }}
               />
             )}
@@ -148,5 +170,5 @@ export default function ChatNavItem({ selected, collapse, conversation, onCloseM
         </>
       )}
     </ListItemButton>
-  );
+  )
 }

@@ -1,204 +1,227 @@
-import { Icon } from '@iconify/react';
-import { useRef, useState, useEffect } from 'react';
+import { Icon } from '@iconify/react'
+import { useRef, useState, useEffect } from 'react'
 
-import { Box, Stack, Alert, Button, Typography } from '@mui/material';
+import { Box, Stack, Alert, Button, Typography } from '@mui/material'
 
 interface CallComponentProps {
-  stringeeAccessToken: string;
-  fromUserId: string;
-  userInfor: any;
-  currentAppointment: any;
+  stringeeAccessToken: string
+  fromUserId: string
+  userInfor: any
+  currentAppointment: any
 }
 
 export default function CallCenter({
   stringeeAccessToken,
   fromUserId,
   userInfor,
-  currentAppointment,
+  currentAppointment
 }: CallComponentProps) {
-  const stringeeClientRef = useRef<any>(null);
-  const activeCallRef = useRef<any>(null);
+  const stringeeClientRef = useRef<any>(null)
+  const activeCallRef = useRef<any>(null)
 
-  const [clientConnected, setClientConnected] = useState(false);
-  const [calling, setCalling] = useState(false);
-  const [incomingCall, setIncomingCall] = useState<any>(null);
-  const [toUserId, setToUserId] = useState('');
-  const [isMuted, setIsMuted] = useState(false);
-  const [isVideoEnabled, setIsVideoEnabled] = useState(true);
-  const [callStatus, setCallStatus] = useState('Chưa bắt đầu');
-  const [isVideoCall, setIsVideoCall] = useState(true);
-  const [openCall, setOpenCall] = useState(false);
-  const [isIncomingCall, setIsIncomingCall] = useState(false);
-  const [callerInfo, setCallerInfo] = useState<any>(null);
+  const [clientConnected, setClientConnected] = useState(false)
+  const [calling, setCalling] = useState(false)
+  const [incomingCall, setIncomingCall] = useState<any>(null)
+  const [isMuted, setIsMuted] = useState(false)
+  const [isVideoEnabled, setIsVideoEnabled] = useState(true)
+  const [callStatus, setCallStatus] = useState('Chưa bắt đầu')
+  const [isVideoCall, setIsVideoCall] = useState(true)
+  const [_openCall, _setOpenCall] = useState(false)
+  const [_isIncomingCall, _setIsIncomingCall] = useState(false)
+  const [_callerInfo, _setCallerInfo] = useState<any>(null)
 
-  console.log(isVideoCall);
+  console.log(isVideoCall)
   useEffect(() => {
-    if (!stringeeAccessToken) return;
+    if (!stringeeAccessToken) return
 
     if (typeof window !== 'undefined' && (window as any).StringeeClient) {
-      const client = new (window as any).StringeeClient();
-      stringeeClientRef.current = client;
+      const client = new (window as any).StringeeClient()
+      stringeeClientRef.current = client
 
-      client.connect(stringeeAccessToken);
+      client.connect(stringeeAccessToken)
 
-      client.on('connect', () => setClientConnected(true));
+      client.on('connect', () => setClientConnected(true))
       client.on('authenerror', () => {
-        setClientConnected(false);
-        setCallStatus('Lỗi xác thực');
-      });
+        setClientConnected(false)
+        setCallStatus('Lỗi xác thực')
+      })
       client.on('disconnect', () => {
-        setClientConnected(false);
-        setCallStatus('Mất kết nối');
-      });
+        setClientConnected(false)
+        setCallStatus('Mất kết nối')
+      })
       client.on('incomingcall', (incomingCallObj: any) => {
-        setIncomingCall(incomingCallObj);
+        setIncomingCall(incomingCallObj)
         // setCallStatus('Có cuộc gọi đến');
-      });
+      })
     }
-  }, [stringeeAccessToken]);
-  console.log('userInfor', userInfor);
+  }, [stringeeAccessToken])
+  console.log('userInfor', userInfor)
   const makeCall = (video = true) => {
     if (!clientConnected || !currentAppointment?.doctor?.id) {
-      setCallStatus('Chưa kết nối hoặc thiếu ID người nhận');
-      return;
+      setCallStatus('Chưa kết nối hoặc thiếu ID người nhận')
+      return
     }
-    console.log('currentAppointment', currentAppointment);
-    setIsVideoCall(video);
-    const callFromId = userInfor?.id;
-    const callToId = currentAppointment?.doctor?.id;
+    console.log('currentAppointment', currentAppointment)
+    setIsVideoCall(video)
+    const callFromId = userInfor?.id
+    const callToId = currentAppointment?.doctor?.id
 
     const call = new (window as any).StringeeCall(
       stringeeClientRef.current,
       callFromId,
       callToId,
       video
-    );
+    )
 
     call.makeCall((res: any) => {
       if (res.r === 0) {
-        activeCallRef.current = call;
-        setCalling(true);
-        setCallStatus('Đang gọi...');
+        activeCallRef.current = call
+        setCalling(true)
+        setCallStatus('Đang gọi...')
       } else {
-        setCallStatus(`Gọi thất bại: ${res.message}`);
+        setCallStatus(`Gọi thất bại: ${res.message}`)
       }
-    });
+    })
 
     call.on('addremotestream', (stream: any) => {
-      const remoteVideo = document.getElementById('remoteVideo') as HTMLVideoElement;
+      const remoteVideo = document.getElementById(
+        'remoteVideo'
+      ) as HTMLVideoElement
       if (remoteVideo) {
-        remoteVideo.srcObject = stream;
+        remoteVideo.srcObject = stream
         remoteVideo.onloadedmetadata = () => {
           remoteVideo
             .play()
-            .catch((err) => console.error('Lỗi phát video từ xa (sau loadedmetadata):', err));
-        };
+            .catch(err =>
+              console.error('Lỗi phát video từ xa (sau loadedmetadata):', err)
+            )
+        }
       }
-    });
+    })
 
     call.on('remotestreamremoved', () => {
-      const remoteVideo = document.getElementById('remoteVideo') as HTMLVideoElement;
+      const remoteVideo = document.getElementById(
+        'remoteVideo'
+      ) as HTMLVideoElement
       if (remoteVideo) {
-        remoteVideo.srcObject = null;
-        remoteVideo.pause();
-        remoteVideo.load();
-        remoteVideo.play().catch((err) => console.error('Lỗi phát video từ xa:', err));
+        remoteVideo.srcObject = null
+        remoteVideo.pause()
+        remoteVideo.load()
+        remoteVideo
+          .play()
+          .catch(err => console.error('Lỗi phát video từ xa:', err))
       }
-      const localVideo = document.getElementById('localVideo') as HTMLVideoElement;
+      const localVideo = document.getElementById(
+        'localVideo'
+      ) as HTMLVideoElement
       if (localVideo) {
-        localVideo.srcObject = null;
-        localVideo.pause();
-        localVideo.load();
-        localVideo.play().catch((err) => console.error('Lỗi phát video local:', err));
+        localVideo.srcObject = null
+        localVideo.pause()
+        localVideo.load()
+        localVideo
+          .play()
+          .catch(err => console.error('Lỗi phát video local:', err))
       }
-    });
+    })
 
     call.on('addlocalstream', (stream: any) => {
-      const localVideo = document.getElementById('localVideo') as HTMLVideoElement;
+      const localVideo = document.getElementById(
+        'localVideo'
+      ) as HTMLVideoElement
       if (localVideo) {
-        localVideo.srcObject = stream;
-        localVideo.play().catch((err) => console.error('Lỗi phát video local:', err));
+        localVideo.srcObject = stream
+        localVideo
+          .play()
+          .catch(err => console.error('Lỗi phát video local:', err))
       }
-    });
+    })
 
-    call.on('signalingstate', (state: any) => setCallStatus(`Trạng thái: ${state.reason}`));
-  };
+    call.on('signalingstate', (state: any) =>
+      setCallStatus(`Trạng thái: ${state.reason}`)
+    )
+  }
 
   const endCall = () => {
     if (activeCallRef.current) {
-      activeCallRef.current.hangup();
-      activeCallRef.current = null;
-      setCalling(false);
-      setCallStatus('Đã kết thúc cuộc gọi');
+      activeCallRef.current.hangup()
+      activeCallRef.current = null
+      setCalling(false)
+      setCallStatus('Đã kết thúc cuộc gọi')
     }
-  };
+  }
 
-  const answerIncomingCall = () => {
-    if (!incomingCall) return;
+  const _answerIncomingCall = () => {
+    if (!incomingCall) return
 
-    activeCallRef.current = incomingCall;
+    activeCallRef.current = incomingCall
 
     activeCallRef.current.on('addlocalstream', (stream: MediaStream) => {
-      const localVideo = document.getElementById('localVideo') as HTMLVideoElement;
+      const localVideo = document.getElementById(
+        'localVideo'
+      ) as HTMLVideoElement
       if (localVideo) {
-        localVideo.srcObject = stream;
+        localVideo.srcObject = stream
         localVideo.onloadedmetadata = () => {
           localVideo
             .play()
-            .catch((err) => console.error('Lỗi phát video local (sau loadedmetadata):', err));
-        };
+            .catch(err =>
+              console.error('Lỗi phát video local (sau loadedmetadata):', err)
+            )
+        }
       }
-    });
+    })
 
     activeCallRef.current.on('addremotestream', (stream: MediaStream) => {
-      const remoteVideo = document.getElementById('remoteVideo') as HTMLVideoElement;
+      const remoteVideo = document.getElementById(
+        'remoteVideo'
+      ) as HTMLVideoElement
       if (remoteVideo) {
-        remoteVideo.srcObject = stream;
-        remoteVideo.play().catch(console.error);
+        remoteVideo.srcObject = stream
+        remoteVideo.play().catch(console.error)
       }
-    });
+    })
 
-    activeCallRef.current.answer(); // ✅ CHỈ gọi sau khi đăng ký xong event
-    setIncomingCall(null);
-    setCalling(true);
-    setCallStatus('Đã trả lời cuộc gọi');
-  };
+    activeCallRef.current.answer() // ✅ CHỈ gọi sau khi đăng ký xong event
+    setIncomingCall(null)
+    setCalling(true)
+    setCallStatus('Đã trả lời cuộc gọi')
+  }
 
-  const rejectIncomingCall = () => {
+  const _rejectIncomingCall = () => {
     if (incomingCall) {
-      incomingCall.reject();
-      setIncomingCall(null);
-      setCallStatus('Đã từ chối cuộc gọi');
+      incomingCall.reject()
+      setIncomingCall(null)
+      setCallStatus('Đã từ chối cuộc gọi')
     }
-  };
+  }
 
   const mute = () => {
     if (activeCallRef.current) {
-      activeCallRef.current.mute(!isMuted);
-      setIsMuted(!isMuted);
+      activeCallRef.current.mute(!isMuted)
+      setIsMuted(!isMuted)
     }
-  };
+  }
 
   const enableVideo = () => {
     if (activeCallRef.current) {
-      activeCallRef.current.enableVideo(!isVideoEnabled);
-      setIsVideoEnabled(!isVideoEnabled);
+      activeCallRef.current.enableVideo(!isVideoEnabled)
+      setIsVideoEnabled(!isVideoEnabled)
     }
-  };
+  }
   const initialPatientName = userInfor?.fullName
     ? userInfor.fullName
         .split(' ')
         .map((w: string) => w[0])
         .join('')
         .toUpperCase()
-    : 'KH';
+    : 'KH'
   const initialDoctorName = currentAppointment?.doctor?.fullName
     ? currentAppointment?.doctor?.fullName
         .split(' ')
         .map((w: string) => w[0])
         .join('')
         .toUpperCase()
-    : 'BS';
+    : 'BS'
   return (
     <Box display="flex flex-col gap-2">
       <Box
@@ -215,7 +238,7 @@ export default function CallCenter({
           sx={{
             width: { xs: '100%', sm: 120 },
             display: 'flex',
-            justifyContent: 'center',
+            justifyContent: 'center'
           }}
         >
           <img
@@ -235,17 +258,29 @@ export default function CallCenter({
         </Typography>
 
         {/* Appointment Info */}
-        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 2, sm: 4 }} width="100%">
+        <Stack
+          direction={{ xs: 'column', sm: 'row' }}
+          spacing={{ xs: 2, sm: 4 }}
+          width="100%"
+        >
           <Stack spacing={0.5} width={{ xs: '100%', sm: 'auto' }}>
             <Typography variant="body2" color="text.secondary">
               Bác sĩ:{' '}
-              <Typography component="span" fontWeight="500" color="text.primary">
+              <Typography
+                component="span"
+                fontWeight="500"
+                color="text.primary"
+              >
                 {currentAppointment?.doctor?.fullName || '---'}
               </Typography>
             </Typography>
             <Typography variant="body2" color="text.secondary">
               Bệnh nhân:{' '}
-              <Typography component="span" fontWeight="500" color="text.primary">
+              <Typography
+                component="span"
+                fontWeight="500"
+                color="text.primary"
+              >
                 {currentAppointment?.patient?.fullName || '---'}
               </Typography>
             </Typography>
@@ -254,13 +289,21 @@ export default function CallCenter({
           <Stack spacing={0.5} width={{ xs: '100%', sm: 'auto' }}>
             <Typography variant="body2" color="text.secondary">
               Ngày:{' '}
-              <Typography component="span" fontWeight="500" color="text.primary">
+              <Typography
+                component="span"
+                fontWeight="500"
+                color="text.primary"
+              >
                 {currentAppointment?.date || '---'}
               </Typography>
             </Typography>
             <Typography variant="body2" color="text.secondary">
               Giờ:{' '}
-              <Typography component="span" fontWeight="500" color="text.primary">
+              <Typography
+                component="span"
+                fontWeight="500"
+                color="text.primary"
+              >
                 {currentAppointment?.slot || '---'}
               </Typography>
             </Typography>
@@ -376,11 +419,15 @@ export default function CallCenter({
           position="relative"
           sx={{
             height: { xs: '580px', sm: '580px' },
-            backgroundColor: '#000',
+            backgroundColor: '#000'
           }}
         >
           {/* Remote Video */}
-          <Box width="100%" height="100%" sx={{ position: 'relative', zIndex: 1 }}>
+          <Box
+            width="100%"
+            height="100%"
+            sx={{ position: 'relative', zIndex: 1 }}
+          >
             <video
               id="remoteVideo"
               playsInline
@@ -390,7 +437,7 @@ export default function CallCenter({
                 width: '100%',
                 height: '100%',
                 objectFit: 'cover',
-                backgroundColor: '#',
+                backgroundColor: '#'
               }}
             >
               <track kind="captions" src="" label="English" />
@@ -410,7 +457,7 @@ export default function CallCenter({
                 position: 'absolute',
                 right: '50%',
                 bottom: '50%',
-                transform: 'translateX(50%)',
+                transform: 'translateX(50%)'
               }}
             >
               {initialDoctorName}
@@ -429,7 +476,7 @@ export default function CallCenter({
               overflow: 'hidden',
               boxShadow: 3,
               zIndex: 2,
-              backgroundColor: '#424141',
+              backgroundColor: '#424141'
             }}
           >
             <Box
@@ -441,7 +488,7 @@ export default function CallCenter({
                 width: '100%',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
+                justifyContent: 'center'
               }}
             >
               <video
@@ -456,7 +503,7 @@ export default function CallCenter({
                   position: 'absolute',
                   top: 0,
                   left: 0,
-                  zIndex: 1,
+                  zIndex: 1
                 }}
               />
               {(callStatus || !isVideoCall) && (
@@ -473,7 +520,7 @@ export default function CallCenter({
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    zIndex: 2,
+                    zIndex: 2
                   }}
                 >
                   <Box
@@ -487,7 +534,7 @@ export default function CallCenter({
                       justifyContent: 'center',
                       fontSize: 24,
                       fontWeight: 'bold',
-                      color: 'white',
+                      color: 'white'
                     }}
                   >
                     {initialPatientName}
@@ -518,9 +565,9 @@ export default function CallCenter({
               boxShadow: 2,
               '&:hover': {
                 transform: 'scale(1.1)',
-                opacity: 0.9,
-              },
-            },
+                opacity: 0.9
+              }
+            }
           }}
         >
           {/* Mic Button */}
@@ -530,11 +577,15 @@ export default function CallCenter({
             sx={{
               backgroundColor: isMuted ? 'warning.main' : 'primary.main',
               '&:hover': {
-                backgroundColor: isMuted ? 'warning.dark' : 'primary.dark',
-              },
+                backgroundColor: isMuted ? 'warning.dark' : 'primary.dark'
+              }
             }}
           >
-            <Icon icon={isMuted ? 'mdi:microphone-off' : 'mdi:microphone'} width={24} height={24} />
+            <Icon
+              icon={isMuted ? 'mdi:microphone-off' : 'mdi:microphone'}
+              width={24}
+              height={24}
+            />
           </Button>
 
           {/* Camera Button */}
@@ -544,11 +595,17 @@ export default function CallCenter({
             sx={{
               backgroundColor: isVideoEnabled ? 'primary.main' : 'warning.main',
               '&:hover': {
-                backgroundColor: isVideoEnabled ? 'primary.dark' : 'warning.dark',
-              },
+                backgroundColor: isVideoEnabled
+                  ? 'primary.dark'
+                  : 'warning.dark'
+              }
             }}
           >
-            <Icon icon={isVideoEnabled ? 'mdi:video' : 'mdi:video-off'} width={24} height={24} />
+            <Icon
+              icon={isVideoEnabled ? 'mdi:video' : 'mdi:video-off'}
+              width={24}
+              height={24}
+            />
           </Button>
 
           {/* Chat Button */}
@@ -558,8 +615,8 @@ export default function CallCenter({
               backgroundColor: 'grey.200',
               color: 'grey.800',
               '&:hover': {
-                backgroundColor: 'grey.300',
-              },
+                backgroundColor: 'grey.300'
+              }
             }}
           >
             <Icon icon="mdi:chat-outline" width={24} height={24} />
@@ -571,8 +628,8 @@ export default function CallCenter({
             sx={{
               backgroundColor: 'error.main',
               '&:hover': {
-                backgroundColor: 'error.dark',
-              },
+                backgroundColor: 'error.dark'
+              }
             }}
           >
             <Icon icon="mdi:record-circle" width={24} height={24} />
@@ -584,8 +641,8 @@ export default function CallCenter({
             sx={{
               backgroundColor: 'success.main',
               '&:hover': {
-                backgroundColor: 'success.dark',
-              },
+                backgroundColor: 'success.dark'
+              }
             }}
           >
             <Icon icon="mdi:phone" width={24} height={24} />
@@ -599,12 +656,12 @@ export default function CallCenter({
             sx={{
               backgroundColor: 'error.main',
               '&:hover': {
-                backgroundColor: 'error.dark',
+                backgroundColor: 'error.dark'
               },
               '&.Mui-disabled': {
                 backgroundColor: 'grey.300',
-                color: 'grey.500',
-              },
+                color: 'grey.500'
+              }
             }}
           >
             <Icon icon="mdi:phone-hangup" width={24} height={24} />
@@ -612,5 +669,5 @@ export default function CallCenter({
         </Stack>
       </Box>
     </Box>
-  );
+  )
 }

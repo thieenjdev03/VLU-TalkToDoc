@@ -1,35 +1,35 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react'
 
-import Tab from '@mui/material/Tab';
-import { Box } from '@mui/material';
-import Tabs from '@mui/material/Tabs';
-import Card from '@mui/material/Card';
-import Table from '@mui/material/Table';
-import Button from '@mui/material/Button';
-import Tooltip from '@mui/material/Tooltip';
-import { alpha } from '@mui/material/styles';
-import Container from '@mui/material/Container';
-import TableBody from '@mui/material/TableBody';
-import IconButton from '@mui/material/IconButton';
-import TableContainer from '@mui/material/TableContainer';
+import Tab from '@mui/material/Tab'
+import { Box } from '@mui/material'
+import Tabs from '@mui/material/Tabs'
+import Card from '@mui/material/Card'
+import Table from '@mui/material/Table'
+import Button from '@mui/material/Button'
+import Tooltip from '@mui/material/Tooltip'
+import { alpha } from '@mui/material/styles'
+import Container from '@mui/material/Container'
+import TableBody from '@mui/material/TableBody'
+import IconButton from '@mui/material/IconButton'
+import TableContainer from '@mui/material/TableContainer'
 
-import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hooks';
+import { paths } from 'src/routes/paths'
+import { useRouter } from 'src/routes/hooks'
 
-import { useBoolean } from 'src/hooks/use-boolean';
+import { useBoolean } from 'src/hooks/use-boolean'
 
-import { isAfter, isBetween } from 'src/utils/format-time';
+import { isAfter, isBetween } from 'src/utils/format-time'
 
-import { useGetUsers } from 'src/api/user';
-import { getAllAppointment } from 'src/api/appointment';
+import { useGetUsers } from 'src/api/user'
+import { getAllAppointment } from 'src/api/appointment'
 
-import Label from 'src/components/label';
-import Iconify from 'src/components/iconify';
-import Scrollbar from 'src/components/scrollbar';
-import { useSnackbar } from 'src/components/snackbar';
-import { ConfirmDialog } from 'src/components/custom-dialog';
-import { useSettingsContext } from 'src/components/settings';
-import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
+import Label from 'src/components/label'
+import Iconify from 'src/components/iconify'
+import Scrollbar from 'src/components/scrollbar'
+import { useSnackbar } from 'src/components/snackbar'
+import { ConfirmDialog } from 'src/components/custom-dialog'
+import { useSettingsContext } from 'src/components/settings'
+import CustomBreadcrumbs from 'src/components/custom-breadcrumbs'
 import {
   useTable,
   emptyRows,
@@ -38,28 +38,28 @@ import {
   TableEmptyRows,
   TableHeadCustom,
   TableSelectedAction,
-  TablePaginationCustom,
-} from 'src/components/table';
+  TablePaginationCustom
+} from 'src/components/table'
 
-import CallCenterModal from 'src/sections/call/view/call-center-modal';
-import IncomingCallPopup from 'src/sections/call/view/call-incomming-popup';
+import CallCenterModal from 'src/sections/call/view/call-center-modal'
+import IncomingCallPopup from 'src/sections/call/view/call-incomming-popup'
 
 import {
   IAppointmentItem,
   IAppointmentTableFilters,
-  IAppointmentTableFilterValue,
-} from 'src/types/appointment';
+  IAppointmentTableFilterValue
+} from 'src/types/appointment'
 
-import '../styles/index.scss';
-import AppointmentTableRow from '../appointment-table-row';
-import AppointmentTableToolbar from '../appointment-table-toolbar';
+import '../styles/index.scss'
+import AppointmentTableRow from '../appointment-table-row'
+import AppointmentTableToolbar from '../appointment-table-toolbar'
 
 const STATUS_OPTIONS = [
   { value: 'all', label: 'Tất cả' },
   { value: 'PENDING', label: 'Chờ xác nhận' },
   { value: 'CONFIRMED', label: 'Đã xác nhận' },
-  { value: 'REJECTED', label: 'Đã hủy' },
-];
+  { value: 'REJECTED', label: 'Đã hủy' }
+]
 
 const TABLE_HEAD = [
   { id: 'appointmentId', label: 'Mã lịch hẹn', width: { xs: 100, sm: 140 } },
@@ -67,11 +67,16 @@ const TABLE_HEAD = [
   { id: 'bookingDate', label: 'Ngày khám', width: { xs: 100, sm: 140 } },
   { id: 'specialty', label: 'Chuyên khoa', width: { xs: 100, sm: 120 } },
   { id: 'totalFee', label: 'Chi phí', width: { xs: 100, sm: 120 } },
-  { id: 'status', label: 'Trạng thái', width: { xs: 120, sm: 220 }, align: 'center' },
+  {
+    id: 'status',
+    label: 'Trạng thái',
+    width: { xs: 120, sm: 220 },
+    align: 'center'
+  },
   { id: 'paid', label: 'Đã thanh toán', width: { xs: 100, sm: 120 } },
   { id: 'ctaButton', label: 'Thao tác', width: { xs: 100, sm: 120 } },
-  { id: '', width: { xs: 30, sm: 40 } },
-];
+  { id: '', width: { xs: 30, sm: 40 } }
+]
 
 const TABLE_HEAD_PATIENT = [
   { id: 'appointmentId', label: 'Mã lịch hẹn', minWidth: { xs: 100, sm: 140 } },
@@ -80,53 +85,79 @@ const TABLE_HEAD_PATIENT = [
   { id: 'phoneNumber', label: 'Số điện thoại', minWidth: { xs: 100, sm: 130 } },
   { id: 'specialty', label: 'Chuyên khoa', minWidth: { xs: 100, sm: 140 } },
   { id: 'totalFee', label: 'Chi phí', minWidth: { xs: 100, sm: 120 } },
-  { id: 'status', label: 'Trạng thái', minWidth: { xs: 100, sm: 120 }, align: 'center' },
-  { id: 'paid', label: 'Đã thanh toán', minWidth: { xs: 100, sm: 140 }, align: 'center' },
-  { id: 'ctaButton', label: 'Thao tác', minWidth: { xs: 100, sm: 120 }, align: 'center' },
-  { id: 'cancelReason', label: 'Lý do hủy', minWidth: { xs: 120, sm: 140 }, align: 'center' },
-  { id: '', minWidth: { xs: 60, sm: 88 } },
-];
+  {
+    id: 'status',
+    label: 'Trạng thái',
+    minWidth: { xs: 100, sm: 120 },
+    align: 'center'
+  },
+  {
+    id: 'paid',
+    label: 'Đã thanh toán',
+    minWidth: { xs: 100, sm: 140 },
+    align: 'center'
+  },
+  {
+    id: 'ctaButton',
+    label: 'Thao tác',
+    minWidth: { xs: 100, sm: 120 },
+    align: 'center'
+  },
+  {
+    id: 'cancelReason',
+    label: 'Lý do hủy',
+    minWidth: { xs: 120, sm: 140 },
+    align: 'center'
+  },
+  { id: '', minWidth: { xs: 60, sm: 88 } }
+]
 
 const defaultFilters: IAppointmentTableFilters = {
   patient: '',
   status: 'all',
   startDate: null,
   endDate: null,
-  name: '',
-};
+  name: ''
+}
 
 export default function AppointmentListView() {
-  const { enqueueSnackbar } = useSnackbar();
-  const table = useTable({ defaultOrderBy: 'appointmentId' });
-  const settings = useSettingsContext();
-  const router = useRouter();
-  const confirm = useBoolean();
-  const [tableData, setTableData] = useState<IAppointmentItem[]>([]);
-  const [openCall, setOpenCall] = useState(false);
-  const [filters, setFilters] = useState<IAppointmentTableFilters>(defaultFilters);
-  const [currentAppointment, setCurrentAppointment] = useState<IAppointmentItem | null>(null);
-  const stringeeToken = JSON.parse(localStorage.getItem('stringeeToken') || '{}');
-  const dateError = isAfter(filters?.startDate, filters?.endDate);
-  const userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}');
-  const [showIncomingCallPopup, setShowIncomingCallPopup] = useState(false);
+  const { enqueueSnackbar } = useSnackbar()
+  const table = useTable({ defaultOrderBy: 'appointmentId' })
+  const settings = useSettingsContext()
+  const router = useRouter()
+  const confirm = useBoolean()
+  const [tableData, setTableData] = useState<IAppointmentItem[]>([])
+  const [openCall, setOpenCall] = useState(false)
+  const [filters, setFilters] =
+    useState<IAppointmentTableFilters>(defaultFilters)
+  const [currentAppointment, setCurrentAppointment] =
+    useState<IAppointmentItem | null>(null)
+  const stringeeToken = JSON.parse(
+    localStorage.getItem('stringeeToken') || '{}'
+  )
+  const dateError = isAfter(filters?.startDate, filters?.endDate)
+  const userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}')
+  const [_showIncomingCallPopup, _setShowIncomingCallPopup] = useState(false)
   const dataFiltered = applyFilter({
     inputData: tableData,
     comparator: getComparator(table.order, table.orderBy),
     filters,
-    dateError,
-  });
+    dateError
+  })
 
   const dataInPage = dataFiltered.slice(
     table.page * table.rowsPerPage,
     table.page * table.rowsPerPage + table.rowsPerPage
-  );
+  )
 
-  const denseHeight = table.dense ? 56 : 56 + 20;
+  const denseHeight = table.dense ? 56 : 56 + 20
 
   const canReset =
-    !!filters.patient || filters.status !== 'all' || (!!filters.startDate && !!filters.endDate);
+    !!filters.patient ||
+    filters.status !== 'all' ||
+    (!!filters.startDate && !!filters.endDate)
 
-  const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
+  const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length
 
   const { users: doctorsList } = useGetUsers({
     typeUser: 'doctor',
@@ -134,73 +165,83 @@ export default function AppointmentListView() {
     page: 1,
     limit: 99,
     sortField: 'createdAt',
-    sortOrder: 'desc',
-  });
+    sortOrder: 'desc'
+  })
 
   useEffect(() => {
     const fetchAppointments = async () => {
-      const appointments = await getAllAppointment();
+      const appointments = await getAllAppointment()
       if (userProfile.role === 'PATIENT') {
         const patientAppointments = appointments.data.filter(
-          (appointment: IAppointmentItem) => appointment?.patient?._id === userProfile?._id
-        );
-        setTableData(patientAppointments);
+          (appointment: IAppointmentItem) =>
+            appointment?.patient?._id === userProfile?._id
+        )
+        setTableData(patientAppointments)
       } else if (userProfile.role === 'DOCTOR') {
         const doctorAppointments = appointments.data.filter(
-          (appointment: IAppointmentItem) => appointment?.doctor?._id === userProfile?._id
-        );
-        setTableData(doctorAppointments);
+          (appointment: IAppointmentItem) =>
+            appointment?.doctor?._id === userProfile?._id
+        )
+        setTableData(doctorAppointments)
       } else {
-        setTableData(appointments.data);
+        setTableData(appointments.data)
       }
-    };
-    fetchAppointments();
-  }, [userProfile?._id, userProfile.role]);
+    }
+    fetchAppointments()
+  }, [userProfile?._id, userProfile.role])
 
   const handleFilters = useCallback(
     (name: any, value: IAppointmentTableFilterValue) => {
-      table.onResetPage();
-      setFilters((prevState) => ({
+      table.onResetPage()
+      setFilters(prevState => ({
         ...prevState,
-        [name]: value,
-      }));
+        [name]: value
+      }))
     },
     [table]
-  );
+  )
 
   const handleDeleteRow = useCallback(
     (id: string) => {
-      const deleteRow = tableData.filter((row) => row._id !== id);
-      enqueueSnackbar('Xóa thành công!');
-      setTableData(deleteRow);
-      table.onUpdatePageDeleteRow(dataInPage.length);
+      const deleteRow = tableData.filter(row => row._id !== id)
+      enqueueSnackbar('Xóa thành công!')
+      setTableData(deleteRow)
+      table.onUpdatePageDeleteRow(dataInPage.length)
     },
     [dataInPage.length, enqueueSnackbar, table, tableData]
-  );
+  )
 
   const handleDeleteRows = useCallback(() => {
-    const deleteRows = tableData.filter((row) => !table.selected.includes(row._id));
-    enqueueSnackbar('Xóa thành công!');
-    setTableData(deleteRows);
+    const deleteRows = tableData.filter(
+      row => !table.selected.includes(row._id)
+    )
+    enqueueSnackbar('Xóa thành công!')
+    setTableData(deleteRows)
     table.onUpdatePageDeleteRows({
       totalRowsInPage: dataInPage.length,
-      totalRowsFiltered: dataFiltered.length,
-    });
-  }, [dataFiltered.length, dataInPage.length, enqueueSnackbar, table, tableData]);
+      totalRowsFiltered: dataFiltered.length
+    })
+  }, [
+    dataFiltered.length,
+    dataInPage.length,
+    enqueueSnackbar,
+    table,
+    tableData
+  ])
 
   const handleViewRow = useCallback(
     (id: string) => {
-      router.push(paths.dashboard.appointment.details(id));
+      router.push(paths.dashboard.appointment.details(id))
     },
     [router]
-  );
+  )
 
   const handleFilterStatus = useCallback(
     (event: React.SyntheticEvent, newValue: any) => {
-      handleFilters('status', newValue);
+      handleFilters('status', newValue)
     },
     [handleFilters]
-  );
+  )
 
   return (
     <>
@@ -210,16 +251,16 @@ export default function AppointmentListView() {
           links={[
             {
               name: 'Bảng điều khiển',
-              href: paths.dashboard.root,
+              href: paths.dashboard.root
             },
             {
               name: 'Lịch hẹn',
-              href: paths.dashboard.appointment.root, // Cập nhật đường dẫn
+              href: paths.dashboard.appointment.root // Cập nhật đường dẫn
             },
-            { name: 'Danh sách' },
+            { name: 'Danh sách' }
           ]}
           sx={{
-            mb: { xs: 3, md: 5 },
+            mb: { xs: 3, md: 5 }
           }}
         />
 
@@ -229,10 +270,11 @@ export default function AppointmentListView() {
             onChange={handleFilterStatus}
             sx={{
               px: 2.5,
-              boxShadow: (theme) => `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
+              boxShadow: theme =>
+                `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`
             }}
           >
-            {STATUS_OPTIONS.map((tab) => (
+            {STATUS_OPTIONS.map(tab => (
               <Tab
                 key={tab.value}
                 iconPosition="end"
@@ -241,7 +283,9 @@ export default function AppointmentListView() {
                 icon={
                   <Label
                     variant={
-                      ((tab.value === 'all' || tab.value === filters.status) && 'filled') || 'soft'
+                      ((tab.value === 'all' || tab.value === filters.status) &&
+                        'filled') ||
+                      'soft'
                     }
                     color={
                       (tab.value === 'PENDING' && 'warning') ||
@@ -252,7 +296,9 @@ export default function AppointmentListView() {
                   >
                     {tab.value === 'all'
                       ? tableData?.length
-                      : tableData.filter((appointment) => appointment.status === tab.value).length}
+                      : tableData.filter(
+                          appointment => appointment.status === tab.value
+                        ).length}
                   </Label>
                 }
               />
@@ -269,7 +315,7 @@ export default function AppointmentListView() {
               dense={table.dense}
               numSelected={table.selected.length}
               rowCount={dataFiltered.length}
-              onSelectAllRows={(checked) =>
+              onSelectAllRows={checked =>
                 table.onSelectAllRows(
                   checked,
                   dataFiltered.map((row: any) => row._id) // Cập nhật để sử dụng _id
@@ -292,11 +338,15 @@ export default function AppointmentListView() {
                 <TableHeadCustom
                   order={table.order}
                   orderBy={table.orderBy}
-                  headLabel={userProfile.role === 'PATIENT' ? TABLE_HEAD_PATIENT : TABLE_HEAD}
+                  headLabel={
+                    userProfile.role === 'PATIENT'
+                      ? TABLE_HEAD_PATIENT
+                      : TABLE_HEAD
+                  }
                   rowCount={dataFiltered.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
-                  onSelectAllRows={(checked) =>
+                  onSelectAllRows={checked =>
                     table.onSelectAllRows(
                       checked,
                       dataFiltered.map((row: any) => row._id) // Cập nhật để sử dụng _id
@@ -310,7 +360,7 @@ export default function AppointmentListView() {
                       table.page * table.rowsPerPage,
                       table.page * table.rowsPerPage + table.rowsPerPage
                     )
-                    .map((row) => (
+                    .map(row => (
                       <AppointmentTableRow
                         doctorsList={doctorsList}
                         key={row._id} // Cập nhật để sử dụng _id
@@ -328,7 +378,11 @@ export default function AppointmentListView() {
                   {dataFiltered.length === 0 && (
                     <TableEmptyRows
                       height={denseHeight}
-                      emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
+                      emptyRows={emptyRows(
+                        table.page,
+                        table.rowsPerPage,
+                        dataFiltered.length
+                      )}
                     />
                   )}
                   <TableNoData notFound={notFound} />
@@ -359,7 +413,7 @@ export default function AppointmentListView() {
         currentAppointment={currentAppointment}
       />
       {/* Incoming Call Popup */}
-      {showIncomingCallPopup && (
+      {_showIncomingCallPopup && (
         <Box sx={{ position: 'fixed', top: 100, right: 20, zIndex: 1000 }}>
           <IncomingCallPopup
             fullName="Nguyễn Văn A"
@@ -377,7 +431,8 @@ export default function AppointmentListView() {
         title="Xóa"
         content={
           <>
-            Bạn có chắc chắn muốn xóa <strong> {table.selected.length} </strong> mục?
+            Bạn có chắc chắn muốn xóa <strong> {table.selected.length} </strong>{' '}
+            mục?
           </>
         }
         action={
@@ -385,8 +440,8 @@ export default function AppointmentListView() {
             variant="contained"
             color="error"
             onClick={() => {
-              handleDeleteRows();
-              confirm.onFalse();
+              handleDeleteRows()
+              confirm.onFalse()
             }}
           >
             Xóa
@@ -394,7 +449,7 @@ export default function AppointmentListView() {
         }
       />
     </>
-  );
+  )
 }
 
 // ----------------------------------------------------------------------
@@ -403,44 +458,50 @@ function applyFilter({
   inputData,
   comparator,
   filters,
-  dateError,
+  dateError
 }: {
-  inputData: IAppointmentItem[]; // Cập nhật để sử dụng IAppointmentItem
-  comparator: (a: any, b: any) => number;
-  filters: IAppointmentTableFilters; // Cập nhật để sử dụng IAppointmentTableFilters
-  dateError: boolean;
+  inputData: IAppointmentItem[] // Cập nhật để sử dụng IAppointmentItem
+  comparator: (a: any, b: any) => number
+  filters: IAppointmentTableFilters // Cập nhật để sử dụng IAppointmentTableFilters
+  dateError: boolean
 }) {
-  const { status, patient, startDate, endDate } = filters;
+  const { status, patient, startDate, endDate } = filters
 
-  const stabilizedThis = inputData.map((el: any, index: any) => [el, index] as const);
+  const stabilizedThis = inputData.map(
+    (el: any, index: any) => [el, index] as const
+  )
 
   stabilizedThis.sort((a: any, b: any) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
+    const order = comparator(a[0], b[0])
+    if (order !== 0) return order
+    return a[1] - b[1]
+  })
 
-  inputData = stabilizedThis.map((el: any) => el[0]);
+  inputData = stabilizedThis.map((el: any) => el[0])
 
   if (patient) {
     inputData = inputData.filter(
-      (appointment) =>
-        appointment.patient.fullName.toLowerCase().indexOf(patient.toLowerCase()) !== -1 ||
-        appointment.patient.email.toLowerCase().indexOf(patient.toLowerCase()) !== -1
-    );
+      appointment =>
+        appointment.patient.fullName
+          .toLowerCase()
+          .indexOf(patient.toLowerCase()) !== -1 ||
+        appointment.patient.email
+          .toLowerCase()
+          .indexOf(patient.toLowerCase()) !== -1
+    )
   }
 
   if (status !== 'all') {
-    inputData = inputData.filter((appointment) => appointment.status === status);
+    inputData = inputData.filter(appointment => appointment.status === status)
   }
 
   if (!dateError) {
     if (startDate && endDate) {
-      inputData = inputData.filter((appointment) =>
+      inputData = inputData.filter(appointment =>
         isBetween(appointment.createdAt, startDate, endDate)
-      );
+      )
     }
   }
 
-  return inputData;
+  return inputData
 }
