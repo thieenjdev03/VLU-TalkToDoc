@@ -1,7 +1,14 @@
 import { Icon } from '@iconify/react'
 import { useRef, useState, useEffect } from 'react'
 
-import { Box, Stack, Alert, Button, Typography } from '@mui/material'
+import {
+  Box,
+  Stack,
+  Alert,
+  Button,
+  Typography,
+  IconButton
+} from '@mui/material'
 
 interface CallComponentProps {
   stringeeAccessToken: string
@@ -26,10 +33,7 @@ export default function CallCenter({
   const [isVideoEnabled, setIsVideoEnabled] = useState(true)
   const [callStatus, setCallStatus] = useState('Chưa bắt đầu')
   const [isVideoCall, setIsVideoCall] = useState(true)
-  const [_openCall, _setOpenCall] = useState(false)
-  const [_isIncomingCall, _setIsIncomingCall] = useState(false)
-  const [_callerInfo, _setCallerInfo] = useState<any>(null)
-
+  const [toUserId, setToUserId] = useState('')
   console.log(isVideoCall)
   useEffect(() => {
     if (!stringeeAccessToken) return
@@ -51,6 +55,7 @@ export default function CallCenter({
       })
       client.on('incomingcall', (incomingCallObj: any) => {
         setIncomingCall(incomingCallObj)
+        settingCallEvent(incomingCallObj)
         // setCallStatus('Có cuộc gọi đến');
       })
     }
@@ -63,8 +68,11 @@ export default function CallCenter({
     }
     console.log('currentAppointment', currentAppointment)
     setIsVideoCall(video)
-    const callFromId = userInfor?.id
-    const callToId = currentAppointment?.doctor?.id
+    const callFromId = userInfor?._id
+    const callToId =
+      userInfor?._id === currentAppointment?.doctor?._id
+        ? currentAppointment?.patient?._id
+        : currentAppointment?.doctor?._id
 
     const call = new (window as any).StringeeCall(
       stringeeClientRef.current,
@@ -72,6 +80,8 @@ export default function CallCenter({
       callToId,
       video
     )
+    settingCallEvent(call)
+    // registerCallEvents(call)
 
     call.makeCall((res: any) => {
       if (res.r === 0) {
@@ -82,63 +92,6 @@ export default function CallCenter({
         setCallStatus(`Gọi thất bại: ${res.message}`)
       }
     })
-
-    call.on('addremotestream', (stream: any) => {
-      const remoteVideo = document.getElementById(
-        'remoteVideo'
-      ) as HTMLVideoElement
-      if (remoteVideo) {
-        remoteVideo.srcObject = stream
-        remoteVideo.onloadedmetadata = () => {
-          remoteVideo
-            .play()
-            .catch(err =>
-              console.error('Lỗi phát video từ xa (sau loadedmetadata):', err)
-            )
-        }
-      }
-    })
-
-    call.on('remotestreamremoved', () => {
-      const remoteVideo = document.getElementById(
-        'remoteVideo'
-      ) as HTMLVideoElement
-      if (remoteVideo) {
-        remoteVideo.srcObject = null
-        remoteVideo.pause()
-        remoteVideo.load()
-        remoteVideo
-          .play()
-          .catch(err => console.error('Lỗi phát video từ xa:', err))
-      }
-      const localVideo = document.getElementById(
-        'localVideo'
-      ) as HTMLVideoElement
-      if (localVideo) {
-        localVideo.srcObject = null
-        localVideo.pause()
-        localVideo.load()
-        localVideo
-          .play()
-          .catch(err => console.error('Lỗi phát video local:', err))
-      }
-    })
-
-    call.on('addlocalstream', (stream: any) => {
-      const localVideo = document.getElementById(
-        'localVideo'
-      ) as HTMLVideoElement
-      if (localVideo) {
-        localVideo.srcObject = stream
-        localVideo
-          .play()
-          .catch(err => console.error('Lỗi phát video local:', err))
-      }
-    })
-
-    call.on('signalingstate', (state: any) =>
-      setCallStatus(`Trạng thái: ${state.reason}`)
-    )
   }
 
   const endCall = () => {
@@ -150,44 +103,18 @@ export default function CallCenter({
     }
   }
 
-  const _answerIncomingCall = () => {
+  const answerIncomingCall = () => {
     if (!incomingCall) return
 
     activeCallRef.current = incomingCall
-
-    activeCallRef.current.on('addlocalstream', (stream: MediaStream) => {
-      const localVideo = document.getElementById(
-        'localVideo'
-      ) as HTMLVideoElement
-      if (localVideo) {
-        localVideo.srcObject = stream
-        localVideo.onloadedmetadata = () => {
-          localVideo
-            .play()
-            .catch(err =>
-              console.error('Lỗi phát video local (sau loadedmetadata):', err)
-            )
-        }
-      }
-    })
-
-    activeCallRef.current.on('addremotestream', (stream: MediaStream) => {
-      const remoteVideo = document.getElementById(
-        'remoteVideo'
-      ) as HTMLVideoElement
-      if (remoteVideo) {
-        remoteVideo.srcObject = stream
-        remoteVideo.play().catch(console.error)
-      }
-    })
-
-    activeCallRef.current.answer() // ✅ CHỈ gọi sau khi đăng ký xong event
+    settingCallEvent(incomingCall)
+    incomingCall.answer()
     setIncomingCall(null)
     setCalling(true)
     setCallStatus('Đã trả lời cuộc gọi')
   }
 
-  const _rejectIncomingCall = () => {
+  const rejectIncomingCall = () => {
     if (incomingCall) {
       incomingCall.reject()
       setIncomingCall(null)
@@ -222,6 +149,7 @@ export default function CallCenter({
         .join('')
         .toUpperCase()
     : 'BS'
+
   return (
     <Box display="flex flex-col gap-2">
       <Box
@@ -310,15 +238,21 @@ export default function CallCenter({
           </Stack>
         </Stack>
       </Box>
-      {/* <Box width="100%" display="flex" flexDirection="column" gap={2} alignItems="center">
-        <TextField
+      <Box
+        width="100%"
+        display="flex"
+        flexDirection="column"
+        gap={2}
+        alignItems="center"
+      >
+        {/* <TextField
           label="Call to"
           value={toUserId}
-          onChange={(e) => setToUserId(e.target.value)}
+          onChange={e => setToUserId(e.target.value)}
           sx={{
             mt: 2,
             width: { xs: '100%', sm: '300px' },
-            maxWidth: '300px',
+            maxWidth: '300px'
           }}
         />
 
@@ -328,13 +262,21 @@ export default function CallCenter({
           mt={2}
           width={{ xs: '100%', sm: 'auto' }}
         >
-          <Button variant="contained" onClick={() => makeCall(false)} disabled={!clientConnected}>
+          <Button
+            variant="contained"
+            onClick={() => makeCall(false)}
+            disabled={!clientConnected}
+          >
             Voice Call
           </Button>
-          <Button variant="contained" onClick={() => makeCall(true)} disabled={!clientConnected}>
+          <Button
+            variant="contained"
+            onClick={() => makeCall(true)}
+            disabled={!clientConnected}
+          >
             Video Call
           </Button>
-        </Stack>
+        </Stack> */}
 
         {incomingCall && (
           <Box
@@ -349,7 +291,7 @@ export default function CallCenter({
               alignItems: 'center',
               justifyContent: 'space-between',
               width: '50%',
-              boxShadow: 4,
+              boxShadow: 4
             }}
           >
             <Box>
@@ -369,7 +311,7 @@ export default function CallCenter({
                   '&:hover': { bgcolor: 'darkgreen' },
                   color: 'white',
                   width: 48,
-                  height: 48,
+                  height: 48
                 }}
               >
                 <Icon icon="mdi:phone" width={24} height={24} />
@@ -382,7 +324,7 @@ export default function CallCenter({
                   '&:hover': { bgcolor: 'darkred' },
                   color: 'white',
                   width: 48,
-                  height: 48,
+                  height: 48
                 }}
               >
                 <Icon icon="mdi:phone-hangup" width={24} height={24} />
@@ -394,7 +336,7 @@ export default function CallCenter({
                   '&:hover': { bgcolor: 'darkgray' },
                   color: 'white',
                   width: 48,
-                  height: 48,
+                  height: 48
                 }}
               >
                 <Icon icon="mdi:email-outline" width={24} height={24} />
@@ -402,7 +344,7 @@ export default function CallCenter({
             </Stack>
           </Box>
         )}
-      </Box> */}
+      </Box>
       <Box
         flex={1}
         display="flex"
@@ -442,26 +384,28 @@ export default function CallCenter({
             >
               <track kind="captions" src="" label="English" />
             </video>
-            <Box
-              sx={{
-                width: 100,
-                height: 100,
-                borderRadius: '50%',
-                backgroundColor: '#424141',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: 24,
-                fontWeight: 'bold',
-                color: 'white',
-                position: 'absolute',
-                right: '50%',
-                bottom: '50%',
-                transform: 'translateX(50%)'
-              }}
-            >
-              {initialDoctorName}
-            </Box>
+            {!isVideoCall && (
+              <Box
+                sx={{
+                  width: 100,
+                  height: 100,
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 24,
+                  fontWeight: 'bold',
+                  color: 'white',
+                  position: 'absolute',
+                  right: '50%',
+                  bottom: '50%',
+                  transform: 'translateX(50%)',
+                  backgroundColor: '#424141'
+                }}
+              >
+                {userInfor?.role === 'DOCTOR' ? 'BN' : 'BS'}
+              </Box>
+            )}
           </Box>
 
           {/* Local Video - Small preview at bottom right */}
@@ -509,36 +453,19 @@ export default function CallCenter({
               {(callStatus || !isVideoCall) && (
                 <Box
                   sx={{
+                    width: 100,
+                    height: 100,
+                    borderRadius: '50%',
                     backgroundColor: '#424141',
-                    fontWeight: 'bold',
-                    color: 'white',
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    zIndex: 2
+                    fontSize: 24,
+                    fontWeight: 'bold',
+                    color: 'white'
                   }}
                 >
-                  <Box
-                    sx={{
-                      width: 100,
-                      height: 100,
-                      borderRadius: '50%',
-                      backgroundColor: '#424141',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: 24,
-                      fontWeight: 'bold',
-                      color: 'white'
-                    }}
-                  >
-                    {initialPatientName}
-                  </Box>
+                  {userInfor?.role === 'DOCTOR' ? 'BS' : 'BN'}
                 </Box>
               )}
             </Box>
@@ -670,4 +597,72 @@ export default function CallCenter({
       </Box>
     </Box>
   )
+}
+function settingCallEvent(call: any) {
+  // Lấy element video từ DOM
+  const remoteVideo = document.getElementById(
+    'remoteVideo'
+  ) as HTMLVideoElement | null
+  const localVideo = document.getElementById(
+    'localVideo'
+  ) as HTMLVideoElement | null
+
+  // Sự kiện khi có stream remote
+  call.on('addremotestream', (stream: MediaStream) => {
+    console.log('addremotestream')
+    if (!remoteVideo) return
+    remoteVideo.srcObject = null
+    remoteVideo.srcObject = stream
+  })
+
+  // Sự kiện khi có stream local
+  call.on('addlocalstream', (stream: MediaStream) => {
+    console.log('addlocalstream')
+    if (!localVideo) return
+    localVideo.srcObject = null
+    localVideo.srcObject = stream
+  })
+
+  // Sự kiện lỗi
+  call.on('error', (info: any) => {
+    console.log(`on error: ${JSON.stringify(info)}`)
+  })
+
+  // Sự kiện trạng thái tín hiệu
+  call.on('signalingstate', (state: any) => {
+    console.log('signalingstate ', state)
+    if (state.reason && typeof state.reason === 'string') {
+      // Nếu có element callStatus thì cập nhật nội dung
+      const callStatusEl = document.getElementById('callStatus')
+      if (callStatusEl) callStatusEl.innerHTML = state.reason
+    }
+
+    if (state.code === 6) {
+      // call Ended
+      const incomingCallDiv = document.getElementById('incoming-call-div')
+      if (incomingCallDiv) incomingCallDiv.style.display = 'none'
+    } else if (state.code === 5) {
+      // busy
+    }
+  })
+
+  // Sự kiện trạng thái media
+  call.on('mediastate', (state: any) => {
+    console.log('mediastate ', state)
+  })
+  call.on('info', (info: any) => {
+    console.log(`on info:${JSON.stringify(info)}`)
+  })
+
+  call.on('otherdevice', (data: any) => {
+    console.log(`on otherdevice:${JSON.stringify(data)}`)
+    if (
+      (data.type === 'CALL_STATE' && data.code >= 200) ||
+      data.type === 'CALL_END'
+    ) {
+      const incomingCallDiv = document.getElementById('incoming-call-div')
+      if (incomingCallDiv) incomingCallDiv.style.display = 'none'
+      // Có thể gọi hàm xử lý kết thúc cuộc gọi ở đây nếu cần
+    }
+  })
 }
