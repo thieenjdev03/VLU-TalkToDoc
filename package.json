@@ -46,6 +46,7 @@
     "@supabase/supabase-js": "^2.39.0",
     "@types/papaparse": "^5.3.15",
     "@types/prop-types": "^15.7.14",
+    "@vercel/speed-insights": "^1.2.0",
     "ace-builds": "^1.39.1",
     "apexcharts": "^3.44.2",
     "autosuggest-highlight": "^3.3.4",
