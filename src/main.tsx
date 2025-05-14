@@ -1,13 +1,13 @@
-import { Suspense } from 'react';
-import ReactDOM from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
-import { HelmetProvider } from 'react-helmet-async';
+import { Suspense } from 'react'
+import ReactDOM from 'react-dom/client'
+import { BrowserRouter } from 'react-router-dom'
+import { HelmetProvider } from 'react-helmet-async'
 
-import App from './app';
+import App from './app'
 
 // ----------------------------------------------------------------------
 
-const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
+const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 
 root.render(
   <HelmetProvider>
@@ -17,4 +17,4 @@ root.render(
       </Suspense>
     </BrowserRouter>
   </HelmetProvider>
-);
+)

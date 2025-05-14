@@ -5,7 +5,6 @@ import 'src/global.css'
 import 'src/locales/i18n'
 
 // ----------------------------------------------------------------------
-import { SpeedInsights } from '@vercel/speed-insights/next'
 
 import Router from 'src/routes/sections'
 
@@ -59,7 +58,6 @@ export default function App() {
   }
   return (
     <AuthProvider>
-      <SpeedInsights />
       <LocalizationProvider>
         <SettingsProvider
           defaultSettings={{
