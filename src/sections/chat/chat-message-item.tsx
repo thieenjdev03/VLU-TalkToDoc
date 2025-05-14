@@ -1,14 +1,49 @@
-import { Box, Stack, Avatar, Typography } from '@mui/material';
+import { Box, Stack, Avatar, Typography } from '@mui/material'
 
-import { IChatMessage } from 'src/types/chat';
+import { IChatMessage } from 'src/types/chat'
 
 interface Props {
-  message: IChatMessage;
-  isCurrentUser: boolean;
-  userProfile: any;
+  message: IChatMessage & { imageUrls?: string[] }
+  isCurrentUser: boolean
+  userProfile: any
 }
 
-export default function ChatMessageItem({ message, isCurrentUser, userProfile }: Props) {
+// Hàm kiểm tra xem chuỗi có phải là URL hình ảnh không
+function isImageUrl(content: string) {
+  if (!content) return false
+  return /^https?:\/\/.*\.(jpg|jpeg|png|gif|webp)$/i.test(content)
+}
+
+// Hàm tách nội dung thành phần text và mảng image nếu có nhiều ảnh
+function splitContent(content: string) {
+  if (!content) return { text: content, images: [] }
+  // Tìm tất cả URL hình ảnh trong nội dung
+  const imageRegex = /(https?:\/\/[^\s]+?\.(jpg|jpeg|png|gif|webp))/gi
+  const images = content.match(imageRegex) || []
+  // Loại bỏ tất cả imageUrl khỏi text
+  let text = content
+  images.forEach(url => {
+    text = text.replace(url, '').trim()
+  })
+  return { text, images }
+}
+
+export default function ChatMessageItem({
+  message,
+  isCurrentUser,
+  userProfile
+}: Props) {
+  const userAvatar =
+    userProfile?.avatarUrl && typeof userProfile.avatarUrl === 'string'
+      ? userProfile.avatarUrl
+      : '/assets/images/avatar/avatar_default.jpg'
+
+  // Ưu tiên lấy imageUrls từ message nếu có
+  const imageUrls = Array.isArray(message.imageUrls) ? message.imageUrls : []
+  // Nếu không có imageUrls, tách ảnh từ content
+  const { text, images } = splitContent(message.content)
+  const allImages = imageUrls.length > 0 ? imageUrls : images
+
   return (
     <Stack
       direction="row"
@@ -19,7 +54,7 @@ export default function ChatMessageItem({ message, isCurrentUser, userProfile }:
     >
       {!isCurrentUser && (
         <Avatar
-          src="https://res.cloudinary.com/dut4zlbui/image/upload/v1741543982/favicon-doctor.png"
+          src="https://res.cloudinary.com/dut4zlbui/image/upload/v1747243574/talktodoc/owwf4irzl8hu1dm2e3ux.png"
           alt="TalkToDoc A.I"
           sx={{ width: 36, height: 36 }}
         />
@@ -27,7 +62,10 @@ export default function ChatMessageItem({ message, isCurrentUser, userProfile }:
 
       <Box maxWidth="70%">
         {!isCurrentUser && (
-          <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600, mb: 0.5 }}>
+          <Typography
+            variant="caption"
+            sx={{ color: 'text.secondary', fontWeight: 600, mb: 0.5 }}
+          >
             TalkToDoc A.I
           </Typography>
         )}
@@ -42,20 +80,43 @@ export default function ChatMessageItem({ message, isCurrentUser, userProfile }:
             wordBreak: 'break-word',
             fontSize: 14,
             fontWeight: 400,
-            boxShadow: 1,
+            boxShadow: 1
           }}
         >
-          {message.content}
+          {/* Hiển thị text nếu có */}
+          {text && <span>{text}</span>}
+          {/* Hiển thị tất cả hình ảnh nếu có */}
+          {allImages.length > 0 && (
+            <Box
+              mt={text ? 1 : 0}
+              sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}
+            >
+              {allImages.map(url => (
+                <img
+                  key={url}
+                  src={url}
+                  alt="chat-img"
+                  style={{ maxWidth: 120, borderRadius: 8, display: 'block' }}
+                  loading="lazy"
+                />
+              ))}
+            </Box>
+          )}
+          {/* Nếu không tách được thì fallback về kiểm tra là ảnh đơn lẻ */}
+          {!text && allImages.length === 0 && isImageUrl(message.content) && (
+            <img
+              src={message.content}
+              alt="chat-img"
+              style={{ maxWidth: '100%', borderRadius: 8, display: 'block' }}
+              loading="lazy"
+            />
+          )}
         </Box>
       </Box>
 
       {isCurrentUser && (
-        <Avatar
-          src={userProfile?.avatarUrl || '/assets/images/avatar/avatar_default.jpg'}
-          alt="You"
-          sx={{ width: 36, height: 36 }}
-        />
+        <Avatar src={userAvatar} alt="You" sx={{ width: 36, height: 36 }} />
       )}
     </Stack>
-  );
+  )
 }

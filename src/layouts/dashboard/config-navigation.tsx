@@ -229,13 +229,15 @@ export function useNavData() {
             ]
           },
           // // ORDER
-          // {
-          //   hidden: user?.role !== 'ADMIN',
-          //   title: t('Quản Lý Bệnh Án'),
-          //   path: paths.dashboard.order.root,
-          //   icon: ICONS.order,
-          //   children: [{ title: t('Danh Sách'), path: paths.dashboard.order.root }],
-          // },
+          {
+            hidden: user?.role !== 'ADMIN',
+            title: t('Quản Lý Bệnh Án'),
+            path: paths.dashboard.order.root,
+            icon: ICONS.order,
+            children: [
+              { title: t('Danh Sách'), path: paths.dashboard.order.root }
+            ]
+          },
 
           // // INVOICE
           {
@@ -335,14 +337,19 @@ export function useNavData() {
             children: [
               { title: t('Danh Sách'), path: paths.dashboard.appointment.list }
             ]
+          },
+          {
+            hidden: user?.role !== 'DOCTOR',
+            title: t('Quản lý bệnh án'),
+            path: paths.dashboard.medicalRecord.root,
+            icon: ICONS.medical,
+            children: [
+              {
+                title: t('Danh Sách'),
+                path: paths.dashboard.medicalRecord.list
+              }
+            ]
           }
-          // {
-          //   hidden: user?.role !== 'DOCTOR',
-          //   title: t('Quản lý bệnh án'),
-          //   path: paths.dashboard.medicalRecord.root,
-          //   icon: ICONS.medical,
-          //   children: [{ title: t('Danh Sách'), path: paths.dashboard.medicalRecord.list }],
-          // },
           // {
           //   hidden: user?.role !== 'DOCTOR',
           //   title: t('Quản lý toa thuốc'),
@@ -374,16 +381,25 @@ export function useNavData() {
           },
           {
             hidden: user?.role !== 'PATIENT',
-            title: t('Hồ sơ bệnh án'),
-            path: paths.dashboard.medicalRecord.root,
-            icon: ICONS.medical,
+            title: t('Quản Lý Bệnh Án'),
+            path: paths.dashboard.order.root,
+            icon: ICONS.order,
             children: [
-              {
-                title: t('Danh Sách'),
-                path: paths.dashboard.medicalRecord.list
-              }
+              { title: t('Danh Sách'), path: paths.dashboard.order.root }
             ]
           }
+          // {
+          //   hidden: user?.role !== 'PATIENT',
+          //   title: t('Hồ sơ bệnh án'),
+          //   path: paths.dashboard.medicalRecord.root,
+          //   icon: ICONS.medical,
+          //   children: [
+          //     {
+          //       title: t('Danh Sách'),
+          //       path: paths.dashboard.medicalRecord.list
+          //     }
+          //   ]
+          // }
           // {
           //   hidden: user?.role !== 'PATIENT',
           //   title: t('Quản lý tài khoản'),
