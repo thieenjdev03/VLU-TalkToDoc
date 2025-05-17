@@ -1,89 +1,94 @@
-import { useSnackbar } from 'notistack';
-import { useState, useEffect } from 'react';
+import { useSnackbar } from 'notistack'
+import { useState, useEffect } from 'react'
 
-import { Button, useTheme, TextField, useMediaQuery } from '@mui/material';
+import { Button, useTheme, TextField, useMediaQuery } from '@mui/material'
 
-import { createPaymentURL } from './api';
+import { createPaymentURL } from './api'
 
 export default function BookingPayment({
   setCurrentStep,
   specialty,
   formData,
-  handleSubmit,
+  handleSubmit
 }: {
-  setCurrentStep: any;
-  specialty: any;
-  formData: any;
-  handleSubmit: any;
+  setCurrentStep: any
+  specialty: any
+  formData: any
+  handleSubmit: any
 }) {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
-  const { enqueueSnackbar } = useSnackbar();
-  const data2 = localStorage.getItem('booking_form_data_2');
-  const data1 = localStorage.getItem('booking_form_data_1');
-  const parsedData2 = JSON.parse(data2 || '{}');
-  const parsedData1 = JSON.parse(data1 || '{}');
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+  const isTablet = useMediaQuery(theme.breakpoints.down('md'))
+  const { enqueueSnackbar } = useSnackbar()
+  const data2 = localStorage.getItem('booking_form_data_2')
+  const data1 = localStorage.getItem('booking_form_data_1')
+  const parsedData2 = JSON.parse(data2 || '{}')
+  const parsedData1 = JSON.parse(data1 || '{}')
 
   const booking = {
     ...parsedData2,
-    ...parsedData1,
-  };
+    ...parsedData1
+  }
 
-  const doctorFee = booking?.doctor?.rank?.base_price || 0;
-  const totalFee = doctorFee;
-  const [coupon, setCoupon] = useState<string>('');
-  const [discount, setDiscount] = useState<number>(0);
-  const [generalSettings, setGeneralSettings] = useState<any>(null);
+  const doctorFee = booking?.doctor?.rank?.base_price || 0
+  const totalFee = doctorFee
+  const [coupon, setCoupon] = useState<string>('')
+  const [discount, setDiscount] = useState<number>(0)
+  const [generalSettings, setGeneralSettings] = useState<any>(null)
   useEffect(() => {
-    setGeneralSettings(JSON.parse(localStorage.getItem('generalSettings') || '{}'));
-  }, []);
-  console.log(generalSettings);
+    setGeneralSettings(
+      JSON.parse(localStorage.getItem('generalSettings') || '{}')
+    )
+  }, [])
+  console.log(generalSettings)
   const handleApplyCoupon = () => {
-    const validCoupons = generalSettings?.general_setting?.COUPON_CODE;
+    const validCoupons = generalSettings?.general_setting?.COUPON_CODE
 
-    const matchedCoupon = validCoupons.find((item: any) => item.name === coupon);
+    const matchedCoupon = validCoupons.find((item: any) => item.name === coupon)
 
     if (matchedCoupon) {
       // Nếu là mã giảm giá đặc biệt (FREE), giảm toàn bộ tiền
       if (matchedCoupon.type === 'FREE') {
-        setDiscount(totalFee);
+        setDiscount(totalFee)
         enqueueSnackbar('Áp dụng mã giảm giá miễn phí thành công', {
-          variant: 'success',
-        });
+          variant: 'success'
+        })
       } else {
         // Giảm giá thông thường
-        setDiscount(matchedCoupon.value);
+        setDiscount(matchedCoupon.value)
         enqueueSnackbar('Áp dụng mã giảm giá thành công', {
-          variant: 'success',
-        });
+          variant: 'success'
+        })
       }
     } else {
-      setDiscount(0);
+      setDiscount(0)
       enqueueSnackbar('Mã giảm giá không hợp lệ', {
-        variant: 'error',
-      });
+        variant: 'error'
+      })
     }
-  };
-  const userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}');
-  const finalTotalFee = totalFee - discount;
+  }
+  const userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}')
+  const finalTotalFee = totalFee - discount
 
   const handleSubmitConfirm = async () => {
     const updatedFormData = {
       discount,
-      totalFee: finalTotalFee,
-    };
-    handleSubmit({
-      ...formData,
-      payment: updatedFormData,
-    });
+      totalFee: finalTotalFee
+    }
+    handleSubmit(
+      {
+        ...formData,
+        payment: updatedFormData
+      },
+      'confirm-payment-step'
+    )
     const paymentURL = await createPaymentURL({
-      userId: userProfile?._id,
-      amount: finalTotalFee,
-    });
-    localStorage.removeItem('booking_step');
-    window.location.href = paymentURL?.paymentUrl;
-  };
+      patient: formData?.patient,
+      amount: finalTotalFee
+    })
+    localStorage.removeItem('booking_step')
+    window.location.href = paymentURL?.paymentUrl
+  }
 
   return (
     <div className={`max-w-6xl mx-auto px-4 py-${isMobile ? '4' : '10'}`}>
@@ -103,7 +108,10 @@ export default function BookingPayment({
         <div className="flex flex-col gap-4">
           <div className="bg-amber border border-gray-200 rounded-lg p-4 space-y-4">
             <p className="text-sm text-gray-500">
-              Mã lịch hẹn: <strong className="text-gray-800">{formData.appointmentId}</strong>
+              Mã lịch hẹn:{' '}
+              <strong className="text-gray-800">
+                {formData.appointmentId}
+              </strong>
             </p>
 
             <div
@@ -124,7 +132,8 @@ export default function BookingPayment({
                   {booking.doctor?.fullName}
                 </p>
                 <p className="text-sm text-gray-500">
-                  {booking.doctor?.hospital.name} - {specialty?.name || 'Chuyên khoa chưa chọn'}
+                  {booking.doctor?.hospital.name} -{' '}
+                  {specialty?.name || 'Chuyên khoa chưa chọn'}
                 </p>
               </div>
             </div>
@@ -142,7 +151,9 @@ export default function BookingPayment({
             </div>
           </div>
           <div className="bg-amber border border-gray-200 rounded-lg p-4 space-y-4">
-            <h4 className={`text-${isMobile ? 'base' : 'lg'} font-semibold text-gray-800 mb-2`}>
+            <h4
+              className={`text-${isMobile ? 'base' : 'lg'} font-semibold text-gray-800 mb-2`}
+            >
               Chi phí thanh toán
             </h4>
             <div className="space-y-2 text-sm text-gray-700">
@@ -167,13 +178,17 @@ export default function BookingPayment({
                 >
                   <TextField
                     value={coupon}
-                    onChange={(e) => setCoupon(e.target.value)}
+                    onChange={e => setCoupon(e.target.value)}
                     placeholder="Nhập mã giảm giá"
                     variant="outlined"
                     size="small"
                     fullWidth={isMobile}
                   />
-                  <Button variant="contained" onClick={handleApplyCoupon} fullWidth={isMobile}>
+                  <Button
+                    variant="contained"
+                    onClick={handleApplyCoupon}
+                    fullWidth={isMobile}
+                  >
                     Áp dụng
                   </Button>
                 </div>
@@ -192,13 +207,17 @@ export default function BookingPayment({
           } border border-gray-200 rounded-lg bg-white shadow-sm`}
         >
           <div>
-            <div className={`mb-${isMobile ? '4' : '6'} flex flex-col items-start justify-start`}>
+            <div
+              className={`mb-${isMobile ? '4' : '6'} flex flex-col items-start justify-start`}
+            >
               <img
                 src="https://res.cloudinary.com/dut4zlbui/image/upload/v1746366836/geiw8b1qgv3w7sia9o4h.png"
                 alt="TalkToDoc Logo"
                 className={`h-${isMobile ? '16' : '20'} mx-auto mb-4`}
               />
-              <h3 className={`text-${isMobile ? 'lg' : 'xl'} font-semibold text-gray-800`}>
+              <h3
+                className={`text-${isMobile ? 'lg' : 'xl'} font-semibold text-gray-800`}
+              >
                 Xác nhận thanh toán
               </h3>
               <p className="text-sm text-gray-600">
@@ -216,8 +235,8 @@ export default function BookingPayment({
               variant="outlined"
               color="primary"
               onClick={() => {
-                localStorage.setItem('booking_step', 'select-time-booking');
-                setCurrentStep('select-time-booking', true);
+                localStorage.setItem('booking_step', 'select-time-booking')
+                setCurrentStep('select-time-booking', true)
               }}
               fullWidth={isMobile}
             >
@@ -235,5 +254,5 @@ export default function BookingPayment({
         </div>
       </div>
     </div>
-  );
+  )
 }

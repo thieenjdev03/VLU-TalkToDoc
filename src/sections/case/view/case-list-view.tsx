@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
@@ -48,18 +48,29 @@ import {
 import OrderTableRow from '../case-table-row'
 import OrderTableToolbar from '../case-table-toolbar'
 import OrderTableFiltersResult from '../case-table-filters-result'
+import { useGetCases } from 'src/api/case'
 
 // ----------------------------------------------------------------------
 
-const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...ORDER_STATUS_OPTIONS]
+const STATUS_OPTIONS = [
+  { value: 'all', label: 'Tất cả' },
+  { value: 'draft', label: 'Nháp' },
+  { value: 'pending', label: 'Chờ duyệt' },
+  { value: 'assigned', label: 'Đã nhận' },
+  { value: 'completed', label: 'Hoàn thành' }
+]
 
 const TABLE_HEAD = [
-  { id: 'orderNumber', label: 'Order', width: 116 },
-  { id: 'name', label: 'Customer' },
-  { id: 'createdAt', label: 'Date', width: 140 },
-  { id: 'totalQuantity', label: 'Items', width: 120, align: 'center' },
-  { id: 'totalAmount', label: 'Price', width: 140 },
-  { id: 'status', label: 'Status', width: 110 },
+  { id: 'caseId', label: 'Mã bệnh án', width: 140 },
+  { id: 'patientName', label: 'Bệnh nhân' },
+  { id: 'doctorName', label: 'Bác sĩ', width: 160 },
+  { id: 'gender', label: 'Giới tính', width: 90 },
+  { id: 'birthYear', label: 'Năm sinh', width: 100 },
+  { id: 'phone', label: 'SĐT', width: 130 },
+  { id: 'totalQuantity', label: 'Số thuốc', width: 100, align: 'center' },
+  { id: 'totalAmount', label: 'Tổng tiền', width: 140 },
+  { id: 'status', label: 'Trạng thái', width: 110 },
+  { id: 'createdAt', label: 'Ngày tạo', width: 140 },
   { id: '', width: 88 }
 ]
 
@@ -75,7 +86,7 @@ const defaultFilters: IOrderTableFilters = {
 export default function OrderListView() {
   const { enqueueSnackbar } = useSnackbar()
 
-  const table = useTable({ defaultOrderBy: 'orderNumber' })
+  const table = useTable({ defaultOrderBy: 'caseId' })
 
   const settings = useSettingsContext()
 
@@ -83,14 +94,42 @@ export default function OrderListView() {
 
   const confirm = useBoolean()
 
-  const [tableData, setTableData] = useState<IOrderItem[]>(_orders)
-
   const [filters, setFilters] = useState(defaultFilters)
 
   const dateError = isAfter(filters.startDate, filters.endDate)
 
+  const { cases, total, isLoading, error } = useGetCases({
+    q: filters.name,
+    status: filters.status === 'all' ? '' : filters.status,
+    page: table.page + 1,
+    limit: table.rowsPerPage
+  })
+
+  const mappedCases = useMemo(() => {
+    return (cases || []).map((item: any) => ({
+      id: item._id,
+      caseId: item._id,
+      patientName: item.patient?.fullName || '',
+      doctorName: item.appointmentId?.doctor?.fullName || '',
+      gender: item.patient?.gender || '',
+      birthYear: item.patient?.birthYear || '',
+      phone: item.patient?.phone || '',
+      totalQuantity: item.offers?.length
+        ? item.offers[item.offers.length - 1].medications?.length
+        : 0,
+      totalAmount: item.offers?.length
+        ? item.offers[item.offers.length - 1].medications?.reduce(
+            (sum: number, m: any) => sum + (m.price || 0),
+            0
+          )
+        : 0,
+      status: item.status,
+      createdAt: item.createdAt
+    }))
+  }, [cases])
+
   const dataFiltered = applyFilter({
-    inputData: tableData,
+    inputData: mappedCases,
     comparator: getComparator(table.order, table.orderBy),
     filters,
     dateError
@@ -127,35 +166,16 @@ export default function OrderListView() {
 
   const handleDeleteRow = useCallback(
     (id: string) => {
-      const deleteRow = tableData.filter(row => row.id !== id)
-
       enqueueSnackbar('Delete success!')
-
-      setTableData(deleteRow)
-
-      table.onUpdatePageDeleteRow(dataInPage.length)
+      // TODO: Gọi API xoá mềm nếu cần
     },
-    [dataInPage.length, enqueueSnackbar, table, tableData]
+    [enqueueSnackbar]
   )
 
   const handleDeleteRows = useCallback(() => {
-    const deleteRows = tableData.filter(row => !table.selected.includes(row.id))
-
     enqueueSnackbar('Delete success!')
-
-    setTableData(deleteRows)
-
-    table.onUpdatePageDeleteRows({
-      totalRowsInPage: dataInPage.length,
-      totalRowsFiltered: dataFiltered.length
-    })
-  }, [
-    dataFiltered.length,
-    dataInPage.length,
-    enqueueSnackbar,
-    table,
-    tableData
-  ])
+    // TODO: Gọi API xoá mềm nhiều nếu cần
+  }, [enqueueSnackbar])
 
   const handleViewRow = useCallback(
     (id: string) => {
@@ -171,25 +191,20 @@ export default function OrderListView() {
     [handleFilters]
   )
 
+  if (isLoading) return <div>Đang tải...</div>
+  if (error) return <div>Lỗi khi tải danh sách bệnh án</div>
+
   return (
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
         <CustomBreadcrumbs
-          heading="List"
+          heading="Danh sách bệnh án"
           links={[
-            {
-              name: 'Dashboard',
-              href: paths.dashboard.root
-            },
-            {
-              name: 'Order',
-              href: paths.dashboard.order.root
-            },
-            { name: 'List' }
+            { name: 'Dashboard', href: paths.dashboard.root },
+            { name: 'Bệnh án', href: paths.dashboard.order.root },
+            { name: 'Danh sách' }
           ]}
-          sx={{
-            mb: { xs: 3, md: 5 }
-          }}
+          sx={{ mb: { xs: 3, md: 5 } }}
         />
 
         <Card>
@@ -218,16 +233,16 @@ export default function OrderListView() {
                     color={
                       (tab.value === 'completed' && 'success') ||
                       (tab.value === 'pending' && 'warning') ||
-                      (tab.value === 'cancelled' && 'error') ||
+                      (tab.value === 'assigned' && 'info') ||
+                      (tab.value === 'draft' && 'default') ||
                       'default'
                     }
                   >
-                    {['completed', 'pending', 'cancelled', 'refunded'].includes(
-                      tab.value
-                    )
-                      ? tableData.filter(user => user.status === tab.value)
-                          .length
-                      : tableData.length}
+                    {tab.value === 'all'
+                      ? mappedCases.length
+                      : mappedCases.filter(
+                          (row: Record<string, any>) => row.status === tab.value
+                        ).length}
                   </Label>
                 }
               />
@@ -237,7 +252,6 @@ export default function OrderListView() {
           <OrderTableToolbar
             filters={filters}
             onFilters={handleFilters}
-            //
             dateError={dateError}
           />
 
@@ -245,10 +259,8 @@ export default function OrderListView() {
             <OrderTableFiltersResult
               filters={filters}
               onFilters={handleFilters}
-              //
               onResetFilters={handleResetFilters}
-              //
-              results={dataFiltered.length}
+              results={mappedCases.length}
               sx={{ p: 2.5, pt: 0 }}
             />
           )}
@@ -257,11 +269,11 @@ export default function OrderListView() {
             <TableSelectedAction
               dense={table.dense}
               numSelected={table.selected.length}
-              rowCount={dataFiltered.length}
+              rowCount={mappedCases.length}
               onSelectAllRows={checked =>
                 table.onSelectAllRows(
                   checked,
-                  dataFiltered.map(row => row.id)
+                  mappedCases.map((row: Record<string, any>) => row.id)
                 )
               }
               action={
@@ -282,24 +294,24 @@ export default function OrderListView() {
                   order={table.order}
                   orderBy={table.orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={dataFiltered.length}
+                  rowCount={mappedCases.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
                   onSelectAllRows={checked =>
                     table.onSelectAllRows(
                       checked,
-                      dataFiltered.map(row => row.id)
+                      mappedCases.map((row: Record<string, any>) => row.id)
                     )
                   }
                 />
 
                 <TableBody>
-                  {dataFiltered
+                  {mappedCases
                     .slice(
                       table.page * table.rowsPerPage,
                       table.page * table.rowsPerPage + table.rowsPerPage
                     )
-                    .map(row => (
+                    .map((row: Record<string, any>) => (
                       <OrderTableRow
                         key={row.id}
                         row={row}
@@ -315,7 +327,7 @@ export default function OrderListView() {
                     emptyRows={emptyRows(
                       table.page,
                       table.rowsPerPage,
-                      dataFiltered.length
+                      mappedCases.length
                     )}
                   />
 
@@ -326,12 +338,11 @@ export default function OrderListView() {
           </TableContainer>
 
           <TablePaginationCustom
-            count={dataFiltered.length}
+            count={total}
             page={table.page}
             rowsPerPage={table.rowsPerPage}
             onPageChange={table.onChangePage}
             onRowsPerPageChange={table.onChangeRowsPerPage}
-            //
             dense={table.dense}
             onChangeDense={table.onChangeDense}
           />
@@ -344,8 +355,8 @@ export default function OrderListView() {
         title="Delete"
         content={
           <>
-            Are you sure want to delete{' '}
-            <strong> {table.selected.length} </strong> items?
+            Bạn có chắc muốn xoá <strong> {table.selected.length} </strong> bệnh
+            án?
           </>
         }
         action={
@@ -357,7 +368,7 @@ export default function OrderListView() {
               confirm.onFalse()
             }}
           >
-            Delete
+            Xoá
           </Button>
         }
       />

@@ -1,11 +1,11 @@
-'use client';
+'use client'
 
-import { Icon } from '@iconify/react';
-import React, { useState } from 'react';
+import { Icon } from '@iconify/react'
+import React, { useState } from 'react'
 
-import { styled } from '@mui/material/styles';
-import CloseIcon from '@mui/icons-material/Close';
-import MinimizeIcon from '@mui/icons-material/Minimize';
+import { styled } from '@mui/material/styles'
+import CloseIcon from '@mui/icons-material/Close'
+import MinimizeIcon from '@mui/icons-material/Minimize'
 import {
   Box,
   Stack,
@@ -13,19 +13,19 @@ import {
   IconButton,
   Typography,
   DialogTitle,
-  DialogContent,
-} from '@mui/material';
+  DialogContent
+} from '@mui/material'
 
-import CallCenter from 'src/sections/call/view/call-center';
+import CallCenter from 'src/sections/call/view/call-center'
 
 interface CallCenterModalProps {
-  open: boolean;
-  onClose: () => void;
-  stringeeAccessToken: string;
-  fromUserId: string;
-  userInfor: any;
-  currentAppointment: any;
-  callStatus: string;
+  open: boolean
+  onClose: () => void
+  stringeeAccessToken: string
+  fromUserId: string
+  userInfor: any
+  currentAppointment: any
+  callStatus: string
 }
 
 const MinimizedDialog = styled(Dialog)(({ theme }) => ({
@@ -41,9 +41,9 @@ const MinimizedDialog = styled(Dialog)(({ theme }) => ({
     overflow: 'hidden',
     backgroundColor: '#212121',
     color: '#fff',
-    padding: theme.spacing(2),
-  },
-}));
+    padding: theme.spacing(2)
+  }
+}))
 
 export default function CallCenterModal({
   open,
@@ -52,21 +52,21 @@ export default function CallCenterModal({
   fromUserId,
   userInfor,
   currentAppointment,
-  callStatus,
+  callStatus
 }: CallCenterModalProps) {
-  const [isMinimized, setIsMinimized] = useState(false);
-  const userProfile = localStorage.getItem('userProfile');
-  const userProfileData = JSON.parse(userProfile || '{}');
+  const [isMinimized, setIsMinimized] = useState(false)
+  const userProfile = localStorage.getItem('userProfile')
+  const userProfileData = JSON.parse(userProfile || '{}')
 
   const handleMinimize = () => {
-    setIsMinimized(true);
-  };
+    setIsMinimized(true)
+  }
 
   const handleMaximize = () => {
-    setIsMinimized(false);
-  };
+    setIsMinimized(false)
+  }
 
-  if (!open) return null;
+  if (!open) return null
 
   if (isMinimized) {
     const initialPatientName = userInfor?.fullName
@@ -75,7 +75,7 @@ export default function CallCenterModal({
           .map((w: string) => w[0])
           .join('')
           .toUpperCase()
-      : 'KH';
+      : 'KH'
 
     const initialDoctorName = currentAppointment?.doctor?.fullName
       ? currentAppointment?.doctor?.fullName
@@ -83,10 +83,15 @@ export default function CallCenterModal({
           .map((w: string) => w[0])
           .join('')
           .toUpperCase()
-      : 'BS';
+      : 'BS'
     return (
       <MinimizedDialog open={open} onClose={onClose}>
-        <Stack spacing={1} alignItems="center" justifyContent="space-between" height="100%">
+        <Stack
+          spacing={1}
+          alignItems="center"
+          justifyContent="space-between"
+          height="100%"
+        >
           <Typography variant="body2" color="gray">
             Đang gọi...
           </Typography>
@@ -100,7 +105,7 @@ export default function CallCenterModal({
               alignItems: 'center',
               justifyContent: 'center',
               fontSize: 24,
-              fontWeight: 'bold',
+              fontWeight: 'bold'
             }}
           >
             {userProfileData?.role === 'PATIENT' && !callStatus
@@ -119,24 +124,37 @@ export default function CallCenterModal({
             <IconButton size="small" sx={{ color: '#fff' }}>
               <Icon icon="mdi:video" />
             </IconButton>
-            <IconButton size="small" sx={{ color: '#f44336' }} onClick={onClose}>
+            <IconButton
+              size="small"
+              sx={{ color: '#f44336' }}
+              onClick={onClose}
+            >
               <Icon icon="mdi:phone-hangup" />
             </IconButton>
-            <IconButton size="small" sx={{ color: '#fff' }} onClick={handleMaximize}>
+            <IconButton
+              size="small"
+              sx={{ color: '#fff' }}
+              onClick={handleMaximize}
+            >
               <Icon icon="mdi:arrow-expand" />
             </IconButton>
           </Box>
         </Stack>
       </MinimizedDialog>
-    );
+    )
   }
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="xl">
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="2xl">
       <DialogTitle
-        sx={{ m: 0, p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+        sx={{
+          m: 0,
+          p: 2,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}
       >
-        Gọi điện
         <Box>
           <IconButton
             aria-label="minimize"
@@ -144,7 +162,7 @@ export default function CallCenterModal({
             sx={{
               position: 'absolute',
               right: 48,
-              top: 8,
+              top: 8
             }}
           >
             <MinimizeIcon />
@@ -155,14 +173,14 @@ export default function CallCenterModal({
             sx={{
               position: 'absolute',
               right: 8,
-              top: 8,
+              top: 8
             }}
           >
             <CloseIcon />
           </IconButton>
         </Box>
       </DialogTitle>
-      <DialogContent dividers>
+      <DialogContent sx={{ bgcolor: '#f9fafb' }} dividers>
         <CallCenter
           currentAppointment={currentAppointment}
           stringeeAccessToken={stringeeAccessToken}
@@ -171,5 +189,5 @@ export default function CallCenterModal({
         />
       </DialogContent>
     </Dialog>
-  );
+  )
 }

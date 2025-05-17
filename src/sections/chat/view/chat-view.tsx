@@ -8,7 +8,6 @@ import Alert from '@mui/material/Alert'
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import Typography from '@mui/material/Typography'
-import CircularProgress from '@mui/material/CircularProgress'
 
 import { paths } from 'src/routes/paths'
 import { useRouter, useSearchParams } from 'src/routes/hooks'
@@ -17,10 +16,10 @@ import { createChat, useGetChat, sendMessageToAI } from 'src/api/chat'
 
 import { useSettingsContext } from 'src/components/settings'
 
-import ChatMessageList from '../chat-message-list'
 import ChatMessageInput from '../chat-message-input'
 import ChatHeaderDetail from '../chat-header-detail'
 import { useChatHistory } from '../hooks/use-chat-history'
+import ChatMessageList, { BotTypingIndicator } from '../chat-message-list'
 
 // ----------------------------------------------------------------------
 
@@ -231,14 +230,7 @@ function EmptyChatStart({
         }}
         disabled={isLoading}
       >
-        {isLoading ? (
-          <Stack direction="row" alignItems="center" spacing={1}>
-            <CircularProgress size={20} color="inherit" />
-            <span>Đang khởi tạo...</span>
-          </Stack>
-        ) : (
-          'Bắt đầu trò chuyện'
-        )}
+        Bắt đầu trò chuyện
       </Button>
     </Stack>
   )
@@ -256,7 +248,7 @@ export default function ChatView() {
   const searchParams = useSearchParams()
 
   const selectedConversationId = searchParams.get('id') || ''
-  const [isLoading, setIsLoading] = useState(false)
+  const [isBotTyping, setIsBotTyping] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [startingChat, setStartingChat] = useState(false)
 
@@ -280,6 +272,7 @@ export default function ChatView() {
       const newChat = await createChat(user?._id || '')
       // Gửi tin nhắn đầu tiên mặc định
       const firstMessage = 'Xin chào, tôi cần sự trợ giúp?'
+      setIsBotTyping(true)
       const response = await sendMessageToAI(
         newChat._id,
         firstMessage,
@@ -291,48 +284,83 @@ export default function ChatView() {
       setError('Không thể bắt đầu cuộc trò chuyện. Vui lòng thử lại.')
     } finally {
       setStartingChat(false)
+      setIsBotTyping(false)
     }
   }, [router, user, addMessages])
 
   const handleSendMessage = async (message: string, imageUrls?: string[]) => {
     try {
-      setIsLoading(true)
       setError(null)
 
       if (!selectedConversationId) {
         setStartingChat(true)
         try {
           const newChat = await createChat(user?._id || '')
+          setIsBotTyping(true)
+          addMessages([
+            {
+              _id: Date.now().toString(),
+              role: 'user',
+              content: message,
+              imageUrls: imageUrls || []
+            }
+          ])
           const response = await sendMessageToAI(
             newChat._id,
             message,
             user?.id || '',
             imageUrls
           )
-          addMessages(response.messages)
+          // Thêm tin nhắn assistant vào state
+          addMessages([
+            {
+              _id: Date.now().toString() + '_bot',
+              role: 'assistant',
+              content: response.reply,
+              imageUrls: []
+            }
+          ])
           router.push(`${paths.dashboard.chat}?id=${newChat._id}`)
         } catch (err) {
           setError('Không thể bắt đầu cuộc trò chuyện. Vui lòng thử lại.')
         } finally {
           setStartingChat(false)
-          setIsLoading(false)
+          setIsBotTyping(false)
         }
         return
       }
 
+      setIsBotTyping(true)
+      // Thêm tin nhắn user vào state ngay lập tức
+      addMessages([
+        {
+          _id: Date.now().toString(),
+          role: 'user',
+          content: message,
+          imageUrls: imageUrls || []
+        }
+      ])
+      // Gửi lên API, chỉ nhận reply
       const response = await sendMessageToAI(
         selectedConversationId,
         message,
         user?._id || '',
         imageUrls
       )
-
-      addMessages(response.messages)
+      // Thêm tin nhắn assistant vào state
+      addMessages([
+        {
+          _id: Date.now().toString() + '_bot',
+          role: 'assistant',
+          content: response.reply,
+          imageUrls: []
+        }
+      ])
     } catch (err) {
       console.error('Error sending message:', err)
       setError('Có lỗi xảy ra khi gửi tin nhắn. Vui lòng thử lại.')
     } finally {
-      setIsLoading(false)
+      setIsBotTyping(false)
     }
   }
 
@@ -369,17 +397,17 @@ export default function ChatView() {
         </Alert>
       )}
 
-      {isLoading && (
-        <Stack alignItems="center" sx={{ py: 2 }}>
-          <CircularProgress />
-        </Stack>
-      )}
-
       <ChatMessageList messages={messages} userProfile={user} />
+
+      {isBotTyping && (
+        <Box sx={{ px: 2, py: 1 }}>
+          <BotTypingIndicator />
+        </Box>
+      )}
 
       <ChatMessageInput
         onSendMessage={handleSendMessage}
-        disabled={isLoading}
+        disabled={startingChat}
       />
     </Stack>
   )
@@ -418,6 +446,7 @@ export default function ChatView() {
           ) : (
             renderMessages
           )}
+          {/* Bỏ loading overlay, chỉ giữ trạng thái khởi tạo chat */}
           {startingChat && (
             <Stack
               alignItems="center"
@@ -429,7 +458,6 @@ export default function ChatView() {
                 background: 'rgba(255,255,255,0.7)'
               }}
             >
-              <CircularProgress />
               <Typography variant="body2" color="text.secondary" mt={2}>
                 Đang khởi tạo cuộc trò chuyện...
               </Typography>

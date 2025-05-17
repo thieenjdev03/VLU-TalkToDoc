@@ -1,6 +1,15 @@
 import { Box, Stack, Avatar, Typography } from '@mui/material'
-
+import ReactMarkdown from 'react-markdown'
 import { IChatMessage } from 'src/types/chat'
+import { db } from 'src/firebase/firebase-config'
+import {
+  collection,
+  addDoc,
+  serverTimestamp,
+  query,
+  onSnapshot,
+  orderBy
+} from 'firebase/firestore'
 
 interface Props {
   message: IChatMessage & { imageUrls?: string[] }
@@ -83,8 +92,39 @@ export default function ChatMessageItem({
             boxShadow: 1
           }}
         >
-          {/* Hiển thị text nếu có */}
-          {text && <span>{text}</span>}
+          {text && (
+            <ReactMarkdown
+              children={text}
+              components={{
+                p: ({ children }) => (
+                  <Box component="p" sx={{ mb: 1 }}>
+                    {children}
+                  </Box>
+                ),
+                strong: ({ children }) => (
+                  <Box
+                    component="strong"
+                    sx={{ fontWeight: 600, display: 'inline' }}
+                  >
+                    {children}
+                  </Box>
+                ),
+                h3: ({ children }) => (
+                  <Typography
+                    variant="subtitle1"
+                    sx={{ fontWeight: 700, mt: 2, mb: 1 }}
+                  >
+                    {children}
+                  </Typography>
+                ),
+                li: ({ children }) => (
+                  <Box component="li" sx={{ ml: 2, mb: 0.5 }}>
+                    {children}
+                  </Box>
+                )
+              }}
+            />
+          )}
           {/* Hiển thị tất cả hình ảnh nếu có */}
           {allImages.length > 0 && (
             <Box

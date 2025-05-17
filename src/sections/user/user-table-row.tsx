@@ -1,43 +1,43 @@
-import moment from 'moment';
-import { useState } from 'react';
-import { enqueueSnackbar } from 'notistack';
+import moment from 'moment'
+import { useState } from 'react'
+import { enqueueSnackbar } from 'notistack'
 
-import Button from '@mui/material/Button';
-import Avatar from '@mui/material/Avatar';
-import Tooltip from '@mui/material/Tooltip';
-import MenuItem from '@mui/material/MenuItem';
-import TableRow from '@mui/material/TableRow';
-import Checkbox from '@mui/material/Checkbox';
-import TableCell from '@mui/material/TableCell';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import ListItemText from '@mui/material/ListItemText';
+import Button from '@mui/material/Button'
+import Avatar from '@mui/material/Avatar'
+import Tooltip from '@mui/material/Tooltip'
+import MenuItem from '@mui/material/MenuItem'
+import TableRow from '@mui/material/TableRow'
+import Checkbox from '@mui/material/Checkbox'
+import TableCell from '@mui/material/TableCell'
+import IconButton from '@mui/material/IconButton'
+import Typography from '@mui/material/Typography'
+import ListItemText from '@mui/material/ListItemText'
 
-import { useBoolean } from 'src/hooks/use-boolean';
+import { useBoolean } from 'src/hooks/use-boolean'
 
-import { formatCurrencyVND } from 'src/utils/formatCurrency';
+import { formatCurrencyVND } from 'src/utils/formatCurrency'
 
-import { useUpdateUser } from 'src/api/user';
+import { useUpdateUser } from 'src/api/user'
 
-import Label from 'src/components/label';
-import Iconify from 'src/components/iconify';
-import { ConfirmDialog } from 'src/components/custom-dialog';
-import CustomPopover, { usePopover } from 'src/components/custom-popover';
+import Label from 'src/components/label'
+import Iconify from 'src/components/iconify'
+import { ConfirmDialog } from 'src/components/custom-dialog'
+import CustomPopover, { usePopover } from 'src/components/custom-popover'
 
-import { IUserItem } from 'src/types/user';
+import { IUserItem } from 'src/types/user'
 
-import StatusOption from './StatusOption';
-import UserQuickEditForm from './user-quick-edit-form';
+import StatusOption from './StatusOption'
+import UserQuickEditForm from './user-quick-edit-form'
 // ----------------------------------------------------------------------
 type Props = {
-  selected: boolean;
-  row: IUserItem;
-  onSelectRow: VoidFunction;
-  onDeleteRow: VoidFunction;
-  typeUser: 'user' | 'doctor' | 'employee' | 'patient';
-  hospitalList: any;
-  ranking: any;
-};
+  selected: boolean
+  row: IUserItem
+  onSelectRow: VoidFunction
+  onDeleteRow: VoidFunction
+  typeUser: 'user' | 'doctor' | 'employee' | 'patient'
+  hospitalList: any
+  ranking: any
+}
 
 export default function UserTableRow({
   row,
@@ -46,7 +46,7 @@ export default function UserTableRow({
   onDeleteRow,
   typeUser,
   hospitalList,
-  ranking,
+  ranking
 }: Props) {
   const {
     fullName,
@@ -69,32 +69,34 @@ export default function UserTableRow({
     isActive,
     salary,
     registrationStatus,
-    _id,
-  } = row;
+    _id
+  } = row
 
-  const confirm = useBoolean();
-  const quickEdit = useBoolean();
-  const popover = usePopover();
+  const confirm = useBoolean()
+  const quickEdit = useBoolean()
+  const popover = usePopover()
   const hospitalOptions = hospitalList?.map((item: any) => ({
     value: item._id,
-    label: item.name,
-  }));
-  const { updateUser } = useUpdateUser({ typeUser });
-  const [currentValueStatus, setCurrentValueStatus] = useState(row.registrationStatus);
+    label: item.name
+  }))
+  const { updateUser } = useUpdateUser({ typeUser })
+  const [currentValueStatus, setCurrentValueStatus] = useState(
+    row.registrationStatus
+  )
   const handleChangeStatus = async (val: string) => {
     try {
       await updateUser({
         id: _id,
         data: {
-          registrationStatus: val,
-        },
-      });
-      setCurrentValueStatus(val as any);
-      enqueueSnackbar('Cập nhật trạng thái thành công', { variant: 'success' });
+          registrationStatus: val
+        }
+      })
+      setCurrentValueStatus(val as any)
+      enqueueSnackbar('Cập nhật trạng thái thành công', { variant: 'success' })
     } catch (error) {
-      enqueueSnackbar('Cập nhật trạng thái thất bại', { variant: 'error' });
+      enqueueSnackbar('Cập nhật trạng thái thất bại', { variant: 'error' })
     }
-  };
+  }
 
   const renderCells = () => {
     switch (typeUser) {
@@ -134,15 +136,18 @@ export default function UserTableRow({
             <TableCell>
               <StatusOption
                 value={currentValueStatus || registrationStatus}
-                onChange={async (val) => {
+                onChange={async val => {
                   if (val) {
-                    await handleChangeStatus(val);
+                    await handleChangeStatus(val)
                   }
                 }}
               />{' '}
             </TableCell>
+            <TableCell>
+              {moment(birthDate).format('DD/MM/YYYY HH:mm:ss') || '-'}
+            </TableCell>
           </>
-        );
+        )
 
       case 'employee':
         return (
@@ -161,7 +166,7 @@ export default function UserTableRow({
               <Checkbox checked={isActive} disabled />
             </TableCell>
           </>
-        );
+        )
 
       default: // patient
         return (
@@ -177,19 +182,19 @@ export default function UserTableRow({
               <Label
                 variant="soft"
                 color={(() => {
-                  if (gender === 'male') return 'info';
-                  if (gender === 'female') return 'error';
-                  return 'default';
+                  if (gender === 'male') return 'info'
+                  if (gender === 'female') return 'error'
+                  return 'default'
                 })()}
               >
                 {(() => {
                   switch (gender) {
                     case 'male':
-                      return 'Nam';
+                      return 'Nam'
                     case 'female':
-                      return 'Nữ';
+                      return 'Nữ'
                     default:
-                      return 'Khác';
+                      return 'Khác'
                   }
                 })()}
               </Label>
@@ -201,7 +206,9 @@ export default function UserTableRow({
               {medicalHistory?.length > 0 ? (
                 <Tooltip
                   title={medicalHistory
-                    .map((item: any) => `${item.condition} (${item.diagnosisDate})`)
+                    .map(
+                      (item: any) => `${item.condition} (${item.diagnosisDate})`
+                    )
                     .join(', ')}
                 >
                   <Typography
@@ -222,9 +229,9 @@ export default function UserTableRow({
               <Checkbox checked={isActive} disabled />
             </TableCell>
           </>
-        );
+        )
     }
-  };
+  }
 
   return (
     <>
@@ -236,12 +243,18 @@ export default function UserTableRow({
         {renderCells()}
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
           <Tooltip title="Sửa nhanh" placement="top" arrow>
-            <IconButton color={quickEdit.value ? 'inherit' : 'default'} onClick={quickEdit.onTrue}>
+            <IconButton
+              color={quickEdit.value ? 'inherit' : 'default'}
+              onClick={quickEdit.onTrue}
+            >
               <Iconify icon="solar:pen-bold" />
             </IconButton>
           </Tooltip>
 
-          <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
+          <IconButton
+            color={popover.open ? 'inherit' : 'default'}
+            onClick={popover.onOpen}
+          >
             <Iconify icon="eva:more-vertical-fill" />
           </IconButton>
         </TableCell>
@@ -264,8 +277,8 @@ export default function UserTableRow({
       >
         <MenuItem
           onClick={() => {
-            confirm.onTrue();
-            popover.onClose();
+            confirm.onTrue()
+            popover.onClose()
           }}
           sx={{ color: 'error.main' }}
         >
@@ -282,7 +295,7 @@ export default function UserTableRow({
             doctor: 'Bác Sĩ',
             employee: 'Nhân Viên',
             user: 'Người Dùng',
-            patient: 'Bệnh Nhân',
+            patient: 'Bệnh Nhân'
           }[typeUser]
         }`}
         content="Bạn có chắc chắn muốn xoá chứ?"
@@ -291,8 +304,8 @@ export default function UserTableRow({
             variant="contained"
             color="error"
             onClick={() => {
-              onDeleteRow(); // Changed from the incorrect syntax
-              confirm.onFalse(); // This will close the modal
+              onDeleteRow() // Changed from the incorrect syntax
+              confirm.onFalse() // This will close the modal
             }}
           >
             Xoá
@@ -300,5 +313,5 @@ export default function UserTableRow({
         }
       />
     </>
-  );
+  )
 }

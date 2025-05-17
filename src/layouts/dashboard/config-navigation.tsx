@@ -232,10 +232,10 @@ export function useNavData() {
           {
             hidden: user?.role !== 'ADMIN',
             title: t('Quản Lý Bệnh Án'),
-            path: paths.dashboard.order.root,
+            path: paths.dashboard.case.root,
             icon: ICONS.order,
             children: [
-              { title: t('Danh Sách'), path: paths.dashboard.order.root }
+              { title: t('Danh Sách'), path: paths.dashboard.case.list }
             ]
           },
 
@@ -382,10 +382,10 @@ export function useNavData() {
           {
             hidden: user?.role !== 'PATIENT',
             title: t('Quản Lý Bệnh Án'),
-            path: paths.dashboard.order.root,
+            path: paths.dashboard.case.root,
             icon: ICONS.order,
             children: [
-              { title: t('Danh Sách'), path: paths.dashboard.order.root }
+              { title: t('Danh Sách'), path: paths.dashboard.case.list }
             ]
           }
           // {

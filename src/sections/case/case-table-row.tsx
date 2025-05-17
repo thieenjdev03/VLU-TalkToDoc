@@ -1,52 +1,78 @@
-import Box from '@mui/material/Box';
-import Paper from '@mui/material/Paper';
-import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
-import Avatar from '@mui/material/Avatar';
-import Collapse from '@mui/material/Collapse';
-import MenuItem from '@mui/material/MenuItem';
-import TableRow from '@mui/material/TableRow';
-import Checkbox from '@mui/material/Checkbox';
-import TableCell from '@mui/material/TableCell';
-import IconButton from '@mui/material/IconButton';
-import ListItemText from '@mui/material/ListItemText';
+import Box from '@mui/material/Box'
+import Paper from '@mui/material/Paper'
+import Stack from '@mui/material/Stack'
+import Button from '@mui/material/Button'
+import Avatar from '@mui/material/Avatar'
+import Collapse from '@mui/material/Collapse'
+import MenuItem from '@mui/material/MenuItem'
+import TableRow from '@mui/material/TableRow'
+import Checkbox from '@mui/material/Checkbox'
+import TableCell from '@mui/material/TableCell'
+import IconButton from '@mui/material/IconButton'
+import ListItemText from '@mui/material/ListItemText'
 
-import { useBoolean } from 'src/hooks/use-boolean';
+import { useBoolean } from 'src/hooks/use-boolean'
 
-import { fCurrency } from 'src/utils/format-number';
-import { fDate, fTime } from 'src/utils/format-time';
+import { fDate } from 'src/utils/format-time'
+import { fCurrency } from 'src/utils/format-number'
 
-import Label from 'src/components/label';
-import Iconify from 'src/components/iconify';
-import { ConfirmDialog } from 'src/components/custom-dialog';
-import CustomPopover, { usePopover } from 'src/components/custom-popover';
+import Label from 'src/components/label'
+import Iconify from 'src/components/iconify'
+import { ConfirmDialog } from 'src/components/custom-dialog'
+import CustomPopover, { usePopover } from 'src/components/custom-popover'
 
-import { IOrderItem } from 'src/types/order';
-
-// ----------------------------------------------------------------------
+// Nếu chưa có type CaseItem chuẩn, tạm thời dùng any để tránh lỗi
+type CaseItemAny = any
 
 type Props = {
-  row: IOrderItem;
-  selected: boolean;
-  onViewRow: VoidFunction;
-  onSelectRow: VoidFunction;
-  onDeleteRow: VoidFunction;
-};
+  row: CaseItemAny
+  selected: boolean
+  onViewRow: VoidFunction
+  onSelectRow: VoidFunction
+  onDeleteRow: VoidFunction
+}
 
-export default function OrderTableRow({
+export default function CaseTableRow({
   row,
   selected,
   onViewRow,
   onSelectRow,
-  onDeleteRow,
+  onDeleteRow
 }: Props) {
-  const { items, status, orderNumber, createdAt, customer, totalQuantity, subTotal } = row;
+  // destructuring với fallback cho các trường có thể không tồn tại
+  const {
+    items = [],
+    status = '',
+    caseNumber = '',
+    createdAt = '',
+    patient = {},
+    doctor = {},
+    gender = '',
+    birthYear = '',
+    phone = '',
+    totalQuantity = 0,
+    totalAmount = 0
+  } = row || {}
 
-  const confirm = useBoolean();
+  const confirm = useBoolean()
+  const collapse = useBoolean()
+  const popover = usePopover()
 
-  const collapse = useBoolean();
+  function getStatusLabel(_status: string) {
+    if (_status === 'completed') return 'Hoàn thành'
+    if (_status === 'pending') return 'Chờ xử lý'
+    if (_status === 'cancelled') return 'Đã hủy'
+    if (_status === 'refunded') return 'Hoàn tiền'
+    return _status
+  }
 
-  const popover = usePopover();
+  function getStatusColor(_status: string) {
+    if (_status === 'completed') return 'success'
+    if (_status === 'pending') return 'warning'
+    if (_status === 'cancelled') return 'error'
+    if (_status === 'refunded') return 'info'
+    return 'default'
+  }
 
   const renderPrimary = (
     <TableRow hover selected={selected}>
@@ -60,57 +86,79 @@ export default function OrderTableRow({
           sx={{
             cursor: 'pointer',
             '&:hover': {
-              textDecoration: 'underline',
-            },
+              textDecoration: 'underline'
+            }
           }}
         >
-          {orderNumber}
+          {caseNumber}
         </Box>
       </TableCell>
 
       <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-        <Avatar alt={customer.name} src={customer.avatarUrl} sx={{ mr: 2 }} />
-
+        <Avatar
+          alt={patient?.name || ''}
+          src={patient?.avatarUrl || ''}
+          sx={{ mr: 2 }}
+        />
         <ListItemText
-          primary={customer.name}
-          secondary={customer.email}
+          primary={patient?.name || ''}
+          secondary={patient?.email || ''}
           primaryTypographyProps={{ typography: 'body2' }}
           secondaryTypographyProps={{
             component: 'span',
-            color: 'text.disabled',
+            color: 'text.disabled'
           }}
         />
+      </TableCell>
+
+      <TableCell>
+        <ListItemText
+          primary={doctor?.name || ''}
+          secondary={doctor?.specialty || ''}
+          primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+          secondaryTypographyProps={{
+            component: 'span',
+            color: 'text.disabled'
+          }}
+        />
+      </TableCell>
+
+      <TableCell>
+        <ListItemText
+          primary={gender || ''}
+          primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+        />
+      </TableCell>
+
+      <TableCell>
+        <ListItemText
+          primary={birthYear || ''}
+          primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+        />
+      </TableCell>
+
+      <TableCell>
+        <ListItemText
+          primary={phone || ''}
+          primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+        />
+      </TableCell>
+
+      <TableCell align="center">{totalQuantity}</TableCell>
+
+      <TableCell>{fCurrency(totalAmount)}</TableCell>
+
+      <TableCell>
+        <Label variant="soft" color={getStatusColor(status)}>
+          {getStatusLabel(status)}
+        </Label>
       </TableCell>
 
       <TableCell>
         <ListItemText
           primary={fDate(createdAt)}
-          secondary={fTime(createdAt)}
           primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          secondaryTypographyProps={{
-            mt: 0.5,
-            component: 'span',
-            typography: 'caption',
-          }}
         />
-      </TableCell>
-
-      <TableCell align="center"> {totalQuantity} </TableCell>
-
-      <TableCell> {fCurrency(subTotal)} </TableCell>
-
-      <TableCell>
-        <Label
-          variant="soft"
-          color={
-            (status === 'completed' && 'success') ||
-            (status === 'pending' && 'warning') ||
-            (status === 'cancelled' && 'error') ||
-            'default'
-          }
-        >
-          {status}
-        </Label>
       </TableCell>
 
       <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
@@ -119,23 +167,26 @@ export default function OrderTableRow({
           onClick={collapse.onToggle}
           sx={{
             ...(collapse.value && {
-              bgcolor: 'action.hover',
-            }),
+              bgcolor: 'action.hover'
+            })
           }}
         >
           <Iconify icon="eva:arrow-ios-downward-fill" />
         </IconButton>
 
-        <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
+        <IconButton
+          color={popover.open ? 'inherit' : 'default'}
+          onClick={popover.onOpen}
+        >
           <Iconify icon="eva:more-vertical-fill" />
         </IconButton>
       </TableCell>
     </TableRow>
-  );
+  )
 
   const renderSecondary = (
     <TableRow>
-      <TableCell sx={{ p: 0, border: 'none' }} colSpan={8}>
+      <TableCell sx={{ p: 0, border: 'none' }} colSpan={12}>
         <Collapse
           in={collapse.value}
           timeout="auto"
@@ -143,16 +194,17 @@ export default function OrderTableRow({
           sx={{ bgcolor: 'background.neutral' }}
         >
           <Stack component={Paper} sx={{ m: 1.5 }}>
-            {items.map((item) => (
+            {(items as any[]).map((item: any) => (
               <Stack
                 key={item.id}
                 direction="row"
                 alignItems="center"
                 sx={{
-                  p: (theme) => theme.spacing(1.5, 2, 1.5, 1.5),
+                  p: theme => theme.spacing(1.5, 2, 1.5, 1.5),
                   '&:not(:last-of-type)': {
-                    borderBottom: (theme) => `solid 2px ${theme.palette.background.neutral}`,
-                  },
+                    borderBottom: theme =>
+                      `solid 2px ${theme.palette.background.neutral}`
+                  }
                 }}
               >
                 <Avatar
@@ -165,25 +217,27 @@ export default function OrderTableRow({
                   primary={item.name}
                   secondary={item.sku}
                   primaryTypographyProps={{
-                    typography: 'body2',
+                    typography: 'body2'
                   }}
                   secondaryTypographyProps={{
                     component: 'span',
                     color: 'text.disabled',
-                    mt: 0.5,
+                    mt: 0.5
                   }}
                 />
 
                 <Box>x{item.quantity}</Box>
 
-                <Box sx={{ width: 110, textAlign: 'right' }}>{fCurrency(item.price)}</Box>
+                <Box sx={{ width: 110, textAlign: 'right' }}>
+                  {fCurrency(item.price)}
+                </Box>
               </Stack>
             ))}
           </Stack>
         </Collapse>
       </TableCell>
     </TableRow>
-  );
+  )
 
   return (
     <>
@@ -199,44 +253,44 @@ export default function OrderTableRow({
       >
         <MenuItem
           onClick={() => {
-            confirm.onTrue();
-            popover.onClose();
+            confirm.onTrue()
+            popover.onClose()
           }}
           sx={{ color: 'error.main' }}
         >
           <Iconify icon="solar:trash-bin-trash-bold" />
-          Delete
+          Xóa
         </MenuItem>
 
         <MenuItem
           onClick={() => {
-            onViewRow();
-            popover.onClose();
+            onViewRow()
+            popover.onClose()
           }}
         >
           <Iconify icon="solar:eye-bold" />
-          View
+          Xem chi tiết
         </MenuItem>
       </CustomPopover>
 
       <ConfirmDialog
         open={confirm.value}
         onClose={confirm.onFalse}
-        title="Delete"
-        content="Are you sure want to delete?"
+        title="Xóa bệnh án"
+        content="Bạn có chắc chắn muốn xóa bệnh án này không?"
         action={
           <Button
             variant="contained"
             color="error"
             onClick={() => {
-              onDeleteRow();
-              confirm.onFalse();
+              onDeleteRow()
+              confirm.onFalse()
             }}
           >
-            Delete
+            Xóa
           </Button>
         }
       />
     </>
-  );
+  )
 }

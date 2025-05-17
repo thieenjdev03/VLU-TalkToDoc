@@ -1,73 +1,57 @@
-// ----------------------------------------------------------------------
+export type CaseTableFilterValue = string | Date | null
 
-export type IOrderTableFilterValue = string | Date | null;
-
-export type IOrderTableFilters = {
-  name: string;
-  status: string;
-  startDate: Date | null;
-  endDate: Date | null;
-};
+export type CaseTableFilters = {
+  name: string
+  status: string
+  startDate: Date | null
+  endDate: Date | null
+}
 
 // ----------------------------------------------------------------------
 
-export type IOrderHistory = {
-  orderTime: Date;
-  paymentTime: Date;
-  deliveryTime: Date;
-  completionTime: Date;
+export type CaseHistory = {
+  createdTime: Date
+  updatedTime: Date
+  closedTime: Date
   timeline: {
-    title: string;
-    time: Date;
-  }[];
-};
+    title: string
+    time: Date
+  }[]
+}
 
-export type IOrderShippingAddress = {
-  fullAddress: string;
-  phoneNumber: string;
-};
+export type CaseContact = {
+  fullName: string
+  phoneNumber: string
+  email: string
+  address: string
+}
 
-export type IOrderPayment = {
-  cardType: string;
-  cardNumber: string;
-};
+export type CaseAssignee = {
+  id: string
+  name: string
+  email: string
+  avatarUrl: string
+  role: string
+}
 
-export type IOrderDelivery = {
-  shipBy: string;
-  speedy: string;
-  trackingNumber: string;
-};
+export type CaseNote = {
+  id: string
+  content: string
+  createdBy: string
+  createdAt: Date
+}
 
-export type IOrderCustomer = {
-  id: string;
-  name: string;
-  email: string;
-  avatarUrl: string;
-  ipAddress: string;
-};
-
-export type IOrderProductItem = {
-  id: string;
-  sku: string;
-  name: string;
-  price: number;
-  coverUrl: string;
-  quantity: number;
-};
-
-export type IOrderItem = {
-  id: string;
-  taxes: number;
-  status: string;
-  shipping: number;
-  discount: number;
-  subTotal: number;
-  orderNumber: string;
-  totalAmount: number;
-  totalQuantity: number;
-  history: IOrderHistory;
-  customer: IOrderCustomer;
-  delivery: IOrderDelivery;
-  items: IOrderProductItem[];
-  createdAt: Date;
-};
+export type CaseItem = {
+  id: string
+  caseNumber: string
+  status: string
+  priority: string
+  subject: string
+  description: string
+  contact: CaseContact
+  assignee: CaseAssignee
+  notes: CaseNote[]
+  history: CaseHistory
+  createdAt: Date
+  updatedAt: Date
+}

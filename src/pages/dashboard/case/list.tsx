@@ -1,17 +1,17 @@
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from 'react-helmet-async'
 
-import { OrderListView } from 'src/sections/order/view';
+import { CaseListView } from 'src/sections/case/view'
 
 // ----------------------------------------------------------------------
 
-export default function OrderListPage() {
+export default function CaseListPage() {
   return (
     <>
       <Helmet>
-        <title> Dashboard: Order List</title>
+        <title> Trang Quản Trị : danh sách bệnh án </title>
       </Helmet>
 
-      <OrderListView />
+      <CaseListView />
     </>
-  );
+  )
 }

@@ -21,6 +21,7 @@ export interface IChatMessage {
   createdAt: string
   senderId: string
   role: string
+  imageUrls: string[]
 }
 
 export interface IChatParticipant {

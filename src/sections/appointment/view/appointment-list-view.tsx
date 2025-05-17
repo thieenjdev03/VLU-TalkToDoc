@@ -21,7 +21,7 @@ import { useBoolean } from 'src/hooks/use-boolean'
 import { isAfter, isBetween } from 'src/utils/format-time'
 
 import { useGetUsers } from 'src/api/user'
-import { getAllAppointment } from 'src/api/appointment'
+import { getAppointments } from 'src/api/appointment'
 
 import Label from 'src/components/label'
 import Iconify from 'src/components/iconify'
@@ -42,7 +42,7 @@ import {
 } from 'src/components/table'
 
 import CallCenterModal from 'src/sections/call/view/call-center-modal'
-import IncomingCallPopup from 'src/sections/call/view/call-incomming-popup'
+import CallListener from 'src/sections/call/view/call-listener'
 
 import {
   IAppointmentItem,
@@ -137,7 +137,6 @@ export default function AppointmentListView() {
   )
   const dateError = isAfter(filters?.startDate, filters?.endDate)
   const userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}')
-  const [_showIncomingCallPopup, _setShowIncomingCallPopup] = useState(false)
   const dataFiltered = applyFilter({
     inputData: tableData,
     comparator: getComparator(table.order, table.orderBy),
@@ -170,7 +169,7 @@ export default function AppointmentListView() {
 
   useEffect(() => {
     const fetchAppointments = async () => {
-      const appointments = await getAllAppointment()
+      const appointments = await getAppointments()
       if (userProfile.role === 'PATIENT') {
         const patientAppointments = appointments.data.filter(
           (appointment: IAppointmentItem) =>
@@ -403,6 +402,7 @@ export default function AppointmentListView() {
           />
         </Card>
       </Container>
+      <CallListener />
       <CallCenterModal
         callStatus="Ended"
         open={openCall}
@@ -412,19 +412,6 @@ export default function AppointmentListView() {
         userInfor={userProfile}
         currentAppointment={currentAppointment}
       />
-      {/* Incoming Call Popup */}
-      {_showIncomingCallPopup && (
-        <Box sx={{ position: 'fixed', top: 100, right: 20, zIndex: 1000 }}>
-          <IncomingCallPopup
-            fullName="Nguyễn Văn A"
-            avatarUrl="https://example.com/avatar.jpg"
-            role={userProfile.role}
-            specialtyName="Nội tổng quát"
-            onAccept={() => console.log('Accepted')}
-            onReject={() => console.log('Rejected')}
-          />
-        </Box>
-      )}
       <ConfirmDialog
         open={confirm.value}
         onClose={confirm.onFalse}

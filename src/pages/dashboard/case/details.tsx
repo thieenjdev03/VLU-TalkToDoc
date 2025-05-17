@@ -1,23 +1,27 @@
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from 'react-helmet-async'
 
-import { useParams } from 'src/routes/hooks';
+import { useParams } from 'src/routes/hooks'
 
-import { OrderDetailsView } from 'src/sections/order/view';
+// import { CaseDetailsView } from 'src/sections/case/view'
 
 // ----------------------------------------------------------------------
 
-export default function OrderDetailsPage() {
-  const params = useParams();
+export default function CaseDetailsPage() {
+  const params = useParams()
 
-  const { id } = params;
+  const { id } = params
+
+  if (!id) {
+    return <div>Không tìm thấy ID</div>
+  }
 
   return (
     <>
       <Helmet>
-        <title> Dashboard: Order Details</title>
+        <title> Trang Quản Trị: Chi Tiết Bệnh Án</title>
       </Helmet>
 
-      <OrderDetailsView id={`${id}`} />
+      {/* <CaseDetailsView id={`${id}`} /> */}
     </>
-  );
+  )
 }

@@ -6,65 +6,109 @@ import Grid from '@mui/material/Unstable_Grid2'
 
 import { paths } from 'src/routes/paths'
 
-import { _orders, ORDER_STATUS_OPTIONS } from 'src/_mock'
+import {
+  _orders as _cases,
+  ORDER_STATUS_OPTIONS as CASE_STATUS_OPTIONS
+} from 'src/_mock'
 
 import { useSettingsContext } from 'src/components/settings'
 
-import OrderDetailsInfo from '../case-details-info'
-import OrderDetailsItems from '../case-details-item'
-import OrderDetailsToolbar from '../case-details-toolbar'
-import OrderDetailsHistory from '../case-details-history'
+import CaseDetailsInfo from '../case-details-info'
+import CaseDetailsItems from '../case-details-item'
+import CaseDetailsToolbar from '../case-details-toolbar'
+import CaseDetailsHistory from '../case-details-history'
+import CaseDetailsMedicalForms from '../case-details-medical-forms'
 
 // ----------------------------------------------------------------------
 
-type Props = {
-  id: string
+type MedicalFormData = {
+  patientName?: string
+  patientAge?: number
+  gender?: string
+  address?: string
+  phone?: string
+  symptoms?: string
+  diagnosis?: string
+  note?: string
+  doctorName?: string
+  [key: string]: any
 }
 
-export default function OrderDetailsView({ id }: Props) {
+type Props = {
+  taxes: number
+  id: string
+  shipping: number
+  discount: number
+  subTotal: number
+  totalAmount: number
+  items: any[]
+  medicalFormData?: MedicalFormData
+}
+
+export default function CaseDetailsView({
+  id,
+  taxes,
+  shipping,
+  discount,
+  subTotal,
+  totalAmount,
+  items,
+  medicalFormData
+}: Props) {
   const settings = useSettingsContext()
 
-  const currentOrder = _orders.filter(order => order.id === id)[0]
+  const currentCase = _cases.find(item => item.id === id)
 
-  const [status, setStatus] = useState(currentOrder.status)
+  const [status, setStatus] = useState(currentCase?.status || '')
 
   const handleChangeStatus = useCallback((newValue: string) => {
     setStatus(newValue)
   }, [])
 
+  if (!currentCase) return null
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
-      <OrderDetailsToolbar
-        backLink={paths.dashboard.order.root}
-        orderNumber={currentOrder.orderNumber}
-        createdAt={currentOrder.createdAt}
+      <CaseDetailsToolbar
+        backLink={paths.dashboard.case.root}
+        orderNumber={currentCase.orderNumber}
+        createdAt={currentCase.createdAt}
         status={status}
         onChangeStatus={handleChangeStatus}
-        statusOptions={ORDER_STATUS_OPTIONS}
+        statusOptions={CASE_STATUS_OPTIONS}
       />
 
       <Grid container spacing={3}>
         <Grid xs={12} md={8}>
           <Stack spacing={3} direction={{ xs: 'column-reverse', md: 'column' }}>
-            <OrderDetailsItems
-              items={currentOrder.items}
-              taxes={currentOrder.taxes}
-              shipping={currentOrder.shipping}
-              discount={currentOrder.discount}
-              subTotal={currentOrder.subTotal}
-              totalAmount={currentOrder.totalAmount}
+            <CaseDetailsItems
+              items={currentCase.items}
+              taxes={currentCase.taxes}
+              shipping={currentCase.shipping}
+              discount={currentCase.discount}
+              subTotal={currentCase.subTotal}
+              totalAmount={currentCase.totalAmount}
             />
-
-            <OrderDetailsHistory history={currentOrder.history} />
           </Stack>
         </Grid>
-
+        <Grid container spacing={3}>
+          <Grid xs={12} md={8}>
+            <Stack
+              spacing={3}
+              direction={{ xs: 'column-reverse', md: 'column' }}
+            >
+              <CaseDetailsMedicalForms
+                medicalFormData={medicalFormData || {}}
+              />
+              <CaseDetailsHistory history={currentCase.history} />
+            </Stack>
+          </Grid>
+        </Grid>
         <Grid xs={12} md={4}>
-          <OrderDetailsInfo
-            customer={currentOrder.customer}
-            delivery={currentOrder.delivery}
-            payment={currentOrder.payment}
-            shippingAddress={currentOrder.shippingAddress}
+          <CaseDetailsInfo
+            customer={currentCase.customer}
+            delivery={currentCase.delivery}
+            payment={currentCase.payment}
+            shippingAddress={currentCase.shippingAddress}
           />
         </Grid>
       </Grid>

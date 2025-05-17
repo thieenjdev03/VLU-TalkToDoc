@@ -1,6 +1,6 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react'
 
 import {
   Link,
@@ -9,58 +9,58 @@ import {
   Typography,
   DialogTitle,
   DialogContent,
-  DialogActions,
-} from '@mui/material';
+  DialogActions
+} from '@mui/material'
 
-import { RouterLink } from 'src/routes/components';
+import { RouterLink } from 'src/routes/components'
 
-import { useGetSpecialties } from 'src/api/specialty';
+import { useGetSpecialties } from 'src/api/specialty'
 
-import { ISpecialtyItem } from 'src/types/specialties';
+import { ISpecialtyItem } from 'src/types/specialties'
 
 export default function SelectSpecialty({
   onSelect,
   handleSelectCurrentStep,
   formData,
   setCurrentStep,
-  handleSubmit,
+  handleSubmit
 }: {
-  onSelect: (key: ISpecialtyItem) => void;
-  handleSelectCurrentStep: (step: string) => void;
-  formData: any;
-  setCurrentStep: (step: string) => void;
-  handleSubmit: (data: any) => void;
+  onSelect: (key: ISpecialtyItem) => void
+  handleSelectCurrentStep: (step: string) => void
+  formData: any
+  setCurrentStep: (step: string) => void
+  handleSubmit: (data: any, step: string) => void
 }) {
-  const [selected, setSelected] = useState<ISpecialtyItem | null>(null);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [preview, setPreview] = useState<ISpecialtyItem | null>(null);
-  const [specialtyList, setSpecialtyList] = useState<ISpecialtyItem[]>([]);
+  const [selected, setSelected] = useState<ISpecialtyItem | null>(null)
+  const [modalOpen, setModalOpen] = useState(false)
+  const [preview, setPreview] = useState<ISpecialtyItem | null>(null)
+  const [specialtyList, setSpecialtyList] = useState<ISpecialtyItem[]>([])
   const { specialties } = useGetSpecialties({
     query: '',
     page: 1,
     limit: 99,
     sortField: 'createdAt',
-    sortOrder: 'desc',
-  });
-  const userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+    sortOrder: 'desc'
+  })
+  const userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}')
   useEffect(() => {
     if (specialties) {
-      setSpecialtyList(specialties?.data || []);
+      setSpecialtyList(specialties?.data || [])
     }
-  }, [specialties]);
+  }, [specialties])
 
   const handlePreview = (item: ISpecialtyItem) => {
-    setPreview(item);
-    setModalOpen(true);
-  };
+    setPreview(item)
+    setModalOpen(true)
+  }
 
   const handleConfirm = () => {
     if (preview) {
-      setSelected(preview);
-      setModalOpen(false);
-      formData.specialty_id = preview.id;
+      setSelected(preview)
+      setModalOpen(false)
+      formData.specialty_id = preview.id
     }
-  };
+  }
 
   return (
     <div className="w-fit min-h-screen mx-auto flex flex-col items-center px-4">
@@ -69,12 +69,12 @@ export default function SelectSpecialty({
       </h2>
 
       <div className="grid grid-cols-2 sm:grid-cols-5 md:grid-cols-5 gap-4 max-w-4xl">
-        {specialtyList.map((s) => (
+        {specialtyList.map(s => (
           <button
             type="button"
             key={s.id}
             onClick={() => {
-              handlePreview(s);
+              handlePreview(s)
             }}
             className={`w-36 h-36 md:w-40 md:h-40 bg-white rounded-xl border transition duration-150 flex flex-col items-center justify-center px-4 text-[black]
               ${
@@ -94,7 +94,7 @@ export default function SelectSpecialty({
                 style={{
                   objectFit: 'cover',
                   height: '40px',
-                  width: '40px',
+                  width: '40px'
                 }}
               />
               <span className="text-sm font-medium text-center">{s.name}</span>
@@ -108,7 +108,12 @@ export default function SelectSpecialty({
         <Link
           component={RouterLink}
           href="/dashboard"
-          sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0' }}
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            margin: '0'
+          }}
         >
           <Button size="large" variant="outlined" color="primary">
             Trở Về
@@ -117,13 +122,17 @@ export default function SelectSpecialty({
         <Button
           disabled={!selected}
           onClick={() => {
-            setCurrentStep('medical-form');
+            setCurrentStep('medical-form')
             if (selected) {
-              onSelect(selected);
-              handleSubmit({
-                specialtyObject: selected,
-                patientObject: userProfile,
-              });
+              onSelect(selected)
+              handleSubmit(
+                {
+                  case_id: formData.case_id,
+                  specialtyObject: selected,
+                  patientObject: userProfile
+                },
+                'select-specialty'
+              )
             }
           }}
           size="large"
@@ -134,7 +143,12 @@ export default function SelectSpecialty({
         </Button>
       </div>
 
-      <Dialog open={modalOpen} onClose={() => setModalOpen(false)} maxWidth="sm" fullWidth>
+      <Dialog
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
         <DialogTitle>{preview?.name || 'Chuyên khoa'}</DialogTitle>
         <DialogContent dividers>
           <Typography variant="body1">
@@ -149,5 +163,5 @@ export default function SelectSpecialty({
         </DialogActions>
       </Dialog>
     </div>
-  );
+  )
 }

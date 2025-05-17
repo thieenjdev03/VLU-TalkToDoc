@@ -1,23 +1,24 @@
-'use client';
+'use client'
 
-import dayjs from 'dayjs';
-import { useState, useEffect } from 'react';
-import Select, { components as selectComponents } from 'react-select';
+import dayjs from 'dayjs'
+import { useState, useEffect, useRef } from 'react'
+import Select, { components as selectComponents } from 'react-select'
 
-import { Avatar, Button, Typography } from '@mui/material';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { DateCalendar, LocalizationProvider } from '@mui/x-date-pickers';
+import { Avatar, Button, Typography } from '@mui/material'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import { DateCalendar, LocalizationProvider } from '@mui/x-date-pickers'
 
-import { IUserItem } from 'src/types/user';
+import { IUserItem } from 'src/types/user'
 
-import DoctorModal from '../user/detail-doctor';
+import DoctorModal from '../user/detail-doctor'
+import { createAppointment } from 'src/api/appointment'
 
 type Props = {
-  doctors: IUserItem[];
-  setCurrentStep: (step: string, back?: boolean) => void;
-  formData: any;
-  handleSubmit: (data: any) => void;
-};
+  doctors: IUserItem[]
+  setCurrentStep: (step: string, back?: boolean) => void
+  formData: any
+  handleSubmit: (data: any, step: string) => void
+}
 
 const workingHoursByDay: Record<number, { start: string; end: string }> = {
   1: { start: '08:00', end: '17:00' },
@@ -26,29 +27,33 @@ const workingHoursByDay: Record<number, { start: string; end: string }> = {
   4: { start: '08:00', end: '17:00' },
   5: { start: '08:00', end: '17:00' },
   6: { start: '09:00', end: '17:00' },
-  0: { start: '00:00', end: '00:00' },
-};
+  0: { start: '00:00', end: '00:00' }
+}
 
 const generateTimeSlots = (start: string, end: string, step = 30): string[] => {
-  const slots: string[] = [];
-  let current = dayjs(`2025-04-08T${start}`);
-  const endTime = dayjs(`2025-04-08T${end}`);
+  const slots: string[] = []
+  let current = dayjs(`2025-04-08T${start}`)
+  const endTime = dayjs(`2025-04-08T${end}`)
 
-  const excludeBreakTime = ['12:00', '12:30', '13:00', '13:30'];
+  const excludeBreakTime = ['12:00', '12:30', '13:00', '13:30']
   while (current.isBefore(endTime)) {
     if (!excludeBreakTime.includes(current.format('HH:mm'))) {
-      slots.push(current.format('HH:mm'));
+      slots.push(current.format('HH:mm'))
     }
-    current = current.add(step, 'minute');
+    current = current.add(step, 'minute')
   }
 
-  return slots;
-};
+  return slots
+}
 
 const CustomOption = (props: any) => {
-  const { data, innerRef, innerProps } = props;
+  const { data, innerRef, innerProps } = props
   return (
-    <div ref={innerRef} {...innerProps} className="p-2 hover:bg-gray-100 flex items-center gap-3">
+    <div
+      ref={innerRef}
+      {...innerProps}
+      className="p-2 hover:bg-gray-100 flex items-center gap-3"
+    >
       <Avatar src={data.avatarUrl} sx={{ width: 36, height: 36 }} />
       <div className="flex flex-col">
         <Typography variant="body1" fontWeight="bold">
@@ -62,11 +67,11 @@ const CustomOption = (props: any) => {
         </Typography>
       </div>
     </div>
-  );
-};
+  )
+}
 
 const CustomSingleValue = (props: any) => {
-  const { data } = props;
+  const { data } = props
   return (
     <selectComponents.SingleValue {...props}>
       <div className="flex items-center gap-4 p-2 shadow-sm">
@@ -84,59 +89,89 @@ const CustomSingleValue = (props: any) => {
         </div>
       </div>
     </selectComponents.SingleValue>
-  );
-};
+  )
+}
 
 export default function BookingSelectTime({
   doctors,
   setCurrentStep,
   formData,
-  handleSubmit,
+  handleSubmit
 }: Props) {
-  const [selectedDoctor, setSelectedDoctor] = useState<IUserItem | null>(doctors[0] || null);
-  const [selectedDate, setSelectedDate] = useState<dayjs.Dayjs | null>(dayjs());
-  const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
-  const [openModal, setOpenModal] = useState<boolean>(false);
-  const selectedDayOfWeek = selectedDate?.day() ?? 0;
-  const workingHours = workingHoursByDay[selectedDayOfWeek];
+  const [selectedDoctor, setSelectedDoctor] = useState<IUserItem | null>(
+    doctors[0] || null
+  )
+  console.log('formData', formData)
+  const [selectedDate, setSelectedDate] = useState<dayjs.Dayjs | null>(dayjs())
+  const [selectedSlot, setSelectedSlot] = useState<string | null>(null)
+  const [openModal, setOpenModal] = useState<boolean>(false)
+  const selectedDayOfWeek = selectedDate?.day() ?? 0
+  const workingHours = workingHoursByDay[selectedDayOfWeek]
   const availableSlots = workingHours
     ? generateTimeSlots(workingHours.start, workingHours.end)
-    : [];
-
+    : []
   const filteredDoctors = formData?.specialty?.id
-    ? doctors.filter((doc) => doc.specialty?.some((s) => s.id === formData.specialty.id))
-    : doctors;
+    ? doctors.filter(doc =>
+        doc.specialty?.some(s => s.id === formData.specialty.id)
+      )
+    : doctors
 
-  const doctorOptions = filteredDoctors.map((doc) => ({
+  const doctorOptions = filteredDoctors.map(doc => ({
     value: doc.id,
     label: doc.fullName,
     avatarUrl: doc.avatarUrl,
     hospital: doc.hospital?.name,
-    base_price: doc.rank?.base_price,
-  }));
+    base_price: doc.rank?.base_price
+  }))
 
   useEffect(() => {
     const rawJson = {
       doctor: selectedDoctor,
       date: selectedDate?.format('YYYY-MM-DD'),
-      slot: selectedSlot,
-    };
-    localStorage.setItem('booking_form_data_2', JSON.stringify(rawJson));
-  }, [selectedDoctor, selectedDate, selectedSlot]);
+      slot: selectedSlot
+    }
+    localStorage.setItem('booking_form_data_2', JSON.stringify(rawJson))
+  }, [selectedDoctor, selectedDate, selectedSlot])
 
   useEffect(() => {
     if (filteredDoctors.length) {
-      setSelectedDoctor(filteredDoctors[0]);
+      setSelectedDoctor(filteredDoctors[0])
     }
-  }, [filteredDoctors]);
+  }, [filteredDoctors])
+  const handleCreateAppointment = async () => {
+    const res = await createAppointment({
+      case_id: formData?._id,
+      doctor: selectedDoctor?._id,
+      date: selectedDate?.format('YYYY-MM-DD'),
+      slot: selectedSlot,
+      timezone: 'Asia/Ho_Chi_Minh',
+      specialty: formData?.specialty
+    })
+    return res?._id
+  }
 
+  const handleSubmitWithAppointment = async () => {
+    localStorage.setItem('booking_step', 'confirm-payment-step')
+    setCurrentStep('confirm-payment-step', false)
+    const appointmentId = await handleCreateAppointment()
+    handleSubmit(
+      {
+        ...formData,
+        appointment: appointmentId
+      },
+      'select-time-booking'
+    )
+  }
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <div className="bg-white p-6 rounded-xl shadow max-w-screen-lg mx-auto space-y-8">
         {formData && (
           <Typography variant="h6" gutterBottom>
             Chuyên khoa đã chọn:
-            <span className="font-normal"> {formData?.specialtyObject?.name}</span>
+            <span className="font-normal">
+              {' '}
+              {formData?.specialtyObject?.name}
+            </span>
           </Typography>
         )}
         <div>
@@ -146,21 +181,24 @@ export default function BookingSelectTime({
           <Select
             className="w-full"
             options={doctorOptions}
-            value={doctorOptions.find((opt) => opt.value === selectedDoctor?.id)}
-            onChange={(option) => {
-              const doc = doctors.find((d) => d.id === option?.value);
-              if (doc) setSelectedDoctor(doc);
+            value={doctorOptions.find(opt => opt.value === selectedDoctor?.id)}
+            onChange={option => {
+              const doc = doctors.find(d => d.id === option?.value)
+              if (doc) setSelectedDoctor(doc)
             }}
-            components={{ Option: CustomOption, SingleValue: CustomSingleValue }}
+            components={{
+              Option: CustomOption,
+              SingleValue: CustomSingleValue
+            }}
             styles={{
-              control: (base) => ({
+              control: base => ({
                 ...base,
                 borderRadius: '8px',
                 padding: '4px',
                 borderColor: '#ccc',
                 boxShadow: 'none',
-                ':hover': { borderColor: '#888' },
-              }),
+                ':hover': { borderColor: '#888' }
+              })
             }}
             placeholder="Chọn bác sĩ..."
           />
@@ -173,9 +211,9 @@ export default function BookingSelectTime({
             </Typography>
             <DateCalendar
               value={selectedDate}
-              onChange={(newDate) => {
-                setSelectedDate(newDate);
-                setSelectedSlot(null);
+              onChange={newDate => {
+                setSelectedDate(newDate)
+                setSelectedSlot(null)
               }}
               disablePast
               className="w-full max-w-md border border-gray-300 rounded-md"
@@ -189,7 +227,7 @@ export default function BookingSelectTime({
               </Typography>
               {availableSlots.length > 0 ? (
                 <div className="grid grid-cols-3 gap-2 w-full">
-                  {availableSlots.map((slot) => (
+                  {availableSlots.map(slot => (
                     <button
                       type="button"
                       key={slot}
@@ -205,7 +243,11 @@ export default function BookingSelectTime({
                   ))}
                 </div>
               ) : (
-                <Typography variant="body2" color="text.secondary" className="mt-2">
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  className="mt-2"
+                >
                   Không có khung giờ khả dụng cho ngày này.
                 </Typography>
               )}
@@ -214,8 +256,8 @@ export default function BookingSelectTime({
               <Button
                 variant="outlined"
                 onClick={() => {
-                  localStorage.setItem('booking_step', 'medical-form');
-                  setCurrentStep('medical-form', true);
+                  localStorage.setItem('booking_step', 'medical-form')
+                  setCurrentStep('medical-form', true)
                   // handleSubmit({
                   //   ...formData,
                   //   medicalForm: {
@@ -231,15 +273,7 @@ export default function BookingSelectTime({
               <Button
                 variant="contained"
                 onClick={() => {
-                  localStorage.setItem('booking_step', 'confirm-payment-step');
-                  setCurrentStep('confirm-payment-step', false);
-                  handleSubmit({
-                    doctorObject: selectedDoctor,
-                    appointment: {
-                      date: selectedDate?.format('YYYY-MM-DD'),
-                      slot: selectedSlot,
-                    },
-                  });
+                  handleSubmitWithAppointment()
                 }}
                 disabled={!selectedSlot || !selectedDate}
                 color="primary"
@@ -262,5 +296,5 @@ export default function BookingSelectTime({
         )}
       </div>
     </LocalizationProvider>
-  );
+  )
 }

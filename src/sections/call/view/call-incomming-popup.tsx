@@ -1,19 +1,20 @@
 // components/IncomingCallPopup.tsx
 
-import React from 'react';
-import { Icon } from '@iconify/react';
-import Draggable from 'react-draggable';
+import React from 'react'
+import { Icon } from '@iconify/react'
+import Draggable from 'react-draggable'
 
-import { styled } from '@mui/material/styles';
-import { Box, Stack, Paper, Button, Avatar, Typography } from '@mui/material';
+import { styled } from '@mui/material/styles'
+import { Box, Stack, Paper, Button, Avatar, Typography } from '@mui/material'
 
 interface IncomingCallPopupProps {
-  fullName: string;
-  avatarUrl?: string;
-  role: 'doctor' | 'patient';
-  specialtyName?: string;
-  onAccept: () => void;
-  onReject: () => void;
+  isOpen: boolean
+  fullName: string
+  avatarUrl?: string
+  role: 'doctor' | 'patient'
+  specialtyName?: string
+  onAccept: () => void
+  onReject: () => void
 }
 
 // Sử dụng màu xanh dương và xanh lá y tế, nền sáng hơn, chữ tối hơn
@@ -30,24 +31,25 @@ const PopupContainer = styled(Paper)(({ theme }) => ({
   left: 0,
   top: 0,
   zIndex: 1300,
-  cursor: 'grab',
-}));
+  cursor: 'grab'
+}))
 
 export default function IncomingCallPopup({
+  isOpen,
   fullName,
   avatarUrl,
   role,
   specialtyName,
   onAccept,
-  onReject,
+  onReject
 }: IncomingCallPopupProps) {
-  const roleLabel = role === 'doctor' ? 'Bác sĩ' : 'Bệnh nhân';
+  const roleLabel = role === 'doctor' ? 'Bác sĩ' : 'Bệnh nhân'
 
   // Đặt vị trí mặc định ở giữa màn hình
   const defaultPosition = {
     x: window.innerWidth / 2 - 160,
-    y: window.innerHeight * 0.2,
-  };
+    y: window.innerHeight * 0.2
+  }
 
   return (
     <Draggable
@@ -56,14 +58,14 @@ export default function IncomingCallPopup({
         left: 0,
         top: 0,
         right: window.innerWidth - 320,
-        bottom: window.innerHeight - 200,
+        bottom: window.innerHeight - 200
       }}
       handle=".incoming-call-popup-drag-handle"
     >
       <PopupContainer
         sx={{
           boxShadow: 3,
-          userSelect: 'none',
+          userSelect: 'none'
         }}
       >
         <Stack alignItems="center" spacing={2}>
@@ -76,7 +78,7 @@ export default function IncomingCallPopup({
               justifyContent: 'center',
               mb: 1,
               cursor: 'grab',
-              userSelect: 'none',
+              userSelect: 'none'
             }}
           >
             <Icon
@@ -86,7 +88,10 @@ export default function IncomingCallPopup({
               color="black"
               style={{ marginRight: 8, opacity: 0.7 }}
             />
-            <Typography variant="caption" sx={{ color: 'black', fontWeight: 500 }}>
+            <Typography
+              variant="caption"
+              sx={{ color: 'black', fontWeight: 500 }}
+            >
               Kéo để di chuyển
             </Typography>
           </Box>
@@ -96,14 +101,17 @@ export default function IncomingCallPopup({
               width: 72,
               height: 72,
               border: '3px solid #43a047',
-              backgroundColor: '#fff',
+              backgroundColor: '#fff'
             }}
           />
           <Typography variant="h6" sx={{ color: '#1565c0', fontWeight: 600 }}>
             {roleLabel}: {fullName}
           </Typography>
           {specialtyName && (
-            <Typography variant="body2" sx={{ color: '#388e3c', fontWeight: 500 }}>
+            <Typography
+              variant="body2"
+              sx={{ color: '#388e3c', fontWeight: 500 }}
+            >
               Chuyên khoa: {specialtyName}
             </Typography>
           )}
@@ -118,7 +126,7 @@ export default function IncomingCallPopup({
                 flex: 1,
                 backgroundColor: '#e53935',
                 color: '#fff',
-                '&:hover': { backgroundColor: '#b71c1c' },
+                '&:hover': { backgroundColor: '#b71c1c' }
               }}
               startIcon={<Icon icon="mdi:phone-hangup" />}
             >
@@ -131,7 +139,7 @@ export default function IncomingCallPopup({
                 flex: 1,
                 backgroundColor: '#43a047',
                 color: '#fff',
-                '&:hover': { backgroundColor: '#2e7d32' },
+                '&:hover': { backgroundColor: '#2e7d32' }
               }}
               startIcon={<Icon icon="mdi:phone" />}
             >
@@ -141,5 +149,5 @@ export default function IncomingCallPopup({
         </Stack>
       </PopupContainer>
     </Draggable>
-  );
+  )
 }

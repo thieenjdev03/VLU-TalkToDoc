@@ -9,7 +9,8 @@ import {
   Typography,
   IconButton
 } from '@mui/material'
-
+import CallTimer from './call-timer'
+import CallChatBox from './call-chat-box'
 interface CallComponentProps {
   stringeeAccessToken: string
   fromUserId: string
@@ -32,7 +33,7 @@ export default function CallCenter({
   const [isMuted, setIsMuted] = useState(false)
   const [isVideoEnabled, setIsVideoEnabled] = useState(true)
   const [callStatus, setCallStatus] = useState('Chưa bắt đầu')
-  const [isVideoCall, setIsVideoCall] = useState(true)
+  const [isVideoCall, setIsVideoCall] = useState(false)
   const [toUserId, setToUserId] = useState('')
   console.log(isVideoCall)
   useEffect(() => {
@@ -151,15 +152,15 @@ export default function CallCenter({
     : 'BS'
 
   return (
-    <Box display="flex flex-col gap-2">
+    <Box display="flex" flexDirection={'column'} gap={1}>
       <Box
-        bgcolor="#f9fafb"
-        p={{ xs: 1, sm: 2 }}
         borderRadius={2}
         display="flex"
         flexDirection={{ xs: 'column', sm: 'row' }}
         alignItems={{ xs: 'flex-start', sm: 'center' }}
         gap={{ xs: 2, sm: 3 }}
+        bgcolor="white"
+        boxShadow={3}
       >
         {/* Logo */}
         <Box
@@ -190,6 +191,9 @@ export default function CallCenter({
           direction={{ xs: 'column', sm: 'row' }}
           spacing={{ xs: 2, sm: 4 }}
           width="100%"
+          bgcolor={'white'}
+          p={2}
+          borderRadius={2}
         >
           <Stack spacing={0.5} width={{ xs: '100%', sm: 'auto' }}>
             <Typography variant="body2" color="text.secondary">
@@ -351,249 +355,283 @@ export default function CallCenter({
         flexDirection="column"
         justifyContent="center"
         alignItems="center"
-        p={{ xs: 2, sm: 4 }}
       >
-        <Box
-          width="100%"
-          borderRadius={2}
-          overflow="hidden"
-          boxShadow={3}
-          position="relative"
-          sx={{
-            height: { xs: '580px', sm: '580px' },
-            backgroundColor: '#000'
-          }}
-        >
-          {/* Remote Video */}
-          <Box
-            width="100%"
-            height="100%"
-            sx={{ position: 'relative', zIndex: 1 }}
-          >
-            <video
-              id="remoteVideo"
-              playsInline
-              autoPlay
-              muted={false}
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                backgroundColor: '#'
-              }}
-            >
-              <track kind="captions" src="" label="English" />
-            </video>
-            {!isVideoCall && (
-              <Box
-                sx={{
-                  width: 100,
-                  height: 100,
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 24,
-                  fontWeight: 'bold',
-                  color: 'white',
-                  position: 'absolute',
-                  right: '50%',
-                  bottom: '50%',
-                  transform: 'translateX(50%)',
-                  backgroundColor: '#424141'
-                }}
+        <Box display="flex" flexDirection="row" gap={2} width="100%">
+          <Box display="flex" flexDirection="column" gap={2} width="100%">
+            {callStatus && (
+              <Alert
+                severity="info"
+                sx={{ width: '100%', borderRadius: 1, boxShadow: 3 }}
               >
-                {userInfor?.role === 'DOCTOR' ? 'BN' : 'BS'}
-              </Box>
+                {callStatus}
+              </Alert>
             )}
-          </Box>
-
-          {/* Local Video - Small preview at bottom right */}
-          <Box
-            sx={{
-              position: 'absolute',
-              bottom: 16,
-              right: 16,
-              width: '180px',
-              height: '120px',
-              borderRadius: 2,
-              overflow: 'hidden',
-              boxShadow: 3,
-              zIndex: 2,
-              backgroundColor: '#424141'
-            }}
-          >
             <Box
+              width="100%"
+              borderRadius={2}
+              overflow="hidden"
+              boxShadow={3}
+              position="relative"
               sx={{
-                borderRadius: '50%',
-                backgroundColor: '#424141',
-                position: 'relative',
-                height: '100%',
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
+                height: { xs: '580px', sm: '580px' }
               }}
+              bgcolor={`${isVideoCall ? 'black' : '#242A2F'}`}
             >
-              <video
-                id="localVideo"
-                playsInline
-                autoPlay
-                muted
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  zIndex: 1
-                }}
-              />
-              {(callStatus || !isVideoCall) && (
+              {/* Remote Video */}
+              <Box
+                width="100%"
+                height="100%"
+                sx={{ position: 'relative', zIndex: 1 }}
+              >
                 <Box
                   sx={{
-                    width: 100,
-                    height: 100,
-                    borderRadius: '50%',
-                    backgroundColor: '#424141',
+                    position: 'absolute',
+                    width: '100%',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: 24,
-                    fontWeight: 'bold',
-                    color: 'white'
+                    mt: 2,
+                    zIndex: 2
                   }}
                 >
-                  {userInfor?.role === 'DOCTOR' ? 'BS' : 'BN'}
+                  <CallTimer
+                    isRunning={calling}
+                    isConnected={clientConnected}
+                    onEnd={duration =>
+                      console.log('Call ended in', duration, 's')
+                    }
+                  />
                 </Box>
-              )}
+                <video
+                  id="remoteVideo"
+                  playsInline
+                  autoPlay
+                  muted={false}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    backgroundColor: '#'
+                  }}
+                >
+                  <track kind="captions" src="" label="English" />
+                </video>
+                {!isVideoCall && (
+                  <Box
+                    sx={{
+                      width: 100,
+                      height: 100,
+                      borderRadius: '50%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 24,
+                      fontWeight: 'bold',
+                      color: 'white',
+                      position: 'absolute',
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      backgroundColor: '#424141'
+                    }}
+                  >
+                    {userInfor?.role === 'DOCTOR' ? 'BN' : 'BS'}
+                  </Box>
+                )}
+              </Box>
+
+              {/* Local Video - Small preview at bottom right */}
+              <Box
+                sx={{
+                  position: 'absolute',
+                  bottom: 16,
+                  right: 16,
+                  width: '180px',
+                  height: '120px',
+                  borderRadius: 2,
+                  overflow: 'hidden',
+                  boxShadow: 3,
+                  zIndex: 2,
+                  backgroundColor: '#424141'
+                }}
+              >
+                <Box
+                  sx={{
+                    borderRadius: '50%',
+                    backgroundColor: '#424141',
+                    position: 'relative',
+                    height: '100%',
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                  <video
+                    id="localVideo"
+                    playsInline
+                    autoPlay
+                    muted
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      zIndex: 1
+                    }}
+                  />
+                  {(callStatus || !isVideoCall) && (
+                    <Box
+                      sx={{
+                        width: 100,
+                        height: 100,
+                        borderRadius: '50%',
+                        backgroundColor: '#424141',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: 24,
+                        fontWeight: 'bold',
+                        color: 'white'
+                      }}
+                    >
+                      {userInfor?.role === 'DOCTOR' ? 'BS' : 'BN'}
+                    </Box>
+                  )}
+                </Box>
+              </Box>
             </Box>
+            <Stack
+              direction="row"
+              spacing={2}
+              p={1}
+              justifyContent="center"
+              flexWrap="wrap"
+              borderRadius={2}
+              boxShadow={2}
+              gap={{ xs: 1, sm: 2 }}
+              bgcolor="white"
+              width="100%"
+              sx={{
+                '& > button': {
+                  width: { xs: 36, sm: 40 },
+                  height: { xs: 36, sm: 40 },
+                  borderRadius: '50%',
+                  transition: 'all 0.2s ease',
+                  boxShadow: 1,
+                  minWidth: 0,
+                  padding: 0,
+                  '&:hover': {
+                    transform: 'scale(1.08)',
+                    opacity: 0.9
+                  }
+                }
+              }}
+            >
+              {/* Mic Button */}
+              <Button
+                variant="contained"
+                onClick={mute}
+                sx={{
+                  backgroundColor: isMuted ? 'warning.main' : 'primary.main',
+                  '&:hover': {
+                    backgroundColor: isMuted ? 'warning.dark' : 'primary.dark'
+                  }
+                }}
+              >
+                <Icon
+                  icon={isMuted ? 'mdi:microphone-off' : 'mdi:microphone'}
+                  width={18}
+                  height={18}
+                />
+              </Button>
+
+              {/* Camera Button */}
+              <Button
+                variant="contained"
+                onClick={enableVideo}
+                sx={{
+                  backgroundColor: isVideoEnabled
+                    ? 'primary.main'
+                    : 'warning.main',
+                  '&:hover': {
+                    backgroundColor: isVideoEnabled
+                      ? 'primary.dark'
+                      : 'warning.dark'
+                  }
+                }}
+              >
+                <Icon
+                  icon={isVideoEnabled ? 'mdi:video' : 'mdi:video-off'}
+                  width={18}
+                  height={18}
+                />
+              </Button>
+
+              {/* Record Button */}
+              <Button
+                variant="contained"
+                sx={{
+                  backgroundColor: 'error.main',
+                  '&:hover': {
+                    backgroundColor: 'error.dark'
+                  }
+                }}
+              >
+                <Icon icon="mdi:record-circle" width={18} height={18} />
+              </Button>
+              {/* Make Call */}
+              <Button
+                variant="contained"
+                onClick={() => makeCall(true)}
+                disabled={calling}
+                sx={{
+                  backgroundColor: 'success.main',
+                  '&:hover': {
+                    backgroundColor: 'success.dark'
+                  },
+                  '&.Mui-disabled': {
+                    backgroundColor: 'grey.300',
+                    color: 'grey.500'
+                  }
+                }}
+              >
+                <Icon icon="mdi:phone" width={18} height={18} />
+              </Button>
+
+              {/* End Call */}
+              <Button
+                variant="contained"
+                onClick={endCall}
+                disabled={!calling}
+                sx={{
+                  backgroundColor: 'error.main',
+                  '&:hover': {
+                    backgroundColor: 'error.dark'
+                  },
+                  '&.Mui-disabled': {
+                    backgroundColor: 'grey.300',
+                    color: 'grey.500'
+                  }
+                }}
+              >
+                <Icon icon="mdi:phone-hangup" width={18} height={18} />
+              </Button>
+            </Stack>
           </Box>
-        </Box>
-        {callStatus && (
-          <Alert severity="info" sx={{ mt: 2, width: '100%' }}>
-            {callStatus}
-          </Alert>
-        )}
-        <Stack
-          direction="row"
-          spacing={3}
-          mt={4}
-          justifyContent="center"
-          flexWrap="wrap"
-          gap={{ xs: 2, sm: 3 }}
-          sx={{
-            '& > button': {
-              width: { xs: 48, sm: 56 },
-              height: { xs: 48, sm: 56 },
-              borderRadius: '50%',
-              transition: 'all 0.2s ease',
-              boxShadow: 2,
-              '&:hover': {
-                transform: 'scale(1.1)',
-                opacity: 0.9
-              }
+          <CallChatBox
+            currentUser={userInfor?._id || 'Bạn'}
+            peerUser={
+              userInfor?.role === 'DOCTOR'
+                ? currentAppointment?.patient?._id
+                : currentAppointment?.doctor?._id
             }
-          }}
-        >
-          {/* Mic Button */}
-          <Button
-            variant="contained"
-            onClick={mute}
-            sx={{
-              backgroundColor: isMuted ? 'warning.main' : 'primary.main',
-              '&:hover': {
-                backgroundColor: isMuted ? 'warning.dark' : 'primary.dark'
-              }
-            }}
-          >
-            <Icon
-              icon={isMuted ? 'mdi:microphone-off' : 'mdi:microphone'}
-              width={24}
-              height={24}
-            />
-          </Button>
-
-          {/* Camera Button */}
-          <Button
-            variant="contained"
-            onClick={enableVideo}
-            sx={{
-              backgroundColor: isVideoEnabled ? 'primary.main' : 'warning.main',
-              '&:hover': {
-                backgroundColor: isVideoEnabled
-                  ? 'primary.dark'
-                  : 'warning.dark'
-              }
-            }}
-          >
-            <Icon
-              icon={isVideoEnabled ? 'mdi:video' : 'mdi:video-off'}
-              width={24}
-              height={24}
-            />
-          </Button>
-
-          {/* Chat Button */}
-          <Button
-            variant="contained"
-            sx={{
-              backgroundColor: 'grey.200',
-              color: 'grey.800',
-              '&:hover': {
-                backgroundColor: 'grey.300'
-              }
-            }}
-          >
-            <Icon icon="mdi:chat-outline" width={24} height={24} />
-          </Button>
-
-          {/* Record Button */}
-          <Button
-            variant="contained"
-            sx={{
-              backgroundColor: 'error.main',
-              '&:hover': {
-                backgroundColor: 'error.dark'
-              }
-            }}
-          >
-            <Icon icon="mdi:record-circle" width={24} height={24} />
-          </Button>
-          {/* Make Call */}
-          <Button
-            variant="contained"
-            onClick={() => makeCall(true)}
-            sx={{
-              backgroundColor: 'success.main',
-              '&:hover': {
-                backgroundColor: 'success.dark'
-              }
-            }}
-          >
-            <Icon icon="mdi:phone" width={24} height={24} />
-          </Button>
-
-          {/* End Call */}
-          <Button
-            variant="contained"
-            onClick={endCall}
-            disabled={!calling}
-            sx={{
-              backgroundColor: 'error.main',
-              '&:hover': {
-                backgroundColor: 'error.dark'
-              },
-              '&.Mui-disabled': {
-                backgroundColor: 'grey.300',
-                color: 'grey.500'
-              }
-            }}
-          >
-            <Icon icon="mdi:phone-hangup" width={24} height={24} />
-          </Button>
-        </Stack>
+            userInfor={userInfor}
+            appointmentId={currentAppointment?.id}
+          />
+        </Box>
       </Box>
     </Box>
   )

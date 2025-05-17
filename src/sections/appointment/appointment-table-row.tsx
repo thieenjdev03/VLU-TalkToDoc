@@ -1,43 +1,46 @@
-import moment from 'moment';
-import { useState } from 'react';
+import moment from 'moment'
+import { useState } from 'react'
 
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Avatar from '@mui/material/Avatar';
-import MenuItem from '@mui/material/MenuItem';
-import TableRow from '@mui/material/TableRow';
-import TableCell from '@mui/material/TableCell';
-import ListItemText from '@mui/material/ListItemText';
-import { Stack, Tooltip, Checkbox, IconButton, Typography } from '@mui/material';
+import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
+import Avatar from '@mui/material/Avatar'
+import MenuItem from '@mui/material/MenuItem'
+import TableRow from '@mui/material/TableRow'
+import TableCell from '@mui/material/TableCell'
+import ListItemText from '@mui/material/ListItemText'
+import { Stack, Tooltip, Checkbox, IconButton, Typography } from '@mui/material'
 
-import { useBoolean } from 'src/hooks/use-boolean';
+import { useBoolean } from 'src/hooks/use-boolean'
 
-import { deleteAppointment, doctorConfirmAppointment } from 'src/api/appointment';
+import {
+  deleteAppointment,
+  doctorConfirmAppointment
+} from 'src/api/appointment'
 
-import Label from 'src/components/label';
-import Iconify from 'src/components/iconify';
-import { useSnackbar } from 'src/components/snackbar';
-import { ConfirmDialog } from 'src/components/custom-dialog';
-import CustomPopover, { usePopover } from 'src/components/custom-popover';
+import Label from 'src/components/label'
+import Iconify from 'src/components/iconify'
+import { useSnackbar } from 'src/components/snackbar'
+import { ConfirmDialog } from 'src/components/custom-dialog'
+import CustomPopover, { usePopover } from 'src/components/custom-popover'
 
-import BookingTimeModal from './appointment-reschedule-modal';
+import BookingTimeModal from './appointment-reschedule-modal'
 
 // ----------------------------------------------------------------------
 
 type Props = {
-  row: any;
-  selected: boolean;
-  onViewRow: VoidFunction;
-  onSelectRow: VoidFunction;
-  typeUser: string;
-  onDeleteRow: VoidFunction;
-  setOpenCall: (open: boolean) => void;
-  user: any;
-  setCurrentAppointment: (appointment: any) => void;
-  doctorsList: any[];
+  row: any
+  selected: boolean
+  onViewRow: VoidFunction
+  onSelectRow: VoidFunction
+  typeUser: string
+  onDeleteRow: VoidFunction
+  setOpenCall: (open: boolean) => void
+  user: any
+  setCurrentAppointment: (appointment: any) => void
+  doctorsList: any[]
   // Nếu có prop để mở modal sửa lịch, cần truyền vào đây, ví dụ:
   // onOpenEditModal?: VoidFunction;
-};
+}
 
 export default function AppointmentTableRow({
   row,
@@ -49,15 +52,15 @@ export default function AppointmentTableRow({
   setOpenCall,
   setCurrentAppointment,
   doctorsList,
-  user, // onOpenEditModal, // Nếu có prop này
+  user // onOpenEditModal, // Nếu có prop này
 }: Props) {
-  const { appointmentId, patient, status, payment } = row as any;
-  const quickEdit = useBoolean();
-  const confirm = useBoolean();
-  const popover = usePopover();
-  const { enqueueSnackbar } = useSnackbar();
-  const [loading, setLoading] = useState(false);
-  const [deleting, setDeleting] = useState(false);
+  const { appointmentId, patient, status, payment } = row as any
+  const quickEdit = useBoolean()
+  const confirm = useBoolean()
+  const popover = usePopover()
+  const { enqueueSnackbar } = useSnackbar()
+  const [loading, setLoading] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   // Vấn đề: Khi click vào IconButton "Sửa Lịch", chỉ gọi quickEdit.onTrue(),
   // nhưng không có component/modal nào render dựa vào quickEdit.value hoặc editForm.value.
@@ -66,9 +69,9 @@ export default function AppointmentTableRow({
   // Nếu muốn mở modal ở đây, cần render modal dựa vào quickEdit.value hoặc editForm.value.
 
   const handleOpenCall = () => {
-    setCurrentAppointment(row);
-    setOpenCall(true);
-  };
+    setCurrentAppointment(row)
+    setOpenCall(true)
+  }
 
   // Sửa lại hàm này để dùng cho nút sửa lịch
   const handleEditAppointment = () => {
@@ -79,73 +82,87 @@ export default function AppointmentTableRow({
     //   return;
     // }
     // Nếu muốn mở modal tại đây, cần render modal dựa vào quickEdit.value hoặc editForm.value
-    quickEdit.onTrue();
-    setCurrentAppointment(row);
-  };
+    quickEdit.onTrue()
+    setCurrentAppointment(row)
+  }
 
   const handleDoctorConfirm = async (accepted: boolean) => {
     try {
-      setLoading(true);
+      setLoading(true)
       const data = {
         id: row._id,
-        accepted,
-      };
-      const res = await doctorConfirmAppointment(data);
+        accepted
+      }
+      const res = await doctorConfirmAppointment(data)
       if (res) {
-        enqueueSnackbar(accepted ? 'Đã chấp nhận lịch hẹn thành công!' : 'Đã từ chối lịch hẹn!', {
-          variant: 'success',
-        });
-        setLoading(false);
+        enqueueSnackbar(
+          accepted
+            ? 'Đã chấp nhận lịch hẹn thành công!'
+            : 'Đã từ chối lịch hẹn!',
+          {
+            variant: 'success'
+          }
+        )
+        setLoading(false)
         setTimeout(() => {
-          window.location.reload();
-        }, 2000);
+          window.location.reload()
+        }, 2000)
       } else {
-        enqueueSnackbar('Có lỗi xảy ra khi cập nhật lịch hẹn.', { variant: 'error' });
-        setLoading(false);
+        enqueueSnackbar('Có lỗi xảy ra khi cập nhật lịch hẹn.', {
+          variant: 'error'
+        })
+        setLoading(false)
       }
     } catch (error) {
-      enqueueSnackbar('Có lỗi xảy ra khi cập nhật lịch hẹn.', { variant: 'error' });
-      setLoading(false);
+      enqueueSnackbar('Có lỗi xảy ra khi cập nhật lịch hẹn.', {
+        variant: 'error'
+      })
+      setLoading(false)
     }
-  };
+  }
 
   // Hàm xoá lịch hẹn sử dụng fetch với phương thức DELETE
   const handleDeleteAppointment = async () => {
     if (user?.role !== 'ADMIN') {
-      enqueueSnackbar('Bạn không có quyền xoá lịch hẹn.', { variant: 'error' });
-      return;
+      enqueueSnackbar('Bạn không có quyền xoá lịch hẹn.', { variant: 'error' })
+      return
     }
     if (!row?._id) {
-      enqueueSnackbar('Không tìm thấy ID lịch hẹn để xoá.', { variant: 'error' });
-      return;
+      enqueueSnackbar('Không tìm thấy ID lịch hẹn để xoá.', {
+        variant: 'error'
+      })
+      return
     }
-    setDeleting(true);
+    setDeleting(true)
     try {
-      const token = user?.accessToken || localStorage.getItem('accessToken') || '';
+      const token =
+        user?.accessToken || localStorage.getItem('accessToken') || ''
       if (!token) {
-        enqueueSnackbar('Không tìm thấy token xác thực.', { variant: 'error' });
-        setDeleting(false);
-        return;
+        enqueueSnackbar('Không tìm thấy token xác thực.', { variant: 'error' })
+        setDeleting(false)
+        return
       }
 
-      const res = await deleteAppointment(row._id);
+      const res = await deleteAppointment(row._id)
 
       if (res.ok) {
-        enqueueSnackbar('Xoá lịch hẹn thành công!', { variant: 'success' });
-        setDeleting(false);
+        enqueueSnackbar('Xoá lịch hẹn thành công!', { variant: 'success' })
+        setDeleting(false)
         setTimeout(() => {
-          window.location.reload();
-        }, 1000);
+          window.location.reload()
+        }, 1000)
       } else {
-        const data = await res.json().catch(() => ({}));
-        enqueueSnackbar(data?.message || 'Có lỗi xảy ra khi xoá lịch hẹn.', { variant: 'error' });
-        setDeleting(false);
+        const data = await res.json().catch(() => ({}))
+        enqueueSnackbar(data?.message || 'Có lỗi xảy ra khi xoá lịch hẹn.', {
+          variant: 'error'
+        })
+        setDeleting(false)
       }
     } catch (err) {
-      enqueueSnackbar('Có lỗi xảy ra khi xoá lịch hẹn.', { variant: 'error' });
-      setDeleting(false);
+      enqueueSnackbar('Có lỗi xảy ra khi xoá lịch hẹn.', { variant: 'error' })
+      setDeleting(false)
     }
-  };
+  }
 
   const doctorField = (
     <TableRow hover selected={selected}>
@@ -162,12 +179,19 @@ export default function AppointmentTableRow({
       </TableCell>
 
       <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-        <Avatar alt={patient?.fullName} src={patient?.avatarUrl} sx={{ mr: 2 }} />
+        <Avatar
+          alt={patient?.fullName}
+          src={patient?.avatarUrl}
+          sx={{ mr: 2 }}
+        />
         <ListItemText
           primary={patient?.fullName || 'Chưa xác định'}
           secondary={patient?.email || '-'}
           primaryTypographyProps={{ typography: 'body2' }}
-          secondaryTypographyProps={{ component: 'span', color: 'text.disabled' }}
+          secondaryTypographyProps={{
+            component: 'span',
+            color: 'text.disabled'
+          }}
         />
       </TableCell>
 
@@ -176,7 +200,11 @@ export default function AppointmentTableRow({
           primary={row?.date || moment().format('DD/MM/YYYY')}
           secondary={`${row?.slot || '00:00'} giờ`}
           primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          secondaryTypographyProps={{ mt: 0.5, component: 'span', typography: 'caption' }}
+          secondaryTypographyProps={{
+            mt: 0.5,
+            component: 'span',
+            typography: 'caption'
+          }}
         />
       </TableCell>
 
@@ -194,7 +222,7 @@ export default function AppointmentTableRow({
               variant="outlined"
               color="success"
               onClick={() => {
-                handleDoctorConfirm(true);
+                handleDoctorConfirm(true)
               }}
               disabled={loading}
             >
@@ -205,7 +233,7 @@ export default function AppointmentTableRow({
               variant="outlined"
               color="error"
               onClick={() => {
-                handleDoctorConfirm(false);
+                handleDoctorConfirm(false)
               }}
               disabled={loading}
             >
@@ -261,12 +289,15 @@ export default function AppointmentTableRow({
           </IconButton>
         </Tooltip>
 
-        <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
+        <IconButton
+          color={popover.open ? 'inherit' : 'default'}
+          onClick={popover.onOpen}
+        >
           <Iconify icon="eva:more-vertical-fill" />
         </IconButton>
       </TableCell>
     </TableRow>
-  );
+  )
   const patientField = (
     <TableRow hover selected={selected}>
       <TableCell>
@@ -282,12 +313,19 @@ export default function AppointmentTableRow({
       </TableCell>
 
       <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-        <Avatar alt={row?.doctor?.fullName} src={row?.doctor?.avatarUrl} sx={{ mr: 2 }} />
+        <Avatar
+          alt={row?.doctor?.fullName}
+          src={row?.doctor?.avatarUrl}
+          sx={{ mr: 2 }}
+        />
         <ListItemText
           primary={row?.doctor?.fullName || 'Chưa xác định'}
           secondary={row?.doctor?.email || '-'}
           primaryTypographyProps={{ typography: 'body2' }}
-          secondaryTypographyProps={{ component: 'span', color: 'text.disabled' }}
+          secondaryTypographyProps={{
+            component: 'span',
+            color: 'text.disabled'
+          }}
         />
       </TableCell>
 
@@ -296,13 +334,17 @@ export default function AppointmentTableRow({
           primary={row?.date || moment().format('DD/MM/YYYY')}
           secondary={`${row?.slot || '00:00'} giờ`}
           primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          secondaryTypographyProps={{ mt: 0.5, component: 'span', typography: 'caption' }}
+          secondaryTypographyProps={{
+            mt: 0.5,
+            component: 'span',
+            typography: 'caption'
+          }}
         />
       </TableCell>
       <TableCell>{row?.doctor?.phoneNumber || '-'}</TableCell>
 
       <TableCell>
-        <Typography variant="body2">{row.specialty?.name}</Typography>
+        <Typography variant="body2">{row?.specialty?.name || '-'}</Typography>
       </TableCell>
 
       <TableCell>{payment?.totalFee?.toLocaleString('vi-VN') || 0}đ</TableCell>
@@ -360,12 +402,15 @@ export default function AppointmentTableRow({
           </IconButton>
         </Tooltip>
 
-        <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
+        <IconButton
+          color={popover.open ? 'inherit' : 'default'}
+          onClick={popover.onOpen}
+        >
           <Iconify icon="eva:more-vertical-fill" />
         </IconButton>
       </TableCell>
     </TableRow>
-  );
+  )
 
   // Giải thích:
   // - Khi click vào nút sửa lịch, chỉ gọi quickEdit.onTrue() hoặc handleEditAppointment().
@@ -397,8 +442,8 @@ export default function AppointmentTableRow({
       >
         <MenuItem
           onClick={() => {
-            confirm.onTrue();
-            popover.onClose();
+            confirm.onTrue()
+            popover.onClose()
           }}
           sx={{ color: 'error.main' }}
         >
@@ -413,10 +458,10 @@ export default function AppointmentTableRow({
         defaultData={{
           doctor: row?.doctor,
           date: row?.appointment?.date || '',
-          slot: row?.appointment?.slot || '',
+          slot: row?.appointment?.slot || ''
         }}
         onConfirm={(payload: any) => {
-          console.log('Updated:', payload);
+          console.log('Updated:', payload)
         }}
       />
       <ConfirmDialog
@@ -436,5 +481,5 @@ export default function AppointmentTableRow({
         }
       />
     </>
-  );
+  )
 }
