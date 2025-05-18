@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 
 import Tab from '@mui/material/Tab'
-import { Box } from '@mui/material'
 import Tabs from '@mui/material/Tabs'
 import Card from '@mui/material/Card'
 import Table from '@mui/material/Table'
@@ -21,6 +20,7 @@ import { useBoolean } from 'src/hooks/use-boolean'
 import { isAfter, isBetween } from 'src/utils/format-time'
 
 import { useGetUsers } from 'src/api/user'
+import { useCallStore } from 'src/store/call-store'
 import { getAppointments, submitDoctorRating } from 'src/api/appointment'
 
 import Label from 'src/components/label'
@@ -42,7 +42,6 @@ import {
 } from 'src/components/table'
 
 import CallListener from 'src/sections/call/view/call-listener'
-import CallCenterModal from 'src/sections/call/view/call-center-modal'
 
 import {
   IAppointmentItem,
@@ -51,7 +50,6 @@ import {
 } from 'src/types/appointment'
 
 import '../styles/index.scss'
-import DoctorRating from '../appointment-rating-doctor'
 import AppointmentTableRow from '../appointment-table-row'
 import AppointmentTableToolbar from '../appointment-table-toolbar'
 
@@ -128,15 +126,9 @@ export default function AppointmentListView() {
   const router = useRouter()
   const confirm = useBoolean()
   const [tableData, setTableData] = useState<IAppointmentItem[]>([])
-  const [openCall, setOpenCall] = useState(false)
-  const [openRatingDoctor, setOpenRatingDoctor] = useState(false)
   const [filters, setFilters] =
     useState<IAppointmentTableFilters>(defaultFilters)
-  const [currentAppointment, setCurrentAppointment] =
-    useState<IAppointmentItem | null>(null)
-  const stringeeToken = JSON.parse(
-    localStorage.getItem('stringeeToken') || '{}'
-  )
+  const { openCall, currentAppointment } = useCallStore()
   const dateError = isAfter(filters?.startDate, filters?.endDate)
   const userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}')
   const dataFiltered = applyFilter({
@@ -145,18 +137,6 @@ export default function AppointmentListView() {
     filters,
     dateError
   })
-  const handleOpenCall = useCallback((appointment: IAppointmentItem) => {
-    setCurrentAppointment(appointment)
-    setOpenCall(true)
-  }, [])
-  const handleCloseCallCenter = useCallback(() => {
-    setOpenCall(false)
-    setOpenRatingDoctor(true)
-  }, [])
-  const handleCloseRating = useCallback(() => {
-    setOpenRatingDoctor(false)
-    setCurrentAppointment(null)
-  }, [])
   const dataInPage = dataFiltered.slice(
     table.page * table.rowsPerPage,
     table.page * table.rowsPerPage + table.rowsPerPage
@@ -179,7 +159,7 @@ export default function AppointmentListView() {
     sortField: 'createdAt',
     sortOrder: 'desc'
   })
-  console.log('currentAppointment', currentAppointment)
+
   const handleSubmitRating = async (rating: number, comment: string) => {
     console.log(rating, comment)
     const response = await submitDoctorRating({
@@ -194,7 +174,6 @@ export default function AppointmentListView() {
     } else {
       enqueueSnackbar('Đánh giá thất bại!')
     }
-    setOpenRatingDoctor(false)
   }
 
   useEffect(() => {
@@ -392,16 +371,14 @@ export default function AppointmentListView() {
                     .map(row => (
                       <AppointmentTableRow
                         doctorsList={doctorsList}
-                        key={row._id} // Cập nhật để sử dụng _id
+                        key={row._id}
                         row={row}
                         typeUser={userProfile.role}
-                        selected={table.selected.includes(row._id)} // Cập nhật để sử dụng _id
-                        onSelectRow={() => table.onSelectRow(row._id)} // Cập nhật để sử dụng _id
-                        onDeleteRow={() => handleDeleteRow(row._id)} // Cập nhật để sử dụng _id
-                        onViewRow={() => handleViewRow(row._id)} // Cập nhật để sử dụng _id
-                        setOpenCall={handleOpenCall}
+                        selected={table.selected.includes(row._id)}
+                        onSelectRow={() => table.onSelectRow(row._id)}
+                        onDeleteRow={() => handleDeleteRow(row._id)}
+                        onViewRow={() => handleViewRow(row._id)}
                         user={userProfile}
-                        setCurrentAppointment={setCurrentAppointment}
                       />
                     ))}
                   {dataFiltered.length === 0 && (
@@ -433,58 +410,6 @@ export default function AppointmentListView() {
         </Card>
       </Container>
       <CallListener />
-      {openRatingDoctor && currentAppointment && (
-        <Box
-          sx={{
-            position: 'fixed',
-            bottom: 0,
-            width: '100vw',
-            height: '100vh',
-            zIndex: 1300,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}
-        >
-          <Box
-            sx={{
-              position: 'absolute',
-              width: '100%',
-              height: '100%',
-              bgcolor: 'rgba(0,0,0,0.5)'
-            }}
-          />
-          <Box
-            sx={{
-              position: 'relative',
-              zIndex: 1400,
-              mb: 15,
-              width: '100%',
-              height: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-          >
-            <DoctorRating
-              doctorName={currentAppointment?.doctor?.fullName || ''}
-              doctorAvatar={currentAppointment?.doctor?.avatarUrl || ''}
-              onSubmit={handleSubmitRating as any}
-              onClose={handleCloseRating}
-            />
-          </Box>
-        </Box>
-      )}
-
-      <CallCenterModal
-        callStatus="Ended"
-        open={openCall}
-        onClose={handleCloseCallCenter}
-        stringeeAccessToken={stringeeToken || ''}
-        fromUserId={userProfile?._id || ''}
-        userInfor={userProfile}
-        currentAppointment={currentAppointment}
-      />
       <ConfirmDialog
         open={confirm.value}
         onClose={confirm.onFalse}

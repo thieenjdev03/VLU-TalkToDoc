@@ -150,3 +150,22 @@ export const getUserById = async (id: string, role: string) => {
   const response = await axiosInstanceV2.get(baseURL)
   return response.data || null
 }
+export async function updateDoctorAvailability({
+  doctorId,
+  availability,
+  accessToken
+}: {
+  doctorId: string
+  availability: any
+  accessToken: string
+}) {
+  if (!doctorId || !Array.isArray(availability)) {
+    throw new Error('doctorId và availability là bắt buộc')
+  }
+
+  const response = await axiosInstanceV2.patch(
+    `api/v1/doctors/${doctorId}/set-availability`,
+    { availability }
+  )
+  return response.data
+}

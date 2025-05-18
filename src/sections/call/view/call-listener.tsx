@@ -1,156 +1,170 @@
-import { useRef, useState, useEffect } from 'react'
+'use client'
+
+import { memo, useEffect } from 'react'
+
+import { Box, useTheme, useMediaQuery } from '@mui/material'
+
+import { useCallListener } from 'src/hooks/use-call-listener'
+
+import { useCallStore } from 'src/store/call-store'
+
+import DoctorRating from 'src/sections/appointment/appointment-rating-doctor'
 
 import CallCenterModal from './call-center-modal'
 import IncomingCallPopup from './call-incomming-popup'
 
-interface IncomingCall {
-  fullName: string
-  avatarUrl?: string
-  role: 'doctor' | 'patient'
-  specialtyName?: string
-}
-function settingCallEvent(call: any) {
-  // Lấy element video từ DOM
-  const remoteVideo = document.getElementById(
-    'remoteVideo'
-  ) as HTMLVideoElement | null
-  const localVideo = document.getElementById(
-    'localVideo'
-  ) as HTMLVideoElement | null
-
-  // Sự kiện khi có stream remote
-  call.on('addremotestream', (stream: MediaStream) => {
-    console.log('addremotestream')
-    if (!remoteVideo) return
-    remoteVideo.srcObject = null
-    remoteVideo.srcObject = stream
-  })
-
-  // Sự kiện khi có stream local
-  call.on('addlocalstream', (stream: MediaStream) => {
-    console.log('addlocalstream')
-    if (!localVideo) return
-    localVideo.srcObject = null
-    localVideo.srcObject = stream
-  })
-
-  // Sự kiện lỗi
-  call.on('error', (info: any) => {
-    console.log(`on error: ${JSON.stringify(info)}`)
-  })
-
-  call.on('signalingstate', (state: any) => {
-    console.log('signalingstate ', state)
-    if (state.reason && typeof state.reason === 'string') {
-      const callStatusEl = document.getElementById('callStatus')
-      if (callStatusEl) callStatusEl.innerHTML = state.reason
-    }
-
-    if (state.code === 6) {
-      // call Ended
-      const incomingCallDiv = document.getElementById('incoming-call-div')
-      if (incomingCallDiv) incomingCallDiv.style.display = 'none'
-    } else if (state.code === 5) {
-      // busy
-    }
-  })
-
-  call.on('mediastate', (state: any) => {
-    console.log('mediastate ', state)
-  })
-  call.on('info', (info: any) => {
-    console.log(`on info:${JSON.stringify(info)}`)
-  })
-
-  call.on('otherdevice', (data: any) => {
-    console.log(`on otherdevice:${JSON.stringify(data)}`)
-    if (
-      (data.type === 'CALL_STATE' && data.code >= 200) ||
-      data.type === 'CALL_END'
-    ) {
-      const incomingCallDiv = document.getElementById('incoming-call-div')
-      if (incomingCallDiv) incomingCallDiv.style.display = 'none'
-    }
-  })
-}
-
 function CallListener() {
-  const [incomingCall, setIncomingCall] = useState<IncomingCall | null>(null)
-  const stringeeAccessToken = JSON.parse(
+  // Gọi hook để khởi tạo và lắng nghe sự kiện cuộc gọi
+  useCallListener()
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+
+  // Lấy state và actions từ store
+  const {
+    isCallOpen,
+    incomingCall,
+    callerInfo,
+    showRatingModal,
+    currentAppointment,
+    openCall,
+    closeCall,
+    acceptIncomingCall,
+    rejectIncomingCall,
+    closeRatingModal,
+    fetchAppointmentByCallerId
+  } = useCallStore()
+
+  // Lấy thông tin người dùng
+  const userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}')
+
+  // Lấy token stringee
+  const stringeeToken = JSON.parse(
     localStorage.getItem('stringeeToken') || '{}'
   )
-  const stringeeClientRef = useRef<any>(null)
-  const [clientConnected, setClientConnected] = useState(false)
-  const [callStatus, setCallStatus] = useState('')
-  const [openCall, setOpenCall] = useState(false)
-  const [currentAppointment, setCurrentAppointment] = useState<any>(null)
-  const userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}')
-  console.log('openCall', openCall)
+
+  // Tự động tìm thông tin cuộc hẹn khi có cuộc gọi đến
   useEffect(() => {
-    if (!stringeeAccessToken) return
-
-    if (typeof window !== 'undefined' && (window as any).StringeeClient) {
-      const client = new (window as any).StringeeClient()
-      stringeeClientRef.current = client
-
-      client.connect(stringeeAccessToken)
-
-      client.on('connect', () => setClientConnected(true))
-      client.on('authenerror', () => {
-        setClientConnected(false)
-        setCallStatus('Lỗi xác thực')
-      })
-      client.on('disconnect', () => {
-        setClientConnected(false)
-        setCallStatus('Mất kết nối')
-      })
-      client.on('incomingcall', (incomingCallObj: any) => {
-        setIncomingCall(incomingCallObj)
-        settingCallEvent(incomingCallObj)
-        // setCallStatus('Có cuộc gọi đến');
-      })
+    if (incomingCall && !currentAppointment && incomingCall.from) {
+      console.log('Tự động tìm thông tin cuộc hẹn cho cuộc gọi đến')
+      fetchAppointmentByCallerId(incomingCall.from)
     }
-  }, [stringeeAccessToken])
+  }, [incomingCall, currentAppointment, fetchAppointmentByCallerId])
 
-  const handleAccept = () => {
-    setIncomingCall(null)
-    setOpenCall(true)
+  // Xử lý submit đánh giá
+  const handleSubmitRating = async (rating: number, comment: string) => {
+    console.log('Submit rating:', {
+      rating,
+      comment,
+      doctorId: currentAppointment?.doctor?._id
+    })
+    // Triển khai API call để lưu đánh giá
+    closeRatingModal()
   }
 
-  const handleReject = () => {
-    // TODO: Xử lý khi từ chối cuộc gọi (ví dụ: gửi tín hiệu reject, đóng popup)
-    setIncomingCall(null)
-  }
+  // Tạo thông tin cuộc hẹn để hiển thị
+  const getAppointmentInfo = () => {
+    if (!currentAppointment) return ''
 
-  const handleCloseCallCenter = () => {
-    setOpenCall(false)
-  }
+    let info = `Cuộc hẹn: ${currentAppointment.date || ''} ${currentAppointment.slot || ''}`
 
-  if (!incomingCall) return null
+    // Thêm thông tin trạng thái nếu có
+    if (currentAppointment.status) {
+      const statusMap: Record<string, string> = {
+        pending: 'Chờ xác nhận',
+        confirmed: 'Đã xác nhận',
+        completed: 'Đã hoàn thành',
+        cancelled: 'Đã hủy'
+      }
+      const statusText =
+        statusMap[currentAppointment.status] || currentAppointment.status
+      info += ` - ${statusText}`
+    }
+
+    // Thêm thông tin dịch vụ nếu có
+    if (currentAppointment.serviceName) {
+      info += ` - ${currentAppointment.serviceName}`
+    }
+
+    return info
+  }
 
   return (
     <>
-      <IncomingCallPopup
-        isOpen={!!incomingCall}
-        fullName={incomingCall.fullName}
-        avatarUrl={incomingCall.avatarUrl}
-        role={incomingCall.role}
-        specialtyName={incomingCall.specialtyName}
-        onAccept={handleAccept}
-        onReject={handleReject}
-      />
+      {/* Hiển thị thông báo cuộc gọi đến */}
+      {incomingCall && !isCallOpen && callerInfo && (
+        <IncomingCallPopup
+          isOpen={!!incomingCall}
+          fullName={callerInfo.fullName}
+          avatarUrl={callerInfo.avatarUrl}
+          role={callerInfo.role}
+          specialtyName={callerInfo.specialtyName}
+          appointmentInfo={getAppointmentInfo()}
+          onAccept={acceptIncomingCall}
+          onReject={rejectIncomingCall}
+        />
+      )}
 
-      <CallCenterModal
-        callStatus="Ended"
-        open={openCall}
-        onClose={handleCloseCallCenter}
-        stringeeAccessToken={stringeeAccessToken || ''}
-        fromUserId={userProfile?._id || ''}
-        userInfor={userProfile}
-        currentAppointment={currentAppointment}
-      />
+      {/* Modal cuộc gọi */}
+      {isCallOpen && (
+        <CallCenterModal
+          open={isCallOpen}
+          onClose={closeCall}
+          callStatus=""
+          stringeeAccessToken={stringeeToken || ''}
+          fromUserId={userProfile?._id || ''}
+          userInfor={userProfile}
+          currentAppointment={currentAppointment}
+        />
+      )}
+
+      {/* Modal đánh giá sau cuộc gọi */}
+      {showRatingModal &&
+        currentAppointment &&
+        userProfile?.role !== 'DOCTOR' && (
+          <Box
+            sx={{
+              position: 'fixed',
+              bottom: 0,
+              width: '100vw',
+              height: '100vh',
+              zIndex: 1300,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            <Box
+              sx={{
+                position: 'absolute',
+                width: '100%',
+                height: '100%',
+                bgcolor: 'rgba(0,0,0,0.5)'
+              }}
+              onClick={closeRatingModal}
+            />
+            <Box
+              sx={{
+                position: 'relative',
+                zIndex: 1400,
+                mb: 15,
+                width: '100%',
+                height: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              <DoctorRating
+                doctorName={currentAppointment?.doctor?.fullName || ''}
+                doctorAvatar={currentAppointment?.doctor?.avatarUrl || ''}
+                onSubmit={handleSubmitRating}
+                onClose={closeRatingModal}
+              />
+            </Box>
+          </Box>
+        )}
     </>
   )
 }
 
-export default CallListener
+export default memo(CallListener)

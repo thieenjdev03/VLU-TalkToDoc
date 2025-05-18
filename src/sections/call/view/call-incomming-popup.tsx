@@ -13,6 +13,7 @@ interface IncomingCallPopupProps {
   avatarUrl?: string
   role: 'doctor' | 'patient'
   specialtyName?: string
+  appointmentInfo?: string
   onAccept: () => void
   onReject: () => void
 }
@@ -40,6 +41,7 @@ export default function IncomingCallPopup({
   avatarUrl,
   role,
   specialtyName,
+  appointmentInfo,
   onAccept,
   onReject
 }: IncomingCallPopupProps) {
@@ -113,6 +115,14 @@ export default function IncomingCallPopup({
               sx={{ color: '#388e3c', fontWeight: 500 }}
             >
               Chuyên khoa: {specialtyName}
+            </Typography>
+          )}
+          {appointmentInfo && (
+            <Typography
+              variant="body2"
+              sx={{ color: '#0277bd', fontWeight: 500 }}
+            >
+              {appointmentInfo}
             </Typography>
           )}
           <Typography variant="body2" sx={{ color: '#546e7a' }}>

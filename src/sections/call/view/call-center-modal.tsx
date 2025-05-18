@@ -16,6 +16,8 @@ import {
   DialogContent
 } from '@mui/material'
 
+import { useCallStore } from 'src/store/call-store'
+
 import CallCenter from 'src/sections/call/view/call-center'
 
 interface CallCenterModalProps {
@@ -57,6 +59,9 @@ export default function CallCenterModal({
   const [isMinimized, setIsMinimized] = useState(false)
   const userProfile = localStorage.getItem('userProfile')
   const userProfileData = JSON.parse(userProfile || '{}')
+
+  const { activeCall } = useCallStore()
+
   const handleMaximize = () => {
     setIsMinimized(false)
   }
@@ -138,7 +143,6 @@ export default function CallCenterModal({
       </MinimizedDialog>
     )
   }
-  console.log('open call', open)
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="xl">
@@ -175,10 +179,10 @@ export default function CallCenterModal({
         <CallCenter
           currentAppointment={currentAppointment}
           stringeeAccessToken={stringeeAccessToken}
-          fromUserId={fromUserId}
           userInfor={userInfor}
           isMinimized={false}
           onMinimize={setIsMinimized}
+          activeCall={activeCall}
         />
       </DialogContent>
     </Dialog>

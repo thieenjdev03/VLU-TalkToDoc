@@ -95,5 +95,5 @@ export const submitDoctorRating = async ({
       description
     }
   )
-  return response.data
+  return response
 }

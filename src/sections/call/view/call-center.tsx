@@ -1,31 +1,42 @@
 import { Icon } from '@iconify/react'
-import { useRef, useState, useEffect } from 'react'
+import { useRef, useState, useEffect, useCallback } from 'react'
 
 import RestoreIcon from '@mui/icons-material/Fullscreen'
 import { Box, Stack, Button, Typography, IconButton } from '@mui/material'
 
+import { useCallListener } from 'src/hooks/use-call-listener'
+
 import CallTimer from './call-timer'
 import CallChatBox from './call-chat-box'
 
+// Cập nhật interface để phù hợp với kiểu trả về của hook
+interface UseCallListenerResult {
+  stringeeClient: any
+  setupCallEvents: (call: any) => void
+  cleanupCallEvents: (call: any) => void
+  isCallRegistered?: (callId: string) => boolean
+}
+
 interface CallComponentProps {
   stringeeAccessToken: string
-  fromUserId: string
   userInfor: any
   currentAppointment: any
   isMinimized: boolean
   onMinimize: (isMinimized: boolean) => void
+  activeCall?: any
 }
 
 export default function CallCenter({
   stringeeAccessToken,
-  fromUserId,
   userInfor,
   currentAppointment,
   isMinimized,
-  onMinimize
+  onMinimize,
+  activeCall
 }: CallComponentProps) {
   const stringeeClientRef = useRef<any>(null)
   const activeCallRef = useRef<any>(null)
+  const streamProcessedRef = useRef<boolean>(false)
 
   const [clientConnected, setClientConnected] = useState(false)
   const [calling, setCalling] = useState(false)
@@ -34,6 +45,108 @@ export default function CallCenter({
   const [isVideoEnabled, setIsVideoEnabled] = useState(true)
   const [callStatus, setCallStatus] = useState('Chưa bắt đầu')
   const [isVideoCall, setIsVideoCall] = useState(false)
+
+  // Sử dụng hook useCallListener để lấy setupCallEvents
+  const { setupCallEvents, isCallRegistered } =
+    useCallListener() as UseCallListenerResult
+
+  // Đăng ký event cho cuộc gọi
+  const registerCallEvents = useCallback((call: any) => {
+    if (!call) return
+
+    console.log('Đăng ký sự kiện cho cuộc gọi:', call.callId)
+
+    // Xóa các listener cũ nếu đã đăng ký trước đó
+    if (call.removeAllListeners) {
+      call.removeAllListeners()
+    }
+
+    // Lấy các video element
+    const remoteVideo = document.getElementById(
+      'remoteVideo'
+    ) as HTMLVideoElement | null
+    const localVideo = document.getElementById(
+      'localVideo'
+    ) as HTMLVideoElement | null
+
+    // Sự kiện khi có stream remote
+    call.on('addremotestream', (stream: MediaStream) => {
+      console.log('Nhận remote stream')
+      if (!remoteVideo) {
+        console.error('Không tìm thấy element remoteVideo')
+        return
+      }
+      remoteVideo.srcObject = stream
+      streamProcessedRef.current = true
+      setIsVideoCall(true)
+    })
+
+    // Sự kiện khi có stream local
+    call.on('addlocalstream', (stream: MediaStream) => {
+      console.log('Nhận local stream')
+      if (!localVideo) {
+        console.error('Không tìm thấy element localVideo')
+        return
+      }
+      localVideo.srcObject = stream
+    })
+
+    // Sự kiện lỗi
+    call.on('error', (info: any) => {
+      console.error(`Lỗi cuộc gọi: ${JSON.stringify(info)}`)
+      setCallStatus(`Lỗi: ${info.message || 'Không xác định'}`)
+    })
+
+    // Sự kiện trạng thái tín hiệu
+    call.on('signalingstate', (state: any) => {
+      console.log('Trạng thái tín hiệu:', state)
+
+      if (state.reason) {
+        setCallStatus(state.reason)
+      }
+
+      switch (state.code) {
+        case 3: // Đang reo chuông
+          setCallStatus('Đang đổ chuông...')
+          break
+        case 4: // Đã kết nối
+          setCallStatus('Đã kết nối')
+          setCalling(true)
+          break
+        case 5: // Bận
+          setCallStatus('Người nhận bận')
+          setCalling(false)
+          break
+        case 6: // Đã kết thúc
+          setCallStatus('Cuộc gọi đã kết thúc')
+          setCalling(false)
+          activeCallRef.current = null
+          break
+        default:
+          break
+      }
+    })
+
+    // Sự kiện trạng thái media
+    call.on('mediastate', (state: any) => {
+      console.log('Trạng thái media:', state)
+
+      if (state.video === 'connected') {
+        console.log('Video đã kết nối')
+        setIsVideoCall(true)
+      }
+
+      if (state.audio === 'connected') {
+        console.log('Audio đã kết nối')
+      }
+    })
+
+    call.on('info', (info: any) => {
+      console.log(`Thông tin bổ sung: ${JSON.stringify(info)}`)
+    })
+  }, [])
+
+  // Kết nối Stringee client và đăng ký các sự kiện
   useEffect(() => {
     if (!stringeeAccessToken) return
 
@@ -43,97 +156,381 @@ export default function CallCenter({
 
       client.connect(stringeeAccessToken)
 
-      client.on('connect', () => setClientConnected(true))
+      client.on('connect', () => {
+        console.log('Stringee client đã kết nối')
+        setClientConnected(true)
+      })
+
       client.on('authenerror', () => {
+        console.error('Lỗi xác thực Stringee')
         setClientConnected(false)
         setCallStatus('Lỗi xác thực')
       })
+
       client.on('disconnect', () => {
+        console.warn('Stringee client bị ngắt kết nối')
         setClientConnected(false)
         setCallStatus('Mất kết nối')
       })
+
       client.on('incomingcall', (incomingCallObj: any) => {
+        console.log('Có cuộc gọi đến', incomingCallObj.callId)
+        const metadata = incomingCallObj.customData
+          ? JSON.parse(incomingCallObj.customData)
+          : {}
+
+        // Nhận customDataFromYourServer nếu có
+        if (incomingCallObj.customDataFromYourServer) {
+          try {
+            const customDataReceived = JSON.parse(
+              incomingCallObj.customDataFromYourServer
+            )
+            console.log(
+              'Nhận được customDataFromYourServer:',
+              customDataReceived
+            )
+
+            // Xử lý dữ liệu từ customDataFromYourServer
+            if (customDataReceived && customDataReceived.appointmentData) {
+              console.log(
+                'Đã nhận dữ liệu appointment từ customDataFromYourServer'
+              )
+            }
+          } catch (error) {
+            console.error('Lỗi khi parse customDataFromYourServer:', error)
+          }
+        }
+
         setIncomingCall(incomingCallObj)
-        settingCallEvent(incomingCallObj)
-        // setCallStatus('Có cuộc gọi đến');
+        console.log('metadata check', metadata)
+
+        // Sử dụng setupCallEvents từ hook
+        if (setupCallEvents) {
+          setupCallEvents(incomingCallObj)
+        } else {
+          registerCallEvents(incomingCallObj)
+        }
       })
-    }
-  }, [stringeeAccessToken])
-  console.log('userInfor', userInfor)
-  const makeCall = (video = true) => {
-    if (!clientConnected || !currentAppointment?.doctor?.id) {
-      setCallStatus('Chưa kết nối hoặc thiếu ID người nhận')
-      return
-    }
-    setIsVideoCall(video)
-    const callFromId = userInfor?._id
-    const callToId =
-      userInfor?._id === currentAppointment?.doctor?._id
-        ? currentAppointment?.patient?._id
-        : currentAppointment?.doctor?._id
 
-    const call = new (window as any).StringeeCall(
-      stringeeClientRef.current,
-      callFromId,
-      callToId,
-      video
-    )
-    settingCallEvent(call)
-    // registerCallEvents(call)
-
-    call.makeCall((res: any) => {
-      if (res.r === 0) {
-        activeCallRef.current = call
-        setCalling(true)
-        setCallStatus('Đang gọi...')
-      } else {
-        setCallStatus(`Gọi thất bại: ${res.message}`)
+      // Cleanup khi component unmount
+      return () => {
+        try {
+          if (activeCallRef.current) {
+            activeCallRef.current.hangup()
+          }
+          client.disconnect()
+        } catch (error) {
+          console.error('Lỗi khi dọn dẹp Stringee client:', error)
+        }
       }
-    })
-  }
-
-  const endCall = () => {
-    if (activeCallRef.current) {
-      activeCallRef.current.hangup()
-      activeCallRef.current = null
-      setCalling(false)
-      setCallStatus('Đã kết thúc cuộc gọi')
     }
-  }
 
-  const answerIncomingCall = () => {
+    // Không cần return undefined ở đây
+  }, [registerCallEvents, stringeeAccessToken, setupCallEvents])
+
+  // Xử lý activeCall khi nhận từ store (do cuộc gọi đến đã được chấp nhận)
+  useEffect(() => {
+    if (activeCall && !activeCallRef.current) {
+      console.log('Nhận activeCall từ store:', activeCall.callId || 'unknown')
+
+      // Lưu cuộc gọi vào ref
+      activeCallRef.current = activeCall
+
+      // Cập nhật UI
+      setCalling(true)
+      setCallStatus('Đã kết nối cuộc gọi')
+      setIsVideoCall(true)
+
+      // Kiểm tra và xử lý thông tin custom data nếu có
+      try {
+        // Kiểm tra nhiều nguồn dữ liệu có thể
+        const customDataSource =
+          activeCall.customDataFromYourServer ||
+          activeCall.custom ||
+          activeCall.customData
+
+        if (customDataSource) {
+          console.log(
+            'Tìm thấy custom data trong activeCall:',
+            customDataSource
+          )
+
+          const customData =
+            typeof customDataSource === 'string'
+              ? JSON.parse(customDataSource)
+              : customDataSource
+
+          // Nếu có thông tin appointment và chưa có từ store
+          if (customData && customData.appointmentData && !currentAppointment) {
+            console.log(
+              'Đã tìm thấy thông tin appointment từ customData:',
+              customData.appointmentData
+            )
+            // Tại đây có thể thực hiện các hành động bổ sung với thông tin appointment
+          }
+        }
+      } catch (error) {
+        console.error('Lỗi khi xử lý custom data từ activeCall:', error)
+      }
+
+      // Nếu không có appointment, hiển thị thông báo cho người dùng
+      if (!currentAppointment) {
+        console.log('Không có thông tin appointment cho cuộc gọi này')
+        setCallStatus('Kết nối thành công - không có thông tin cuộc hẹn')
+      }
+
+      // Đăng ký lại các sự kiện nếu sử dụng hook
+      if (setupCallEvents) {
+        // Kiểm tra xem cuộc gọi đã được đăng ký chưa
+        const callAlreadyRegistered =
+          isCallRegistered &&
+          activeCall.callId &&
+          isCallRegistered(activeCall.callId)
+
+        if (!callAlreadyRegistered) {
+          console.log('Đăng ký sự kiện cho cuộc gọi từ store')
+          setupCallEvents(activeCall)
+        } else {
+          console.log('Cuộc gọi đã được đăng ký sự kiện:', activeCall.callId)
+        }
+      } else {
+        registerCallEvents(activeCall)
+      }
+
+      // Đảm bảo stream được xử lý sau một khoảng thời gian ngắn nếu chưa
+      setTimeout(() => {
+        if (!streamProcessedRef.current && activeCallRef.current) {
+          console.log('Thử lại việc xử lý streams')
+          const remoteVideo = document.getElementById(
+            'remoteVideo'
+          ) as HTMLVideoElement | null
+          const localVideo = document.getElementById(
+            'localVideo'
+          ) as HTMLVideoElement | null
+
+          // Thủ công thêm stream nếu có
+          if (activeCall._remoteStream && remoteVideo) {
+            console.log('Thêm remote stream thủ công')
+            remoteVideo.srcObject = activeCall._remoteStream
+          }
+
+          if (activeCall._localStream && localVideo) {
+            console.log('Thêm local stream thủ công')
+            localVideo.srcObject = activeCall._localStream
+          }
+        }
+      }, 1000)
+    }
+  }, [
+    activeCall,
+    registerCallEvents,
+    setupCallEvents,
+    isCallRegistered,
+    currentAppointment
+  ])
+
+  // Hàm gọi điện
+  const makeCall = useCallback(
+    (video = true) => {
+      if (!clientConnected) {
+        setCallStatus('Chưa kết nối Stringee')
+        return
+      }
+
+      if (!currentAppointment) {
+        setCallStatus('Không có thông tin cuộc hẹn để thực hiện cuộc gọi')
+        return
+      }
+
+      const callFromId = userInfor?._id
+      const callToId =
+        userInfor?._id === currentAppointment?.doctor?._id
+          ? currentAppointment?.patient?._id
+          : currentAppointment?.doctor?._id
+
+      if (!callToId) {
+        setCallStatus('Không có thông tin người nhận')
+        return
+      }
+
+      setIsVideoCall(video)
+      console.log(`Đang gọi từ ${callFromId} đến ${callToId}`)
+
+      try {
+        // Chuẩn bị dữ liệu appointment để gửi đi
+        // Tạo phiên bản nhẹ của appointment để tránh dữ liệu quá lớn
+        const simplifiedAppointment = {
+          id: currentAppointment.id || currentAppointment._id,
+          date: currentAppointment.date,
+          slot: currentAppointment.slot,
+          status: currentAppointment.status,
+          doctor: {
+            _id: currentAppointment.doctor?._id,
+            fullName: currentAppointment.doctor?.fullName,
+            avatarUrl: currentAppointment.doctor?.avatarUrl,
+            specialtyName: currentAppointment.doctor?.specialtyName
+          },
+          patient: {
+            _id: currentAppointment.patient?._id,
+            fullName: currentAppointment.patient?.fullName,
+            avatarUrl: currentAppointment.patient?.avatarUrl
+          }
+        }
+
+        // Tạo custom data với thông tin đầy đủ
+        const customData = JSON.stringify({
+          appointmentData: simplifiedAppointment,
+          callerRole: userInfor?.role
+        })
+
+        const call = new (window as any).StringeeCall(
+          stringeeClientRef.current,
+          callFromId,
+          callToId,
+          video
+        )
+
+        console.log('call', call)
+
+        // Thiết lập custom data cho call - sử dụng cả hai phương thức
+        call.custom = customData
+        call.customDataFromYourServer = customData
+
+        console.log('Đã gửi dữ liệu appointment:', customData)
+
+        call.makeCall((res: any) => {
+          if (res.r === 0) {
+            console.log('Cuộc gọi bắt đầu thành công', call.callId)
+            // Đăng ký sự kiện sau khi makeCall thành công
+            if (setupCallEvents) {
+              setupCallEvents(call)
+            } else {
+              registerCallEvents(call)
+            }
+            activeCallRef.current = call
+            setCalling(true)
+            setCallStatus('Đang gọi...')
+            streamProcessedRef.current = false
+          } else {
+            console.error('Lỗi khi tạo cuộc gọi:', res)
+            setCallStatus(`Gọi thất bại: ${res.message}`)
+          }
+        })
+      } catch (error) {
+        console.error('Lỗi không xác định khi gọi:', error)
+        setCallStatus('Lỗi không xác định khi tạo cuộc gọi')
+      }
+    },
+    [
+      clientConnected,
+      currentAppointment,
+      registerCallEvents,
+      setupCallEvents,
+      userInfor
+    ]
+  )
+
+  // Kết thúc cuộc gọi
+  const endCall = useCallback(() => {
+    if (activeCallRef.current) {
+      console.log('Kết thúc cuộc gọi')
+      try {
+        activeCallRef.current.hangup()
+        activeCallRef.current = null
+        setCalling(false)
+        setCallStatus('Đã kết thúc cuộc gọi')
+        streamProcessedRef.current = false
+      } catch (error) {
+        console.error('Lỗi khi kết thúc cuộc gọi:', error)
+        setCallStatus('Lỗi khi kết thúc cuộc gọi')
+      }
+    }
+  }, [])
+
+  // Trả lời cuộc gọi đến
+  const answerIncomingCall = useCallback(() => {
     if (!incomingCall) return
+
+    console.log('Trả lời cuộc gọi đến')
     setIsVideoCall(true)
     activeCallRef.current = incomingCall
-    settingCallEvent(incomingCall)
-    incomingCall.answer()
-    setIncomingCall(null)
-    setCalling(true)
-    setCallStatus('Đã trả lời cuộc gọi')
-  }
 
-  const rejectIncomingCall = () => {
-    if (incomingCall) {
-      incomingCall.reject()
+    // Xử lý customDataFromYourServer
+    try {
+      if (incomingCall.customDataFromYourServer) {
+        const customDataReceived = JSON.parse(
+          incomingCall.customDataFromYourServer
+        )
+        console.log('customDataReceived', customDataReceived)
+
+        // Xử lý dữ liệu appointment nếu có
+        if (customDataReceived.appointmentData && !currentAppointment) {
+          console.log('Đã nhận dữ liệu appointment từ customDataFromYourServer')
+          // Có thể update UI hoặc state ở đây
+        }
+      } else if (incomingCall.custom) {
+        console.log(
+          'Nhận custom data từ incomingCall.custom:',
+          incomingCall.custom
+        )
+      }
+    } catch (error) {
+      console.error('Lỗi khi xử lý customDataFromYourServer:', error)
+    }
+
+    try {
+      incomingCall.answer()
       setIncomingCall(null)
-      setCallStatus('Đã từ chối cuộc gọi')
+      setCalling(true)
+      setCallStatus('Đã trả lời cuộc gọi')
+      streamProcessedRef.current = false
+    } catch (error) {
+      console.error('Lỗi khi trả lời cuộc gọi:', error)
+      setCallStatus('Lỗi khi trả lời cuộc gọi')
     }
-  }
+  }, [incomingCall, currentAppointment])
 
-  const mute = () => {
+  // Từ chối cuộc gọi
+  const rejectIncomingCall = useCallback(() => {
+    if (incomingCall) {
+      console.log('Từ chối cuộc gọi đến')
+      try {
+        incomingCall.reject()
+        setIncomingCall(null)
+        setCallStatus('Đã từ chối cuộc gọi')
+      } catch (error) {
+        console.error('Lỗi khi từ chối cuộc gọi:', error)
+      }
+    }
+  }, [incomingCall])
+
+  // Bật/tắt mic
+  const mute = useCallback(() => {
     if (activeCallRef.current) {
-      activeCallRef.current.mute(!isMuted)
-      setIsMuted(!isMuted)
+      console.log('Bật/tắt mic:', !isMuted)
+      try {
+        activeCallRef.current.mute(!isMuted)
+        setIsMuted(!isMuted)
+      } catch (error) {
+        console.error('Lỗi khi bật/tắt mic:', error)
+      }
     }
-  }
+  }, [isMuted])
 
-  const enableVideo = () => {
+  // Bật/tắt video
+  const enableVideo = useCallback(() => {
     if (activeCallRef.current) {
-      activeCallRef.current.enableVideo(!isVideoEnabled)
-      setIsVideoEnabled(!isVideoEnabled)
+      console.log('Bật/tắt video:', !isVideoEnabled)
+      try {
+        activeCallRef.current.enableVideo(!isVideoEnabled)
+        setIsVideoEnabled(!isVideoEnabled)
+      } catch (error) {
+        console.error('Lỗi khi bật/tắt video:', error)
+      }
     }
-  }
+  }, [isVideoEnabled])
 
+  // Khởi tạo các thông tin hiển thị
   const initialPatientName = userInfor?.fullName
     ? userInfor.fullName
         .split(' ')
@@ -149,8 +546,8 @@ export default function CallCenter({
         .toUpperCase()
     : 'BS'
 
+  // Giao diện thu nhỏ
   if (isMinimized) {
-    // UI thu nhỏ đồng bộ style với Dialog
     return (
       <Box
         sx={{
@@ -212,6 +609,7 @@ export default function CallCenter({
     )
   }
 
+  // Giao diện chính
   return (
     <Box display="flex" flexDirection="column" gap={1}>
       <Box
@@ -310,7 +708,7 @@ export default function CallCenter({
         gap={2}
         alignItems="center"
       >
-        {incomingCall && (
+        {incomingCall && !activeCall && (
           <Box
             sx={{
               mt: 2,
@@ -417,9 +815,9 @@ export default function CallCenter({
                   <CallTimer
                     isRunning={calling}
                     isConnected={clientConnected}
-                    onEnd={duration =>
+                    onEnd={duration => {
                       console.log('Call ended in', duration, 's')
-                    }
+                    }}
                   />
                 </Box>
                 <video
@@ -430,8 +828,7 @@ export default function CallCenter({
                   style={{
                     width: '100%',
                     height: '100%',
-                    objectFit: 'cover',
-                    backgroundColor: '#'
+                    objectFit: 'cover'
                   }}
                 >
                   <track kind="captions" src="" label="English" />
@@ -672,72 +1069,4 @@ export default function CallCenter({
       </Box>
     </Box>
   )
-}
-function settingCallEvent(call: any) {
-  // Lấy element video từ DOM
-  const remoteVideo = document.getElementById(
-    'remoteVideo'
-  ) as HTMLVideoElement | null
-  const localVideo = document.getElementById(
-    'localVideo'
-  ) as HTMLVideoElement | null
-
-  // Sự kiện khi có stream remote
-  call.on('addremotestream', (stream: MediaStream) => {
-    console.log('addremotestream')
-    if (!remoteVideo) return
-    remoteVideo.srcObject = null
-    remoteVideo.srcObject = stream
-  })
-
-  // Sự kiện khi có stream local
-  call.on('addlocalstream', (stream: MediaStream) => {
-    console.log('addlocalstream')
-    if (!localVideo) return
-    localVideo.srcObject = null
-    localVideo.srcObject = stream
-  })
-
-  // Sự kiện lỗi
-  call.on('error', (info: any) => {
-    console.log(`on error: ${JSON.stringify(info)}`)
-  })
-
-  // Sự kiện trạng thái tín hiệu
-  call.on('signalingstate', (state: any) => {
-    console.log('signalingstate ', state)
-    if (state.reason && typeof state.reason === 'string') {
-      // Nếu có element callStatus thì cập nhật nội dung
-      const callStatusEl = document.getElementById('callStatus')
-      if (callStatusEl) callStatusEl.innerHTML = state.reason
-    }
-
-    if (state.code === 6) {
-      // call Ended
-      const incomingCallDiv = document.getElementById('incoming-call-div')
-      if (incomingCallDiv) incomingCallDiv.style.display = 'none'
-    } else if (state.code === 5) {
-      // busy
-    }
-  })
-
-  // Sự kiện trạng thái media
-  call.on('mediastate', (state: any) => {
-    console.log('mediastate ', state)
-  })
-  call.on('info', (info: any) => {
-    console.log(`on info:${JSON.stringify(info)}`)
-  })
-
-  call.on('otherdevice', (data: any) => {
-    console.log(`on otherdevice:${JSON.stringify(data)}`)
-    if (
-      (data.type === 'CALL_STATE' && data.code >= 200) ||
-      data.type === 'CALL_END'
-    ) {
-      const incomingCallDiv = document.getElementById('incoming-call-div')
-      if (incomingCallDiv) incomingCallDiv.style.display = 'none'
-      // Có thể gọi hàm xử lý kết thúc cuộc gọi ở đây nếu cần
-    }
-  })
 }

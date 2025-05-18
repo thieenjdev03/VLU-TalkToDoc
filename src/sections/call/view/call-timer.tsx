@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 
 import { Box, Typography } from '@mui/material'
 import AccessTimeIcon from '@mui/icons-material/AccessTime'
+import DataSaverOffIcon from '@mui/icons-material/DataSaverOff'
 
 interface CallTimerProps {
   isRunning: boolean // true khi đang gọi
@@ -65,8 +66,18 @@ export default function CallTimer({
             </Typography>
           </Box>
         ) : (
-          <Typography variant="body2" fontWeight={500}>
-            Chưa kết nối
+          <Typography
+            variant="body2"
+            fontWeight={500}
+            display="flex"
+            alignItems="center"
+            gap={1}
+          >
+            <DataSaverOffIcon
+              fontSize="small"
+              sx={{ animation: 'spin 1s linear infinite' }}
+            />
+            Đang kết nối...
           </Typography>
         )}
       </Box>
