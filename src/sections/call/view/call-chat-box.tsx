@@ -1,24 +1,24 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
-import PropTypes from 'prop-types'
+import { useRef, useState, useEffect, useCallback } from 'react'
 import {
-  Box,
-  Stack,
-  Typography,
-  TextField,
-  IconButton,
-  Paper
-} from '@mui/material'
+  query,
+  addDoc,
+  orderBy,
+  collection,
+  onSnapshot,
+  serverTimestamp
+} from 'firebase/firestore'
+
 import SendIcon from '@mui/icons-material/Send'
 import ImageIcon from '@mui/icons-material/Image'
 import {
-  collection,
-  query,
-  orderBy,
-  addDoc,
-  serverTimestamp,
-  onSnapshot,
-  where
-} from 'firebase/firestore'
+  Box,
+  Stack,
+  Paper,
+  TextField,
+  Typography,
+  IconButton
+} from '@mui/material'
+
 import { db } from 'src/firebase/firebase-config'
 
 interface Message {
@@ -81,8 +81,6 @@ function CallChatBox({
       })
       setMessages(msgs)
     })
-
-    return () => unsubscribe()
   }, [conversationId])
 
   useEffect(() => {
@@ -136,10 +134,10 @@ function CallChatBox({
         collection(db, 'conversations', conversationId, 'messages'),
         {
           from: currentUser,
-          to: peerUser,
+          ...(peerUser && { to: peerUser }),
           fromName: userInfor?.fullName || 'Bạn',
           content: input.trim(),
-          imageUrls: imageUrls.length > 0 ? imageUrls : undefined,
+          ...(imageUrls.length > 0 ? { imageUrls } : {}),
           timestamp: serverTimestamp()
         }
       )
@@ -149,7 +147,15 @@ function CallChatBox({
       console.error('Lỗi gửi tin nhắn:', err)
     }
     setIsSending(false)
-  }, [input, imageUrls, currentUser, peerUser, conversationId, isSending])
+  }, [
+    input,
+    imageUrls,
+    currentUser,
+    peerUser,
+    conversationId,
+    isSending,
+    userInfor
+  ])
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -168,6 +174,7 @@ function CallChatBox({
         maxWidth: 500,
         minWidth: 400,
         height: '100%',
+        minHeight: '100%',
         p: 2,
         display: 'flex',
         flexDirection: 'column',
@@ -189,7 +196,7 @@ function CallChatBox({
         }}
       >
         <Stack spacing={1}>
-          {messages.map(msg => (
+          {messages.map((msg: any) => (
             <Box
               key={msg.id}
               sx={{
@@ -209,7 +216,7 @@ function CallChatBox({
               {/* Hiển thị ảnh nếu có */}
               {msg.imageUrls && msg.imageUrls.length > 0 && (
                 <Box sx={{ mt: 1, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                  {msg.imageUrls.map(url => (
+                  {msg?.imageUrls?.map((url: any) => (
                     <img
                       key={url}
                       src={url}
@@ -289,13 +296,6 @@ function CallChatBox({
       </Box>
     </Paper>
   )
-}
-
-CallChatBox.propTypes = {
-  currentUser: PropTypes.string.isRequired,
-  peerUser: PropTypes.string.isRequired,
-  appointmentId: PropTypes.string,
-  userInfor: PropTypes.object
 }
 
 export default CallChatBox

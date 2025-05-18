@@ -1,29 +1,29 @@
-import isEqual from 'lodash/isEqual';
-import { useState, useEffect, useCallback } from 'react';
+import isEqual from 'lodash/isEqual'
+import { useState, useEffect, useCallback } from 'react'
 
-import Card from '@mui/material/Card';
-import Table from '@mui/material/Table';
-import Button from '@mui/material/Button';
-import Tooltip from '@mui/material/Tooltip';
-import Container from '@mui/material/Container';
-import TableBody from '@mui/material/TableBody';
-import IconButton from '@mui/material/IconButton';
-import TableContainer from '@mui/material/TableContainer';
+import Card from '@mui/material/Card'
+import Table from '@mui/material/Table'
+import Button from '@mui/material/Button'
+import Tooltip from '@mui/material/Tooltip'
+import Container from '@mui/material/Container'
+import TableBody from '@mui/material/TableBody'
+import IconButton from '@mui/material/IconButton'
+import TableContainer from '@mui/material/TableContainer'
 
-import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hooks';
-import { RouterLink } from 'src/routes/components';
+import { paths } from 'src/routes/paths'
+import { useRouter } from 'src/routes/hooks'
+import { RouterLink } from 'src/routes/components'
 
-import { useBoolean } from 'src/hooks/use-boolean';
+import { useBoolean } from 'src/hooks/use-boolean'
 
-import { useGetSpecialties, useDeleteSpecialty } from 'src/api/specialty';
+import { useGetSpecialties, useDeleteSpecialty } from 'src/api/specialty'
 
-import Iconify from 'src/components/iconify';
-import Scrollbar from 'src/components/scrollbar';
-import { useSnackbar } from 'src/components/snackbar';
-import { ConfirmDialog } from 'src/components/custom-dialog';
-import { useSettingsContext } from 'src/components/settings';
-import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
+import Iconify from 'src/components/iconify'
+import Scrollbar from 'src/components/scrollbar'
+import { useSnackbar } from 'src/components/snackbar'
+import { ConfirmDialog } from 'src/components/custom-dialog'
+import { useSettingsContext } from 'src/components/settings'
+import CustomBreadcrumbs from 'src/components/custom-breadcrumbs'
 import {
   useTable,
   emptyRows,
@@ -31,13 +31,13 @@ import {
   TableEmptyRows,
   TableHeadCustom,
   TableSelectedAction,
-  TablePaginationCustom,
-} from 'src/components/table';
+  TablePaginationCustom
+} from 'src/components/table'
 
-import SpecialtyTableToolbar from 'src/sections/speciality/table-toolbar';
-import SpecialtyTableRow from 'src/sections/speciality/speciality-table-row';
+import SpecialtyTableToolbar from 'src/sections/specialty/table-toolbar'
+import SpecialtyTableRow from 'src/sections/specialty/specialty-table-row'
 
-import { ISpecialtyTableFilters } from 'src/types/specialties';
+import { ISpecialtyTableFilters } from 'src/types/specialties'
 
 // ----------------------------------------------------------------------
 
@@ -48,88 +48,92 @@ const TABLE_HEAD_SPECIALTY = [
   { id: 'description', label: 'Mô Tả', width: '20%' },
   { id: 'updatedAt', label: 'Cập Nhật Lần Cuối', width: '10%' },
   { id: 'isActive', label: 'Kích Hoạt', width: '10%' },
-  { id: '', label: '', width: '10%' },
-];
+  { id: '', label: '', width: '10%' }
+]
 
 const defaultFilters: ISpecialtyTableFilters = {
   name: '',
   status: 'all',
-  specialty: [],
-};
+  specialty: []
+}
 
 // ----------------------------------------------------------------------
 
 export default function SpecialtiesListPage() {
-  const { enqueueSnackbar } = useSnackbar();
-  const table = useTable();
-  console.log('table.rowsPerPage', table.rowsPerPage);
-  console.log('table.page', table.page);
-  const settings = useSettingsContext();
-  const router = useRouter();
-  const confirm = useBoolean();
+  const { enqueueSnackbar } = useSnackbar()
+  const table = useTable()
+  console.log('table.rowsPerPage', table.rowsPerPage)
+  console.log('table.page', table.page)
+  const settings = useSettingsContext()
+  const router = useRouter()
+  const confirm = useBoolean()
 
-  const [tableData, setTableData] = useState<any>([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [total, setTotal] = useState(0);
-  const [filters, setFilters] = useState(defaultFilters);
+  const [tableData, setTableData] = useState<any>([])
+  const [searchQuery, setSearchQuery] = useState('')
+  const [total, setTotal] = useState(0)
+  const [filters, setFilters] = useState(defaultFilters)
 
-  const { specialties, specialtiesLoading, specialtiesError, specialtiesValidating } =
-    useGetSpecialties({
-      query: searchQuery,
-      page: table.page + 1,
-      limit: table.rowsPerPage,
-      sortField: table.orderBy || 'updatedAt',
-      sortOrder: table.order || 'desc',
-    });
-  console.log('specialties', specialties);
+  const {
+    specialties,
+    specialtiesLoading,
+    specialtiesError,
+    specialtiesValidating
+  } = useGetSpecialties({
+    query: searchQuery,
+    page: table.page + 1,
+    limit: table.rowsPerPage,
+    sortField: table.orderBy || 'updatedAt',
+    sortOrder: table.order || 'desc'
+  })
+  console.log('specialties', specialties)
   useEffect(() => {
     if (specialties?.data) {
-      setTableData(specialties.data);
-      setTotal(specialties.total);
+      setTableData(specialties.data)
+      setTotal(specialties.total)
     } else if (specialtiesError) {
-      setTableData([]);
+      setTableData([])
     }
-  }, [specialties, specialtiesLoading, specialtiesError, specialtiesValidating]);
+  }, [specialties, specialtiesLoading, specialtiesError, specialtiesValidating])
 
-  const denseHeight = table.dense ? 56 : 76;
+  const denseHeight = table.dense ? 56 : 76
 
-  const canReset = !isEqual(defaultFilters, filters);
+  const canReset = !isEqual(defaultFilters, filters)
 
-  const notFound = (!tableData?.length && canReset) || !tableData?.length;
+  const notFound = (!tableData?.length && canReset) || !tableData?.length
 
   const handleFilters = useCallback(
     (name: string, value: any) => {
-      table.onResetPage();
-      setFilters((prevState) => ({
+      table.onResetPage()
+      setFilters(prevState => ({
         ...prevState,
-        [name]: value,
-      }));
+        [name]: value
+      }))
     },
     [table]
-  );
+  )
 
-  const { deleteSpecialty } = useDeleteSpecialty();
+  const { deleteSpecialty } = useDeleteSpecialty()
 
   const handleDeleteRow = useCallback(
     async (id: string) => {
       try {
-        await deleteSpecialty(id);
-        enqueueSnackbar('Xoá chuyên khoa thành công!', { variant: 'success' });
-        table.onUpdatePageDeleteRow(tableData.length);
-        confirm.onFalse();
+        await deleteSpecialty(id)
+        enqueueSnackbar('Xoá chuyên khoa thành công!', { variant: 'success' })
+        table.onUpdatePageDeleteRow(tableData.length)
+        confirm.onFalse()
       } catch (error) {
-        enqueueSnackbar('Không thể xoá chuyên khoa!', { variant: 'error' });
+        enqueueSnackbar('Không thể xoá chuyên khoa!', { variant: 'error' })
       }
     },
     [tableData?.length, enqueueSnackbar, table, deleteSpecialty, confirm]
-  );
+  )
 
   const handleEditRow = useCallback(
     (id: string) => {
-      router.push(paths.dashboard.specialties.edit(id));
+      router.push(paths.dashboard.specialties.edit(id))
     },
     [router]
-  );
+  )
 
   return (
     <>
@@ -139,8 +143,8 @@ export default function SpecialtiesListPage() {
           links={[
             {
               name: 'Quản Lý Chuyên Khoa',
-              href: paths.dashboard.specialties.root,
-            },
+              href: paths.dashboard.specialties.root
+            }
           ]}
           action={
             <Button
@@ -168,7 +172,7 @@ export default function SpecialtiesListPage() {
               dense={table.dense}
               numSelected={table.selected.length}
               rowCount={tableData.length}
-              onSelectAllRows={(checked) =>
+              onSelectAllRows={checked =>
                 table.onSelectAllRows(
                   checked,
                   tableData.map((row: any) => row._id)
@@ -184,7 +188,10 @@ export default function SpecialtiesListPage() {
             />
 
             <Scrollbar>
-              <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
+              <Table
+                size={table.dense ? 'small' : 'medium'}
+                sx={{ minWidth: 960 }}
+              >
                 <TableHeadCustom
                   order={table.order}
                   orderBy={table.orderBy}
@@ -192,7 +199,7 @@ export default function SpecialtiesListPage() {
                   rowCount={tableData.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
-                  onSelectAllRows={(checked) =>
+                  onSelectAllRows={checked =>
                     table.onSelectAllRows(
                       checked,
                       tableData.map((row: any) => row._id)
@@ -215,7 +222,11 @@ export default function SpecialtiesListPage() {
                   {tableData.length === 0 && (
                     <TableEmptyRows
                       height={denseHeight}
-                      emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
+                      emptyRows={emptyRows(
+                        table.page,
+                        table.rowsPerPage,
+                        tableData.length
+                      )}
                     />
                   )}
 
@@ -243,7 +254,8 @@ export default function SpecialtiesListPage() {
         title="Xoá"
         content={
           <>
-            Bạn có chắc chắn muốn xoá <strong> {table.selected.length} </strong> chuyên khoa?
+            Bạn có chắc chắn muốn xoá <strong> {table.selected.length} </strong>{' '}
+            chuyên khoa?
           </>
         }
         action={
@@ -251,8 +263,8 @@ export default function SpecialtiesListPage() {
             variant="contained"
             color="error"
             onClick={() => {
-              handleDeleteRow(table.selected[0]);
-              confirm.onFalse();
+              handleDeleteRow(table.selected[0])
+              confirm.onFalse()
             }}
           >
             Xoá
@@ -260,5 +272,5 @@ export default function SpecialtiesListPage() {
         }
       />
     </>
-  );
+  )
 }

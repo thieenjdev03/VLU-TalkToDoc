@@ -1,46 +1,46 @@
-import moment from 'moment';
+import moment from 'moment'
 
-import Button from '@mui/material/Button';
-import Tooltip from '@mui/material/Tooltip';
-import MenuItem from '@mui/material/MenuItem';
-import TableRow from '@mui/material/TableRow';
-import Checkbox from '@mui/material/Checkbox';
-import TableCell from '@mui/material/TableCell';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button'
+import Tooltip from '@mui/material/Tooltip'
+import MenuItem from '@mui/material/MenuItem'
+import TableRow from '@mui/material/TableRow'
+import Checkbox from '@mui/material/Checkbox'
+import TableCell from '@mui/material/TableCell'
+import IconButton from '@mui/material/IconButton'
+import Typography from '@mui/material/Typography'
 
-import { useBoolean } from 'src/hooks/use-boolean';
+import { useBoolean } from 'src/hooks/use-boolean'
 
-import Iconify from 'src/components/iconify';
-import { ConfirmDialog } from 'src/components/custom-dialog';
-import CustomPopover, { usePopover } from 'src/components/custom-popover';
+import Iconify from 'src/components/iconify'
+import { ConfirmDialog } from 'src/components/custom-dialog'
+import CustomPopover, { usePopover } from 'src/components/custom-popover'
 
-import { ISpecialtyItem } from 'src/types/specialties';
+import { ISpecialtyItem } from 'src/types/specialties'
 
-import SpecialtyQuickEditForm from './quick-edit-form';
+import SpecialtyQuickEditForm from './quick-edit-form'
 
 // ----------------------------------------------------------------------
 
 type Props = {
-  selected: boolean;
-  onEditRow: VoidFunction;
-  row: ISpecialtyItem;
-  onSelectRow: VoidFunction;
-  onDeleteRow: VoidFunction;
-};
+  selected: boolean
+  onEditRow: VoidFunction
+  row: ISpecialtyItem
+  onSelectRow: VoidFunction
+  onDeleteRow: VoidFunction
+}
 
 export default function SpecialtyTableRow({
   row,
   selected,
   onEditRow,
   onSelectRow,
-  onDeleteRow,
+  onDeleteRow
 }: Props) {
-  const { name, description, isActive, updatedAt, id } = row;
+  const { name, description, isActive, updatedAt, id } = row
 
-  const confirm = useBoolean();
-  const quickEdit = useBoolean();
-  const popover = usePopover();
+  const confirm = useBoolean()
+  const quickEdit = useBoolean()
+  const popover = usePopover()
 
   const renderCells = () => (
     <>
@@ -69,8 +69,8 @@ export default function SpecialtyTableRow({
         <Checkbox checked={isActive} disabled />
       </TableCell>
     </>
-  );
-  console.log(row);
+  )
+  console.log(row)
   return (
     <>
       <TableRow hover selected={selected}>
@@ -82,12 +82,18 @@ export default function SpecialtyTableRow({
 
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
           <Tooltip title="Sửa nhanh" placement="top" arrow>
-            <IconButton color={quickEdit.value ? 'inherit' : 'default'} onClick={quickEdit.onTrue}>
+            <IconButton
+              color={quickEdit.value ? 'inherit' : 'default'}
+              onClick={quickEdit.onTrue}
+            >
               <Iconify icon="solar:pen-bold" />
             </IconButton>
           </Tooltip>
 
-          <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
+          <IconButton
+            color={popover.open ? 'inherit' : 'default'}
+            onClick={popover.onOpen}
+          >
             <Iconify icon="eva:more-vertical-fill" />
           </IconButton>
         </TableCell>
@@ -101,8 +107,8 @@ export default function SpecialtyTableRow({
       >
         <MenuItem
           onClick={() => {
-            confirm.onTrue();
-            popover.onClose();
+            confirm.onTrue()
+            popover.onClose()
           }}
           sx={{ color: 'error.main' }}
         >
@@ -131,8 +137,8 @@ export default function SpecialtyTableRow({
             variant="contained"
             color="error"
             onClick={() => {
-              onDeleteRow();
-              confirm.onFalse();
+              onDeleteRow()
+              confirm.onFalse()
             }}
           >
             Xoá
@@ -145,5 +151,5 @@ export default function SpecialtyTableRow({
         onClose={quickEdit.onFalse}
       />
     </>
-  );
+  )
 }

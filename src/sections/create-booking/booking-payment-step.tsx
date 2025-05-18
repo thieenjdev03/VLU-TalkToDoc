@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { Button, useTheme, TextField, useMediaQuery } from '@mui/material'
 
 import { createPaymentURL } from './api'
+import PaymentMethods from '../payment/payment-methods'
 
 export default function BookingPayment({
   setCurrentStep,
@@ -16,6 +17,7 @@ export default function BookingPayment({
   formData: any
   handleSubmit: any
 }) {
+  console.log('formData', formData)
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const isTablet = useMediaQuery(theme.breakpoints.down('md'))
@@ -206,26 +208,20 @@ export default function BookingPayment({
             isMobile ? '4' : '6'
           } border border-gray-200 rounded-lg bg-white shadow-sm`}
         >
-          <div>
-            <div
-              className={`mb-${isMobile ? '4' : '6'} flex flex-col items-start justify-start`}
-            >
-              <img
-                src="https://res.cloudinary.com/dut4zlbui/image/upload/v1746366836/geiw8b1qgv3w7sia9o4h.png"
-                alt="TalkToDoc Logo"
-                className={`h-${isMobile ? '16' : '20'} mx-auto mb-4`}
-              />
-              <h3
-                className={`text-${isMobile ? 'lg' : 'xl'} font-semibold text-gray-800`}
-              >
-                Xác nhận thanh toán
-              </h3>
-              <p className="text-sm text-gray-600">
-                Vui lòng kiểm tra lại thanh toán và bấm tiếp tục để thanh toán.
-              </p>
-            </div>
-          </div>
+          <div
+            className={`flex flex-col items-center justify-center w-full ${isMobile ? 'py-4' : 'py-8'} flex-1`}
+          >
+            <img
+              src="https://res.cloudinary.com/dut4zlbui/image/upload/v1746366836/geiw8b1qgv3w7sia9o4h.png"
+              alt="TalkToDoc Logo"
+              className={`mx-auto mb-4 ${isMobile ? 'h-14' : 'h-20'}`}
+            />
 
+            <PaymentMethods />
+            <p className="text-sm text-gray-600 text-center mt-4">
+              Vui lòng kiểm tra lại thanh toán và bấm tiếp tục để thanh toán.
+            </p>
+          </div>
           <div
             className={`flex ${isMobile ? 'flex-col' : 'flex-row'} justify-between mt-${
               isMobile ? '4' : '8'

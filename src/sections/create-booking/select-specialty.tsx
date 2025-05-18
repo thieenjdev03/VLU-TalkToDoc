@@ -128,8 +128,8 @@ export default function SelectSpecialty({
               handleSubmit(
                 {
                   case_id: formData.case_id,
-                  specialtyObject: selected,
-                  patientObject: userProfile
+                  specialty: selected,
+                  patient: userProfile
                 },
                 'select-specialty'
               )

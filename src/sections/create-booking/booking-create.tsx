@@ -1,25 +1,25 @@
-import moment from 'moment'
 import { useState, useEffect } from 'react'
 
 import { Button } from '@mui/material'
 
 import { useGetUsers } from 'src/api/user'
+import { submitCase, getCaseDetail } from 'src/api/case'
 
 import { ISpecialtyItem } from 'src/types/specialties'
 
+import { updateAppointment } from './api'
 // ----------------------------------------------------------------------
 import DynamicFormMUI from './DynamicFormMUI'
 import SelectSpecialty from './select-specialty'
-import BookingPayment from './BookingPaymentStep'
-import BookingSelectTime from './BookingSelectTime'
-import { createAppointment, updateAppointment } from './api'
-import { useSubmitCase, useGetCaseDetail } from 'src/api/case'
+import BookingPayment from './booking-payment-step'
+import BookingSelectTime from './booking-select-time'
 
 export type FormValuesProps = {
-  patientObject: any
-  doctorObject: any
-  specialtyObject: any
+  patient: any
+  doctor: any
+  specialty: any
   appointment: any
+  appointmentId: string
   medicalForm: any
   payment: {
     platformFee: number
@@ -34,7 +34,6 @@ export default function BookingCreate() {
   const [currentStep, setCurrentStepState] = useState<string>(
     () => localStorage.getItem('booking_step') || 'select-specialty'
   )
-  const { submitCase } = useSubmitCase()
   const [generalSettings, setGeneralSettings] = useState<any>(null)
   console.log(generalSettings)
   const [medicalFormConfig, setMedicalFormConfig] = useState<any>(null)
@@ -48,9 +47,9 @@ export default function BookingCreate() {
   })
 
   const [formData, setFormData] = useState<FormValuesProps>({
-    patientObject: null,
-    doctorObject: null,
-    specialtyObject: null,
+    patient: null,
+    doctor: null,
+    specialty: null,
     appointment: { date: '', slot: '', timezone: '', appointmentId: '' },
     medicalForm: { symptoms: '', pain_level: '' },
     payment: {
@@ -90,68 +89,96 @@ export default function BookingCreate() {
     setCurrentStep(step)
   }
   const handleSubmit = async (data: FormValuesProps, step: string) => {
+    let updatedData = data
+
     switch (step) {
-      case 'select-specialty':
-        if (data.specialtyObject && !currentCase?._id) {
-          const res = await submitCase({
-            specialty: data.specialtyObject._id,
-            action: 'create',
-            patient: data.patientObject._id
-          })
-          setFormData(res?.data)
-          localStorage.setItem('currentCase', JSON.stringify(res?.data))
-        }
-        break
-      case 'medical-form':
-        console.log('currentCase', currentCase)
-        if (currentCase?._id) {
-          const res = await submitCase({
-            case_id: currentCase?._id,
-            action: 'save',
-            patient: data.patient,
-            specialty: data.specialty,
-            medicalForm: data.medicalForm
-          })
-          setFormData(res?.data)
-          localStorage.setItem('currentCase', JSON.stringify(res?.data))
-        }
-        break
-      case 'select-time-booking':
-        console.log('currentCase', currentCase)
-        if (currentCase?._id) {
-          const res = await submitCase({
-            case_id: currentCase?._id,
-            action: 'save',
-            patient: data.patient,
-            appointment: data.appointment
-          })
-          if (res?.data?._id) {
-            setFormData(res?.data)
+      case 'select-specialty': {
+        if (data.specialty && !currentCase?._id) {
+          try {
+            const res = await submitCase({
+              specialty: data.specialty._id,
+              action: 'create',
+              patient: data.patient._id
+            })
+            updatedData = res?.data || data
             localStorage.setItem('currentCase', JSON.stringify(res?.data))
+          } catch (err) {
+            // Xử lý lỗi nếu cần
           }
         }
         break
-      case 'confirm-payment-step':
-        await updateAppointment({
-          appointmentId: data.appointment.appointmentId,
-          data: {
-            payment: data.payment
+      }
+      case 'medical-form': {
+        if (currentCase?._id) {
+          try {
+            const res = await submitCase({
+              case_id: currentCase?._id,
+              action: 'save',
+              patient: data.patient,
+              specialty: data.specialty,
+              medicalForm: data.medicalForm
+            })
+            updatedData = res?.data || data
+            localStorage.setItem('currentCase', JSON.stringify(res?.data))
+          } catch (err) {
+            // Xử lý lỗi nếu cần
           }
-        })
-        const getLastedCaseRes = await useGetCaseDetail(currentCase?._id)
-        setFormData(getLastedCaseRes?.caseDetail)
-        localStorage.setItem(
-          'currentCase',
-          JSON.stringify(getLastedCaseRes?.caseDetail)
-        )
+        }
         break
-      case 'payment-step':
+      }
+      case 'select-time-booking': {
+        if (currentCase?._id) {
+          try {
+            const res = await submitCase({
+              case_id: currentCase?._id,
+              action: 'save',
+              patient: data.patient?._id,
+              appointment: data.appointment
+            })
+            if (res?.data?._id) {
+              updatedData = res?.data
+              localStorage.setItem('currentCase', JSON.stringify(res?.data))
+            }
+          } catch (err) {
+            // Xử lý lỗi nếu cần
+          }
+        }
         break
-      case 'payment-completed':
-        setFormData(data)
+      }
+      case 'confirm-payment-step': {
+        try {
+          await updateAppointment({
+            appointmentId: data.appointmentId,
+            data: {
+              payment: data.payment
+            }
+          })
+          const getLastedCaseRes = await getCaseDetail(currentCase?._id)
+          updatedData = getLastedCaseRes?.caseDetail || data
+          localStorage.setItem(
+            'currentCase',
+            JSON.stringify(getLastedCaseRes?.caseDetail)
+          )
+        } catch (err) {
+          // Xử lý lỗi nếu cần
+        }
         break
+      }
+      case 'payment-step': {
+        // Không làm gì ở bước này
+        break
+      }
+      case 'payment-completed': {
+        updatedData = data
+        break
+      }
+      default: {
+        // Trường hợp không xác định
+        break
+      }
     }
-    setFormData(data)
+
+    setFormData(updatedData)
   }
   useEffect(() => {
     console.log('formData', formData)
@@ -240,7 +267,7 @@ function BookingConfirmPayment({
   setCurrentStep: any
   specialty: ISpecialtyItem
   formData: FormValuesProps
-  handleSubmit: (data: FormValuesProps) => Promise<void>
+  handleSubmit: (data: FormValuesProps, step: any) => Promise<void>
 }) {
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-2 gap-6">

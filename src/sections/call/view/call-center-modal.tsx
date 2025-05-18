@@ -57,11 +57,6 @@ export default function CallCenterModal({
   const [isMinimized, setIsMinimized] = useState(false)
   const userProfile = localStorage.getItem('userProfile')
   const userProfileData = JSON.parse(userProfile || '{}')
-
-  const handleMinimize = () => {
-    setIsMinimized(true)
-  }
-
   const handleMaximize = () => {
     setIsMinimized(false)
   }
@@ -143,39 +138,35 @@ export default function CallCenterModal({
       </MinimizedDialog>
     )
   }
+  console.log('open call', open)
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="2xl">
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="xl">
       <DialogTitle
         sx={{
-          m: 0,
-          p: 2,
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center'
         }}
       >
-        <Box>
+        <Box
+          sx={{
+            m: 0,
+            p: 2,
+            height: 8,
+            width: '100%',
+            display: 'flex',
+            justifyContent: 'flex-end',
+            alignItems: 'center'
+          }}
+        >
           <IconButton
             aria-label="minimize"
-            onClick={handleMinimize}
-            sx={{
-              position: 'absolute',
-              right: 48,
-              top: 8
-            }}
+            onClick={() => setIsMinimized(true)}
           >
             <MinimizeIcon />
           </IconButton>
-          <IconButton
-            aria-label="close"
-            onClick={onClose}
-            sx={{
-              position: 'absolute',
-              right: 8,
-              top: 8
-            }}
-          >
+          <IconButton aria-label="close" onClick={onClose}>
             <CloseIcon />
           </IconButton>
         </Box>
@@ -186,6 +177,8 @@ export default function CallCenterModal({
           stringeeAccessToken={stringeeAccessToken}
           fromUserId={fromUserId}
           userInfor={userInfor}
+          isMinimized={false}
+          onMinimize={setIsMinimized}
         />
       </DialogContent>
     </Dialog>

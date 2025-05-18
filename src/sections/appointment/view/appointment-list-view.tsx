@@ -21,7 +21,7 @@ import { useBoolean } from 'src/hooks/use-boolean'
 import { isAfter, isBetween } from 'src/utils/format-time'
 
 import { useGetUsers } from 'src/api/user'
-import { getAppointments } from 'src/api/appointment'
+import { getAppointments, submitDoctorRating } from 'src/api/appointment'
 
 import Label from 'src/components/label'
 import Iconify from 'src/components/iconify'
@@ -41,8 +41,8 @@ import {
   TablePaginationCustom
 } from 'src/components/table'
 
-import CallCenterModal from 'src/sections/call/view/call-center-modal'
 import CallListener from 'src/sections/call/view/call-listener'
+import CallCenterModal from 'src/sections/call/view/call-center-modal'
 
 import {
   IAppointmentItem,
@@ -51,6 +51,7 @@ import {
 } from 'src/types/appointment'
 
 import '../styles/index.scss'
+import DoctorRating from '../appointment-rating-doctor'
 import AppointmentTableRow from '../appointment-table-row'
 import AppointmentTableToolbar from '../appointment-table-toolbar'
 
@@ -128,6 +129,7 @@ export default function AppointmentListView() {
   const confirm = useBoolean()
   const [tableData, setTableData] = useState<IAppointmentItem[]>([])
   const [openCall, setOpenCall] = useState(false)
+  const [openRatingDoctor, setOpenRatingDoctor] = useState(false)
   const [filters, setFilters] =
     useState<IAppointmentTableFilters>(defaultFilters)
   const [currentAppointment, setCurrentAppointment] =
@@ -143,7 +145,18 @@ export default function AppointmentListView() {
     filters,
     dateError
   })
-
+  const handleOpenCall = useCallback((appointment: IAppointmentItem) => {
+    setCurrentAppointment(appointment)
+    setOpenCall(true)
+  }, [])
+  const handleCloseCallCenter = useCallback(() => {
+    setOpenCall(false)
+    setOpenRatingDoctor(true)
+  }, [])
+  const handleCloseRating = useCallback(() => {
+    setOpenRatingDoctor(false)
+    setCurrentAppointment(null)
+  }, [])
   const dataInPage = dataFiltered.slice(
     table.page * table.rowsPerPage,
     table.page * table.rowsPerPage + table.rowsPerPage
@@ -162,10 +175,27 @@ export default function AppointmentListView() {
     typeUser: 'doctor',
     query: '',
     page: 1,
-    limit: 99,
+    limit: 10,
     sortField: 'createdAt',
     sortOrder: 'desc'
   })
+  console.log('currentAppointment', currentAppointment)
+  const handleSubmitRating = async (rating: number, comment: string) => {
+    console.log(rating, comment)
+    const response = await submitDoctorRating({
+      doctorId: currentAppointment?.doctor?._id || '',
+      appointmentId: currentAppointment?._id || '',
+      ratingScore: rating,
+      description: comment
+    })
+    console.log(response)
+    if (response.statusCode === 200) {
+      enqueueSnackbar('Đánh giá thành công!')
+    } else {
+      enqueueSnackbar('Đánh giá thất bại!')
+    }
+    setOpenRatingDoctor(false)
+  }
 
   useEffect(() => {
     const fetchAppointments = async () => {
@@ -369,7 +399,7 @@ export default function AppointmentListView() {
                         onSelectRow={() => table.onSelectRow(row._id)} // Cập nhật để sử dụng _id
                         onDeleteRow={() => handleDeleteRow(row._id)} // Cập nhật để sử dụng _id
                         onViewRow={() => handleViewRow(row._id)} // Cập nhật để sử dụng _id
-                        setOpenCall={setOpenCall}
+                        setOpenCall={handleOpenCall}
                         user={userProfile}
                         setCurrentAppointment={setCurrentAppointment}
                       />
@@ -403,10 +433,53 @@ export default function AppointmentListView() {
         </Card>
       </Container>
       <CallListener />
+      {openRatingDoctor && currentAppointment && (
+        <Box
+          sx={{
+            position: 'fixed',
+            bottom: 0,
+            width: '100vw',
+            height: '100vh',
+            zIndex: 1300,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+        >
+          <Box
+            sx={{
+              position: 'absolute',
+              width: '100%',
+              height: '100%',
+              bgcolor: 'rgba(0,0,0,0.5)'
+            }}
+          />
+          <Box
+            sx={{
+              position: 'relative',
+              zIndex: 1400,
+              mb: 15,
+              width: '100%',
+              height: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            <DoctorRating
+              doctorName={currentAppointment?.doctor?.fullName || ''}
+              doctorAvatar={currentAppointment?.doctor?.avatarUrl || ''}
+              onSubmit={handleSubmitRating as any}
+              onClose={handleCloseRating}
+            />
+          </Box>
+        </Box>
+      )}
+
       <CallCenterModal
         callStatus="Ended"
         open={openCall}
-        onClose={() => setOpenCall(false)}
+        onClose={handleCloseCallCenter}
         stringeeAccessToken={stringeeToken || ''}
         fromUserId={userProfile?._id || ''}
         userInfor={userProfile}

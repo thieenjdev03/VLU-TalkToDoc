@@ -115,11 +115,11 @@ export const endpoints = {
     search: '/api/v1/doctor_levels/search'
   },
   specialties: {
-    list: '/api/v1/specialities',
-    delete: '/api/v1/specialities',
-    update: '/api/v1/specialities',
-    create: '/api/v1/specialities',
-    search: '/api/v1/specialities/search'
+    list: '/api/v1/specialties',
+    delete: '/api/v1/specialties',
+    update: '/api/v1/specialties',
+    create: '/api/v1/specialties',
+    search: '/api/v1/specialties/search'
   },
   auth: {
     me: '/api/auth/me',
@@ -144,6 +144,7 @@ export const endpoints = {
     search: '/api/product/search'
   },
   doctors: {
+    submitRating: (id: string) => `/api/v1/doctors/${id}/rating`,
     search: '/api/v1/doctors/search',
     list: '/api/v1/doctors',
     delete: '/api/v1/doctors/:id',

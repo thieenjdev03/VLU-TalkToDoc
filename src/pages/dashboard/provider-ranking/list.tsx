@@ -1,33 +1,33 @@
-import isEqual from 'lodash/isEqual';
-import { useState, useEffect, useCallback } from 'react';
+import isEqual from 'lodash/isEqual'
+import { useState, useEffect, useCallback } from 'react'
 
-import Tab from '@mui/material/Tab';
-import Tabs from '@mui/material/Tabs';
-import Card from '@mui/material/Card';
-import Table from '@mui/material/Table';
-import Button from '@mui/material/Button';
-import Tooltip from '@mui/material/Tooltip';
-import { alpha } from '@mui/material/styles';
-import Container from '@mui/material/Container';
-import TableBody from '@mui/material/TableBody';
-import IconButton from '@mui/material/IconButton';
-import TableContainer from '@mui/material/TableContainer';
+import Tab from '@mui/material/Tab'
+import Tabs from '@mui/material/Tabs'
+import Card from '@mui/material/Card'
+import Table from '@mui/material/Table'
+import Button from '@mui/material/Button'
+import Tooltip from '@mui/material/Tooltip'
+import { alpha } from '@mui/material/styles'
+import Container from '@mui/material/Container'
+import TableBody from '@mui/material/TableBody'
+import IconButton from '@mui/material/IconButton'
+import TableContainer from '@mui/material/TableContainer'
 
-import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hooks';
-import { RouterLink } from 'src/routes/components';
+import { paths } from 'src/routes/paths'
+import { useRouter } from 'src/routes/hooks'
+import { RouterLink } from 'src/routes/components'
 
-import { useBoolean } from 'src/hooks/use-boolean';
+import { useBoolean } from 'src/hooks/use-boolean'
 
-import { USER_STATUS_OPTIONS } from 'src/_mock';
-import { useGetRanking, useDeleteRanking } from 'src/api/ranking'; // Updated to use provider ranking API
-import Label from 'src/components/label';
-import Iconify from 'src/components/iconify';
-import Scrollbar from 'src/components/scrollbar';
-import { useSnackbar } from 'src/components/snackbar';
-import { ConfirmDialog } from 'src/components/custom-dialog';
-import { useSettingsContext } from 'src/components/settings';
-import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
+import { USER_STATUS_OPTIONS } from 'src/_mock'
+import { useGetRanking, useDeleteRanking } from 'src/api/ranking' // Updated to use provider ranking API
+import Label from 'src/components/label'
+import Iconify from 'src/components/iconify'
+import Scrollbar from 'src/components/scrollbar'
+import { useSnackbar } from 'src/components/snackbar'
+import { ConfirmDialog } from 'src/components/custom-dialog'
+import { useSettingsContext } from 'src/components/settings'
+import CustomBreadcrumbs from 'src/components/custom-breadcrumbs'
 import {
   useTable,
   emptyRows,
@@ -36,143 +36,158 @@ import {
   TableEmptyRows,
   TableHeadCustom,
   TableSelectedAction,
-  TablePaginationCustom,
-} from 'src/components/table';
+  TablePaginationCustom
+} from 'src/components/table'
 
-import RankingTableToolbar from 'src/sections/provider-ranking/table-toolbar';
+import RankingTableToolbar from 'src/sections/provider-ranking/table-toolbar'
 // Updated to use ranking toolbar
-import RankingTableRow from 'src/sections/provider-ranking/speciality-table-row';
+import RankingTableRow from 'src/sections/provider-ranking/ranking-table-row'
 // Updated to use ranking filters result
 
 import {
   IRankingItem,
   IRankingTableFilters,
-  IRankingTableFilterValue,
-} from 'src/types/provider-ranking'; // Updated types
+  IRankingTableFilterValue
+} from 'src/types/provider-ranking' // Updated types
 
 // ----------------------------------------------------------------------
 
-const STATUS_OPTIONS = [{ value: 'all', label: 'Tất Cả' }, ...USER_STATUS_OPTIONS];
+const STATUS_OPTIONS = [
+  { value: 'all', label: 'Tất Cả' },
+  ...USER_STATUS_OPTIONS
+]
 const TABLE_HEAD_SPECIALTY = [
   { id: 'id', label: 'Mã Cấp Bậc', width: '20%' },
   { id: 'name', label: 'Tên Cấp Bậc', width: '20%' },
   { id: 'description', label: 'Mô Tả', width: '20%' },
   { id: 'base_price', label: 'Lương / Giờ', width: '20%' },
   { id: 'isActive', label: 'Kích Hoạt', width: '10%' },
-  { id: '', label: '', width: '10%' },
-];
+  { id: '', label: '', width: '10%' }
+]
 const defaultFilters: IRankingTableFilters = {
   name: '',
   status: 'all',
-  ranking: [],
-};
+  ranking: []
+}
 
 // ----------------------------------------------------------------------
 
 export default function ProviderRankingListPage() {
-  const { enqueueSnackbar } = useSnackbar();
-  const table = useTable();
+  const { enqueueSnackbar } = useSnackbar()
+  const table = useTable()
 
-  const settings = useSettingsContext();
+  const settings = useSettingsContext()
 
-  const router = useRouter();
+  const router = useRouter()
 
-  const confirm = useBoolean();
+  const confirm = useBoolean()
 
-  const [tableData, setTableData] = useState<any[]>([]); // Updated state type
+  const [tableData, setTableData] = useState<any[]>([]) // Updated state type
 
-  const [filters, setFilters] = useState(defaultFilters);
+  const [filters, setFilters] = useState(defaultFilters)
 
   const dataFiltered = applyFilter({
     inputData: tableData,
     comparator: getComparator(table.order, table.orderBy),
-    filters,
-  });
-  const [searchQuery, setSearchQuery] = useState('');
+    filters
+  })
+  const [searchQuery, setSearchQuery] = useState('')
   const {
     providerRanking,
     providerRankingLoading,
     providerRankingError,
-    providerRankingValidating,
+    providerRankingValidating
   } = useGetRanking({
     query: searchQuery,
     page: table.page + 1,
     limit: table.rowsPerPage,
     sortField: table.orderBy || 'fullName',
-    sortOrder: table.order || 'asc',
-  });
+    sortOrder: table.order || 'asc'
+  })
 
   useEffect(() => {
     if (providerRanking?.data?.length) {
-      setTableData(providerRanking?.data);
-    } else if (providerRankingLoading || providerRankingError || providerRankingValidating) {
-      setTableData([]);
+      setTableData(providerRanking?.data)
+    } else if (
+      providerRankingLoading ||
+      providerRankingError ||
+      providerRankingValidating
+    ) {
+      setTableData([])
     }
-  }, [providerRanking, providerRankingLoading, providerRankingError, providerRankingValidating]);
+  }, [
+    providerRanking,
+    providerRankingLoading,
+    providerRankingError,
+    providerRankingValidating
+  ])
 
   const dataInPage = dataFiltered.slice(
     table.page * table.rowsPerPage,
     table.page * table.rowsPerPage + table.rowsPerPage
-  );
+  )
 
-  const denseHeight = table.dense ? 56 : 56 + 20;
+  const denseHeight = table.dense ? 56 : 56 + 20
 
-  const canReset = !isEqual(defaultFilters, filters);
+  const canReset = !isEqual(defaultFilters, filters)
 
-  const notFound = (!tableData.length && canReset) || !tableData.length;
+  const notFound = (!tableData.length && canReset) || !tableData.length
 
   const handleFilters = useCallback(
     (fullName: string, value: IRankingTableFilterValue) => {
-      table.onResetPage();
-      setFilters((prevState) => ({
+      table.onResetPage()
+      setFilters(prevState => ({
         ...prevState,
-        [fullName]: value,
-      }));
+        [fullName]: value
+      }))
     },
     [table]
-  );
+  )
 
-  const { deleteRanking } = useDeleteRanking();
+  const { deleteRanking } = useDeleteRanking()
   const handleDeleteRow = useCallback(
     async (id: string) => {
       await deleteRanking(id)
         .then(() => {
-          enqueueSnackbar('Xoá Cấp Bậc thành công!', { variant: 'success' });
-          table.onUpdatePageDeleteRow(dataInPage.length);
-          confirm.onFalse();
+          enqueueSnackbar('Xoá Cấp Bậc thành công!', { variant: 'success' })
+          table.onUpdatePageDeleteRow(dataInPage.length)
+          confirm.onFalse()
           // window.location.reload();
         })
         .catch(() => {
-          enqueueSnackbar('Không thể xoá Cấp Bậc!', { variant: 'error' });
-        });
+          enqueueSnackbar('Không thể xoá Cấp Bậc!', { variant: 'error' })
+        })
     },
     [dataInPage.length, enqueueSnackbar, table, deleteRanking, confirm]
-  );
+  )
 
   const handleEditRow = useCallback(
     (_id: string) => {
-      router.push(paths.dashboard.ranking_doctor.edit(_id)); // Updated path for providerRanking
+      router.push(paths.dashboard.ranking_doctor.edit(_id)) // Updated path for providerRanking
     },
     [router]
-  );
+  )
 
   const handleFilterStatus = useCallback(
     (event: React.SyntheticEvent, newValue: IRankingTableFilterValue) => {
-      handleFilters('status', newValue);
+      handleFilters('status', newValue)
     },
     [handleFilters]
-  );
+  )
 
   return (
     <>
-      <Container maxWidth={settings.themeStretch ? false : 'lg'} sx={{ overflow: 'hidden' }}>
+      <Container
+        maxWidth={settings.themeStretch ? false : 'lg'}
+        sx={{ overflow: 'hidden' }}
+      >
         <CustomBreadcrumbs
           heading="Quản Lý Cấp Bậc"
           links={[
             {
               name: 'Quản Lý Cấp Bậc',
-              href: paths.dashboard.ranking_doctor.root,
-            },
+              href: paths.dashboard.ranking_doctor.root
+            }
           ]}
           action={
             <Button
@@ -185,7 +200,7 @@ export default function ProviderRankingListPage() {
             </Button>
           }
           sx={{
-            mb: { xs: 3, md: 5 },
+            mb: { xs: 3, md: 5 }
           }}
         />
 
@@ -195,10 +210,11 @@ export default function ProviderRankingListPage() {
             onChange={handleFilterStatus}
             sx={{
               px: 2.5,
-              boxShadow: (theme) => `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
+              boxShadow: theme =>
+                `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`
             }}
           >
-            {STATUS_OPTIONS.map((tab) => (
+            {STATUS_OPTIONS.map(tab => (
               <Tab
                 key={tab.value}
                 iconPosition="end"
@@ -207,7 +223,9 @@ export default function ProviderRankingListPage() {
                 icon={
                   <Label
                     variant={
-                      ((tab.value === 'all' || tab.value === filters.status) && 'filled') || 'soft'
+                      ((tab.value === 'all' || tab.value === filters.status) &&
+                        'filled') ||
+                      'soft'
                     }
                     color={
                       (tab.value === 'Hoạt Động' && 'success') ||
@@ -216,7 +234,9 @@ export default function ProviderRankingListPage() {
                     }
                   >
                     {['Hoạt Động', 'Đã Khoá'].includes(tab.value)
-                      ? tableData.filter((ranking) => ranking.status === tab.value).length
+                      ? tableData.filter(
+                          ranking => ranking.status === tab.value
+                        ).length
                       : tableData.length}
                   </Label>
                 }
@@ -235,10 +255,10 @@ export default function ProviderRankingListPage() {
               dense={table.dense}
               numSelected={table.selected.length}
               rowCount={tableData.length}
-              onSelectAllRows={(checked) =>
+              onSelectAllRows={checked =>
                 table.onSelectAllRows(
                   checked,
-                  tableData.map((row) => row._id)
+                  tableData.map(row => row._id)
                 )
               }
               action={
@@ -251,7 +271,10 @@ export default function ProviderRankingListPage() {
             />
 
             <Scrollbar>
-              <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
+              <Table
+                size={table.dense ? 'small' : 'medium'}
+                sx={{ minWidth: 960 }}
+              >
                 <TableHeadCustom
                   order={table.order}
                   orderBy={table.orderBy}
@@ -259,16 +282,16 @@ export default function ProviderRankingListPage() {
                   rowCount={tableData.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
-                  onSelectAllRows={(checked) =>
+                  onSelectAllRows={checked =>
                     table.onSelectAllRows(
                       checked,
-                      tableData.map((row) => row._id)
+                      tableData.map(row => row._id)
                     )
                   }
                 />
 
                 <TableBody>
-                  {dataFiltered.map((row) => (
+                  {dataFiltered.map(row => (
                     <RankingTableRow
                       key={row._id}
                       row={row}
@@ -281,7 +304,11 @@ export default function ProviderRankingListPage() {
                   {tableData.length === 0 && (
                     <TableEmptyRows
                       height={denseHeight}
-                      emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
+                      emptyRows={emptyRows(
+                        table.page,
+                        table.rowsPerPage,
+                        tableData.length
+                      )}
                     />
                   )}
                   <TableNoData notFound={notFound} />
@@ -307,7 +334,8 @@ export default function ProviderRankingListPage() {
         title="Xoá"
         content={
           <>
-            Bạn có chắc chắn muốn xoá <strong> {table.selected.length} </strong> chuyên khoa?
+            Bạn có chắc chắn muốn xoá <strong> {table.selected.length} </strong>{' '}
+            chuyên khoa?
           </>
         }
         action={
@@ -315,8 +343,8 @@ export default function ProviderRankingListPage() {
             variant="contained"
             color="error"
             onClick={() => {
-              handleDeleteRow(table.selected[0]);
-              confirm.onFalse();
+              handleDeleteRow(table.selected[0])
+              confirm.onFalse()
             }}
           >
             Xoá
@@ -324,7 +352,7 @@ export default function ProviderRankingListPage() {
         }
       />
     </>
-  );
+  )
 }
 
 // ----------------------------------------------------------------------
@@ -332,33 +360,33 @@ export default function ProviderRankingListPage() {
 function applyFilter({
   inputData,
   comparator,
-  filters,
+  filters
 }: {
-  inputData: IRankingItem[]; // Updated type
-  comparator: (a: any, b: any) => number;
-  filters: IRankingTableFilters; // Updated type
+  inputData: IRankingItem[] // Updated type
+  comparator: (a: any, b: any) => number
+  filters: IRankingTableFilters // Updated type
 }) {
-  const { name, status } = filters;
+  const { name, status } = filters
 
-  const stabilizedThis = inputData.map((el, index) => [el, index] as const);
+  const stabilizedThis = inputData.map((el, index) => [el, index] as const)
 
   stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
+    const order = comparator(a[0], b[0])
+    if (order !== 0) return order
+    return a[1] - b[1]
+  })
 
-  inputData = stabilizedThis.map((el) => el[0]);
+  inputData = stabilizedThis.map(el => el[0])
 
   if (name) {
-    inputData = inputData.filter(
-      (ranking) => ranking?.name?.toLowerCase().includes(name?.toLowerCase())
-    );
+    inputData = inputData.filter(ranking =>
+      ranking?.name?.toLowerCase().includes(name?.toLowerCase())
+    )
   }
 
   if (status !== 'all') {
-    inputData = inputData.filter((ranking) => ranking.status === status);
+    inputData = inputData.filter(ranking => ranking.status === status)
   }
 
-  return inputData;
+  return inputData
 }

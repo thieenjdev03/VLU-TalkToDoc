@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useState, useEffect } from 'react'
+
 import { Box, Typography } from '@mui/material'
 import AccessTimeIcon from '@mui/icons-material/AccessTime'
 
@@ -17,19 +18,22 @@ export default function CallTimer({
   const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
-    if (isRunning) {
-      const id = setInterval(() => {
-        setSeconds(prev => prev + 1)
-      }, 1000)
-      setIntervalId(id)
-    } else {
-      if (intervalId) clearInterval(intervalId)
-      if (seconds > 0 && onEnd) onEnd(seconds)
+    if (!isRunning) {
+      if (onEnd && seconds > 0) onEnd(seconds)
+      return
     }
 
+    const id = setInterval(() => {
+      setSeconds(prev => prev + 1)
+    }, 1000)
+
     return () => {
-      if (intervalId) clearInterval(intervalId)
+      clearInterval(id)
     }
+  }, [isRunning])
+
+  useEffect(() => {
+    if (!isRunning) setSeconds(0)
   }, [isRunning])
 
   const formatTime = (sec: number) => {

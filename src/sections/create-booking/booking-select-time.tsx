@@ -1,17 +1,18 @@
 'use client'
 
 import dayjs from 'dayjs'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import Select, { components as selectComponents } from 'react-select'
 
 import { Avatar, Button, Typography } from '@mui/material'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { DateCalendar, LocalizationProvider } from '@mui/x-date-pickers'
 
+import { createAppointment } from 'src/api/appointment'
+
 import { IUserItem } from 'src/types/user'
 
 import DoctorModal from '../user/detail-doctor'
-import { createAppointment } from 'src/api/appointment'
 
 type Props = {
   doctors: IUserItem[]

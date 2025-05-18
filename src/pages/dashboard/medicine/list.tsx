@@ -1,33 +1,33 @@
-import isEqual from 'lodash/isEqual';
-import { useState, useEffect, useCallback } from 'react';
+import isEqual from 'lodash/isEqual'
+import { useState, useEffect, useCallback } from 'react'
 
-import Tab from '@mui/material/Tab';
-import Tabs from '@mui/material/Tabs';
-import Card from '@mui/material/Card';
-import Table from '@mui/material/Table';
-import Button from '@mui/material/Button';
-import Tooltip from '@mui/material/Tooltip';
-import { alpha } from '@mui/material/styles';
-import Container from '@mui/material/Container';
-import TableBody from '@mui/material/TableBody';
-import IconButton from '@mui/material/IconButton';
-import TableContainer from '@mui/material/TableContainer';
+import Tab from '@mui/material/Tab'
+import Tabs from '@mui/material/Tabs'
+import Card from '@mui/material/Card'
+import Table from '@mui/material/Table'
+import Button from '@mui/material/Button'
+import Tooltip from '@mui/material/Tooltip'
+import { alpha } from '@mui/material/styles'
+import Container from '@mui/material/Container'
+import TableBody from '@mui/material/TableBody'
+import IconButton from '@mui/material/IconButton'
+import TableContainer from '@mui/material/TableContainer'
 
-import { paths } from 'src/routes/paths';
-import { RouterLink } from 'src/routes/components';
+import { paths } from 'src/routes/paths'
+import { RouterLink } from 'src/routes/components'
 
-import { useBoolean } from 'src/hooks/use-boolean';
+import { useBoolean } from 'src/hooks/use-boolean'
 
-import { USER_STATUS_OPTIONS } from 'src/_mock';
-import { useGetMedicine, useDeleteMedicine } from 'src/api/medicine';
+import { USER_STATUS_OPTIONS } from 'src/_mock'
+import { useGetMedicine, useDeleteMedicine } from 'src/api/medicine'
 
-import Label from 'src/components/label';
-import Iconify from 'src/components/iconify';
-import Scrollbar from 'src/components/scrollbar';
-import { useSnackbar } from 'src/components/snackbar';
-import { ConfirmDialog } from 'src/components/custom-dialog';
-import { useSettingsContext } from 'src/components/settings';
-import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
+import Label from 'src/components/label'
+import Iconify from 'src/components/iconify'
+import Scrollbar from 'src/components/scrollbar'
+import { useSnackbar } from 'src/components/snackbar'
+import { ConfirmDialog } from 'src/components/custom-dialog'
+import { useSettingsContext } from 'src/components/settings'
+import CustomBreadcrumbs from 'src/components/custom-breadcrumbs'
 import {
   useTable,
   emptyRows,
@@ -36,131 +36,145 @@ import {
   TableEmptyRows,
   TableHeadCustom,
   TableSelectedAction,
-  TablePaginationCustom,
-} from 'src/components/table';
+  TablePaginationCustom
+} from 'src/components/table'
 
-import MedicineTableToolbar from 'src/sections/medicine/table-toolbar';
+import MedicineTableToolbar from 'src/sections/medicine/table-toolbar'
 // Updated to use ranking toolbar
-import MedicineTableRow from 'src/sections/medicine/speciality-table-row';
+import MedicineTableRow from 'src/sections/medicine/medicine-table-row'
 // Updated to use ranking filters result
 
 import {
   IMedicineItem,
   IMedicineTableFilters,
-  IMedicineTableFilterValue,
-} from 'src/types/medicine'; // Updated types
-import CSVUploadModal from './CSVUploadModal'; // Updated to use provider ranking API
+  IMedicineTableFilterValue
+} from 'src/types/medicine' // Updated types
+import CSVUploadModal from './CSVUploadModal' // Updated to use provider ranking API
 
 // ----------------------------------------------------------------------
 
-const STATUS_OPTIONS = [{ value: 'all', label: 'Tất Cả' }, ...USER_STATUS_OPTIONS];
+const STATUS_OPTIONS = [
+  { value: 'all', label: 'Tất Cả' },
+  ...USER_STATUS_OPTIONS
+]
 const TABLE_HEAD_MEDICINE = [
   { id: 'id', label: 'Mã Thuốc', width: 100 },
   { id: 'name', label: 'Tên Thuốc', width: '25%' },
   { id: 'price', label: 'Giá Bán', width: '15%' },
   { id: 'quantity', label: 'Số Lượng', width: '10%' },
-  { id: 'createdAt', label: 'Ngày Thêm', width: '20%' },
-];
+  { id: 'createdAt', label: 'Ngày Thêm', width: '20%' }
+]
 const defaultFilters: IMedicineTableFilters = {
   name: '',
   status: 'all',
-  ranking: [],
-};
+  ranking: []
+}
 
 // ----------------------------------------------------------------------
 
 export default function ProviderMedicineListPage() {
-  const { enqueueSnackbar } = useSnackbar();
-  const [open, setOpen] = useState(false);
-  const table = useTable();
+  const { enqueueSnackbar } = useSnackbar()
+  const [open, setOpen] = useState(false)
+  const table = useTable()
 
-  const settings = useSettingsContext();
+  const settings = useSettingsContext()
 
-  const confirm = useBoolean();
+  const confirm = useBoolean()
 
-  const [tableData, setTableData] = useState<any[]>([]); // Updated state type
+  const [tableData, setTableData] = useState<any[]>([]) // Updated state type
 
-  const [filters, setFilters] = useState(defaultFilters);
+  const [filters, setFilters] = useState(defaultFilters)
 
   const dataFiltered = applyFilter({
     inputData: tableData,
     comparator: getComparator(table.order, table.orderBy),
-    filters,
-  });
-  const [searchQuery, setSearchQuery] = useState('');
-  const { medicine, medicineLoading, medicineError, medicineValidating } = useGetMedicine({
-    keyword: searchQuery,
-    page: table.page + 1,
-    limit: table.rowsPerPage,
-    sortField: table.orderBy || 'fullName',
-    sortOrder: table.order || 'asc',
-  });
+    filters
+  })
+  const [searchQuery, setSearchQuery] = useState('')
+  const { medicine, medicineLoading, medicineError, medicineValidating } =
+    useGetMedicine({
+      keyword: searchQuery,
+      page: table.page + 1,
+      limit: table.rowsPerPage,
+      sortField: table.orderBy || 'fullName',
+      sortOrder: table.order || 'asc'
+    })
 
   useEffect(() => {
     if (medicine?.data?.length || []) {
-      console.log('medicine', medicine);
-      setTableData(medicine?.data || []);
+      console.log('medicine', medicine)
+      setTableData(medicine?.data || [])
     } else if (medicineLoading || medicineError || medicineValidating) {
-      setTableData([]);
+      setTableData([])
     }
-  }, [medicine, medicineLoading, medicineError, medicineValidating, table.page, table.rowsPerPage]);
+  }, [
+    medicine,
+    medicineLoading,
+    medicineError,
+    medicineValidating,
+    table.page,
+    table.rowsPerPage
+  ])
 
   const dataInPage = dataFiltered.slice(
     table.page * table.rowsPerPage,
     table.page * table.rowsPerPage + table.rowsPerPage
-  );
+  )
 
-  const denseHeight = table.dense ? 56 : 56 + 20;
+  const denseHeight = table.dense ? 56 : 56 + 20
 
-  const canReset = !isEqual(defaultFilters, filters);
+  const canReset = !isEqual(defaultFilters, filters)
 
-  const notFound = (!tableData.length && canReset) || !tableData.length;
+  const notFound = (!tableData.length && canReset) || !tableData.length
 
   const handleFilters = useCallback(
     (fullName: string, value: IMedicineTableFilterValue) => {
-      table.onResetPage();
-      setFilters((prevState) => ({
+      table.onResetPage()
+      setFilters(prevState => ({
         ...prevState,
-        [fullName]: value,
-      }));
+        [fullName]: value
+      }))
     },
     [table]
-  );
+  )
 
-  const { deleteMedicine } = useDeleteMedicine();
+  const { deleteMedicine } = useDeleteMedicine()
   const handleDeleteRow = useCallback(
     async (id: string) => {
       await deleteMedicine(id)
         .then(() => {
-          enqueueSnackbar('Xoá Cấp Bậc thành công!', { variant: 'success' });
-          table.onUpdatePageDeleteRow(dataInPage.length);
-          confirm.onFalse();
+          enqueueSnackbar('Xoá Cấp Bậc thành công!', { variant: 'success' })
+          table.onUpdatePageDeleteRow(dataInPage.length)
+          confirm.onFalse()
           // window.location.reload();
         })
         .catch(() => {
-          enqueueSnackbar('Không thể xoá Cấp Bậc!', { variant: 'error' });
-        });
+          enqueueSnackbar('Không thể xoá Cấp Bậc!', { variant: 'error' })
+        })
     },
     [dataInPage.length, enqueueSnackbar, table, deleteMedicine, confirm]
-  );
+  )
 
   const handleFilterStatus = useCallback(
     (event: React.SyntheticEvent, newValue: IMedicineTableFilterValue) => {
-      handleFilters('status', newValue);
+      handleFilters('status', newValue)
     },
     [handleFilters]
-  );
+  )
 
   return (
     <>
-      <Container maxWidth={settings.themeStretch ? false : 'lg'} sx={{ overflow: 'hidden' }}>
+      <Container
+        maxWidth={settings.themeStretch ? false : 'lg'}
+        sx={{ overflow: 'hidden' }}
+      >
         <CustomBreadcrumbs
           heading="Quản Lý Thuốc"
           links={[
             {
               name: 'Quản Lý Thuốc',
-              href: paths.dashboard.medicine.list,
-            },
+              href: paths.dashboard.medicine.list
+            }
           ]}
           action={
             <Button
@@ -176,7 +190,7 @@ export default function ProviderMedicineListPage() {
           sx={{
             mb: { xs: 3, md: 5 },
             page: table.page,
-            rowsPerPage: table.rowsPerPage,
+            rowsPerPage: table.rowsPerPage
           }}
         />
 
@@ -186,10 +200,11 @@ export default function ProviderMedicineListPage() {
             onChange={handleFilterStatus}
             sx={{
               px: 2.5,
-              boxShadow: (theme) => `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
+              boxShadow: theme =>
+                `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`
             }}
           >
-            {STATUS_OPTIONS.map((tab) => (
+            {STATUS_OPTIONS.map(tab => (
               <Tab
                 key={tab.value}
                 iconPosition="end"
@@ -198,7 +213,9 @@ export default function ProviderMedicineListPage() {
                 icon={
                   <Label
                     variant={
-                      ((tab.value === 'all' || tab.value === filters.status) && 'filled') || 'soft'
+                      ((tab.value === 'all' || tab.value === filters.status) &&
+                        'filled') ||
+                      'soft'
                     }
                     color={
                       (tab.value === 'Hoạt Động' && 'success') ||
@@ -208,7 +225,8 @@ export default function ProviderMedicineListPage() {
                   >
                     {['Hoạt Động', 'Đã Khoá'].includes(tab.value)
                       ? medicine?.data?.filter(
-                          (_medicine: IMedicineItem) => _medicine.status === tab.value
+                          (_medicine: IMedicineItem) =>
+                            _medicine.status === tab.value
                         ).length
                       : medicine?.total}
                   </Label>
@@ -229,10 +247,10 @@ export default function ProviderMedicineListPage() {
               dense={table.dense}
               numSelected={table.selected.length}
               rowCount={medicine?.data?.length || 0}
-              onSelectAllRows={(checked) =>
+              onSelectAllRows={checked =>
                 table.onSelectAllRows(
                   checked,
-                  tableData.map((row) => row._id)
+                  tableData.map(row => row._id)
                 )
               }
               action={
@@ -245,7 +263,10 @@ export default function ProviderMedicineListPage() {
             />
 
             <Scrollbar>
-              <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
+              <Table
+                size={table.dense ? 'small' : 'medium'}
+                sx={{ minWidth: 960 }}
+              >
                 <TableHeadCustom
                   order={table.order}
                   orderBy={table.orderBy}
@@ -253,16 +274,16 @@ export default function ProviderMedicineListPage() {
                   rowCount={medicine?.data?.length || 0}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
-                  onSelectAllRows={(checked) =>
+                  onSelectAllRows={checked =>
                     table.onSelectAllRows(
                       checked,
-                      tableData.map((row) => row._id)
+                      tableData.map(row => row._id)
                     )
                   }
                 />
 
                 <TableBody>
-                  {dataFiltered.map((row) => (
+                  {dataFiltered.map(row => (
                     <MedicineTableRow
                       key={row._id}
                       row={row}
@@ -274,7 +295,11 @@ export default function ProviderMedicineListPage() {
                   {tableData.length === 0 && (
                     <TableEmptyRows
                       height={denseHeight}
-                      emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
+                      emptyRows={emptyRows(
+                        table.page,
+                        table.rowsPerPage,
+                        tableData.length
+                      )}
                     />
                   )}
 
@@ -298,7 +323,7 @@ export default function ProviderMedicineListPage() {
         open={open}
         onClose={() => setOpen(false)}
         onUpload={(file: File) => {
-          console.log('Uploaded:', file);
+          console.log('Uploaded:', file)
           // handleUploadCSV(file);
         }}
       />
@@ -308,7 +333,8 @@ export default function ProviderMedicineListPage() {
         title="Xoá"
         content={
           <>
-            Bạn có chắc chắn muốn xoá <strong> {table.selected.length} </strong> chuyên khoa?
+            Bạn có chắc chắn muốn xoá <strong> {table.selected.length} </strong>{' '}
+            chuyên khoa?
           </>
         }
         action={
@@ -316,8 +342,8 @@ export default function ProviderMedicineListPage() {
             variant="contained"
             color="error"
             onClick={() => {
-              handleDeleteRow(table.selected[0]);
-              confirm.onFalse();
+              handleDeleteRow(table.selected[0])
+              confirm.onFalse()
             }}
           >
             Xoá
@@ -325,7 +351,7 @@ export default function ProviderMedicineListPage() {
         }
       />
     </>
-  );
+  )
 }
 
 // ----------------------------------------------------------------------
@@ -333,33 +359,33 @@ export default function ProviderMedicineListPage() {
 function applyFilter({
   inputData,
   comparator,
-  filters,
+  filters
 }: {
-  inputData: IMedicineItem[]; // Updated type
-  comparator: (a: any, b: any) => number;
-  filters: IMedicineTableFilters; // Updated type
+  inputData: IMedicineItem[] // Updated type
+  comparator: (a: any, b: any) => number
+  filters: IMedicineTableFilters // Updated type
 }) {
-  const { name, status } = filters;
+  const { name, status } = filters
 
-  const stabilizedThis = inputData.map((el, index) => [el, index] as const);
+  const stabilizedThis = inputData.map((el, index) => [el, index] as const)
 
   stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
+    const order = comparator(a[0], b[0])
+    if (order !== 0) return order
+    return a[1] - b[1]
+  })
 
-  inputData = stabilizedThis.map((el) => el[0]);
+  inputData = stabilizedThis.map(el => el[0])
 
   if (name) {
-    inputData = inputData.filter(
-      (ranking) => ranking?.name?.toLowerCase().includes(name?.toLowerCase())
-    );
+    inputData = inputData.filter(ranking =>
+      ranking?.name?.toLowerCase().includes(name?.toLowerCase())
+    )
   }
 
   if (status !== 'all') {
-    inputData = inputData.filter((ranking) => ranking.status === status);
+    inputData = inputData.filter(ranking => ranking.status === status)
   }
 
-  return inputData;
+  return inputData
 }

@@ -1,4 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
+
+import CallCenterModal from './call-center-modal'
 import IncomingCallPopup from './call-incomming-popup'
 
 interface IncomingCall {
@@ -80,7 +82,10 @@ function CallListener() {
   const stringeeClientRef = useRef<any>(null)
   const [clientConnected, setClientConnected] = useState(false)
   const [callStatus, setCallStatus] = useState('')
-
+  const [openCall, setOpenCall] = useState(false)
+  const [currentAppointment, setCurrentAppointment] = useState<any>(null)
+  const userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}')
+  console.log('openCall', openCall)
   useEffect(() => {
     if (!stringeeAccessToken) return
 
@@ -109,6 +114,7 @@ function CallListener() {
 
   const handleAccept = () => {
     setIncomingCall(null)
+    setOpenCall(true)
   }
 
   const handleReject = () => {
@@ -116,18 +122,34 @@ function CallListener() {
     setIncomingCall(null)
   }
 
+  const handleCloseCallCenter = () => {
+    setOpenCall(false)
+  }
+
   if (!incomingCall) return null
 
   return (
-    <IncomingCallPopup
-      isOpen={!!incomingCall}
-      fullName={incomingCall.fullName}
-      avatarUrl={incomingCall.avatarUrl}
-      role={incomingCall.role}
-      specialtyName={incomingCall.specialtyName}
-      onAccept={handleAccept}
-      onReject={handleReject}
-    />
+    <>
+      <IncomingCallPopup
+        isOpen={!!incomingCall}
+        fullName={incomingCall.fullName}
+        avatarUrl={incomingCall.avatarUrl}
+        role={incomingCall.role}
+        specialtyName={incomingCall.specialtyName}
+        onAccept={handleAccept}
+        onReject={handleReject}
+      />
+
+      <CallCenterModal
+        callStatus="Ended"
+        open={openCall}
+        onClose={handleCloseCallCenter}
+        stringeeAccessToken={stringeeAccessToken || ''}
+        fromUserId={userProfile?._id || ''}
+        userInfor={userProfile}
+        currentAppointment={currentAppointment}
+      />
+    </>
   )
 }
 

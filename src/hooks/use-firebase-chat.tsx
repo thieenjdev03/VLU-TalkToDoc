@@ -1,12 +1,13 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
+  query,
   addDoc,
+  orderBy,
   collection,
   onSnapshot,
-  orderBy,
-  query,
   serverTimestamp
 } from 'firebase/firestore'
+
 import { db } from 'src/firebase/firebase-config'
 
 interface Message {
@@ -53,8 +54,6 @@ export function useFirebaseChat(conversationId: string) {
       setMessages(newMessages)
       setLoading(false)
     })
-
-    return () => unsubscribe()
   }, [conversationId])
 
   return { messages, loading, sendMessage }

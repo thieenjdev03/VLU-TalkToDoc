@@ -304,7 +304,7 @@ export default function ChatView() {
               content: message,
               imageUrls: imageUrls || []
             }
-          ])
+          ] as any)
           const response = await sendMessageToAI(
             newChat._id,
             message,
@@ -314,12 +314,12 @@ export default function ChatView() {
           // Thêm tin nhắn assistant vào state
           addMessages([
             {
-              _id: Date.now().toString() + '_bot',
+              _id: `${Date.now()?.toString()}_bot`,
               role: 'assistant',
               content: response.reply,
               imageUrls: []
             }
-          ])
+          ] as any)
           router.push(`${paths.dashboard.chat}?id=${newChat._id}`)
         } catch (err) {
           setError('Không thể bắt đầu cuộc trò chuyện. Vui lòng thử lại.')
@@ -339,7 +339,7 @@ export default function ChatView() {
           content: message,
           imageUrls: imageUrls || []
         }
-      ])
+      ] as any)
       // Gửi lên API, chỉ nhận reply
       const response = await sendMessageToAI(
         selectedConversationId,
@@ -350,12 +350,12 @@ export default function ChatView() {
       // Thêm tin nhắn assistant vào state
       addMessages([
         {
-          _id: Date.now().toString() + '_bot',
+          _id: `${Date.now()?.toString()}_bot`,
           role: 'assistant',
           content: response.reply,
           imageUrls: []
         }
-      ])
+      ] as any)
     } catch (err) {
       console.error('Error sending message:', err)
       setError('Có lỗi xảy ra khi gửi tin nhắn. Vui lòng thử lại.')

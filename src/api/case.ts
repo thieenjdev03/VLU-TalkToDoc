@@ -1,6 +1,8 @@
+// eslint-disable-next-line react-hooks/rules-of-hooks
 import { useMemo } from 'react'
 import useSWR, { mutate } from 'swr'
 import useSWRMutation from 'swr/mutation'
+
 import { fetcher, endpoints, axiosInstanceV2 } from 'src/utils/axios'
 
 // 1. Lấy danh sách case
@@ -37,8 +39,9 @@ export function useGetCases({
 }
 
 // 2. Lấy chi tiết case
-export function useGetCaseDetail(id?: string) {
+export function getCaseDetail(id?: string) {
   const URL = id ? endpoints.case.detail(id) : null
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const { data, isLoading, error } = useSWR(
     URL ? [URL, { method: 'GET' }] : null,
     ([url, config]) => fetcher([url, config], true)
@@ -51,18 +54,13 @@ export function useGetCaseDetail(id?: string) {
 }
 
 // 3. Tạo/cập nhật case
-export function useSubmitCase() {
-  const { trigger, isMutating, error } = useSWRMutation(
-    endpoints.case.createOrUpdate,
-    async (_url, { arg }) => {
-      const res = await axiosInstanceV2.post(endpoints.case.createOrUpdate, arg)
-      return res.data
-    }
-  )
-  return {
-    submitCase: trigger,
-    isSubmitting: isMutating,
-    error
+export async function submitCase(arg: any) {
+  try {
+    const res = await axiosInstanceV2.post(endpoints.case.createOrUpdate, arg)
+    return res.data
+  } catch (err) {
+    // Xử lý lỗi, trả về hoặc throw tuỳ theo use-case
+    return { error: err }
   }
 }
 

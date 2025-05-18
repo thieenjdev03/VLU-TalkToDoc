@@ -61,10 +61,9 @@ export const deleteAppointment = async (id: string) => {
 }
 
 // Bác sĩ xác nhận lịch hẹn
-export const doctorConfirmAppointment = async (id: string, note?: string) => {
+export const doctorConfirmAppointment = async (id: string) => {
   const response = await axiosInstanceV2.patch(
-    endpoints.appointment.doctorConfirm(id),
-    { note }
+    endpoints.appointment.doctorConfirm(id)
   )
   return response.data
 }
@@ -74,6 +73,27 @@ export const doctorRejectAppointment = async (id: string, reason: string) => {
   const response = await axiosInstanceV2.patch(
     endpoints.appointment.doctorReject(id),
     { reason }
+  )
+  return response.data
+}
+export const submitDoctorRating = async ({
+  doctorId,
+  appointmentId,
+  ratingScore,
+  description
+}: {
+  doctorId: string
+  appointmentId: string
+  ratingScore: number
+  description: string
+}) => {
+  const response = await axiosInstanceV2.patch(
+    endpoints.doctors.submitRating(doctorId),
+    {
+      appointmentId,
+      ratingScore,
+      description
+    }
   )
   return response.data
 }

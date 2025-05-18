@@ -1,43 +1,54 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 
-import { Button, Container, Typography } from '@mui/material';
+import { Button, Container, Typography } from '@mui/material'
 
-import { paths } from 'src/routes/paths';
+import { paths } from 'src/routes/paths'
 
-import { updateAppointment, getAppointmentById } from 'src/sections/create-booking/api';
+import {
+  updateAppointment,
+  getAppointmentById
+} from 'src/sections/create-booking/api'
 
-import VnPayReturnPage from '../vnPay-return-page';
+import VnPayReturnPage from '../payment-vnpay-return-page'
 
 export default function PaymentView() {
-  const navigate = useNavigate();
-  const currentPath = useLocation();
-  const [paymentSuccess, setPaymentSuccess] = useState(false);
-  const [appointmentDetails, setAppointmentDetails] = useState<any>(null);
+  const navigate = useNavigate()
+  const currentPath = useLocation()
+  const [paymentSuccess, setPaymentSuccess] = useState(false)
+  const [appointmentDetails, setAppointmentDetails] = useState<any>(null)
 
   useEffect(() => {
     const handleSubmitPaid = async () => {
-      const appointmentStored = JSON.parse(localStorage.getItem('current_appointment') || '{}');
+      const currentCase = JSON.parse(
+        localStorage.getItem('currentCase') || '{}'
+      )
       const submitPaid = async () => {
         await updateAppointment({
-          appointmentId: appointmentStored?._id,
+          appointmentId: currentCase?.appointmentId,
           data: {
-            ...appointmentStored,
+            patient: currentCase?.patient,
+            doctor: currentCase?.doctor,
+            slot: currentCase?.slot,
+            date: currentCase?.date,
+            timezone: currentCase?.timezone,
             payment: {
-              ...appointmentStored?.payment,
-              billing_status: 'PAID',
-            },
-          },
-        });
-      };
-      if (appointmentStored) {
-        const appointment = await getAppointmentById({ appointmentId: appointmentStored?._id });
-        setAppointmentDetails(appointment);
-        submitPaid();
+              ...currentCase?.payment,
+              billing_status: 'PAID'
+            }
+          }
+        })
       }
-    };
-    handleSubmitPaid();
-  }, [currentPath, paymentSuccess]);
+      if (currentCase) {
+        const appointment = await getAppointmentById({
+          appointmentId: currentCase?.appointmentId
+        })
+        setAppointmentDetails(appointment)
+        submitPaid()
+      }
+    }
+    handleSubmitPaid()
+  }, [currentPath, paymentSuccess])
 
   return (
     <Container
@@ -49,11 +60,20 @@ export default function PaymentView() {
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
-        alignItems: 'center',
+        alignItems: 'center'
       }}
     >
       {(() => {
-        if (currentPath.search.includes('vnp_Amount') && paymentSuccess === false) {
+        if (
+          currentPath.search.includes('vnp_Amount') &&
+          paymentSuccess === false
+        ) {
+          return <VnPayReturnPage setPaymentSuccess={setPaymentSuccess} />
+        }
+        if (
+          currentPath.search.includes('vnp_Amount') &&
+          paymentSuccess === false
+        ) {
           return (
             <div className="flex flex-col items-center justify-center">
               <div className="flex items-center justify-center mb-4">
@@ -78,14 +98,15 @@ export default function PaymentView() {
                 variant="body1"
                 sx={{ color: 'text.secondary', maxWidth: 500, mx: 'auto' }}
               >
-                Đã có lỗi xảy ra trong quá trình thanh toán. Vui lòng thử lại hoặc liên hệ hỗ trợ.
+                Đã có lỗi xảy ra trong quá trình thanh toán. Vui lòng thử lại
+                hoặc liên hệ hỗ trợ.
               </Typography>
               <div className="flex justify-center gap-4 mt-6">
                 <Button
                   variant="outlined"
                   onClick={() => {
-                    navigate(paths.dashboard.root);
-                    localStorage.removeItem('current_appointment');
+                    navigate(paths.dashboard.root)
+                    localStorage.removeItem('currentCase')
                   }}
                 >
                   Về trang chính
@@ -93,17 +114,20 @@ export default function PaymentView() {
                 <Button
                   variant="contained"
                   onClick={() => {
-                    navigate(paths.dashboard.appointment.list);
-                    localStorage.removeItem('current_appointment');
+                    navigate(paths.dashboard.appointment.list)
+                    localStorage.removeItem('currentCase')
                   }}
                 >
                   Xem danh sách lịch hẹn
                 </Button>
               </div>
             </div>
-          );
+          )
         }
-        if (currentPath.search.includes('vnp_Amount') && paymentSuccess === true) {
+        if (
+          currentPath.search.includes('vnp_Amount') &&
+          paymentSuccess === true
+        ) {
           return (
             <>
               <div className="flex items-center justify-center mb-4">
@@ -141,15 +165,19 @@ export default function PaymentView() {
                   <br />
                   Giờ hẹn: {appointmentDetails.booking.slot}
                   <br />
-                  Tổng chi phí: {appointmentDetails.payment.totalFee.toLocaleString('vi-VN')}đ
+                  Tổng chi phí:{' '}
+                  {appointmentDetails?.payment?.totalFee.toLocaleString(
+                    'vi-VN'
+                  )}
+                  đ
                 </Typography>
               )}
               <div className="flex justify-center gap-4 mt-6">
                 <Button
                   variant="outlined"
                   onClick={() => {
-                    navigate(paths.dashboard.root);
-                    localStorage.removeItem('current_appointment');
+                    navigate(paths.dashboard.root)
+                    localStorage.removeItem('currentCase')
                   }}
                 >
                   Về trang chính
@@ -157,18 +185,18 @@ export default function PaymentView() {
                 <Button
                   variant="contained"
                   onClick={() => {
-                    navigate(paths.dashboard.appointment.list);
-                    localStorage.removeItem('current_appointment');
+                    navigate(paths.dashboard.appointment.list)
+                    localStorage.removeItem('currentCase')
                   }}
                 >
                   Xem danh sách lịch hẹn
                 </Button>
               </div>
             </>
-          );
+          )
         }
-        return <VnPayReturnPage setPaymentSuccess={setPaymentSuccess} />;
+        return null
       })()}
     </Container>
-  );
+  )
 }

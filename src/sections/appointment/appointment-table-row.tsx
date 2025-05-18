@@ -69,8 +69,7 @@ export default function AppointmentTableRow({
   // Nếu muốn mở modal ở đây, cần render modal dựa vào quickEdit.value hoặc editForm.value.
 
   const handleOpenCall = () => {
-    setCurrentAppointment(row)
-    setOpenCall(true)
+    setOpenCall(row)
   }
 
   // Sửa lại hàm này để dùng cho nút sửa lịch
@@ -89,11 +88,7 @@ export default function AppointmentTableRow({
   const handleDoctorConfirm = async (accepted: boolean) => {
     try {
       setLoading(true)
-      const data = {
-        id: row._id,
-        accepted
-      }
-      const res = await doctorConfirmAppointment(data)
+      const res = await doctorConfirmAppointment(row._id)
       if (res) {
         enqueueSnackbar(
           accepted

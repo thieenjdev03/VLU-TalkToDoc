@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react'
+import { useMemo, useState, useCallback } from 'react'
 
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
@@ -19,7 +19,7 @@ import { useBoolean } from 'src/hooks/use-boolean'
 
 import { isAfter, isBetween } from 'src/utils/format-time'
 
-import { _orders, ORDER_STATUS_OPTIONS } from 'src/_mock'
+import { useGetCases } from 'src/api/case'
 
 import Label from 'src/components/label'
 import Iconify from 'src/components/iconify'
@@ -48,7 +48,6 @@ import {
 import OrderTableRow from '../case-table-row'
 import OrderTableToolbar from '../case-table-toolbar'
 import OrderTableFiltersResult from '../case-table-filters-result'
-import { useGetCases } from 'src/api/case'
 
 // ----------------------------------------------------------------------
 
@@ -105,28 +104,30 @@ export default function OrderListView() {
     limit: table.rowsPerPage
   })
 
-  const mappedCases = useMemo(() => {
-    return (cases || []).map((item: any) => ({
-      id: item._id,
-      caseId: item._id,
-      patientName: item.patient?.fullName || '',
-      doctorName: item.appointmentId?.doctor?.fullName || '',
-      gender: item.patient?.gender || '',
-      birthYear: item.patient?.birthYear || '',
-      phone: item.patient?.phone || '',
-      totalQuantity: item.offers?.length
-        ? item.offers[item.offers.length - 1].medications?.length
-        : 0,
-      totalAmount: item.offers?.length
-        ? item.offers[item.offers.length - 1].medications?.reduce(
-            (sum: number, m: any) => sum + (m.price || 0),
-            0
-          )
-        : 0,
-      status: item.status,
-      createdAt: item.createdAt
-    }))
-  }, [cases])
+  const mappedCases = useMemo(
+    () =>
+      (cases || []).map((item: any) => ({
+        id: item._id,
+        caseId: item._id,
+        patientName: item.patient?.fullName || '',
+        doctorName: item.appointmentId?.doctor?.fullName || '',
+        gender: item.patient?.gender || '',
+        birthYear: item.patient?.birthYear || '',
+        phone: item.patient?.phone || '',
+        totalQuantity: item.offers?.length
+          ? item.offers[item.offers.length - 1].medications?.length
+          : 0,
+        totalAmount: item.offers?.length
+          ? item.offers[item.offers.length - 1].medications?.reduce(
+              (sum: number, m: any) => sum + (m.price || 0),
+              0
+            )
+          : 0,
+        status: item.status,
+        createdAt: item.createdAt
+      })),
+    [cases]
+  )
 
   const dataFiltered = applyFilter({
     inputData: mappedCases,

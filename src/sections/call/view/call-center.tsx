@@ -1,28 +1,28 @@
 import { Icon } from '@iconify/react'
 import { useRef, useState, useEffect } from 'react'
 
-import {
-  Box,
-  Stack,
-  Alert,
-  Button,
-  Typography,
-  IconButton
-} from '@mui/material'
+import RestoreIcon from '@mui/icons-material/Fullscreen'
+import { Box, Stack, Button, Typography, IconButton } from '@mui/material'
+
 import CallTimer from './call-timer'
 import CallChatBox from './call-chat-box'
+
 interface CallComponentProps {
   stringeeAccessToken: string
   fromUserId: string
   userInfor: any
   currentAppointment: any
+  isMinimized: boolean
+  onMinimize: (isMinimized: boolean) => void
 }
 
 export default function CallCenter({
   stringeeAccessToken,
   fromUserId,
   userInfor,
-  currentAppointment
+  currentAppointment,
+  isMinimized,
+  onMinimize
 }: CallComponentProps) {
   const stringeeClientRef = useRef<any>(null)
   const activeCallRef = useRef<any>(null)
@@ -34,8 +34,6 @@ export default function CallCenter({
   const [isVideoEnabled, setIsVideoEnabled] = useState(true)
   const [callStatus, setCallStatus] = useState('Chưa bắt đầu')
   const [isVideoCall, setIsVideoCall] = useState(false)
-  const [toUserId, setToUserId] = useState('')
-  console.log(isVideoCall)
   useEffect(() => {
     if (!stringeeAccessToken) return
 
@@ -67,7 +65,6 @@ export default function CallCenter({
       setCallStatus('Chưa kết nối hoặc thiếu ID người nhận')
       return
     }
-    console.log('currentAppointment', currentAppointment)
     setIsVideoCall(video)
     const callFromId = userInfor?._id
     const callToId =
@@ -106,7 +103,7 @@ export default function CallCenter({
 
   const answerIncomingCall = () => {
     if (!incomingCall) return
-
+    setIsVideoCall(true)
     activeCallRef.current = incomingCall
     settingCallEvent(incomingCall)
     incomingCall.answer()
@@ -136,6 +133,7 @@ export default function CallCenter({
       setIsVideoEnabled(!isVideoEnabled)
     }
   }
+
   const initialPatientName = userInfor?.fullName
     ? userInfor.fullName
         .split(' ')
@@ -151,8 +149,71 @@ export default function CallCenter({
         .toUpperCase()
     : 'BS'
 
+  if (isMinimized) {
+    // UI thu nhỏ đồng bộ style với Dialog
+    return (
+      <Box
+        sx={{
+          position: 'fixed',
+          bottom: 32,
+          right: 32,
+          width: 320,
+          height: 100,
+          bgcolor: '#212121',
+          color: '#fff',
+          borderRadius: 3,
+          boxShadow: 8,
+          zIndex: 1300,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          px: 3,
+          py: 2
+        }}
+      >
+        <Box display="flex" alignItems="center" gap={2}>
+          <Box
+            sx={{
+              width: 48,
+              height: 48,
+              borderRadius: '50%',
+              backgroundColor: '#3949ab',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 20,
+              fontWeight: 'bold',
+              mr: 1
+            }}
+          >
+            {userInfor?.role === 'PATIENT'
+              ? initialDoctorName
+              : initialPatientName}
+          </Box>
+          <Box>
+            <Typography variant="body2" color="gray">
+              Đang gọi...
+            </Typography>
+            <Typography variant="subtitle2" fontWeight={600}>
+              {userInfor?.role === 'PATIENT'
+                ? currentAppointment?.doctor?.fullName || 'Bác sĩ'
+                : currentAppointment?.patient?.fullName || 'Bệnh nhân'}
+            </Typography>
+          </Box>
+        </Box>
+        <IconButton
+          size="small"
+          sx={{ color: '#fff', ml: 2 }}
+          onClick={() => onMinimize(false)}
+        >
+          <RestoreIcon />
+        </IconButton>
+      </Box>
+    )
+  }
+
   return (
-    <Box display="flex" flexDirection={'column'} gap={1}>
+    <Box display="flex" flexDirection="column" gap={1}>
       <Box
         borderRadius={2}
         display="flex"
@@ -191,8 +252,8 @@ export default function CallCenter({
           direction={{ xs: 'column', sm: 'row' }}
           spacing={{ xs: 2, sm: 4 }}
           width="100%"
-          bgcolor={'white'}
-          p={2}
+          bgcolor="white"
+          p={1}
           borderRadius={2}
         >
           <Stack spacing={0.5} width={{ xs: '100%', sm: 'auto' }}>
@@ -249,39 +310,6 @@ export default function CallCenter({
         gap={2}
         alignItems="center"
       >
-        {/* <TextField
-          label="Call to"
-          value={toUserId}
-          onChange={e => setToUserId(e.target.value)}
-          sx={{
-            mt: 2,
-            width: { xs: '100%', sm: '300px' },
-            maxWidth: '300px'
-          }}
-        />
-
-        <Stack
-          direction={{ xs: 'column', sm: 'row' }}
-          spacing={2}
-          mt={2}
-          width={{ xs: '100%', sm: 'auto' }}
-        >
-          <Button
-            variant="contained"
-            onClick={() => makeCall(false)}
-            disabled={!clientConnected}
-          >
-            Voice Call
-          </Button>
-          <Button
-            variant="contained"
-            onClick={() => makeCall(true)}
-            disabled={!clientConnected}
-          >
-            Video Call
-          </Button>
-        </Stack> */}
-
         {incomingCall && (
           <Box
             sx={{
@@ -358,14 +386,6 @@ export default function CallCenter({
       >
         <Box display="flex" flexDirection="row" gap={2} width="100%">
           <Box display="flex" flexDirection="column" gap={2} width="100%">
-            {callStatus && (
-              <Alert
-                severity="info"
-                sx={{ width: '100%', borderRadius: 1, boxShadow: 3 }}
-              >
-                {callStatus}
-              </Alert>
-            )}
             <Box
               width="100%"
               borderRadius={2}
@@ -373,7 +393,7 @@ export default function CallCenter({
               boxShadow={3}
               position="relative"
               sx={{
-                height: { xs: '580px', sm: '580px' }
+                height: { xs: '60vh', sm: '60vh' }
               }}
               bgcolor={`${isVideoCall ? 'black' : '#242A2F'}`}
             >
@@ -416,28 +436,29 @@ export default function CallCenter({
                 >
                   <track kind="captions" src="" label="English" />
                 </video>
-                {!isVideoCall && (
-                  <Box
-                    sx={{
-                      width: 100,
-                      height: 100,
-                      borderRadius: '50%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: 24,
-                      fontWeight: 'bold',
-                      color: 'white',
-                      position: 'absolute',
-                      top: '50%',
-                      left: '50%',
-                      transform: 'translate(-50%, -50%)',
-                      backgroundColor: '#424141'
-                    }}
-                  >
-                    {userInfor?.role === 'DOCTOR' ? 'BN' : 'BS'}
-                  </Box>
-                )}
+                {isVideoCall ||
+                  (clientConnected && (
+                    <Box
+                      sx={{
+                        width: 100,
+                        height: 100,
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: 24,
+                        fontWeight: 'bold',
+                        color: 'white',
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        backgroundColor: '#424141'
+                      }}
+                    >
+                      {userInfor?.role === 'DOCTOR' ? 'BN' : 'BS'}
+                    </Box>
+                  ))}
               </Box>
 
               {/* Local Video - Small preview at bottom right */}
@@ -503,6 +524,22 @@ export default function CallCenter({
                 </Box>
               </Box>
             </Box>
+            {callStatus && (
+              <span
+                style={{
+                  fontSize: 16,
+                  width: '100%',
+                  fontWeight: 'bold',
+                  padding: 2,
+                  borderRadius: 2,
+                  backgroundColor: '#dfdfdf',
+                  color: 'black',
+                  textAlign: 'center'
+                }}
+              >
+                {callStatus}
+              </span>
+            )}
             <Stack
               direction="row"
               spacing={2}

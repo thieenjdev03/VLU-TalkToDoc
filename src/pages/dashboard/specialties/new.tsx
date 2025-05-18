@@ -1,6 +1,6 @@
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from 'react-helmet-async'
 
-import SpecialtyCreateView from 'src/sections/speciality/view/create-view';
+import SpecialtyCreateView from 'src/sections/specialty/view/create-view'
 // ----------------------------------------------------------------------
 
 export default function SpecialtyCreatePage() {
@@ -12,5 +12,5 @@ export default function SpecialtyCreatePage() {
 
       <SpecialtyCreateView />
     </>
-  );
+  )
 }
