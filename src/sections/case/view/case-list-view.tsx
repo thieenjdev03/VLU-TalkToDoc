@@ -61,12 +61,9 @@ const STATUS_OPTIONS = [
 
 const TABLE_HEAD = [
   { id: 'caseId', label: 'Mã bệnh án', width: 140 },
-  { id: 'patientName', label: 'Bệnh nhân' },
-  { id: 'doctorName', label: 'Bác sĩ', width: 160 },
-  { id: 'gender', label: 'Giới tính', width: 90 },
-  { id: 'birthYear', label: 'Năm sinh', width: 100 },
-  { id: 'phone', label: 'SĐT', width: 130 },
-  { id: 'totalQuantity', label: 'Số thuốc', width: 100, align: 'center' },
+  { id: 'patientName', label: 'Bệnh nhân', minWidth: 200 },
+  { id: 'doctorName', label: 'Bác Sĩ', minWidth: 200 },
+  { id: 'appointmentDate', label: 'Lịch hẹn', width: 120 },
   { id: 'totalAmount', label: 'Tổng tiền', width: 140 },
   { id: 'status', label: 'Trạng thái', width: 110 },
   { id: 'createdAt', label: 'Ngày tạo', width: 140 },
@@ -107,24 +104,15 @@ export default function OrderListView() {
   const mappedCases = useMemo(
     () =>
       (cases || []).map((item: any) => ({
-        id: item._id,
-        caseId: item._id,
-        patientName: item.patient?.fullName || '',
-        doctorName: item.appointmentId?.doctor?.fullName || '',
-        gender: item.patient?.gender || '',
-        birthYear: item.patient?.birthYear || '',
-        phone: item.patient?.phone || '',
-        totalQuantity: item.offers?.length
-          ? item.offers[item.offers.length - 1].medications?.length
-          : 0,
-        totalAmount: item.offers?.length
-          ? item.offers[item.offers.length - 1].medications?.reduce(
-              (sum: number, m: any) => sum + (m.price || 0),
-              0
-            )
-          : 0,
+        _id: item._id,
+        patient: item.patient,
+        specialty: item.specialty,
         status: item.status,
-        createdAt: item.createdAt
+        isDeleted: item.isDeleted,
+        createdAt: item.createdAt,
+        offers: item.offers,
+        updatedAt: item.updatedAt,
+        appointmentId: item.appointmentId
       })),
     [cases]
   )
@@ -274,7 +262,7 @@ export default function OrderListView() {
               onSelectAllRows={checked =>
                 table.onSelectAllRows(
                   checked,
-                  mappedCases.map((row: Record<string, any>) => row.id)
+                  mappedCases.map((row: Record<string, any>) => row._id)
                 )
               }
               action={
@@ -301,7 +289,7 @@ export default function OrderListView() {
                   onSelectAllRows={checked =>
                     table.onSelectAllRows(
                       checked,
-                      mappedCases.map((row: Record<string, any>) => row.id)
+                      mappedCases.map((row: Record<string, any>) => row._id)
                     )
                   }
                 />
@@ -312,14 +300,14 @@ export default function OrderListView() {
                       table.page * table.rowsPerPage,
                       table.page * table.rowsPerPage + table.rowsPerPage
                     )
-                    .map((row: Record<string, any>) => (
+                    .map(row => (
                       <OrderTableRow
-                        key={row.id}
+                        key={row._id}
                         row={row}
-                        selected={table.selected.includes(row.id)}
-                        onSelectRow={() => table.onSelectRow(row.id)}
-                        onDeleteRow={() => handleDeleteRow(row.id)}
-                        onViewRow={() => handleViewRow(row.id)}
+                        selected={table.selected.includes(row._id)}
+                        onSelectRow={() => table.onSelectRow(row._id)}
+                        onDeleteRow={() => handleDeleteRow(row._id)}
+                        onViewRow={() => handleViewRow(row._id)}
                       />
                     ))}
 

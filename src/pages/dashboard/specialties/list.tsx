@@ -156,7 +156,7 @@ export default function SpecialtiesListPage() {
               Tạo mới
             </Button>
           }
-          sx={{ mb: { xs: 3, md: 5 } }}
+          sx={{ mb: { xs: 1, md: 2 } }}
         />
 
         <Card>

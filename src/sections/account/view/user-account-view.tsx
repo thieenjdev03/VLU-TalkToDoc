@@ -26,7 +26,8 @@ import AccountNotifications from '../account-notifications'
 import AccountChangePassword from '../account-change-password'
 
 // ----------------------------------------------------------------------
-
+const userProfile = localStorage.getItem('userProfile')
+const user = JSON.parse(userProfile || '{}')
 const TABS = [
   {
     value: 'general',
@@ -49,11 +50,7 @@ const TABS = [
   //   icon: <Iconify icon="solar:share-bold" width={24} />,
   // },
   {
-    value: 'medical-intake-form',
-    label: 'Hồ sơ bệnh án',
-    icon: <Iconify icon="ic:round-vpn-key" width={24} />
-  },
-  {
+    hidden: user?.role !== 'doctor',
     value: 'availability',
     label: 'Giờ làm việc',
     icon: <Iconify icon="solar:calendar-bold" width={24} />
@@ -95,14 +92,17 @@ export default function AccountView() {
           mb: { xs: 3, md: 5 }
         }}
       >
-        {TABS.map(tab => (
-          <Tab
-            key={tab.value}
-            label={tab.label}
-            icon={tab.icon}
-            value={tab.value}
-          />
-        ))}
+        {TABS.map(
+          tab =>
+            !tab.hidden && (
+              <Tab
+                key={tab.value}
+                label={tab.label}
+                icon={tab.icon}
+                value={tab.value}
+              />
+            )
+        )}
       </Tabs>
 
       {currentTab === 'general' && <AccountGeneral />}

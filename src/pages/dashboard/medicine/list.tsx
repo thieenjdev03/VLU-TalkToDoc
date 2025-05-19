@@ -188,7 +188,7 @@ export default function ProviderMedicineListPage() {
             </Button>
           }
           sx={{
-            mb: { xs: 3, md: 5 },
+            mb: { xs: 1, md: 2 },
             page: table.page,
             rowsPerPage: table.rowsPerPage
           }}

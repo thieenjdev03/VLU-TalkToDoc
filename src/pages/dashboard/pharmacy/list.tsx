@@ -1,28 +1,28 @@
-import isEqual from 'lodash/isEqual';
-import { useState, useEffect, useCallback } from 'react';
+import isEqual from 'lodash/isEqual'
+import { useState, useEffect, useCallback } from 'react'
 
-import Card from '@mui/material/Card';
-import Table from '@mui/material/Table';
-import Button from '@mui/material/Button';
-import Tooltip from '@mui/material/Tooltip';
-import Container from '@mui/material/Container';
-import TableBody from '@mui/material/TableBody';
-import IconButton from '@mui/material/IconButton';
-import TableContainer from '@mui/material/TableContainer';
+import Card from '@mui/material/Card'
+import Table from '@mui/material/Table'
+import Button from '@mui/material/Button'
+import Tooltip from '@mui/material/Tooltip'
+import Container from '@mui/material/Container'
+import TableBody from '@mui/material/TableBody'
+import IconButton from '@mui/material/IconButton'
+import TableContainer from '@mui/material/TableContainer'
 
-import { paths } from 'src/routes/paths';
-import { RouterLink } from 'src/routes/components';
+import { paths } from 'src/routes/paths'
+import { RouterLink } from 'src/routes/components'
 
-import { useBoolean } from 'src/hooks/use-boolean';
+import { useBoolean } from 'src/hooks/use-boolean'
 
-import { useGetPharmacies, useDeletePharmacy } from 'src/api/pharmacy'; // Updated to use pharmacy API
+import { useGetPharmacies, useDeletePharmacy } from 'src/api/pharmacy' // Updated to use pharmacy API
 
-import Iconify from 'src/components/iconify';
-import Scrollbar from 'src/components/scrollbar';
-import { useSnackbar } from 'src/components/snackbar';
-import { ConfirmDialog } from 'src/components/custom-dialog';
-import { useSettingsContext } from 'src/components/settings';
-import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
+import Iconify from 'src/components/iconify'
+import Scrollbar from 'src/components/scrollbar'
+import { useSnackbar } from 'src/components/snackbar'
+import { ConfirmDialog } from 'src/components/custom-dialog'
+import { useSettingsContext } from 'src/components/settings'
+import CustomBreadcrumbs from 'src/components/custom-breadcrumbs'
 import {
   useTable,
   emptyRows,
@@ -30,14 +30,14 @@ import {
   TableEmptyRows,
   TableHeadCustom,
   TableSelectedAction,
-  TablePaginationCustom,
-} from 'src/components/table';
+  TablePaginationCustom
+} from 'src/components/table'
 
-import PharmacyTableToolbar from 'src/sections/pharmacy/table-toolbar'; // Updated to use pharmacy toolbar
-import PharmacyTableRow from 'src/sections/pharmacy/pharmacy-table-row'; // Updated to use pharmacy filters result
-import PharmacyQuickEditForm from 'src/sections/pharmacy/quick-edit-form'; // Import the edit form
+import PharmacyTableToolbar from 'src/sections/pharmacy/table-toolbar' // Updated to use pharmacy toolbar
+import PharmacyTableRow from 'src/sections/pharmacy/pharmacy-table-row' // Updated to use pharmacy filters result
+import PharmacyQuickEditForm from 'src/sections/pharmacy/quick-edit-form' // Import the edit form
 
-import { IPharmacyItem, IPharmacyTableFilters } from 'src/types/pharmacy'; // Updated types
+import { IPharmacyItem, IPharmacyTableFilters } from 'src/types/pharmacy' // Updated types
 
 // ----------------------------------------------------------------------
 
@@ -49,87 +49,92 @@ const TABLE_HEAD_PHARMACY = [
   { id: 'phoneNumber', label: 'Số Điện Thoại', width: '10%' },
   { id: 'is24Hours', label: 'Hoạt Động 24/7', width: '10%' },
   { id: 'isActive', label: 'Kích Hoạt', width: '10%' },
-  { id: '', label: '', width: '10%' },
-];
+  { id: '', label: '', width: '10%' }
+]
 const defaultFilters: IPharmacyTableFilters = {
   name: '',
   status: 'all',
-  pharmacy: [],
-};
+  pharmacy: []
+}
 
 // ----------------------------------------------------------------------
 
 export default function PharmaciesListPage() {
-  const { enqueueSnackbar } = useSnackbar();
-  const table = useTable();
+  const { enqueueSnackbar } = useSnackbar()
+  const table = useTable()
 
-  const settings = useSettingsContext();
+  const settings = useSettingsContext()
 
-  const confirm = useBoolean();
+  const confirm = useBoolean()
 
-  const [tableData, setTableData] = useState<any[]>([]); // Updated state type
+  const [tableData, setTableData] = useState<any[]>([]) // Updated state type
 
-  const [filters, setFilters] = useState(defaultFilters);
+  const [filters, setFilters] = useState(defaultFilters)
 
-  const [selectedPharmacy, setSelectedPharmacy] = useState<IPharmacyItem | undefined>(undefined);
-  const editDialog = useBoolean();
-  const [searchQuery, setSearchQuery] = useState('');
-  const { pharmacies, pharmaciesLoading, pharmaciesError, pharmaciesValidating } = useGetPharmacies(
-    {
-      query: searchQuery,
-      page: table.page + 1,
-      limit: table.rowsPerPage,
-      sortField: table.orderBy || 'name',
-      sortOrder: table.order === 'asc' ? 'asc' : 'desc',
-    }
-  );
+  const [selectedPharmacy, setSelectedPharmacy] = useState<
+    IPharmacyItem | undefined
+  >(undefined)
+  const editDialog = useBoolean()
+  const [searchQuery, setSearchQuery] = useState('')
+  const {
+    pharmacies,
+    pharmaciesLoading,
+    pharmaciesError,
+    pharmaciesValidating
+  } = useGetPharmacies({
+    query: searchQuery,
+    page: table.page + 1,
+    limit: table.rowsPerPage,
+    sortField: table.orderBy || 'name',
+    sortOrder: table.order === 'asc' ? 'asc' : 'desc'
+  })
 
-  const [total, setTotal] = useState(0);
+  const [total, setTotal] = useState(0)
 
   useEffect(() => {
     if (pharmacies?.data?.length) {
-      setTableData(pharmacies?.data);
-      setTotal(pharmacies?.total);
+      setTableData(pharmacies?.data)
+      setTotal(pharmacies?.total)
     } else if (pharmaciesLoading || pharmaciesError || pharmaciesValidating) {
-      setTableData([]);
+      setTableData([])
     }
-  }, [pharmacies, pharmaciesLoading, pharmaciesError, pharmaciesValidating]);
+  }, [pharmacies, pharmaciesLoading, pharmaciesError, pharmaciesValidating])
 
-  const dataInPage = tableData;
+  const dataInPage = tableData
 
-  const denseHeight = table.dense ? 56 : 56 + 20;
+  const denseHeight = table.dense ? 56 : 56 + 20
 
-  const canReset = !isEqual(defaultFilters, filters);
+  const canReset = !isEqual(defaultFilters, filters)
 
-  const notFound = (!tableData.length && canReset) || !tableData.length;
+  const notFound = (!tableData.length && canReset) || !tableData.length
 
   const handleFilters = useCallback(
     (fullName: string, value: any) => {
-      table.onResetPage();
-      setFilters((prevState) => ({
+      table.onResetPage()
+      setFilters(prevState => ({
         ...prevState,
-        [fullName]: value,
-      }));
+        [fullName]: value
+      }))
     },
     [table]
-  );
+  )
 
-  const { deletePharmacy } = useDeletePharmacy();
+  const { deletePharmacy } = useDeletePharmacy()
   const handleDeleteRow = useCallback(
     async (id: string) => {
       await deletePharmacy(id)
         .then(() => {
-          enqueueSnackbar('Xoá nhà thuốc thành công!', { variant: 'success' });
-          table.onUpdatePageDeleteRow(dataInPage.length);
-          confirm.onFalse();
+          enqueueSnackbar('Xoá nhà thuốc thành công!', { variant: 'success' })
+          table.onUpdatePageDeleteRow(dataInPage.length)
+          confirm.onFalse()
           // Trigger refetch after successful deletion
         })
         .catch(() => {
-          enqueueSnackbar('Không thể xoá nhà thuốc!', { variant: 'error' });
-        });
+          enqueueSnackbar('Không thể xoá nhà thuốc!', { variant: 'error' })
+        })
     },
     [dataInPage.length, enqueueSnackbar, table, deletePharmacy, confirm]
-  );
+  )
 
   const handleEditRow = useCallback(
     (_id: string) => {
@@ -137,23 +142,26 @@ export default function PharmaciesListPage() {
       // router.push(paths.dashboard.pharmacies.edit(_id));
 
       // Option 2: Open edit dialog
-      const pharmacy = tableData.find((p) => p._id === _id);
-      setSelectedPharmacy(pharmacy);
-      editDialog.onTrue();
+      const pharmacy = tableData.find(p => p._id === _id)
+      setSelectedPharmacy(pharmacy)
+      editDialog.onTrue()
     },
     [tableData, editDialog]
-  );
+  )
 
   return (
     <>
-      <Container maxWidth={settings.themeStretch ? false : 'lg'} sx={{ overflow: 'hidden' }}>
+      <Container
+        maxWidth={settings.themeStretch ? false : 'lg'}
+        sx={{ overflow: 'hidden' }}
+      >
         <CustomBreadcrumbs
           heading="Quản Lý Nhà Thuốc"
           links={[
             {
               name: 'Quản Lý Nhà Thuốc',
-              href: paths.dashboard.pharmacies.root,
-            },
+              href: paths.dashboard.pharmacies.root
+            }
           ]}
           action={
             <Button
@@ -166,7 +174,7 @@ export default function PharmaciesListPage() {
             </Button>
           }
           sx={{
-            mb: { xs: 3, md: 5 },
+            mb: { xs: 1, md: 2 }
           }}
         />
 
@@ -182,10 +190,10 @@ export default function PharmaciesListPage() {
               dense={table.dense}
               numSelected={table.selected.length}
               rowCount={tableData.length}
-              onSelectAllRows={(checked) =>
+              onSelectAllRows={checked =>
                 table.onSelectAllRows(
                   checked,
-                  tableData.map((row) => row._id)
+                  tableData.map(row => row._id)
                 )
               }
               action={
@@ -198,7 +206,10 @@ export default function PharmaciesListPage() {
             />
 
             <Scrollbar>
-              <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
+              <Table
+                size={table.dense ? 'small' : 'medium'}
+                sx={{ minWidth: 960 }}
+              >
                 <TableHeadCustom
                   order={table.order}
                   orderBy={table.orderBy}
@@ -206,16 +217,16 @@ export default function PharmaciesListPage() {
                   rowCount={tableData.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
-                  onSelectAllRows={(checked) =>
+                  onSelectAllRows={checked =>
                     table.onSelectAllRows(
                       checked,
-                      tableData.map((row) => row._id)
+                      tableData.map(row => row._id)
                     )
                   }
                 />
 
                 <TableBody>
-                  {dataInPage.map((row) => (
+                  {dataInPage.map(row => (
                     <PharmacyTableRow
                       key={row._id}
                       row={row}
@@ -228,7 +239,11 @@ export default function PharmaciesListPage() {
                   {tableData.length === 0 && (
                     <TableEmptyRows
                       height={denseHeight}
-                      emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
+                      emptyRows={emptyRows(
+                        table.page,
+                        table.rowsPerPage,
+                        tableData.length
+                      )}
                     />
                   )}
 
@@ -255,7 +270,8 @@ export default function PharmaciesListPage() {
         title="Xoá"
         content={
           <>
-            Bạn có chắc chắn muốn xoá <strong> {table.selected.length} </strong> nhà thuốc?
+            Bạn có chắc chắn muốn xoá <strong> {table.selected.length} </strong>{' '}
+            nhà thuốc?
           </>
         }
         action={
@@ -263,8 +279,8 @@ export default function PharmaciesListPage() {
             variant="contained"
             color="error"
             onClick={() => {
-              handleDeleteRow(table.selected[0]);
-              confirm.onFalse();
+              handleDeleteRow(table.selected[0])
+              confirm.onFalse()
             }}
           >
             Xoá
@@ -281,5 +297,5 @@ export default function PharmaciesListPage() {
         />
       )}
     </>
-  );
+  )
 }

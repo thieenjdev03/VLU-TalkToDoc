@@ -14,22 +14,123 @@ import ListItemText from '@mui/material/ListItemText'
 import { useBoolean } from 'src/hooks/use-boolean'
 
 import { fDate } from 'src/utils/format-time'
-import { fCurrency } from 'src/utils/format-number'
 
 import Label from 'src/components/label'
 import Iconify from 'src/components/iconify'
 import { ConfirmDialog } from 'src/components/custom-dialog'
 import CustomPopover, { usePopover } from 'src/components/custom-popover'
 
-// Nếu chưa có type CaseItem chuẩn, tạm thời dùng any để tránh lỗi
-type CaseItemAny = any
+interface City {
+  name: string
+  code: number
+  division_type: string
+  codename: string
+  phone_code: number
+}
+
+interface MedicalHistory {
+  condition: string
+  diagnosisDate: string
+  treatment: string
+  _id: string
+}
+
+interface PatientAppointment {
+  doctorId: string
+  date: string
+  status: string
+  _id: string
+}
+
+interface Patient {
+  _id: string
+  username: string
+  email: string
+  fullName: string
+  phoneNumber: string
+  birthDate: string
+  isActive: boolean
+  city: City
+  role: string
+  gender: string
+  medicalHistory: MedicalHistory[]
+  address: string
+  appointments: PatientAppointment[]
+  id: string
+  avatarUrl: string
+}
+
+interface Doctor {
+  _id: string
+  username: string
+  email: string
+  fullName: string
+  phoneNumber: string
+  isActive: boolean
+  city: string
+  role: string
+  specialty: string[]
+  hospital: string
+  experienceYears: number
+  licenseNo: string
+  rank: string
+  position: string
+  registrationStatus: string
+  availability: any[]
+  id: string
+  avatarUrl?: string
+}
+
+interface Specialty {
+  _id: string
+  name: string
+}
+
+interface Payment {
+  platformFee: number
+  doctorFee: number
+  discount: number
+  total: number
+  status: string
+  paymentMethod: string
+  totalFee: number
+  billing_status: string
+}
+
+interface Appointment {
+  _id: string
+  appointmentId: string
+  patient: Patient
+  doctor: Doctor
+  specialty: string
+  date: string
+  slot: string
+  timezone: string
+  status: string
+  payment: Payment
+  createdAt: string
+  updatedAt: string
+}
+
+interface Case {
+  _id: string
+  patient: string
+  specialty: Specialty
+  status: string
+  isDeleted: boolean
+  createdAt: string
+  offers: any[]
+  updatedAt: string
+  appointmentId: Appointment
+}
 
 type Props = {
-  row: CaseItemAny
+  row: Case
   selected: boolean
   onViewRow: VoidFunction
   onSelectRow: VoidFunction
   onDeleteRow: VoidFunction
+  userRole?: string
 }
 
 export default function CaseTableRow({
@@ -37,23 +138,9 @@ export default function CaseTableRow({
   selected,
   onViewRow,
   onSelectRow,
-  onDeleteRow
+  onDeleteRow,
+  userRole = 'patient'
 }: Props) {
-  // destructuring với fallback cho các trường có thể không tồn tại
-  const {
-    items = [],
-    status = '',
-    caseNumber = '',
-    createdAt = '',
-    patient = {},
-    doctor = {},
-    gender = '',
-    birthYear = '',
-    phone = '',
-    totalQuantity = 0,
-    totalAmount = 0
-  } = row || {}
-
   const confirm = useBoolean()
   const collapse = useBoolean()
   const popover = usePopover()
@@ -63,14 +150,17 @@ export default function CaseTableRow({
     if (_status === 'pending') return 'Chờ xử lý'
     if (_status === 'cancelled') return 'Đã hủy'
     if (_status === 'refunded') return 'Hoàn tiền'
+    if (_status === 'draft') return 'Bản nháp'
+    if (_status === 'PENDING') return 'Chờ xử lý'
     return _status
   }
 
   function getStatusColor(_status: string) {
     if (_status === 'completed') return 'success'
-    if (_status === 'pending') return 'warning'
+    if (_status === 'pending' || _status === 'PENDING') return 'warning'
     if (_status === 'cancelled') return 'error'
     if (_status === 'refunded') return 'info'
+    if (_status === 'draft') return 'default'
     return 'default'
   }
 
@@ -90,31 +180,56 @@ export default function CaseTableRow({
             }
           }}
         >
-          {caseNumber}
+          {row.appointmentId?.appointmentId || '-'}
         </Box>
       </TableCell>
 
-      <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-        <Avatar
-          alt={patient?.name || ''}
-          src={patient?.avatarUrl || ''}
-          sx={{ mr: 2 }}
-        />
-        <ListItemText
-          primary={patient?.name || ''}
-          secondary={patient?.email || ''}
-          primaryTypographyProps={{ typography: 'body2' }}
-          secondaryTypographyProps={{
-            component: 'span',
-            color: 'text.disabled'
-          }}
-        />
-      </TableCell>
+      {userRole === 'doctor' ? (
+        // Hiển thị thông tin bệnh nhân cho bác sĩ
+        <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
+          <Avatar
+            alt={row.appointmentId?.patient?.fullName || ''}
+            src={row.appointmentId?.patient?.avatarUrl || ''}
+            sx={{ mr: 2 }}
+          />
+          <ListItemText
+            primary={row.appointmentId?.patient?.fullName || '-'}
+            secondary={`${row.appointmentId?.patient?.phoneNumber || '-'} - ${
+              row.appointmentId?.patient?.email || '-'
+            }`}
+            primaryTypographyProps={{ typography: 'body2' }}
+            secondaryTypographyProps={{
+              component: 'span',
+              color: 'text.disabled'
+            }}
+          />
+        </TableCell>
+      ) : (
+        // Hiển thị thông tin bác sĩ cho bệnh nhân
+        <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
+          <Avatar
+            alt={row.appointmentId?.doctor?.fullName || ''}
+            src={row.appointmentId?.doctor?.avatarUrl || ''}
+            sx={{ mr: 2 }}
+          />
+          <ListItemText
+            primary={row.appointmentId?.doctor?.fullName || '-'}
+            secondary={`${row.appointmentId?.doctor?.phoneNumber || '-'} - ${
+              row.appointmentId?.doctor?.email || '-'
+            }`}
+            primaryTypographyProps={{ typography: 'body2' }}
+            secondaryTypographyProps={{
+              component: 'span',
+              color: 'text.disabled'
+            }}
+          />
+        </TableCell>
+      )}
 
       <TableCell>
         <ListItemText
-          primary={doctor?.name || ''}
-          secondary={doctor?.specialty || ''}
+          primary={row.appointmentId?.doctor?.fullName || '-'}
+          secondary={row.specialty?.name || '-'}
           primaryTypographyProps={{ typography: 'body2', noWrap: true }}
           secondaryTypographyProps={{
             component: 'span',
@@ -125,38 +240,44 @@ export default function CaseTableRow({
 
       <TableCell>
         <ListItemText
-          primary={gender || ''}
+          primary={row.appointmentId?.date || '-'}
+          secondary={row.appointmentId?.slot || '-'}
           primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+          secondaryTypographyProps={{
+            component: 'span',
+            color: 'text.disabled'
+          }}
         />
       </TableCell>
 
       <TableCell>
         <ListItemText
-          primary={birthYear || ''}
+          primary={`${row.appointmentId?.payment?.totalFee?.toLocaleString('vi-VN') || '0'}đ`}
+          secondary={
+            row.appointmentId?.payment?.billing_status === 'PAID'
+              ? 'Đã thanh toán'
+              : 'Chưa thanh toán'
+          }
           primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+          secondaryTypographyProps={{
+            component: 'span',
+            color:
+              row.appointmentId?.payment?.billing_status === 'PAID'
+                ? 'success.main'
+                : 'error.main'
+          }}
         />
       </TableCell>
 
       <TableCell>
-        <ListItemText
-          primary={phone || ''}
-          primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-        />
-      </TableCell>
-
-      <TableCell align="center">{totalQuantity}</TableCell>
-
-      <TableCell>{fCurrency(totalAmount)}</TableCell>
-
-      <TableCell>
-        <Label variant="soft" color={getStatusColor(status)}>
-          {getStatusLabel(status)}
+        <Label variant="soft" color={getStatusColor(row.status)}>
+          {getStatusLabel(row.status)}
         </Label>
       </TableCell>
 
       <TableCell>
         <ListItemText
-          primary={fDate(createdAt)}
+          primary={fDate(row.createdAt)}
           primaryTypographyProps={{ typography: 'body2', noWrap: true }}
         />
       </TableCell>
@@ -194,45 +315,59 @@ export default function CaseTableRow({
           sx={{ bgcolor: 'background.neutral' }}
         >
           <Stack component={Paper} sx={{ m: 1.5 }}>
-            {(items as any[]).map((item: any) => (
-              <Stack
-                key={item.id}
-                direction="row"
-                alignItems="center"
-                sx={{
-                  p: theme => theme.spacing(1.5, 2, 1.5, 1.5),
-                  '&:not(:last-of-type)': {
-                    borderBottom: theme =>
-                      `solid 2px ${theme.palette.background.neutral}`
-                  }
-                }}
-              >
-                <Avatar
-                  src={item.coverUrl}
-                  variant="rounded"
-                  sx={{ width: 48, height: 48, mr: 2 }}
-                />
+            <Stack
+              direction="row"
+              alignItems="center"
+              sx={{ p: 2, typography: 'subtitle2' }}
+            >
+              <Box sx={{ flexGrow: 1 }}>Chi tiết thanh toán</Box>
+            </Stack>
 
-                <ListItemText
-                  primary={item.name}
-                  secondary={item.sku}
-                  primaryTypographyProps={{
-                    typography: 'body2'
-                  }}
-                  secondaryTypographyProps={{
-                    component: 'span',
-                    color: 'text.disabled',
-                    mt: 0.5
-                  }}
-                />
-
-                <Box>x{item.quantity}</Box>
-
-                <Box sx={{ width: 110, textAlign: 'right' }}>
-                  {fCurrency(item.price)}
+            <Stack spacing={2} sx={{ p: 2 }}>
+              <Stack direction="row" justifyContent="space-between">
+                <Box sx={{ typography: 'body2' }}>Phí nền tảng:</Box>
+                <Box sx={{ typography: 'subtitle2' }}>
+                  {`${row.appointmentId?.payment?.platformFee?.toLocaleString('vi-VN') || '0'}đ`}
                 </Box>
               </Stack>
-            ))}
+
+              <Stack direction="row" justifyContent="space-between">
+                <Box sx={{ typography: 'body2' }}>Phí bác sĩ:</Box>
+                <Box sx={{ typography: 'subtitle2' }}>
+                  {`${row.appointmentId?.payment?.doctorFee?.toLocaleString('vi-VN') || '0'}đ`}
+                </Box>
+              </Stack>
+
+              <Stack direction="row" justifyContent="space-between">
+                <Box sx={{ typography: 'body2' }}>Giảm giá:</Box>
+                <Box sx={{ typography: 'subtitle2' }}>
+                  {`${row.appointmentId?.payment?.discount?.toLocaleString('vi-VN') || '0'}đ`}
+                </Box>
+              </Stack>
+
+              <Stack direction="row" justifyContent="space-between">
+                <Box sx={{ typography: 'body2' }}>Tổng cộng:</Box>
+                <Box sx={{ typography: 'subtitle2' }}>
+                  {`${row.appointmentId?.payment?.totalFee?.toLocaleString('vi-VN') || '0'}đ`}
+                </Box>
+              </Stack>
+
+              <Stack direction="row" justifyContent="space-between">
+                <Box sx={{ typography: 'body2' }}>Trạng thái:</Box>
+                <Label
+                  variant="soft"
+                  color={
+                    row.appointmentId?.payment?.billing_status === 'PAID'
+                      ? 'success'
+                      : 'error'
+                  }
+                >
+                  {row.appointmentId?.payment?.billing_status === 'PAID'
+                    ? 'Đã thanh toán'
+                    : 'Chưa thanh toán'}
+                </Label>
+              </Stack>
+            </Stack>
           </Stack>
         </Collapse>
       </TableCell>
@@ -242,7 +377,6 @@ export default function CaseTableRow({
   return (
     <>
       {renderPrimary}
-
       {renderSecondary}
 
       <CustomPopover
@@ -259,35 +393,22 @@ export default function CaseTableRow({
           sx={{ color: 'error.main' }}
         >
           <Iconify icon="solar:trash-bin-trash-bold" />
-          Xóa
+          Xoá
         </MenuItem>
-
-        <MenuItem
-          onClick={() => {
-            onViewRow()
-            popover.onClose()
-          }}
-        >
+        <MenuItem onClick={() => {}}>
           <Iconify icon="solar:eye-bold" />
-          Xem chi tiết
+          Xem Chi Tiết
         </MenuItem>
       </CustomPopover>
 
       <ConfirmDialog
         open={confirm.value}
         onClose={confirm.onFalse}
-        title="Xóa bệnh án"
-        content="Bạn có chắc chắn muốn xóa bệnh án này không?"
+        title="Xoá"
+        content="Bạn có chắc chắn muốn xoá?"
         action={
-          <Button
-            variant="contained"
-            color="error"
-            onClick={() => {
-              onDeleteRow()
-              confirm.onFalse()
-            }}
-          >
-            Xóa
+          <Button variant="contained" color="error" onClick={onDeleteRow}>
+            Xoá
           </Button>
         }
       />

@@ -341,13 +341,10 @@ export function useNavData() {
           {
             hidden: user?.role !== 'DOCTOR',
             title: t('Quản lý bệnh án'),
-            path: paths.dashboard.medicalRecord.root,
-            icon: ICONS.medical,
+            path: paths.dashboard.case.root,
+            icon: ICONS.order,
             children: [
-              {
-                title: t('Danh Sách'),
-                path: paths.dashboard.medicalRecord.list
-              }
+              { title: t('Danh Sách'), path: paths.dashboard.case.list }
             ]
           }
           // {

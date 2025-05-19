@@ -5,6 +5,8 @@ import { Button, Container, Typography } from '@mui/material'
 
 import { paths } from 'src/routes/paths'
 
+import { submitCase } from 'src/api/case'
+
 import {
   updateAppointment,
   getAppointmentById
@@ -24,6 +26,11 @@ export default function PaymentView() {
         localStorage.getItem('currentCase') || '{}'
       )
       const submitPaid = async () => {
+        await submitCase({
+          case_id: currentCase?._id,
+          action: 'submit',
+          appointment_id: currentCase?.appointmentId
+        })
         await updateAppointment({
           appointmentId: currentCase?.appointmentId,
           data: {
@@ -164,12 +171,6 @@ export default function PaymentView() {
                   Ngày: {appointmentDetails.booking.date}
                   <br />
                   Giờ hẹn: {appointmentDetails.booking.slot}
-                  <br />
-                  Tổng chi phí:{' '}
-                  {appointmentDetails?.payment?.totalFee.toLocaleString(
-                    'vi-VN'
-                  )}
-                  đ
                 </Typography>
               )}
               <div className="flex justify-center gap-4 mt-6">

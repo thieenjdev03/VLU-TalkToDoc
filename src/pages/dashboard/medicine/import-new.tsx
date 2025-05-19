@@ -1,5 +1,5 @@
-import Papa from 'papaparse';
-import React, { useState } from 'react';
+import Papa from 'papaparse'
+import React, { useState } from 'react'
 
 import {
   Box,
@@ -11,33 +11,33 @@ import {
   TableCell,
   TableBody,
   Typography,
-  CircularProgress,
-} from '@mui/material';
+  CircularProgress
+} from '@mui/material'
 
-import { paths } from 'src/routes/paths';
+import { paths } from 'src/routes/paths'
 
-import { API_URL } from 'src/config-global';
+import { API_URL } from 'src/config-global'
 
-import { useSnackbar } from 'src/components/snackbar';
-import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
+import { useSnackbar } from 'src/components/snackbar'
+import CustomBreadcrumbs from 'src/components/custom-breadcrumbs'
 
 export default function PreviewImportMedicine(props: any) {
-  const { onUpload } = props;
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [csvData, setCsvData] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [importResult, setImportResult] = useState<any>(null);
-  const { enqueueSnackbar } = useSnackbar();
+  const { onUpload } = props
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [csvData, setCsvData] = useState<any[]>([])
+  const [loading, setLoading] = useState(false)
+  const [importResult, setImportResult] = useState<any>(null)
+  const { enqueueSnackbar } = useSnackbar()
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+    const file = e.target.files?.[0]
     if (file) {
-      setSelectedFile(file);
-      setImportResult(null);
+      setSelectedFile(file)
+      setImportResult(null)
       Papa.parse(file, {
         header: true,
         skipEmptyLines: true,
-        complete: (results) => {
+        complete: results => {
           const parsed = results.data.map((r: any) => ({
             id: r.ID,
             name: r.Name,
@@ -46,50 +46,58 @@ export default function PreviewImportMedicine(props: any) {
             refill: r.Refill,
             finalCost: r['Final Cost'],
             feeCost: r['Fee Cost'],
-            prescriptionFee: r['Prescription Fee'],
-          }));
-          setCsvData(parsed);
-        },
-      });
+            prescriptionFee: r['Prescription Fee']
+          }))
+          setCsvData(parsed)
+        }
+      })
     }
-  };
+  }
 
   const handleUpload = async () => {
-    if (!selectedFile) return;
-    const formData = new FormData();
-    formData.append('file', selectedFile);
+    if (!selectedFile) return
+    const formData = new FormData()
+    formData.append('file', selectedFile)
 
     try {
-      setLoading(true);
+      setLoading(true)
       const res = await fetch(`${API_URL}/api/v1/medicines/import`, {
         method: 'POST',
-        body: formData,
-      });
-      if (!res.ok) throw new Error('Import lỗi');
-      const result = await res.json();
-      setImportResult(result);
-      onUpload?.(result);
-      enqueueSnackbar('Import thành công!', { variant: 'success' });
+        body: formData
+      })
+      if (!res.ok) throw new Error('Import lỗi')
+      const result = await res.json()
+      setImportResult(result)
+      onUpload?.(result)
+      enqueueSnackbar('Import thành công!', { variant: 'success' })
     } catch (err) {
-      console.error(err);
-      enqueueSnackbar('Import thất bại.', { variant: 'error' });
+      console.error(err)
+      enqueueSnackbar('Import thất bại.', { variant: 'error' })
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleDownloadSample = () => {
-    window.open('/sample-template.csv');
-  };
+    window.open('/sample-template.csv')
+  }
   return (
-    <Paper sx={{ p: 4, borderRadius: 2, width: '100%', height: '100vh', boxShadow: 3 }}>
+    <Paper
+      sx={{
+        p: 4,
+        borderRadius: 2,
+        width: '100%',
+        height: '100vh',
+        boxShadow: 3
+      }}
+    >
       <CustomBreadcrumbs
         heading="Import Thuốc từ File CSV"
         links={[
           { name: 'Quản Lý Thuốc', href: paths.dashboard.medicine.list },
-          { name: 'Import CSV' },
+          { name: 'Import CSV' }
         ]}
-        sx={{ mb: { xs: 3, md: 5 } }}
+        sx={{ mb: { xs: 1, md: 2 } }}
       />
 
       <Box
@@ -104,14 +112,15 @@ export default function PreviewImportMedicine(props: any) {
           transition: 'all 0.2s ease',
           '&:hover': {
             backgroundColor: '#f3f4f6',
-            borderColor: '#60a5fa',
-          },
+            borderColor: '#60a5fa'
+          }
         }}
         onClick={() => document.getElementById('csv-file-input')?.click()}
       >
         <i className="fa-solid fa-cloud-arrow-up fa-2xl text-gray-500 mb-3" />
         <Typography fontSize={15} color="text.secondary">
-          <strong className="text-blue-600">Nhấn hoặc kéo thả</strong> để chọn file CSV
+          <strong className="text-blue-600">Nhấn hoặc kéo thả</strong> để chọn
+          file CSV
         </Typography>
         <Typography fontSize={13} mt={1} color="gray">
           Chấp nhận định dạng <code>.csv</code> và <code>.xlsx</code>
@@ -127,7 +136,13 @@ export default function PreviewImportMedicine(props: any) {
       </Box>
 
       {selectedFile && (
-        <Box mt={2} display="flex" alignItems="center" justifyContent="center" gap={1}>
+        <Box
+          mt={2}
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          gap={1}
+        >
           <i className="fa-solid fa-file-csv text-green-600" />
           <Typography>{selectedFile.name}</Typography>
         </Box>
@@ -148,7 +163,12 @@ export default function PreviewImportMedicine(props: any) {
       </Box>
       {importResult && (
         <Box mt={4}>
-          <Typography variant="subtitle1" fontWeight={700} color="primary" gutterBottom>
+          <Typography
+            variant="subtitle1"
+            fontWeight={700}
+            color="primary"
+            gutterBottom
+          >
             ✅ Kết quả Import
           </Typography>
           <Box
@@ -160,11 +180,12 @@ export default function PreviewImportMedicine(props: any) {
               backgroundColor: '#f9fafb',
               borderRadius: 2,
               p: 2,
-              mt: 1,
+              mt: 1
             }}
           >
             <div>
-              <strong>Tổng dòng dòng thuốc đã xử lý:</strong> {importResult.total}
+              <strong>Tổng dòng dòng thuốc đã xử lý:</strong>{' '}
+              {importResult.total}
             </div>
             <div>
               <strong>Đã xử lý:</strong> {importResult.processed}
@@ -183,7 +204,9 @@ export default function PreviewImportMedicine(props: any) {
             </div>
             <div>
               <strong className="text-red-500">Lỗi:</strong>{' '}
-              <span style={{ color: importResult.failed > 0 ? 'red' : 'green' }}>
+              <span
+                style={{ color: importResult.failed > 0 ? 'red' : 'green' }}
+              >
                 {importResult.failed}
               </span>
             </div>
@@ -231,10 +254,18 @@ export default function PreviewImportMedicine(props: any) {
         </Box>
       )}
       <Box mt={4} display="flex" justifyContent="center" gap={2}>
-        <Button onClick={handleUpload} variant="contained" disabled={!selectedFile || loading}>
-          {loading ? <CircularProgress size={20} color="inherit" /> : 'Xác nhận'}
+        <Button
+          onClick={handleUpload}
+          variant="contained"
+          disabled={!selectedFile || loading}
+        >
+          {loading ? (
+            <CircularProgress size={20} color="inherit" />
+          ) : (
+            'Xác nhận'
+          )}
         </Button>
       </Box>
     </Paper>
-  );
+  )
 }
