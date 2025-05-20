@@ -1,21 +1,21 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom'
 
-import Button from '@mui/material/Button';
-import Container from '@mui/material/Container';
-import Grid from '@mui/material/Unstable_Grid2';
+import Button from '@mui/material/Button'
+import Container from '@mui/material/Container'
+import Grid from '@mui/material/Unstable_Grid2'
 
-import { SeoIllustration } from 'src/assets/illustrations';
+import { SeoIllustration } from 'src/assets/illustrations'
 
-import { useSettingsContext } from 'src/components/settings';
+import { useSettingsContext } from 'src/components/settings'
 
-import AppWelcome from '../app-welcome';
+import AppWelcome from '../app-welcome'
 // ----------------------------------------------------------------------
 
 export default function OverviewAppView() {
-  const userProfile = localStorage.getItem('userProfile');
-  const user = JSON.parse(userProfile || '{}');
-  const navigate = useNavigate();
-  const settings = useSettingsContext();
+  const userProfile = localStorage.getItem('userProfile')
+  const user = JSON.parse(userProfile || '{}')
+  const navigate = useNavigate()
+  const settings = useSettingsContext()
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
       <Grid container spacing={3}>
@@ -227,5 +227,5 @@ export default function OverviewAppView() {
         </Grid> */}
       </Grid>
     </Container>
-  );
+  )
 }

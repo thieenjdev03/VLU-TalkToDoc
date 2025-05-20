@@ -21,7 +21,6 @@ import {
 import Label from 'src/components/label'
 import Iconify from 'src/components/iconify'
 import { useSnackbar } from 'src/components/snackbar'
-import { ConfirmDialog } from 'src/components/custom-dialog'
 import CustomPopover, { usePopover } from 'src/components/custom-popover'
 
 import BookingTimeModal from './appointment-reschedule-modal'
@@ -37,6 +36,7 @@ type Props = {
   onDeleteRow: VoidFunction
   user: any
   doctorsList: any[]
+  onCancelAppointment: VoidFunction
 }
 
 export default function AppointmentTableRow({
@@ -47,7 +47,8 @@ export default function AppointmentTableRow({
   onDeleteRow,
   typeUser,
   doctorsList,
-  user
+  user,
+  onCancelAppointment
 }: Props) {
   const { appointmentId, patient, status, payment } = row as any
   const quickEdit = useBoolean()
@@ -296,8 +297,10 @@ export default function AppointmentTableRow({
           sx={{ mr: 2 }}
         />
         <ListItemText
-          primary={row?.doctor?.fullName || 'Chưa xác định'}
-          secondary={row?.doctor?.email || '-'}
+          primary={row?.doctor?.fullName || '-'}
+          secondary={`${row?.doctor?.phoneNumber || '-'} - ${
+            row?.doctor?.email || '-'
+          }`}
           primaryTypographyProps={{ typography: 'body2' }}
           secondaryTypographyProps={{
             component: 'span',
@@ -352,13 +355,14 @@ export default function AppointmentTableRow({
       </TableCell>
 
       <TableCell align="center">
-        <Typography variant="body2">{row.cancelReason || '-'}</Typography>
-      </TableCell>
-
-      <TableCell align="center">
         {row?.status === 'CONFIRMED' && (
           <Button
-            sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 1
+            }}
             variant="contained"
             color="primary"
             onClick={handleOpenCall}
@@ -367,6 +371,9 @@ export default function AppointmentTableRow({
             <span>Gọi</span>
           </Button>
         )}
+      </TableCell>
+      <TableCell align="center">
+        <Typography variant="body2">{row.cancelReason || '-'}</Typography>
       </TableCell>
       <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
         <Tooltip title="Sửa Lịch" placement="top" arrow>
@@ -400,13 +407,14 @@ export default function AppointmentTableRow({
       >
         <MenuItem
           onClick={() => {
+            onCancelAppointment()
             confirm.onTrue()
             popover.onClose()
           }}
           sx={{ color: 'error.main' }}
         >
           <Iconify icon="solar:trash-bin-trash-bold" />
-          Xoá
+          Huỷ Lịch
         </MenuItem>
       </CustomPopover>
       <BookingTimeModal
@@ -422,7 +430,7 @@ export default function AppointmentTableRow({
           console.log('Updated:', payload)
         }}
       />
-      <ConfirmDialog
+      {/* <ConfirmDialog
         open={confirm.value || false}
         onClose={confirm.onFalse}
         title="Xoá lịch hẹn"
@@ -437,7 +445,7 @@ export default function AppointmentTableRow({
             {deleting ? 'Đang xoá...' : 'Xoá'}
           </Button>
         }
-      />
+      /> */}
     </>
   )
 }

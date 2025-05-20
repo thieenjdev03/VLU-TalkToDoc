@@ -21,7 +21,11 @@ import { isAfter, isBetween } from 'src/utils/format-time'
 
 import { useGetUsers } from 'src/api/user'
 import { useCallStore } from 'src/store/call-store'
-import { getAppointments, submitDoctorRating } from 'src/api/appointment'
+import {
+  getAppointments,
+  cancelAppointment,
+  submitDoctorRating
+} from 'src/api/appointment'
 
 import Label from 'src/components/label'
 import Iconify from 'src/components/iconify'
@@ -41,8 +45,6 @@ import {
   TablePaginationCustom
 } from 'src/components/table'
 
-import CallListener from 'src/sections/call/view/call-listener'
-
 import {
   IAppointmentItem,
   IAppointmentTableFilters,
@@ -51,6 +53,7 @@ import {
 
 import '../styles/index.scss'
 import AppointmentTableRow from '../appointment-table-row'
+import CancelReasonDialog from '../appointment-cancel-modal'
 import AppointmentTableToolbar from '../appointment-table-toolbar'
 
 const STATUS_OPTIONS = [
@@ -128,6 +131,8 @@ export default function AppointmentListView() {
   const [tableData, setTableData] = useState<IAppointmentItem[]>([])
   const [filters, setFilters] =
     useState<IAppointmentTableFilters>(defaultFilters)
+  const [openCancelDialog, setOpenCancelDialog] = useState(false)
+  const [cancelReason, setCancelReason] = useState('')
   const { openCall, currentAppointment } = useCallStore()
   const dateError = isAfter(filters?.startDate, filters?.endDate)
   const userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}')
@@ -159,6 +164,20 @@ export default function AppointmentListView() {
     sortField: 'createdAt',
     sortOrder: 'desc'
   })
+  const handleCancelAppointment = (appointmentId: string) => {
+    setOpenCancelDialog(true)
+  }
+
+  const handleConfirmCancel = async (appointmentId: string) => {
+    const response = await cancelAppointment(appointmentId)
+    setOpenCancelDialog(false)
+    if (response.statusCode === 200) {
+      enqueueSnackbar('Hủy lịch hẹn thành công!')
+    } else {
+      enqueueSnackbar('Hủy lịch hẹn thất bại!')
+    }
+    setCancelReason('')
+  }
 
   const handleSubmitRating = async (rating: number, comment: string) => {
     console.log(rating, comment)
@@ -255,7 +274,7 @@ export default function AppointmentListView() {
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
         <CustomBreadcrumbs
-          heading="Danh sách"
+          heading="Danh sách lịch hẹn"
           links={[
             {
               name: 'Bảng điều khiển',
@@ -378,6 +397,9 @@ export default function AppointmentListView() {
                         onSelectRow={() => table.onSelectRow(row._id)}
                         onDeleteRow={() => handleDeleteRow(row._id)}
                         onViewRow={() => handleViewRow(row._id)}
+                        onCancelAppointment={() =>
+                          handleCancelAppointment(row._id)
+                        }
                         user={userProfile}
                       />
                     ))}
@@ -409,7 +431,11 @@ export default function AppointmentListView() {
           />
         </Card>
       </Container>
-      <CallListener />
+      <CancelReasonDialog
+        open={openCancelDialog}
+        onClose={() => setOpenCancelDialog(false)}
+        onSubmit={handleConfirmCancel}
+      />
       <ConfirmDialog
         open={confirm.value}
         onClose={confirm.onFalse}

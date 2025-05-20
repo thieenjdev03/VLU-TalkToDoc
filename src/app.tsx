@@ -19,7 +19,7 @@ import SnackbarProvider from 'src/components/snackbar/snackbar-provider'
 import { SettingsDrawer, SettingsProvider } from 'src/components/settings'
 
 import { CheckoutProvider } from 'src/sections/checkout/context'
-
+import CallListener from 'src/sections/call/view/call-listener'
 import { AuthProvider } from 'src/auth/context/jwt'
 // import { AuthProvider } from 'src/auth/context/auth0';
 // import { AuthProvider } from 'src/auth/context/amplify';
@@ -76,7 +76,7 @@ export default function App() {
                   <SettingsDrawer />
                   <ProgressBar />
                   <Router />
-                  {/* <CallListener />a */}
+                  <CallListener />
                 </CheckoutProvider>
               </SnackbarProvider>
             </MotionLazy>

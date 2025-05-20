@@ -16,7 +16,49 @@ import {
   DialogActions
 } from '@mui/material'
 
+import { getUserById } from 'src/api/user'
+
 import { IUserItem } from 'src/types/user'
+
+interface TimeSlot {
+  index: number
+  timeStart: string
+  timeEnd: string
+  _id?: string
+}
+
+interface AvailabilityItem {
+  dayOfWeek: number
+  timeSlot: TimeSlot[]
+}
+
+const DEFAULT_WORKING_HOURS: TimeSlot[] = [
+  { index: 0, timeStart: '08:00', timeEnd: '11:30' },
+  { index: 1, timeStart: '13:30', timeEnd: '17:00' }
+]
+
+// Trả về mảng giờ mặc định cho tất cả các ngày
+const getDefaultSlotsForDay = () => generateTimeSlots(DEFAULT_WORKING_HOURS)
+
+const generateTimeSlots = (timeSlots: TimeSlot[]): string[] => {
+  const slots: string[] = []
+  const excludeBreakTime = ['12:00', '12:30', '13:00', '13:30']
+
+  timeSlots.forEach(slot => {
+    let current = dayjs(`2025-04-08T${slot.timeStart}`)
+    const endTime = dayjs(`2025-04-08T${slot.timeEnd}`)
+
+    while (current.isBefore(endTime)) {
+      const timeStr = current.format('HH:mm')
+      if (!excludeBreakTime.includes(timeStr)) {
+        slots.push(timeStr)
+      }
+      current = current.add(30, 'minute')
+    }
+  })
+
+  return slots.sort()
+}
 
 type Props = {
   open: boolean
@@ -42,22 +84,6 @@ const workingHoursByDay: Record<number, { start: string; end: string }> = {
   5: { start: '08:00', end: '17:00' },
   6: { start: '09:00', end: '17:00' },
   0: { start: '00:00', end: '00:00' }
-}
-
-function generateTimeSlots(start: string, end: string, step = 30): string[] {
-  const slots: string[] = []
-  let current = dayjs(`2025-04-08T${start}`)
-  const endTime = dayjs(`2025-04-08T${end}`)
-  const excludeBreakTime = ['12:00', '12:30', '13:00', '13:30']
-
-  while (current.isBefore(endTime)) {
-    if (!excludeBreakTime.includes(current.format('HH:mm'))) {
-      slots.push(current.format('HH:mm'))
-    }
-    current = current.add(step, 'minute')
-  }
-
-  return slots
 }
 
 function CustomOption(props: any) {
@@ -102,6 +128,7 @@ function CustomSingleValue(props: any) {
     </selectComponents.SingleValue>
   )
 }
+
 export default function BookingTimeModal({
   open,
   onClose,
@@ -118,6 +145,43 @@ export default function BookingTimeModal({
   const [selectedSlot, setSelectedSlot] = useState<string | null>(
     defaultData?.slot || null
   )
+  const [doctorAvailability, setDoctorAvailability] = useState<
+    AvailabilityItem[]
+  >([])
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+
+  // Lấy thông tin chi tiết của bác sĩ khi được chọn
+  const fetchDoctorDetails = async (doctorId: string) => {
+    try {
+      setIsLoading(true)
+      const doctorDetails = await getUserById(doctorId, 'doctor')
+      if (doctorDetails?.availability) {
+        setDoctorAvailability(doctorDetails.availability)
+      }
+    } catch (error) {
+      console.error('Lỗi khi lấy thông tin bác sĩ:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Lấy các slot time có sẵn cho ngày đã chọn
+  const getAvailableSlots = () => {
+    if (doctorAvailability.length === 0) {
+      // Không có availability => dùng giờ mặc định
+      return { slots: getDefaultSlotsForDay(), isDefault: true }
+    }
+
+    const selectedDayOfWeek = selectedDate?.day() ?? 0
+    const daySchedule = doctorAvailability.find(
+      day => day.dayOfWeek === selectedDayOfWeek
+    )
+    if (!daySchedule || !daySchedule.timeSlot.length) {
+      // Không có ca nào cho ngày này => dùng giờ mặc định
+      return { slots: getDefaultSlotsForDay(), isDefault: true }
+    }
+    return { slots: generateTimeSlots(daySchedule.timeSlot), isDefault: false }
+  }
 
   // Nếu defaultData thay đổi khi open, reset lại state
   useEffect(() => {
@@ -125,12 +189,21 @@ export default function BookingTimeModal({
       setSelectedDoctor(defaultData?.doctor || doctors[0] || null)
       setSelectedDate(defaultData?.date ? dayjs(defaultData.date) : dayjs())
       setSelectedSlot(defaultData?.slot || null)
+
+      if (defaultData?.doctor?._id) {
+        fetchDoctorDetails(defaultData.doctor._id)
+      } else if (doctors[0]?._id) {
+        fetchDoctorDetails(doctors[0]._id)
+      }
     }
   }, [open, defaultData, doctors])
 
-  const selectedDayOfWeek = selectedDate?.day() ?? 0
-  const workingHours = workingHoursByDay[selectedDayOfWeek]
-  const availableSlots = generateTimeSlots(workingHours.start, workingHours.end)
+  // Reset selected slot when changing date
+  useEffect(() => {
+    setSelectedSlot(null)
+  }, [selectedDate])
+
+  const { slots: availableTimeSlots, isDefault } = getAvailableSlots()
 
   const doctorOptions = doctors.map(doc => ({
     value: doc.id,
@@ -157,13 +230,19 @@ export default function BookingTimeModal({
                 )}
                 onChange={option => {
                   const doc = doctors.find(d => d.id === option?.value)
-                  if (doc) setSelectedDoctor(doc)
+                  if (doc) {
+                    setSelectedDoctor(doc)
+                    if (doc._id) {
+                      fetchDoctorDetails(doc._id)
+                    }
+                  }
                 }}
                 components={{
                   Option: CustomOption,
                   SingleValue: CustomSingleValue
                 }}
                 placeholder="Chọn bác sĩ..."
+                isDisabled={isLoading}
               />
             </div>
 
@@ -186,22 +265,49 @@ export default function BookingTimeModal({
                 <Typography variant="subtitle1" gutterBottom>
                   Chọn giờ khám:
                 </Typography>
-                <div className="grid grid-cols-3 gap-2">
-                  {availableSlots.map(slot => (
-                    <button
-                      key={slot}
-                      type="button"
-                      onClick={() => setSelectedSlot(slot)}
-                      className={`px-3 py-2 border rounded-md text-md transition ${
-                        selectedSlot === slot
-                          ? 'bg-[#2065D1] text-white'
-                          : 'bg-white border-gray-300 hover:#2065D1'
-                      }`}
+                {isLoading && (
+                  <Typography variant="body2" color="text.secondary">
+                    Đang tải lịch khám...
+                  </Typography>
+                )}
+                {!isLoading && availableTimeSlots.length > 0 && (
+                  <>
+                    <div className="grid grid-cols-3 gap-2">
+                      {availableTimeSlots.map(slot => (
+                        <button
+                          key={slot}
+                          type="button"
+                          onClick={() => setSelectedSlot(slot)}
+                          className={`px-3 py-2 border rounded-md text-md transition ${
+                            selectedSlot === slot
+                              ? 'bg-[#2065D1] text-white'
+                              : 'bg-white border-gray-300 hover:#2065D1'
+                          }`}
+                        >
+                          {slot}
+                        </button>
+                      ))}
+                    </div>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      className="mt-1"
                     >
-                      {slot}
-                    </button>
-                  ))}
-                </div>
+                      {isDefault
+                        ? '*Đây là khung giờ làm việc mặc định. Bác sĩ có thể không rảnh vào một số giờ này. Vui lòng chọn và đợi xác nhận.'
+                        : '*Các giờ dưới đây là giờ rảnh thực tế do bác sĩ đã đăng ký.'}
+                    </Typography>
+                  </>
+                )}
+                {!isLoading && availableTimeSlots.length === 0 && (
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    className="mt-2"
+                  >
+                    Bác sĩ không có lịch khám vào ngày này.
+                  </Typography>
+                )}
               </div>
             </div>
           </div>
@@ -214,7 +320,7 @@ export default function BookingTimeModal({
           <Button
             variant="contained"
             color={selectedDate && selectedSlot ? 'primary' : 'inherit'}
-            disabled={!selectedDate || !selectedSlot}
+            disabled={!selectedDate || !selectedSlot || isLoading}
             onClick={() => {
               onConfirm({
                 doctor: selectedDoctor,

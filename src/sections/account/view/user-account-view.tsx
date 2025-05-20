@@ -50,7 +50,7 @@ const TABS = [
   //   icon: <Iconify icon="solar:share-bold" width={24} />,
   // },
   {
-    hidden: user?.role !== 'doctor',
+    hidden: user?.role !== 'DOCTOR',
     value: 'availability',
     label: 'Giờ làm việc',
     icon: <Iconify icon="solar:calendar-bold" width={24} />

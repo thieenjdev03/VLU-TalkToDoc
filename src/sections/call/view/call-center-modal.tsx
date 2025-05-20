@@ -97,20 +97,22 @@ export default function CallCenterModal({
           </Typography>
           <Box
             sx={{
-              width: 64,
-              height: 64,
+              width: 48,
+              height: 48,
               borderRadius: '50%',
               backgroundColor: '#3949ab',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: 24,
+              fontSize: 16,
               fontWeight: 'bold'
             }}
           >
-            {userProfileData?.role === 'PATIENT' && !callStatus
-              ? initialDoctorName
-              : initialPatientName}
+            <span>
+              {userProfileData?.role === 'PATIENT' && !callStatus
+                ? initialDoctorName
+                : initialPatientName}
+            </span>
           </Box>
           <Box
             className="cta-button-group-minimized"
@@ -161,7 +163,8 @@ export default function CallCenterModal({
             width: '100%',
             display: 'flex',
             justifyContent: 'flex-end',
-            alignItems: 'center'
+            alignItems: 'center',
+            color: '#f9fafb'
           }}
         >
           <IconButton

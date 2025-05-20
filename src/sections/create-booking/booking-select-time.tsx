@@ -321,8 +321,8 @@ export default function BookingSelectTime({
                     className="mt-1"
                   >
                     {isDefault
-                      ? 'Đây là khung giờ làm việc mặc định. Bác sĩ có thể không rảnh vào một số giờ này. Vui lòng chọn và đợi xác nhận.'
-                      : 'Các giờ dưới đây là giờ rảnh thực tế do bác sĩ đã đăng ký.'}
+                      ? '*Đây là khung giờ làm việc mặc định. Bác sĩ có thể không rảnh vào một số giờ này. Vui lòng chọn và đợi xác nhận.'
+                      : '*Các giờ dưới đây là giờ rảnh thực tế do bác sĩ đã đăng ký.'}
                   </Typography>
                 </>
               )}

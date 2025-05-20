@@ -52,12 +52,6 @@ function CallListener() {
 
   // Xử lý submit đánh giá
   const handleSubmitRating = async (rating: number, comment: string) => {
-    console.log('Submit rating:', {
-      rating,
-      comment,
-      doctorId: currentAppointment?.doctor?._id
-    })
-    // Triển khai API call để lưu đánh giá
     closeRatingModal()
   }
 
@@ -159,6 +153,8 @@ function CallListener() {
                 doctorAvatar={currentAppointment?.doctor?.avatarUrl || ''}
                 onSubmit={handleSubmitRating}
                 onClose={closeRatingModal}
+                doctorId={currentAppointment?.doctor?._id || ''}
+                appointmentId={currentAppointment?._id || ''}
               />
             </Box>
           </Box>

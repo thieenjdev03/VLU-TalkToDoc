@@ -192,7 +192,7 @@ function CallChatBox({
           pr: 1,
           flex: 1,
           overflowY: 'auto',
-          maxHeight: 600
+          maxHeight: 580
         }}
       >
         <Stack spacing={1}>

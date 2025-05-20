@@ -1,3 +1,5 @@
+import moment from 'moment'
+
 import Box from '@mui/material/Box'
 import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
@@ -12,8 +14,6 @@ import IconButton from '@mui/material/IconButton'
 import ListItemText from '@mui/material/ListItemText'
 
 import { useBoolean } from 'src/hooks/use-boolean'
-
-import { fDate } from 'src/utils/format-time'
 
 import Label from 'src/components/label'
 import Iconify from 'src/components/iconify'
@@ -97,31 +97,32 @@ interface Payment {
   billing_status: string
 }
 
-interface Appointment {
-  _id: string
-  appointmentId: string
-  patient: Patient
-  doctor: Doctor
-  specialty: string
-  date: string
-  slot: string
-  timezone: string
-  status: string
-  payment: Payment
-  createdAt: string
-  updatedAt: string
-}
-
-interface Case {
+export interface Case {
   _id: string
   patient: string
-  specialty: Specialty
+  specialty: {
+    _id: string
+    name: string
+  }
   status: string
   isDeleted: boolean
   createdAt: string
   offers: any[]
   updatedAt: string
-  appointmentId: Appointment
+  appointmentId: {
+    _id: string
+    appointmentId: string
+    patient: Patient
+    doctor: Doctor
+    specialty: string
+    date: string
+    slot: string
+    timezone: string
+    status: string
+    payment: Payment
+    createdAt: string
+    updatedAt: string
+  }
 }
 
 type Props = {
@@ -139,7 +140,7 @@ export default function CaseTableRow({
   onViewRow,
   onSelectRow,
   onDeleteRow,
-  userRole = 'patient'
+  userRole = 'PATIENT'
 }: Props) {
   const confirm = useBoolean()
   const collapse = useBoolean()
@@ -148,6 +149,7 @@ export default function CaseTableRow({
   function getStatusLabel(_status: string) {
     if (_status === 'completed') return 'Hoàn thành'
     if (_status === 'pending') return 'Chờ xử lý'
+    if (_status === 'assigned') return 'Đã tiếp nhận'
     if (_status === 'cancelled') return 'Đã hủy'
     if (_status === 'refunded') return 'Hoàn tiền'
     if (_status === 'draft') return 'Bản nháp'
@@ -158,6 +160,7 @@ export default function CaseTableRow({
   function getStatusColor(_status: string) {
     if (_status === 'completed') return 'success'
     if (_status === 'pending' || _status === 'PENDING') return 'warning'
+    if (_status === 'assigned') return 'success'
     if (_status === 'cancelled') return 'error'
     if (_status === 'refunded') return 'info'
     if (_status === 'draft') return 'default'
@@ -228,7 +231,7 @@ export default function CaseTableRow({
 
       <TableCell>
         <ListItemText
-          primary={row.appointmentId?.doctor?.fullName || '-'}
+          primary={row.appointmentId?.patient?.fullName || '-'}
           secondary={row.specialty?.name || '-'}
           primaryTypographyProps={{ typography: 'body2', noWrap: true }}
           secondaryTypographyProps={{
@@ -240,7 +243,7 @@ export default function CaseTableRow({
 
       <TableCell>
         <ListItemText
-          primary={row.appointmentId?.date || '-'}
+          primary={moment(row.appointmentId?.date).format('DD/MM/YYYY') || '-'}
           secondary={row.appointmentId?.slot || '-'}
           primaryTypographyProps={{ typography: 'body2', noWrap: true }}
           secondaryTypographyProps={{
@@ -270,14 +273,14 @@ export default function CaseTableRow({
       </TableCell>
 
       <TableCell>
-        <Label variant="soft" color={getStatusColor(row.status)}>
-          {getStatusLabel(row.status)}
+        <Label variant="soft" color={getStatusColor(row.status.toLowerCase())}>
+          {getStatusLabel(row.status.toLowerCase())}
         </Label>
       </TableCell>
 
       <TableCell>
         <ListItemText
-          primary={fDate(row.createdAt)}
+          primary={moment(row.createdAt).format('DD/MM/YYYY')}
           primaryTypographyProps={{ typography: 'body2', noWrap: true }}
         />
       </TableCell>

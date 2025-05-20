@@ -15,6 +15,7 @@ import { useRouter, useSearchParams } from 'src/routes/hooks'
 import { createChat, useGetChat, sendMessageToAI } from 'src/api/chat'
 
 import { useSettingsContext } from 'src/components/settings'
+import CustomBreadcrumbs from 'src/components/custom-breadcrumbs/custom-breadcrumbs'
 
 import ChatMessageInput from '../chat-message-input'
 import ChatHeaderDetail from '../chat-header-detail'
@@ -414,14 +415,18 @@ export default function ChatView() {
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
-      <Typography
-        variant="h4"
+      <CustomBreadcrumbs
+        heading="Chat với AI"
+        links={[
+          { name: 'Trang quản trị', href: paths.dashboard.root },
+          {
+            name: 'Chat với AI'
+          }
+        ]}
         sx={{
-          mb: { xs: 3, md: 5 }
+          mb: { xs: 1, md: 2 }
         }}
-      >
-        Chat với AI
-      </Typography>
+      />
 
       <Stack
         component={Card}

@@ -97,3 +97,10 @@ export const submitDoctorRating = async ({
   )
   return response
 }
+
+export const cancelAppointment = async (appointmentId: string) => {
+  const response = await axiosInstanceV2.patch(
+    endpoints.appointment.cancel(appointmentId)
+  )
+  return response.data
+}

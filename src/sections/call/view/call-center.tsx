@@ -1004,18 +1004,6 @@ export default function CallCenter({
                 />
               </Button>
 
-              {/* Record Button */}
-              <Button
-                variant="contained"
-                sx={{
-                  backgroundColor: 'error.main',
-                  '&:hover': {
-                    backgroundColor: 'error.dark'
-                  }
-                }}
-              >
-                <Icon icon="mdi:record-circle" width={18} height={18} />
-              </Button>
               {/* Make Call */}
               <Button
                 variant="contained"

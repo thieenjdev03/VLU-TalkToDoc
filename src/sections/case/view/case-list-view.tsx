@@ -1,3 +1,5 @@
+'use client'
+
 import { useMemo, useState, useCallback } from 'react'
 
 import Tab from '@mui/material/Tab'
@@ -32,7 +34,6 @@ import {
   useTable,
   emptyRows,
   TableNoData,
-  getComparator,
   TableEmptyRows,
   TableHeadCustom,
   TableSelectedAction,
@@ -45,8 +46,8 @@ import {
   IOrderTableFilterValue
 } from 'src/types/order'
 
-import OrderTableRow from '../case-table-row'
 import OrderTableToolbar from '../case-table-toolbar'
+import OrderTableRow, { Case } from '../case-table-row'
 import OrderTableFiltersResult from '../case-table-filters-result'
 
 // ----------------------------------------------------------------------
@@ -60,11 +61,21 @@ const STATUS_OPTIONS = [
 ]
 
 const TABLE_HEAD = [
-  { id: 'caseId', label: 'Mã bệnh án', width: 140 },
+  { id: 'caseId', label: 'Mã bệnh án', minWidth: 140 },
   { id: 'patientName', label: 'Bệnh nhân', minWidth: 200 },
   { id: 'doctorName', label: 'Bác Sĩ', minWidth: 200 },
   { id: 'appointmentDate', label: 'Lịch hẹn', width: 120 },
   { id: 'totalAmount', label: 'Tổng tiền', width: 140 },
+  { id: 'status', label: 'Trạng thái', width: 110 },
+  { id: 'createdAt', label: 'Ngày tạo', width: 140 },
+  { id: '', width: 88 }
+]
+const TABLE_HEAD_PATIENT = [
+  { id: 'caseId', label: 'Mã bệnh án', minWidth: 140 },
+  { id: 'doctorName', label: 'Bác Sĩ', minWidth: 200 },
+  { id: 'patientName', label: 'Bệnh nhân', minWidth: 200 },
+  { id: 'appointmentDate', label: 'Lịch hẹn', minWidth: 120 },
+  { id: 'totalAmount', label: 'Tổng tiền', minWidth: 160 },
   { id: 'status', label: 'Trạng thái', width: 110 },
   { id: 'createdAt', label: 'Ngày tạo', width: 140 },
   { id: '', width: 88 }
@@ -93,6 +104,7 @@ export default function OrderListView() {
   const [filters, setFilters] = useState(defaultFilters)
 
   const dateError = isAfter(filters.startDate, filters.endDate)
+  const userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}')
 
   const { cases, total, isLoading, error } = useGetCases({
     q: filters.name,
@@ -117,26 +129,12 @@ export default function OrderListView() {
     [cases]
   )
 
-  const dataFiltered = applyFilter({
-    inputData: mappedCases,
-    comparator: getComparator(table.order, table.orderBy),
-    filters,
-    dateError
-  })
-
-  const dataInPage = dataFiltered.slice(
-    table.page * table.rowsPerPage,
-    table.page * table.rowsPerPage + table.rowsPerPage
-  )
-
-  const denseHeight = table.dense ? 56 : 56 + 20
-
   const canReset =
     !!filters.name ||
     filters.status !== 'all' ||
     (!!filters.startDate && !!filters.endDate)
 
-  const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length
+  const notFound = !mappedCases.length
 
   const handleFilters = useCallback(
     (name: string, value: IOrderTableFilterValue) => {
@@ -180,20 +178,22 @@ export default function OrderListView() {
     [handleFilters]
   )
 
+  const denseHeight = table.dense ? 56 : 76
+
   if (isLoading) return <div>Đang tải...</div>
   if (error) return <div>Lỗi khi tải danh sách bệnh án</div>
 
   return (
     <>
-      <Container maxWidth={settings.themeStretch ? false : 'lg'}>
+      <Container maxWidth={settings.themeStretch ? 'xl' : 'xl'}>
         <CustomBreadcrumbs
           heading="Danh sách bệnh án"
           links={[
-            { name: 'Dashboard', href: paths.dashboard.root },
-            { name: 'Bệnh án', href: paths.dashboard.order.root },
+            { name: 'Trang quản trị', href: paths.dashboard.root },
+            { name: 'Quản lý bệnh án', href: paths.dashboard.order.root },
             { name: 'Danh sách' }
           ]}
-          sx={{ mb: { xs: 3, md: 5 } }}
+          sx={{ mb: { xs: 1, md: 2 } }}
         />
 
         <Card>
@@ -228,7 +228,7 @@ export default function OrderListView() {
                     }
                   >
                     {tab.value === 'all'
-                      ? mappedCases.length
+                      ? total
                       : mappedCases.filter(
                           (row: Record<string, any>) => row.status === tab.value
                         ).length}
@@ -249,7 +249,7 @@ export default function OrderListView() {
               filters={filters}
               onFilters={handleFilters}
               onResetFilters={handleResetFilters}
-              results={mappedCases.length}
+              results={total}
               sx={{ p: 2.5, pt: 0 }}
             />
           )}
@@ -282,7 +282,11 @@ export default function OrderListView() {
                 <TableHeadCustom
                   order={table.order}
                   orderBy={table.orderBy}
-                  headLabel={TABLE_HEAD}
+                  headLabel={
+                    userProfile?.role === 'PATIENT'
+                      ? TABLE_HEAD_PATIENT
+                      : TABLE_HEAD
+                  }
                   rowCount={mappedCases.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
@@ -295,29 +299,21 @@ export default function OrderListView() {
                 />
 
                 <TableBody>
-                  {mappedCases
-                    .slice(
-                      table.page * table.rowsPerPage,
-                      table.page * table.rowsPerPage + table.rowsPerPage
-                    )
-                    .map(row => (
-                      <OrderTableRow
-                        key={row._id}
-                        row={row}
-                        selected={table.selected.includes(row._id)}
-                        onSelectRow={() => table.onSelectRow(row._id)}
-                        onDeleteRow={() => handleDeleteRow(row._id)}
-                        onViewRow={() => handleViewRow(row._id)}
-                      />
-                    ))}
+                  {mappedCases.map((row: Case) => (
+                    <OrderTableRow
+                      key={row._id}
+                      row={row}
+                      selected={table.selected.includes(row._id)}
+                      onSelectRow={() => table.onSelectRow(row._id)}
+                      onDeleteRow={() => handleDeleteRow(row._id)}
+                      onViewRow={() => handleViewRow(row._id)}
+                      userRole={userProfile?.role}
+                    />
+                  ))}
 
                   <TableEmptyRows
                     height={denseHeight}
-                    emptyRows={emptyRows(
-                      table.page,
-                      table.rowsPerPage,
-                      mappedCases.length
-                    )}
+                    emptyRows={emptyRows(table.page, table.rowsPerPage, total)}
                   />
 
                   <TableNoData notFound={notFound} />
