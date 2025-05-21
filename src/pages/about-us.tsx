@@ -1,6 +1,6 @@
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from 'react-helmet-async'
 
-import { AboutView } from 'src/sections/about/view';
+import { AboutView } from 'src/sections/about/view'
 
 // ----------------------------------------------------------------------
 
@@ -8,10 +8,10 @@ export default function AboutPage() {
   return (
     <>
       <Helmet>
-        <title> About us</title>
+        <title> Về chúng tôi</title>
       </Helmet>
 
       <AboutView />
     </>
-  );
+  )
 }

@@ -91,6 +91,8 @@ function CallListener() {
           fullName={callerInfo.fullName}
           avatarUrl={callerInfo.avatarUrl}
           role={callerInfo.role}
+          callerInfo={callerInfo}
+          currentAppointment={currentAppointment}
           specialtyName={callerInfo.specialtyName}
           appointmentInfo={getAppointmentInfo()}
           onAccept={acceptIncomingCall}
@@ -154,7 +156,9 @@ function CallListener() {
                 onSubmit={handleSubmitRating}
                 onClose={closeRatingModal}
                 doctorId={currentAppointment?.doctor?._id || ''}
-                appointmentId={currentAppointment?._id || ''}
+                appointmentId={
+                  currentAppointment?._id || currentAppointment?.id || ''
+                }
               />
             </Box>
           </Box>

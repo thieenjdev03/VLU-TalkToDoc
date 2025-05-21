@@ -11,9 +11,11 @@ interface IncomingCallPopupProps {
   isOpen: boolean
   fullName: string
   avatarUrl?: string
+  currentAppointment?: any
   role: 'doctor' | 'patient'
   specialtyName?: string
   appointmentInfo?: string
+  callerInfo?: any
   onAccept: () => void
   onReject: () => void
 }
@@ -38,15 +40,17 @@ const PopupContainer = styled(Paper)(({ theme }) => ({
 export default function IncomingCallPopup({
   isOpen,
   fullName,
+  currentAppointment,
   avatarUrl,
   role,
+  callerInfo,
   specialtyName,
   appointmentInfo,
   onAccept,
   onReject
 }: IncomingCallPopupProps) {
   const roleLabel = role === 'doctor' ? 'Bác sĩ' : 'Bệnh nhân'
-
+  console.log('currentAppointment', currentAppointment)
   // Đặt vị trí mặc định ở giữa màn hình
   const defaultPosition = {
     x: window.innerWidth / 2 - 160,
@@ -98,7 +102,7 @@ export default function IncomingCallPopup({
             </Typography>
           </Box>
           <Avatar
-            src={avatarUrl}
+            src={callerInfo?.avatar || currentAppointment?.patient?.avatar}
             sx={{
               width: 72,
               height: 72,
@@ -107,7 +111,9 @@ export default function IncomingCallPopup({
             }}
           />
           <Typography variant="h6" sx={{ color: '#1565c0', fontWeight: 600 }}>
-            {roleLabel}: {fullName}
+            {roleLabel === 'Bệnh nhân'
+              ? currentAppointment?.patient?.fullName
+              : currentAppointment?.doctor?.fullName}
           </Typography>
           {specialtyName && (
             <Typography
@@ -117,12 +123,11 @@ export default function IncomingCallPopup({
               Chuyên khoa: {specialtyName}
             </Typography>
           )}
-          {appointmentInfo && (
-            <Typography
-              variant="body2"
-              sx={{ color: '#0277bd', fontWeight: 500 }}
-            >
-              {appointmentInfo}
+          {currentAppointment && (
+            <Typography variant="body2" sx={{ fontWeight: 500 }}>
+              Ngày {currentAppointment?.date}
+              <br />
+              Lúc {currentAppointment?.slot}
             </Typography>
           )}
           <Typography variant="body2" sx={{ color: '#546e7a' }}>

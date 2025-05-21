@@ -174,87 +174,89 @@ export default function DoctorAvailabilityTabs() {
             ))}
         </Tabs>
       </Box>
-
-      <Stack
-        spacing={2}
-        sx={{
-          mt: 2,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center'
-        }}
-      >
-        {currentDaySlots.map((slot, idx) => (
-          <Stack
-            key={slot.index || idx}
-            direction="row"
-            spacing={2}
-            alignItems="center"
-            sx={{
-              p: 2,
-              borderRadius: 1,
-              width: '100%',
-              maxWidth: 500,
-              justifyContent: 'center'
-            }}
-          >
-            <TextField
-              select
-              label="Giờ bắt đầu"
-              value={slot.timeStart}
-              onChange={e => handleUpdateSlot(idx, 'timeStart', e.target.value)}
-              InputLabelProps={{ shrink: true }}
-              sx={{ width: 140 }}
-              error={!slot.timeStart}
-            >
-              {timeOptions.map(opt => (
-                <MenuItem key={opt} value={opt}>
-                  {opt}
-                </MenuItem>
-              ))}
-            </TextField>
-
-            <TextField
-              select
-              label="Giờ kết thúc"
-              value={slot.timeEnd}
-              onChange={e => handleUpdateSlot(idx, 'timeEnd', e.target.value)}
-              InputLabelProps={{ shrink: true }}
-              sx={{ width: 140 }}
-              error={!slot.timeEnd}
-            >
-              {timeOptions.map(opt => (
-                <MenuItem key={opt} value={opt}>
-                  {opt}
-                </MenuItem>
-              ))}
-            </TextField>
-
-            <IconButton
-              onClick={() => handleRemoveSlot(idx)}
-              color="error"
-              size="small"
+      <Box sx={{ maxHeight: '65vh', overflowY: 'auto', pr: 1 }}>
+        <Stack
+          spacing={2}
+          sx={{
+            mt: 2,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center'
+          }}
+        >
+          {currentDaySlots.map((slot, idx) => (
+            <Stack
+              key={slot.index || idx}
+              direction="row"
+              spacing={2}
+              alignItems="center"
               sx={{
-                '&:hover': {
-                  bgcolor: 'error.lighter'
-                }
+                p: 2,
+                borderRadius: 1,
+                width: '100%',
+                maxWidth: 500,
+                justifyContent: 'center'
               }}
             >
-              <Delete />
-            </IconButton>
-          </Stack>
-        ))}
+              <TextField
+                select
+                label="Giờ bắt đầu"
+                value={slot.timeStart}
+                onChange={e =>
+                  handleUpdateSlot(idx, 'timeStart', e.target.value)
+                }
+                InputLabelProps={{ shrink: true }}
+                sx={{ width: 140 }}
+                error={!slot.timeStart}
+              >
+                {timeOptions.map(opt => (
+                  <MenuItem key={opt} value={opt}>
+                    {opt}
+                  </MenuItem>
+                ))}
+              </TextField>
 
-        <Button
-          variant="outlined"
-          onClick={handleAddSlot}
-          startIcon={<span>+</span>}
-          sx={{ width: 'fit-content' }}
-        >
-          Thêm khung giờ
-        </Button>
-      </Stack>
+              <TextField
+                select
+                label="Giờ kết thúc"
+                value={slot.timeEnd}
+                onChange={e => handleUpdateSlot(idx, 'timeEnd', e.target.value)}
+                InputLabelProps={{ shrink: true }}
+                sx={{ width: 140 }}
+                error={!slot.timeEnd}
+              >
+                {timeOptions.map(opt => (
+                  <MenuItem key={opt} value={opt}>
+                    {opt}
+                  </MenuItem>
+                ))}
+              </TextField>
 
+              <IconButton
+                onClick={() => handleRemoveSlot(idx)}
+                color="error"
+                size="small"
+                sx={{
+                  '&:hover': {
+                    bgcolor: 'error.lighter'
+                  }
+                }}
+              >
+                <Delete />
+              </IconButton>
+            </Stack>
+          ))}
+
+          <Button
+            variant="outlined"
+            onClick={handleAddSlot}
+            startIcon={<span>+</span>}
+            sx={{ width: 'fit-content' }}
+          >
+            Thêm khung giờ
+          </Button>
+        </Stack>
+      </Box>
       <Box sx={{ mt: 3, display: 'flex', justifyContent: 'center' }}>
         <Button
           variant="contained"

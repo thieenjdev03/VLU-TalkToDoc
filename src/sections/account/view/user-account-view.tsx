@@ -81,7 +81,7 @@ export default function AccountView() {
           { name: 'Cài Đặt' }
         ]}
         sx={{
-          mb: { xs: 3, md: 5 }
+          mb: { xs: 1, md: 2 }
         }}
       />
 
@@ -89,7 +89,7 @@ export default function AccountView() {
         value={currentTab}
         onChange={handleChangeTab}
         sx={{
-          mb: { xs: 3, md: 5 }
+          mb: { xs: 1, md: 2 }
         }}
       >
         {TABS.map(

@@ -14,9 +14,11 @@ import {
   Box,
   Stack,
   Paper,
+  useTheme,
   TextField,
   Typography,
-  IconButton
+  IconButton,
+  useMediaQuery
 } from '@mui/material'
 
 import { db } from 'src/firebase/firebase-config'
@@ -49,6 +51,9 @@ function CallChatBox({
   const [isUploading, setIsUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+  const isTablet = useMediaQuery(theme.breakpoints.down('md'))
 
   // Tạo conversationId duy nhất cho cuộc trò chuyện (không phụ thuộc vào role)
   const conversationId = [currentUser, peerUser].sort().join('_')
@@ -171,11 +176,11 @@ function CallChatBox({
     <Paper
       elevation={3}
       sx={{
-        maxWidth: 500,
-        minWidth: 400,
+        maxWidth: { xs: '100%', md: 500 },
+        minWidth: { xs: '100%', md: 400 },
         height: '100%',
-        minHeight: '100%',
-        p: 2,
+        minHeight: { xs: 400, md: '100%' },
+        p: { xs: 1, sm: 2 },
         display: 'flex',
         flexDirection: 'column',
         borderRadius: 2,
@@ -183,16 +188,20 @@ function CallChatBox({
         zIndex: 10
       }}
     >
-      <Typography variant="subtitle1" fontWeight={600} gutterBottom>
+      <Typography
+        variant={isMobile ? 'body1' : 'subtitle1'}
+        fontWeight={600}
+        gutterBottom
+      >
         Chat với {userInfor?.fullName || 'Người dùng'}
       </Typography>
       <Box
         sx={{
           mb: 1,
-          pr: 1,
+          pr: { xs: 0.5, sm: 1 },
           flex: 1,
           overflowY: 'auto',
-          maxHeight: 580
+          maxHeight: { xs: 400, md: 580 }
         }}
       >
         <Stack spacing={1}>
@@ -206,14 +215,15 @@ function CallChatBox({
                   msg.from === currentUser
                     ? 'primary.contrastText'
                     : 'text.primary',
-                px: 1.5,
-                py: 1,
+                px: { xs: 1, sm: 1.5 },
+                py: { xs: 0.5, sm: 1 },
                 borderRadius: 1.5,
                 maxWidth: '80%'
               }}
             >
-              <Typography variant="body2">{msg.content}</Typography>
-              {/* Hiển thị ảnh nếu có */}
+              <Typography variant={isMobile ? 'caption' : 'body2'}>
+                {msg.content}
+              </Typography>
               {msg.imageUrls && msg.imageUrls.length > 0 && (
                 <Box sx={{ mt: 1, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                   {msg?.imageUrls?.map((url: any) => (
@@ -222,7 +232,7 @@ function CallChatBox({
                       src={url}
                       alt="chat-img"
                       style={{
-                        maxWidth: 120,
+                        maxWidth: isMobile ? 80 : 120,
                         borderRadius: 8,
                         display: 'block'
                       }}
@@ -231,7 +241,13 @@ function CallChatBox({
                   ))}
                 </Box>
               )}
-              <Typography variant="caption" sx={{ opacity: 0.6 }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  opacity: 0.6,
+                  fontSize: isMobile ? '0.65rem' : '0.75rem'
+                }}
+              >
                 {msg.time}
               </Typography>
             </Box>
@@ -239,17 +255,30 @@ function CallChatBox({
           <div ref={messagesEndRef} />
         </Stack>
       </Box>
-      {/* Hiển thị preview ảnh trước khi gửi */}
       {imageUrls.length > 0 && (
-        <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            gap: 1,
+            mb: 1,
+            flexWrap: 'wrap'
+          }}
+        >
           {imageUrls.map(url => (
-            <Box key={url} sx={{ position: 'relative' }}>
+            <Box
+              key={url}
+              sx={{
+                position: 'relative',
+                width: isMobile ? 40 : 60,
+                height: isMobile ? 40 : 60
+              }}
+            >
               <img
                 src={url}
                 alt="preview"
                 style={{
-                  width: 60,
-                  height: 60,
+                  width: '100%',
+                  height: '100%',
                   objectFit: 'cover',
                   borderRadius: 6
                 }}
@@ -259,8 +288,12 @@ function CallChatBox({
         </Box>
       )}
       <Box display="flex" gap={1} sx={{ mt: 1 }}>
-        <IconButton component="label" disabled={isUploading || isSending}>
-          <ImageIcon />
+        <IconButton
+          component="label"
+          disabled={isUploading || isSending}
+          size={isMobile ? 'small' : 'medium'}
+        >
+          <ImageIcon fontSize={isMobile ? 'small' : 'medium'} />
           <input
             type="file"
             accept="image/*"
@@ -273,13 +306,18 @@ function CallChatBox({
         </IconButton>
         <TextField
           fullWidth
-          size="small"
+          size={isMobile ? 'small' : 'medium'}
           placeholder="Nhập tin nhắn..."
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
           disabled={isSending || isUploading}
           inputProps={{ maxLength: 500 }}
+          sx={{
+            '& .MuiInputBase-root': {
+              fontSize: isMobile ? '0.875rem' : '1rem'
+            }
+          }}
         />
         <IconButton
           color="primary"
@@ -290,8 +328,9 @@ function CallChatBox({
             (!input.trim() && imageUrls.length === 0)
           }
           aria-label="Gửi tin nhắn"
+          size={isMobile ? 'small' : 'medium'}
         >
-          <SendIcon />
+          <SendIcon fontSize={isMobile ? 'small' : 'medium'} />
         </IconButton>
       </Box>
     </Paper>

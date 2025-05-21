@@ -10,10 +10,12 @@ import {
   Box,
   Stack,
   Dialog,
+  useTheme,
   IconButton,
   Typography,
   DialogTitle,
-  DialogContent
+  DialogContent,
+  useMediaQuery
 } from '@mui/material'
 
 import { useCallStore } from 'src/store/call-store'
@@ -33,17 +35,22 @@ interface CallCenterModalProps {
 const MinimizedDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiDialog-paper': {
     position: 'fixed',
-    bottom: 20,
-    right: 20,
+    bottom: theme.spacing(2.5),
+    right: theme.spacing(2.5),
     margin: 0,
     width: 300,
     height: 150,
     transition: 'all 0.3s ease-in-out',
-    borderRadius: '12px',
+    borderRadius: theme.shape.borderRadius * 1.5,
     overflow: 'hidden',
     backgroundColor: '#212121',
     color: '#fff',
-    padding: theme.spacing(2)
+    padding: theme.spacing(2),
+    [theme.breakpoints.down('sm')]: {
+      width: '90%',
+      right: '5%',
+      bottom: theme.spacing(2)
+    }
   }
 }))
 
@@ -59,6 +66,9 @@ export default function CallCenterModal({
   const [isMinimized, setIsMinimized] = useState(false)
   const userProfile = localStorage.getItem('userProfile')
   const userProfileData = JSON.parse(userProfile || '{}')
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+  const isTablet = useMediaQuery(theme.breakpoints.down('md'))
 
   const { activeCall } = useCallStore()
 
@@ -97,14 +107,14 @@ export default function CallCenterModal({
           </Typography>
           <Box
             sx={{
-              width: 48,
-              height: 48,
+              width: { xs: 40, sm: 48 },
+              height: { xs: 40, sm: 48 },
               borderRadius: '50%',
               backgroundColor: '#3949ab',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: 16,
+              fontSize: { xs: 14, sm: 16 },
               fontWeight: 'bold'
             }}
           >
@@ -119,26 +129,33 @@ export default function CallCenterModal({
             display="flex"
             justifyContent="space-between"
             width="100%"
+            sx={{ gap: { xs: 1, sm: 2 } }}
           >
-            <IconButton size="small" sx={{ color: '#fff' }}>
-              <Icon icon="mdi:microphone" />
-            </IconButton>
-            <IconButton size="small" sx={{ color: '#fff' }}>
-              <Icon icon="mdi:video" />
+            <IconButton
+              size={isMobile ? 'small' : 'medium'}
+              sx={{ color: '#fff' }}
+            >
+              <Icon icon="mdi:microphone" width={isMobile ? 20 : 24} />
             </IconButton>
             <IconButton
-              size="small"
+              size={isMobile ? 'small' : 'medium'}
+              sx={{ color: '#fff' }}
+            >
+              <Icon icon="mdi:video" width={isMobile ? 20 : 24} />
+            </IconButton>
+            <IconButton
+              size={isMobile ? 'small' : 'medium'}
               sx={{ color: '#f44336' }}
               onClick={onClose}
             >
-              <Icon icon="mdi:phone-hangup" />
+              <Icon icon="mdi:phone-hangup" width={isMobile ? 20 : 24} />
             </IconButton>
             <IconButton
-              size="small"
+              size={isMobile ? 'small' : 'medium'}
               sx={{ color: '#fff' }}
               onClick={handleMaximize}
             >
-              <Icon icon="mdi:arrow-expand" />
+              <Icon icon="mdi:arrow-expand" width={isMobile ? 20 : 24} />
             </IconButton>
           </Box>
         </Stack>
@@ -147,18 +164,25 @@ export default function CallCenterModal({
   }
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="xl">
+    <Dialog
+      open={open}
+      onClose={onClose}
+      fullWidth
+      maxWidth={isMobile ? 'sm' : 'xl'}
+      fullScreen={isMobile}
+    >
       <DialogTitle
         sx={{
           display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'center'
+          alignItems: 'center',
+          p: { xs: 1, sm: 2 }
         }}
       >
         <Box
           sx={{
             m: 0,
-            p: 2,
+            p: { xs: 1, sm: 2 },
             height: 8,
             width: '100%',
             display: 'flex',
@@ -170,15 +194,27 @@ export default function CallCenterModal({
           <IconButton
             aria-label="minimize"
             onClick={() => setIsMinimized(true)}
+            size={isMobile ? 'small' : 'medium'}
           >
-            <MinimizeIcon />
+            <MinimizeIcon fontSize={isMobile ? 'small' : 'medium'} />
           </IconButton>
-          <IconButton aria-label="close" onClick={onClose}>
-            <CloseIcon />
+          <IconButton
+            aria-label="close"
+            onClick={onClose}
+            size={isMobile ? 'small' : 'medium'}
+          >
+            <CloseIcon fontSize={isMobile ? 'small' : 'medium'} />
           </IconButton>
         </Box>
       </DialogTitle>
-      <DialogContent sx={{ bgcolor: '#f9fafb' }} dividers>
+      <DialogContent
+        sx={{
+          bgcolor: '#f9fafb',
+          p: { xs: 1, sm: 2, md: 3 },
+          height: isMobile ? '100vh' : 'auto'
+        }}
+        dividers
+      >
         <CallCenter
           currentAppointment={currentAppointment}
           stringeeAccessToken={stringeeAccessToken}
