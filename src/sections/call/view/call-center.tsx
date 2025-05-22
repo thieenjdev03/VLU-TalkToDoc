@@ -223,18 +223,6 @@ export default function CallCenter({
           registerCallEvents(incomingCallObj)
         }
       })
-
-      // Cleanup khi component unmount
-      return () => {
-        try {
-          if (activeCallRef.current) {
-            activeCallRef.current.hangup()
-          }
-          client.disconnect()
-        } catch (error) {
-          console.error('Lỗi khi dọn dẹp Stringee client:', error)
-        }
-      }
     }
 
     // Không cần return undefined ở đây

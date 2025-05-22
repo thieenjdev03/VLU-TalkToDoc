@@ -50,7 +50,7 @@ export default function DoctorRating({
   const handleSubmit = async () => {
     if (rating) {
       try {
-        const submit = await submitDoctorRating({
+        const submit: any = await submitDoctorRating({
           doctorId,
           appointmentId,
           ratingScore: rating,

@@ -28,9 +28,11 @@ export default function CallTimer({
       setSeconds(prev => prev + 1)
     }, 1000)
 
+    // eslint-disable-next-line consistent-return
     return () => {
       clearInterval(id)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isRunning])
 
   useEffect(() => {

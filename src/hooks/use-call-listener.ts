@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable consistent-return */
 import { useRef, useEffect, useCallback } from 'react'
 
 import { useCallStore } from 'src/store/call-store'

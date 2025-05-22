@@ -58,11 +58,10 @@ export default function BookingCreate() {
       discount: 0,
       total: 0,
       paymentMethod: ''
-    }
+    },
+    appointmentId: ''
   })
 
-  const [caseId, setCaseId] = useState('')
-  const [appointmentId, setAppointmentId] = useState('')
   const currentCase = JSON.parse(localStorage.getItem('currentCase') || '{}')
   const setCurrentStep = (step: string, back?: boolean) => {
     if (back) {

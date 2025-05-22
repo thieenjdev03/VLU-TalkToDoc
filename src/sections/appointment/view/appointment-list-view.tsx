@@ -20,12 +20,7 @@ import { useBoolean } from 'src/hooks/use-boolean'
 import { isAfter, isBetween } from 'src/utils/format-time'
 
 import { useGetUsers } from 'src/api/user'
-import { useCallStore } from 'src/store/call-store'
-import {
-  getAppointments,
-  cancelAppointment,
-  submitDoctorRating
-} from 'src/api/appointment'
+import { getAppointments, cancelAppointment } from 'src/api/appointment'
 
 import Label from 'src/components/label'
 import Iconify from 'src/components/iconify'
@@ -133,7 +128,6 @@ export default function AppointmentListView() {
     useState<IAppointmentTableFilters>(defaultFilters)
   const [openCancelDialog, setOpenCancelDialog] = useState(false)
   const [cancelReason, setCancelReason] = useState('')
-  const { openCall, currentAppointment } = useCallStore()
   const dateError = isAfter(filters?.startDate, filters?.endDate)
   const userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}')
   const dataFiltered = applyFilter({
@@ -177,22 +171,6 @@ export default function AppointmentListView() {
       enqueueSnackbar('Hủy lịch hẹn thất bại!')
     }
     setCancelReason('')
-  }
-
-  const handleSubmitRating = async (rating: number, comment: string) => {
-    console.log(rating, comment)
-    const response = await submitDoctorRating({
-      doctorId: currentAppointment?.doctor?._id || '',
-      appointmentId: currentAppointment?._id || '',
-      ratingScore: rating,
-      description: comment
-    })
-    console.log(response)
-    if (response.statusCode === 200) {
-      enqueueSnackbar('Đánh giá thành công!')
-    } else {
-      enqueueSnackbar('Đánh giá thất bại!')
-    }
   }
 
   useEffect(() => {

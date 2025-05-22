@@ -97,7 +97,7 @@ export const useAvailability = (initialData?: any) => {
     })
 
     setAvailability(sortedAvailability)
-  }, [])
+  }, [initialData?.availability])
 
   const validateTimeSlot = (
     timeStart: string,

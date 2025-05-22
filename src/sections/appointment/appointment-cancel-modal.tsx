@@ -23,10 +23,17 @@ const CANCEL_REASONS = [
   'Khác (vui lòng ghi rõ)'
 ]
 
-export default function CancelReasonDialog({ open, onClose, onSubmit }) {
+export default function CancelReasonDialog({
+  open,
+  onClose,
+  onSubmit
+}: {
+  open: boolean
+  onClose: () => void
+  onSubmit: (reason: string) => void
+}) {
   const [reason, setReason] = useState('')
   const [otherText, setOtherText] = useState('')
-
   const isOther = reason === CANCEL_REASONS[CANCEL_REASONS.length - 1]
 
   const handleSubmit = () => {

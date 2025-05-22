@@ -122,6 +122,7 @@ export default function VnPayReturnPage({
     return () => {
       isMounted = false
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   console.log('test render')
   const getStatusClass = (inputStatus: StatusType) => {
