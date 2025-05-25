@@ -20,7 +20,7 @@ import { useBoolean } from 'src/hooks/use-boolean'
 import { isAfter, isBetween } from 'src/utils/format-time'
 
 import { useGetUsers } from 'src/api/user'
-import { getAppointments, cancelAppointment } from 'src/api/appointment'
+import { getAppointments } from 'src/api/appointment'
 
 import Label from 'src/components/label'
 import Iconify from 'src/components/iconify'
@@ -130,6 +130,7 @@ export default function AppointmentListView() {
   const [cancelReason, setCancelReason] = useState('')
   const dateError = isAfter(filters?.startDate, filters?.endDate)
   const userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}')
+  const [appointmentSelected, setAppointmentSelected] = useState('')
   const dataFiltered = applyFilter({
     inputData: tableData,
     comparator: getComparator(table.order, table.orderBy),
@@ -160,10 +161,10 @@ export default function AppointmentListView() {
   })
   const handleCancelAppointment = (appointmentId: string) => {
     setOpenCancelDialog(true)
+    setAppointmentSelected(appointmentId)
   }
 
   const handleConfirmCancel = async (appointmentId: string) => {
-    const response = await cancelAppointment(appointmentId)
     setOpenCancelDialog(false)
     if (response.statusCode === 200) {
       enqueueSnackbar('Hủy lịch hẹn thành công!')
@@ -375,9 +376,9 @@ export default function AppointmentListView() {
                         onSelectRow={() => table.onSelectRow(row._id)}
                         onDeleteRow={() => handleDeleteRow(row._id)}
                         onViewRow={() => handleViewRow(row._id)}
-                        onCancelAppointment={() =>
+                        onCancelAppointment={() => {
                           handleCancelAppointment(row._id)
-                        }
+                        }}
                         user={userProfile}
                       />
                     ))}
@@ -413,6 +414,7 @@ export default function AppointmentListView() {
         open={openCancelDialog}
         onClose={() => setOpenCancelDialog(false)}
         onSubmit={handleConfirmCancel}
+        appointmentId={appointmentSelected}
       />
       <ConfirmDialog
         open={confirm.value}

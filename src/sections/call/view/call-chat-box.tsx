@@ -193,7 +193,7 @@ function CallChatBox({
         fontWeight={600}
         gutterBottom
       >
-        Chat với {userInfor?.fullName || 'Người dùng'}
+        Chat với {userInfor?.role === 'DOCTOR' ? 'Bệnh Nhân' : 'Bác sĩ'}
       </Typography>
       <Box
         sx={{

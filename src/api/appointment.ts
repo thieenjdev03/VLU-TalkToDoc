@@ -98,9 +98,31 @@ export const submitDoctorRating = async ({
   return response
 }
 
-export const cancelAppointment = async (appointmentId: string) => {
+export const cancelAppointment = async (
+  appointmentId: string,
+  reason: string
+) => {
+  console.log('appointmentId', appointmentId)
   const response = await axiosInstanceV2.patch(
-    endpoints.appointment.cancel(appointmentId)
+    endpoints.appointment.update(appointmentId),
+    {
+      status: 'CANCELLED',
+      reason
+    }
+  )
+  return response.data
+}
+
+export const rescheduleAppointment = async (
+  appointmentId: string,
+  data: Record<string, any>
+) => {
+  const response = await axiosInstanceV2.patch(
+    endpoints.appointment.update(appointmentId),
+    {
+      ...data,
+      status: 'PENDING'
+    }
   )
   return response.data
 }

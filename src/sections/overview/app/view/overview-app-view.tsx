@@ -43,11 +43,19 @@ export default function OverviewAppView() {
               img={<SeoIllustration />}
               action={
                 <Button
-                  onClick={() => navigate('/dashboard/appointment/list')}
+                  onClick={() =>
+                    navigate(
+                      user?.registrationStatus === 'approved'
+                        ? '/dashboard/appointment/list'
+                        : '/dashboard/user/account'
+                    )
+                  }
                   variant="contained"
                   color="primary"
                 >
-                  Xem lịch hẹn của tôi
+                  {user?.registrationStatus === 'approved'
+                    ? 'Xem lịch hẹn của tôi'
+                    : 'Cập nhật hồ sơ'}
                 </Button>
               }
             />

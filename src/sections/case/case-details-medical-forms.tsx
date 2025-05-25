@@ -1,7 +1,8 @@
-import Box from '@mui/material/Box'
+import Card from '@mui/material/Card'
 import Stack from '@mui/material/Stack'
-import Typography from '@mui/material/Typography'
 import Divider from '@mui/material/Divider'
+import TextField from '@mui/material/TextField'
+import Typography from '@mui/material/Typography'
 
 // Kiểu dữ liệu form bệnh án
 export type MedicalFormData = {
@@ -37,22 +38,46 @@ export default function CaseDetailsMedicalForms({
   medicalFormData: MedicalFormData
 }) {
   return (
-    <Box sx={{ mb: 3 }}>
+    <Card sx={{ mb: 3, p: 2, borderRadius: 2, boxShadow: 3 }}>
       <Typography variant="h6" sx={{ mb: 1 }}>
         Thông tin bệnh án
       </Typography>
+      <Divider sx={{ my: 2 }} />
       <Stack spacing={1}>
         {renderMedicalField('Họ tên bệnh nhân', medicalFormData?.patientName)}
         {renderMedicalField('Tuổi', medicalFormData?.patientAge)}
         {renderMedicalField('Giới tính', medicalFormData?.gender)}
         {renderMedicalField('Địa chỉ', medicalFormData?.address)}
         {renderMedicalField('Số điện thoại', medicalFormData?.phone)}
-        {renderMedicalField('Triệu chứng', medicalFormData?.symptoms)}
-        {renderMedicalField('Chẩn đoán', medicalFormData?.diagnosis)}
-        {renderMedicalField('Ghi chú', medicalFormData?.note)}
-        {renderMedicalField('Bác sĩ', medicalFormData?.doctorName)}
+        <TextField
+          label="Triệu chứng"
+          defaultValue={medicalFormData?.symptoms}
+          variant="outlined"
+          fullWidth
+          multiline
+          rows={3}
+          sx={{ mb: 1 }}
+        />
+        <TextField
+          label="Chẩn đoán"
+          defaultValue={medicalFormData?.diagnosis}
+          variant="outlined"
+          fullWidth
+          multiline
+          rows={3}
+          sx={{ mb: 1 }}
+        />
+        <TextField
+          label="Ghi chú"
+          defaultValue={medicalFormData?.note}
+          variant="outlined"
+          fullWidth
+          multiline
+          rows={3}
+          sx={{ mb: 1 }}
+        />
       </Stack>
       <Divider sx={{ my: 2 }} />
-    </Box>
+    </Card>
   )
 }

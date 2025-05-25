@@ -2,7 +2,7 @@
 
 import dayjs from 'dayjs'
 import { useState, useEffect } from 'react'
-import Select, { components as selectComponents } from 'react-select'
+import { components as selectComponents } from 'react-select'
 
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { DateCalendar, LocalizationProvider } from '@mui/x-date-pickers'
@@ -70,6 +70,7 @@ type Props = {
     slot: string | null
   }) => void
   defaultData?: {
+    appointmentId: string
     doctor: IUserItem | null
     date: string | null
     slot: string | null
@@ -220,7 +221,7 @@ export default function BookingTimeModal({
         <DialogContent dividers>
           <div className="space-y-4">
             <div>
-              <Typography variant="subtitle1" gutterBottom>
+              {/* <Typography variant="subtitle1" gutterBottom>
                 Chọn bác sĩ:
               </Typography>
               <Select
@@ -242,8 +243,8 @@ export default function BookingTimeModal({
                   SingleValue: CustomSingleValue
                 }}
                 placeholder="Chọn bác sĩ..."
-                isDisabled={isLoading}
-              />
+                isDisabled
+              /> */}
             </div>
 
             <div className="flex flex-col md:flex-row gap-6 reschedule-modal-container">

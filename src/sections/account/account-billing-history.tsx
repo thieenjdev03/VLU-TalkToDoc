@@ -1,48 +1,48 @@
-import Link from '@mui/material/Link';
-import Card from '@mui/material/Card';
-import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
-import Divider from '@mui/material/Divider';
-import CardHeader from '@mui/material/CardHeader';
-import Typography from '@mui/material/Typography';
-import ListItemText from '@mui/material/ListItemText';
+import Link from '@mui/material/Link'
+import Card from '@mui/material/Card'
+import Stack from '@mui/material/Stack'
+import Button from '@mui/material/Button'
+import Divider from '@mui/material/Divider'
+import CardHeader from '@mui/material/CardHeader'
+import Typography from '@mui/material/Typography'
+import ListItemText from '@mui/material/ListItemText'
 
-import { useBoolean } from 'src/hooks/use-boolean';
+import { useBoolean } from 'src/hooks/use-boolean'
 
-import { fDate } from 'src/utils/format-time';
-import { fCurrency } from 'src/utils/format-number';
+import { fDate } from 'src/utils/format-time'
+import { fCurrency } from 'src/utils/format-number'
 
-import Iconify from 'src/components/iconify';
+import Iconify from 'src/components/iconify'
 
-import { IUserAccountBillingHistory } from 'src/types/user';
+import { IUserAccountBillingHistory } from 'src/types/user'
 
 // ----------------------------------------------------------------------
 
 type Props = {
-  invoices: IUserAccountBillingHistory[];
-};
+  invoices: IUserAccountBillingHistory[]
+}
 
 export default function AccountBillingHistory({ invoices }: Props) {
-  const showMore = useBoolean();
+  const showMore = useBoolean()
 
   return (
     <Card>
-      <CardHeader title="Invoice History" />
+      <CardHeader title="Doanh Thu Đã Nhận Theo Tháng" />
 
       <Stack spacing={1.5} sx={{ px: 3, pt: 3 }}>
-        {(showMore.value ? invoices : invoices.slice(0, 8)).map((invoice) => (
+        {(showMore.value ? invoices : invoices.slice(0, 8)).map(invoice => (
           <Stack key={invoice.id} direction="row" alignItems="center">
             <ListItemText
               primary={invoice.invoiceNumber}
               secondary={fDate(invoice.createdAt)}
               primaryTypographyProps={{
-                typography: 'body2',
+                typography: 'body2'
               }}
               secondaryTypographyProps={{
                 mt: 0.5,
                 component: 'span',
                 typography: 'caption',
-                color: 'text.disabled',
+                color: 'text.disabled'
               }}
             />
 
@@ -65,7 +65,11 @@ export default function AccountBillingHistory({ invoices }: Props) {
           color="inherit"
           startIcon={
             <Iconify
-              icon={showMore.value ? 'eva:arrow-ios-upward-fill' : 'eva:arrow-ios-downward-fill'}
+              icon={
+                showMore.value
+                  ? 'eva:arrow-ios-upward-fill'
+                  : 'eva:arrow-ios-downward-fill'
+              }
             />
           }
           onClick={showMore.onToggle}
@@ -74,5 +78,5 @@ export default function AccountBillingHistory({ invoices }: Props) {
         </Button>
       </Stack>
     </Card>
-  );
+  )
 }

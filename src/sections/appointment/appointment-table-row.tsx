@@ -15,6 +15,7 @@ import { useBoolean } from 'src/hooks/use-boolean'
 import { useCallStore } from 'src/store/call-store'
 import {
   deleteAppointment,
+  rescheduleAppointment,
   doctorConfirmAppointment
 } from 'src/api/appointment'
 
@@ -65,6 +66,13 @@ export default function AppointmentTableRow({
   const handleOpenCall = () => {
     openCall(row)
   }
+  const conditionEditAppointment = (appointmentDate: string) => {
+    const isPendingOrConfirmed = row?.status === 'PENDING'
+    const isAfterCurrentDate =
+      moment(appointmentDate).isAfter(moment(), 'day') &&
+      row?.status === 'CONFIRMED'
+    return isPendingOrConfirmed || isAfterCurrentDate
+  }
 
   const handleEditAppointment = () => {
     quickEdit.onTrue()
@@ -100,7 +108,19 @@ export default function AppointmentTableRow({
       setLoading(false)
     }
   }
-
+  const handleReschedule = async (payload: any, _id: string) => {
+    if (!payload?.doctor?._id) {
+      enqueueSnackbar('Không tìm thấy bác sĩ!', { variant: 'error' })
+      return
+    }
+    const response = await rescheduleAppointment(_id, {
+      date: payload.date,
+      slot: payload.slot
+    })
+    if (response.statusCode === 200) {
+      enqueueSnackbar('Đã đặt lại lịch khám thành công!')
+    }
+  }
   const handleDeleteAppointment = async () => {
     if (user?.role !== 'ADMIN') {
       enqueueSnackbar('Bạn không có quyền xoá lịch hẹn.', { variant: 'error' })
@@ -200,6 +220,7 @@ export default function AppointmentTableRow({
               size="small"
               variant="outlined"
               color="success"
+              sx={{ width: '80px', whiteSpace: 'nowrap' }}
               onClick={() => {
                 handleDoctorConfirm(true)
               }}
@@ -226,12 +247,14 @@ export default function AppointmentTableRow({
               (status === 'CONFIRMED' && 'success') ||
               (status === 'REJECTED' && 'error') ||
               (status === 'PENDING' && 'warning') ||
+              (status === 'CANCELLED' && 'error') ||
               'default'
             }
           >
             {status === 'CONFIRMED' && 'Đã xác nhận'}
             {status === 'REJECTED' && 'Đã huỷ'}
             {status === 'PENDING' && 'Đang chờ'}
+            {status === 'CANCELLED' && 'Đã huỷ'}
           </Label>
         )}
       </TableCell>
@@ -258,21 +281,25 @@ export default function AppointmentTableRow({
         )}
       </TableCell>
       <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
-        <Tooltip title="Sửa Lịch" placement="top" arrow>
-          <IconButton
-            color={quickEdit.value ? 'inherit' : 'default'}
-            onClick={handleEditAppointment}
-          >
-            <Iconify icon="solar:pen-bold" />
-          </IconButton>
-        </Tooltip>
+        {conditionEditAppointment(row?.date) && (
+          <>
+            <Tooltip title="Sửa Lịch" placement="top" arrow>
+              <IconButton
+                color={quickEdit.value ? 'inherit' : 'default'}
+                onClick={handleEditAppointment}
+              >
+                <Iconify icon="solar:pen-bold" />
+              </IconButton>
+            </Tooltip>
 
-        <IconButton
-          color={popover.open ? 'inherit' : 'default'}
-          onClick={popover.onOpen}
-        >
-          <Iconify icon="eva:more-vertical-fill" />
-        </IconButton>
+            <IconButton
+              color={popover.open ? 'inherit' : 'default'}
+              onClick={popover.onOpen}
+            >
+              <Iconify icon="eva:more-vertical-fill" />
+            </IconButton>
+          </>
+        )}
       </TableCell>
     </TableRow>
   )
@@ -336,12 +363,14 @@ export default function AppointmentTableRow({
             (status === 'CONFIRMED' && 'success') ||
             (status === 'REJECTED' && 'error') ||
             (status === 'PENDING' && 'warning') ||
+            (status === 'CANCELLED' && 'error') ||
             'default'
           }
         >
           {status === 'CONFIRMED' && 'Đã xác nhận'}
           {status === 'REJECTED' && 'Đã huỷ'}
           {status === 'PENDING' && 'Đang chờ'}
+          {status === 'CANCELLED' && 'Đã huỷ'}
         </Label>
       </TableCell>
 
@@ -373,24 +402,28 @@ export default function AppointmentTableRow({
         )}
       </TableCell>
       <TableCell align="center">
-        <Typography variant="body2">{row.cancelReason || '-'}</Typography>
+        <Typography variant="body2">{row.reason || '-'}</Typography>
       </TableCell>
       <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
-        <Tooltip title="Sửa Lịch" placement="top" arrow>
-          <IconButton
-            color={quickEdit.value ? 'inherit' : 'default'}
-            onClick={handleEditAppointment}
-          >
-            <Iconify icon="solar:pen-bold" />
-          </IconButton>
-        </Tooltip>
+        {conditionEditAppointment(row?.date) && (
+          <>
+            <Tooltip title="Sửa Lịch" placement="top" arrow>
+              <IconButton
+                color={quickEdit.value ? 'inherit' : 'default'}
+                onClick={handleEditAppointment}
+              >
+                <Iconify icon="solar:pen-bold" />
+              </IconButton>
+            </Tooltip>
 
-        <IconButton
-          color={popover.open ? 'inherit' : 'default'}
-          onClick={popover.onOpen}
-        >
-          <Iconify icon="eva:more-vertical-fill" />
-        </IconButton>
+            <IconButton
+              color={popover.open ? 'inherit' : 'default'}
+              onClick={popover.onOpen}
+            >
+              <Iconify icon="eva:more-vertical-fill" />
+            </IconButton>
+          </>
+        )}
       </TableCell>
     </TableRow>
   )
@@ -422,12 +455,14 @@ export default function AppointmentTableRow({
         onClose={() => quickEdit.onFalse()}
         doctors={doctorsList}
         defaultData={{
+          appointmentId: row?._id,
           doctor: row?.doctor,
           date: row?.appointment?.date || '',
           slot: row?.appointment?.slot || ''
         }}
         onConfirm={(payload: any) => {
-          console.log('Updated:', payload)
+          handleReschedule(payload, row?._id)
+          quickEdit.onFalse()
         }}
       />
       {/* <ConfirmDialog

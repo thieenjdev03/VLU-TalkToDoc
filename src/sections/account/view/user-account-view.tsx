@@ -34,11 +34,11 @@ const TABS = [
     label: 'Thông tin chung',
     icon: <Iconify icon="solar:user-id-bold" width={24} />
   },
-  // {
-  //   value: 'billing',
-  //   label: 'Billing',
-  //   icon: <Iconify icon="solar:bill-list-bold" width={24} />,
-  // },
+  {
+    value: 'billing',
+    label: 'Lịch sử giao dịch',
+    icon: <Iconify icon="solar:bill-list-bold" width={24} />
+  },
   // {
   //   value: 'notifications',
   //   label: 'Notifications',
@@ -74,11 +74,11 @@ export default function AccountView() {
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
       <CustomBreadcrumbs
-        heading="Cài đặt tài khoản"
+        heading="Cập nhật thông tin tài khoản"
         links={[
           { name: 'Trang Chủ', href: paths.dashboard.root },
           { name: 'Tài Khoản', href: paths.dashboard.user.root },
-          { name: 'Cài Đặt' }
+          { name: 'Cập Nhật' }
         ]}
         sx={{
           mb: { xs: 1, md: 2 }

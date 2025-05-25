@@ -1,30 +1,30 @@
-import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
-import MenuItem from '@mui/material/MenuItem';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
+import Stack from '@mui/material/Stack'
+import Button from '@mui/material/Button'
+import MenuItem from '@mui/material/MenuItem'
+import IconButton from '@mui/material/IconButton'
+import Typography from '@mui/material/Typography'
 
-import { RouterLink } from 'src/routes/components';
+import { RouterLink } from 'src/routes/components'
 
-import { fDateTime } from 'src/utils/format-time';
+import { fDateTime } from 'src/utils/format-time'
 
-import Label from 'src/components/label';
-import Iconify from 'src/components/iconify';
-import CustomPopover, { usePopover } from 'src/components/custom-popover';
+import Label from 'src/components/label'
+import Iconify from 'src/components/iconify'
+import CustomPopover, { usePopover } from 'src/components/custom-popover'
 
 // ----------------------------------------------------------------------
 
 type Props = {
-  status: string;
-  backLink: string;
-  orderNumber: string;
-  createdAt: Date;
-  onChangeStatus: (newValue: string) => void;
+  status: string
+  backLink: string
+  orderNumber: string
+  createdAt: Date
+  onChangeStatus: (newValue: string) => void
   statusOptions: {
-    value: string;
-    label: string;
-  }[];
-};
+    value: string
+    label: string
+  }[]
+}
 
 export default function OrderDetailsToolbar({
   status,
@@ -32,9 +32,9 @@ export default function OrderDetailsToolbar({
   createdAt,
   orderNumber,
   statusOptions,
-  onChangeStatus,
+  onChangeStatus
 }: Props) {
-  const popover = usePopover();
+  const popover = usePopover()
 
   return (
     <>
@@ -42,7 +42,7 @@ export default function OrderDetailsToolbar({
         spacing={3}
         direction={{ xs: 'column', md: 'row' }}
         sx={{
-          mb: { xs: 3, md: 5 },
+          mb: { xs: 3, md: 5 }
         }}
       >
         <Stack spacing={1} direction="row" alignItems="flex-start">
@@ -52,7 +52,7 @@ export default function OrderDetailsToolbar({
 
           <Stack spacing={0.5}>
             <Stack spacing={1} direction="row" alignItems="center">
-              <Typography variant="h4"> Order {orderNumber} </Typography>
+              <Typography variant="h4"> Bệnh án {orderNumber} </Typography>
               <Label
                 variant="soft"
                 color={
@@ -79,7 +79,7 @@ export default function OrderDetailsToolbar({
           alignItems="center"
           justifyContent="flex-end"
         >
-          <Button
+          {/* <Button
             color="inherit"
             variant="outlined"
             endIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}
@@ -87,18 +87,18 @@ export default function OrderDetailsToolbar({
             sx={{ textTransform: 'capitalize' }}
           >
             {status}
-          </Button>
+          </Button> */}
 
-          <Button
+          {/* <Button
             color="inherit"
             variant="outlined"
             startIcon={<Iconify icon="solar:printer-minimalistic-bold" />}
           >
-            Print
-          </Button>
+            In
+          </Button> */}
 
-          <Button color="inherit" variant="contained" startIcon={<Iconify icon="solar:pen-bold" />}>
-            Edit
+          <Button color="inherit" variant="contained">
+            Hoàn Thành Bệnh Án
           </Button>
         </Stack>
       </Stack>
@@ -109,13 +109,13 @@ export default function OrderDetailsToolbar({
         arrow="top-right"
         sx={{ width: 140 }}
       >
-        {statusOptions.map((option) => (
+        {statusOptions.map(option => (
           <MenuItem
             key={option.value}
             selected={option.value === status}
             onClick={() => {
-              popover.onClose();
-              onChangeStatus(option.value);
+              popover.onClose()
+              onChangeStatus(option.value)
             }}
           >
             {option.label}
@@ -123,5 +123,5 @@ export default function OrderDetailsToolbar({
         ))}
       </CustomPopover>
     </>
-  );
+  )
 }

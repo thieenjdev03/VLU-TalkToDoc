@@ -76,7 +76,7 @@ export default function CaseDetailsItems({
   return (
     <Card>
       <CardHeader
-        title="Chi tiết kê đơn"
+        title="Chi tiết thanh toán"
         action={
           <IconButton>
             <Iconify icon="solar:pen-bold" />

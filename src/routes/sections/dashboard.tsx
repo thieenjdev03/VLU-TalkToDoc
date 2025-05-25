@@ -30,7 +30,7 @@ const ProductEditPage = lazy(() => import('src/pages/dashboard/product/edit'))
 
 // CASE
 const CaseListPage = lazy(() => import('src/pages/dashboard/case/list'))
-// const CaseDetailsPage = lazy(() => import('src/pages/dashboard/case/details'))
+const CaseDetailsPage = lazy(() => import('src/pages/dashboard/case/details'))
 
 // ORDER
 const OrderListPage = lazy(() => import('src/pages/dashboard/order/list'))
@@ -262,8 +262,8 @@ export const dashboardRoutes = [
         path: 'case',
         children: [
           { element: <CaseListPage />, index: true },
-          { path: 'list', element: <CaseListPage /> }
-          // { path: ':id', element: <CaseDetailsPage /> }
+          { path: 'list', element: <CaseListPage /> },
+          { path: ':id', element: <CaseDetailsPage /> }
         ]
       },
       {

@@ -331,6 +331,20 @@ export function useNavData() {
           // Patient Role
           {
             hidden: user?.role !== 'DOCTOR',
+            title: t('Quản lý tài khoản'),
+            path: paths.dashboard.account.root,
+            icon: ICONS.user,
+            children: [
+              {
+                title: t('Cập nhật thông tin'),
+                path: paths.dashboard.user.account
+              }
+            ]
+          },
+          {
+            hidden:
+              user?.role !== 'DOCTOR' ||
+              user?.registrationStatus !== 'approved',
             title: t('Quản lý lịch hẹn'),
             path: paths.dashboard.appointment.root,
             icon: ICONS.medical,
@@ -339,21 +353,27 @@ export function useNavData() {
             ]
           },
           {
-            hidden: user?.role !== 'DOCTOR',
+            hidden:
+              user?.role !== 'DOCTOR' ||
+              user?.registrationStatus !== 'approved',
             title: t('Quản lý bệnh án'),
             path: paths.dashboard.case.root,
             icon: ICONS.order,
             children: [
               { title: t('Danh Sách'), path: paths.dashboard.case.list }
             ]
+          },
+          {
+            hidden:
+              user?.role !== 'DOCTOR' ||
+              user?.registrationStatus !== 'approved',
+            title: t('Quản lý toa thuốc'),
+            path: paths.dashboard.prescription.root,
+            icon: ICONS.medical,
+            children: [
+              { title: t('Danh sách'), path: paths.dashboard.prescription.list }
+            ]
           }
-          // {
-          //   hidden: user?.role !== 'DOCTOR',
-          //   title: t('Quản lý toa thuốc'),
-          //   path: paths.dashboard.prescription.root,
-          //   icon: ICONS.medical,
-          //   children: [{ title: t('Danh sách'), path: paths.dashboard.prescription.list }],
-          // },
         ]
       },
       // BỆNH NHÂN Navigation

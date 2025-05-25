@@ -1,25 +1,20 @@
-import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
-import Paper from '@mui/material/Paper';
-import Stack from '@mui/material/Stack';
-import Timeline from '@mui/lab/Timeline';
-import TimelineDot from '@mui/lab/TimelineDot';
-import CardHeader from '@mui/material/CardHeader';
-import Typography from '@mui/material/Typography';
-import TimelineContent from '@mui/lab/TimelineContent';
-import TimelineSeparator from '@mui/lab/TimelineSeparator';
-import TimelineConnector from '@mui/lab/TimelineConnector';
-import TimelineItem, { timelineItemClasses } from '@mui/lab/TimelineItem';
+import Box from '@mui/material/Box'
+import Card from '@mui/material/Card'
+import Paper from '@mui/material/Paper'
+import Stack from '@mui/material/Stack'
+import Timeline from '@mui/lab/Timeline'
+import CardHeader from '@mui/material/CardHeader'
+import { timelineItemClasses } from '@mui/lab/TimelineItem'
 
-import { fDateTime } from 'src/utils/format-time';
+import { fDateTime } from 'src/utils/format-time'
 
-import { IOrderHistory } from 'src/types/order';
+import { IOrderHistory } from 'src/types/order'
 
 // ----------------------------------------------------------------------
 
 type Props = {
-  history: IOrderHistory;
-};
+  history: IOrderHistory
+}
 
 export default function OrderDetailsHistory({ history }: Props) {
   const renderSummary = (
@@ -33,7 +28,7 @@ export default function OrderDetailsHistory({ history }: Props) {
         flexShrink: 0,
         borderRadius: 2,
         typography: 'body2',
-        borderStyle: 'dashed',
+        borderStyle: 'dashed'
       }}
     >
       <Stack spacing={0.5}>
@@ -53,7 +48,7 @@ export default function OrderDetailsHistory({ history }: Props) {
         {fDateTime(history.orderTime)}
       </Stack>
     </Stack>
-  );
+  )
 
   const renderTimeline = (
     <Timeline
@@ -62,14 +57,14 @@ export default function OrderDetailsHistory({ history }: Props) {
         m: 0,
         [`& .${timelineItemClasses.root}:before`]: {
           flex: 0,
-          padding: 0,
-        },
+          padding: 0
+        }
       }}
     >
-      {history.timeline.map((item, index) => {
-        const firstTimeline = index === 0;
+      {/* {history?.timeline?.map((item, index) => {
+        const firstTimeline = index === 0
 
-        const lastTimeline = index === history.timeline.length - 1;
+        const lastTimeline = index === history.timeline.length - 1
 
         return (
           <TimelineItem key={item.title}>
@@ -81,15 +76,15 @@ export default function OrderDetailsHistory({ history }: Props) {
             <TimelineContent>
               <Typography variant="subtitle2">{item.title}</Typography>
 
-              <Box sx={{ color: 'text.disabled', typography: 'caption', mt: 0.5 }}>
-                {fDateTime(item.time)}
-              </Box>
+              <Box
+                sx={{ color: 'text.disabled', typography: 'caption', mt: 0.5 }}
+              />
             </TimelineContent>
           </TimelineItem>
-        );
-      })}
+        )
+      })} */}
     </Timeline>
-  );
+  )
 
   return (
     <Card>
@@ -105,5 +100,5 @@ export default function OrderDetailsHistory({ history }: Props) {
         {renderSummary}
       </Stack>
     </Card>
-  );
+  )
 }

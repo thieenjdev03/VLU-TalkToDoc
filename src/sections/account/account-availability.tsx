@@ -126,8 +126,9 @@ export default function DoctorAvailabilityTabs() {
       </Typography>
 
       <Alert severity="info" sx={{ mb: 2 }}>
-        Vui lòng cấu hình thời gian làm việc cho từng ngày trong tuần. Mỗi ngày
-        phải có ít nhất một khung giờ làm việc.
+        Lưu ý: Nếu không cấu hình, hệ thống sẽ mặc định giờ làm việc từ
+        08:00–18:00 (nghỉ trưa 12:00–13:30). Mỗi ngày cần ít nhất một khung giờ
+        làm việc.
       </Alert>
 
       <Box

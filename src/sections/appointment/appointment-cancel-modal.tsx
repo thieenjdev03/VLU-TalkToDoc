@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useSnackbar } from 'notistack'
 
 import CloseIcon from '@mui/icons-material/Close'
 import {
@@ -15,6 +16,8 @@ import {
   FormControlLabel
 } from '@mui/material'
 
+import { cancelAppointment } from '../../api/appointment'
+
 const CANCEL_REASONS = [
   'Không hài lòng với dịch vụ',
   'Tìm được giải pháp thay thế',
@@ -26,20 +29,33 @@ const CANCEL_REASONS = [
 export default function CancelReasonDialog({
   open,
   onClose,
-  onSubmit
+  onSubmit,
+  appointmentId
 }: {
   open: boolean
   onClose: () => void
   onSubmit: (reason: string) => void
+  appointmentId: string
 }) {
   const [reason, setReason] = useState('')
   const [otherText, setOtherText] = useState('')
   const isOther = reason === CANCEL_REASONS[CANCEL_REASONS.length - 1]
+  const { enqueueSnackbar } = useSnackbar()
 
-  const handleSubmit = () => {
+  const handleSubmit = async (_id: string) => {
     onSubmit(isOther ? otherText : reason)
     setReason('')
     setOtherText('')
+    const res = await cancelAppointment(_id, reason)
+    if (res) {
+      enqueueSnackbar('Huỷ lịch hẹn thành công', { variant: 'success' })
+      setTimeout(() => {
+        window.location.reload()
+      }, 1000)
+      onClose()
+    } else {
+      enqueueSnackbar('Huỷ lịch hẹn thất bại', { variant: 'error' })
+    }
   }
 
   return (
@@ -84,7 +100,7 @@ export default function CancelReasonDialog({
       <DialogActions sx={{ px: 3, pb: 2, justifyContent: 'flex-end' }}>
         <Button
           variant="contained"
-          onClick={handleSubmit}
+          onClick={() => handleSubmit(appointmentId)}
           disabled={!reason || (isOther && otherText.trim().length < 5)}
         >
           Xác nhận

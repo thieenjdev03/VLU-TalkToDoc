@@ -13,6 +13,8 @@ import TableCell from '@mui/material/TableCell'
 import IconButton from '@mui/material/IconButton'
 import ListItemText from '@mui/material/ListItemText'
 
+import { useRouter } from 'src/routes/hooks'
+
 import { useBoolean } from 'src/hooks/use-boolean'
 
 import Label from 'src/components/label'
@@ -145,7 +147,7 @@ export default function CaseTableRow({
   const confirm = useBoolean()
   const collapse = useBoolean()
   const popover = usePopover()
-
+  const router = useRouter()
   function getStatusLabel(_status: string) {
     if (_status === 'completed') return 'Hoàn thành'
     if (_status === 'pending') return 'Chờ xử lý'
@@ -398,7 +400,11 @@ export default function CaseTableRow({
           <Iconify icon="solar:trash-bin-trash-bold" />
           Xoá
         </MenuItem>
-        <MenuItem onClick={() => {}}>
+        <MenuItem
+          onClick={() => {
+            router.push(`/dashboard/case/${row?._id}`)
+          }}
+        >
           <Iconify icon="solar:eye-bold" />
           Xem Chi Tiết
         </MenuItem>
