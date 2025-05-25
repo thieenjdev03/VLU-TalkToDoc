@@ -70,7 +70,7 @@ export default function HospitalListPage() {
   const editDialog = useBoolean();
   const { deleteHospital } = useDeleteHospital();
   const [searchQuery, setSearchQuery] = useState('');
-
+  const [total, setTotal] = useState(0);
   const { hospitals, hospitalsLoading, hospitalsError, hospitalsValidating } = useGetHospital({
     query: searchQuery,
     page: table.page + 1,
@@ -82,6 +82,7 @@ export default function HospitalListPage() {
   useEffect(() => {
     if (hospitals?.data?.length) {
       setTableData(hospitals?.data);
+      setTotal(hospitals?.total);
     } else if (hospitalsLoading || hospitalsError || hospitalsValidating) {
       setTableData([]);
     }
@@ -220,7 +221,7 @@ export default function HospitalListPage() {
             </Scrollbar>
           </TableContainer>
           <TablePaginationCustom
-            count={tableData?.length}
+            count={total}
             page={table.page}
             rowsPerPage={table.rowsPerPage}
             onPageChange={table.onChangePage}

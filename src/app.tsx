@@ -39,9 +39,23 @@ export default function App() {
   `;
 
   console.info(`%c${charAt}`, 'color: #5BE49B');
-
+  const userProfile = localStorage.getItem('userProfile');
+  const userRole = userProfile ? JSON.parse(userProfile).role : '';
   useScrollToTop();
-
+  const renderThemeColorPresets = (role: string) => {
+    console.log('render theme color presets', role);
+    // 'default' | 'cyan' | 'purple' | 'blue' | 'orange' | 'red'
+    if (role === 'ADMIN') {
+      return 'purple';
+    }
+    if (role === 'DOCTOR') {
+      return 'blue';
+    }
+    if (role === 'PATIENT') {
+      return 'default';
+    }
+    return 'cyan';
+  };
   return (
     <AuthProvider>
       <LocalizationProvider>
@@ -51,8 +65,8 @@ export default function App() {
             themeDirection: 'ltr', //  'rtl' | 'ltr'
             themeContrast: 'default', // 'default' | 'bold'
             themeLayout: 'vertical', // 'vertical' | 'horizontal' | 'mini'
-            themeColorPresets: 'default', // 'default' | 'cyan' | 'purple' | 'blue' | 'orange' | 'red'
-            themeStretch: false,
+            themeColorPresets: renderThemeColorPresets(userRole), // 'default' | 'cyan' | 'purple' | 'blue' | 'orange' | 'red'
+            themeStretch: true,
           }}
         >
           <ThemeProvider>

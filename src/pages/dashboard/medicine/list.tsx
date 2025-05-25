@@ -103,7 +103,7 @@ export default function ProviderMedicineListPage() {
     } else if (medicineLoading || medicineError || medicineValidating) {
       setTableData([]);
     }
-  }, [medicine, medicineLoading, medicineError, medicineValidating]);
+  }, [medicine, medicineLoading, medicineError, medicineValidating, table.page, table.rowsPerPage]);
 
   const dataInPage = dataFiltered.slice(
     table.page * table.rowsPerPage,
@@ -282,7 +282,7 @@ export default function ProviderMedicineListPage() {
             </Scrollbar>
           </TableContainer>
           <TablePaginationCustom
-            count={tableData.length}
+            count={medicine?.total}
             page={table.page}
             rowsPerPage={table.rowsPerPage}
             onPageChange={table.onChangePage}

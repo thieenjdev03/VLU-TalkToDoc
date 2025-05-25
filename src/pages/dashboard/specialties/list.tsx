@@ -70,7 +70,7 @@ export default function SpecialtiesListPage() {
 
   const [tableData, setTableData] = useState<any>();
   const [searchQuery, setSearchQuery] = useState('');
-
+  const [total, setTotal] = useState(0);
   const [filters, setFilters] = useState(defaultFilters);
 
   const { specialties, specialtiesLoading, specialtiesError, specialtiesValidating } =
@@ -85,6 +85,7 @@ export default function SpecialtiesListPage() {
   useEffect(() => {
     if (specialties?.data?.length) {
       setTableData(specialties?.data);
+      setTotal(specialties?.total);
     } else if (specialtiesLoading || specialtiesError || specialtiesValidating) {
       setTableData([]);
     }
@@ -127,7 +128,7 @@ export default function SpecialtiesListPage() {
     },
     [router]
   );
-
+  console.log('tableData', tableData);
   return (
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'} sx={{ overflow: 'hidden' }}>
@@ -222,7 +223,7 @@ export default function SpecialtiesListPage() {
             </Scrollbar>
           </TableContainer>
           <TablePaginationCustom
-            count={tableData?.length}
+            count={total}
             page={table.page}
             rowsPerPage={table.rowsPerPage}
             onPageChange={table.onChangePage}

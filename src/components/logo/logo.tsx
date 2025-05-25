@@ -18,15 +18,17 @@ const Logo = forwardRef<HTMLDivElement, LogoProps>(
         ref={ref}
         component="div"
         sx={{
-          display: 'inline-flex',
-          ...sx,
+          display: 'flex',
+          alignItems: 'center',
+          margin: '0',
+          justifyContent: 'center',
         }}
         {...other}
       >
         <img
-          src="https://res.cloudinary.com/dut4zlbui/image/upload/v1741615997/tuw1thbedrzcp17iv34p.png"
+          src="https://res.cloudinary.com/dut4zlbui/image/upload/v1745998029/gyfwcrwahilpkvxgmn5w.png"
           alt="logo"
-          style={{ width: '200px', height: 'auto' }}
+          style={{ width: '240px', height: 'auto' }}
         />
       </Box>
     );
@@ -36,7 +38,11 @@ const Logo = forwardRef<HTMLDivElement, LogoProps>(
     }
 
     return (
-      <Link component={RouterLink} href="/dashboard" sx={{ display: 'contents' }}>
+      <Link
+        component={RouterLink}
+        href="/dashboard"
+        sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0' }}
+      >
         {logo}
       </Link>
     );

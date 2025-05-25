@@ -29,6 +29,10 @@ type Props = {
   onSelectRow: VoidFunction;
   typeUser: string;
   onDeleteRow: VoidFunction;
+  openCall: boolean;
+  setOpenCall: (open: boolean) => void;
+  stringeeToken: string;
+  user: any;
 };
 
 export default function AppointmentTableRow({
@@ -38,6 +42,10 @@ export default function AppointmentTableRow({
   onSelectRow,
   onDeleteRow,
   typeUser,
+  openCall,
+  setOpenCall,
+  stringeeToken,
+  user,
 }: Props) {
   const { appointmentId, patient, status, payment } = row as any;
   const quickEdit = useBoolean();
@@ -109,8 +117,6 @@ export default function AppointmentTableRow({
 
       <TableCell>{payment?.totalFee?.toLocaleString('vi-VN') || 0}đ</TableCell>
 
-      <TableCell>{payment?.paymentMethod?.toUpperCase() || '-'}</TableCell>
-
       <TableCell align="center">
         {status === 'PENDING' && typeUser === 'DOCTOR' ? (
           <Stack direction="row" spacing={1} justifyContent="center">
@@ -161,6 +167,17 @@ export default function AppointmentTableRow({
           onChange={() => {}}
           disabled
         />
+      </TableCell>
+      <TableCell>
+        <Button
+          sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+          variant="contained"
+          color="primary"
+          onClick={() => setOpenCall(true)}
+        >
+          <Iconify icon="ic:outline-phone-forwarded" />
+          <span>Gọi</span>
+        </Button>
       </TableCell>
       <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
         <Tooltip title="Sửa nhanh" placement="top" arrow>
@@ -215,8 +232,6 @@ export default function AppointmentTableRow({
 
       <TableCell>{payment?.totalFee?.toLocaleString('vi-VN') || 0}đ</TableCell>
 
-      <TableCell>{payment?.paymentMethod?.toUpperCase() || '-'}</TableCell>
-
       <TableCell align="center">
         <Label
           variant="soft"
@@ -242,6 +257,18 @@ export default function AppointmentTableRow({
           }}
           disabled
         />
+      </TableCell>
+      <TableCell>
+        {' '}
+        <Button
+          sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+          variant="contained"
+          color="primary"
+          onClick={() => setOpenCall(true)}
+        >
+          <Iconify icon="ic:outline-phone-forwarded" />
+          <span>Gọi</span>
+        </Button>
       </TableCell>
       <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
         <Tooltip title="Sửa nhanh" placement="top" arrow>

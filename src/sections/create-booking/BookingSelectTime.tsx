@@ -14,7 +14,7 @@ import DoctorModal from '../user/detail-doctor';
 
 type Props = {
   doctors: IUserItem[];
-  setCurrentStep: (step: string) => void;
+  setCurrentStep: (step: string, back?: boolean) => void;
   formData: any;
   handleSubmit: (data: any) => void;
 };
@@ -214,13 +214,14 @@ export default function BookingSelectTime({
               <Button
                 variant="outlined"
                 onClick={() => {
-                  setCurrentStep('medical-form');
-                  handleSubmit({
-                    ...formData,
-                    medicalForm: {
-                      ...formData.medicalForm,
-                    },
-                  });
+                  localStorage.setItem('booking_step', 'medical-form');
+                  setCurrentStep('medical-form', true);
+                  // handleSubmit({
+                  //   ...formData,
+                  //   medicalForm: {
+                  //     ...formData.medicalForm,
+                  //   },
+                  // });
                 }}
                 color="primary"
                 className="primary-bg text-white"
@@ -230,7 +231,8 @@ export default function BookingSelectTime({
               <Button
                 variant="contained"
                 onClick={() => {
-                  setCurrentStep('select-specialty');
+                  localStorage.setItem('booking_step', 'confirm-payment-step');
+                  setCurrentStep('confirm-payment-step', false);
                   handleSubmit({
                     doctorObject: selectedDoctor,
                     appointment: {

@@ -74,7 +74,7 @@ export default function JwtLoginView() {
   const renderHead = (
     <Box alignItems="center" justifyContent="center" display="flex" flexDirection="column">
       <img
-        src="https://res.cloudinary.com/dut4zlbui/image/upload/v1741544458/iotwczgmwylmpvklj1mu.png"
+        src="https://res.cloudinary.com/dut4zlbui/image/upload/v1746087113/r8fxpcrmefstk2jn90a3.png"
         alt="logo"
         width={200}
         height={200}

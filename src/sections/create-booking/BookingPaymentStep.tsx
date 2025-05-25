@@ -140,7 +140,7 @@ export default function BookingPayment({
           <div>
             <div className="mb-6 flex flex-col items-start justify-start">
               <img
-                src="https://res.cloudinary.com/dut4zlbui/image/upload/v1741615997/tuw1thbedrzcp17iv34p.png"
+                src="https://res.cloudinary.com/dut4zlbui/image/upload/v1745998029/gyfwcrwahilpkvxgmn5w.png"
                 alt="TalkToDoc Logo"
                 className="h-20 mx-auto mb-4"
               />
@@ -155,7 +155,10 @@ export default function BookingPayment({
             <Button
               variant="outlined"
               color="primary"
-              onClick={() => setCurrentStep('select-time-booking', true)}
+              onClick={() => {
+                localStorage.setItem('booking_step', 'select-time-booking');
+                setCurrentStep('select-time-booking', true);
+              }}
             >
               Trở về
             </Button>

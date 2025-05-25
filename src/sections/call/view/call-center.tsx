@@ -1,7 +1,7 @@
+import { Icon } from '@iconify/react';
 import { useRef, useState, useEffect } from 'react';
 
 import { Box, Grid, Paper, Stack, Alert, Button, TextField, Typography } from '@mui/material';
-
 // Stringee SDK load bằng <script> bên ngoài
 
 interface CallComponentProps {
@@ -192,106 +192,108 @@ function CallCenter({ stringeeAccessToken, fromUserId, userInfor }: CallComponen
       setCallStatus('Đã chuyển đổi voice/video');
     }
   };
-
+  const hiddenContent = false;
   return (
     <Box p={4} maxWidth="1000px" mx="auto">
-      <Paper elevation={3} sx={{ p: 2, mb: 4 }}>
-        <Stack direction="row" justifyContent="space-between" alignItems="center">
-          <Typography variant="h6">User: {fromUserId || 'Chưa đăng nhập'}</Typography>
-          <Typography variant="body2" color={clientConnected ? 'green' : 'error'}>
-            {clientConnected ? 'Đã kết nối Stringee' : 'Đang kết nối...'}
-          </Typography>
-        </Stack>
-      </Paper>
+      {hiddenContent && (
+        <>
+          <Paper elevation={3} sx={{ p: 2, mb: 4 }}>
+            <Stack direction="row" justifyContent="space-between" alignItems="center">
+              <Typography variant="h6">User: {fromUserId || 'Chưa đăng nhập'}</Typography>
+              <Typography variant="body2" color={clientConnected ? 'green' : 'error'}>
+                {clientConnected ? 'Đã kết nối Stringee' : 'Đang kết nối...'}
+              </Typography>
+            </Stack>
+          </Paper>
+          <Grid container spacing={2} mb={4}>
+            <Grid item>
+              <TextField
+                label="ID người nhận"
+                value={toUserId}
+                onChange={(e) => setToUserId(e.target.value)}
+              />
+            </Grid>
+            <Grid item>
+              <Button
+                variant="contained"
+                color="success"
+                onClick={() => makeCall(false)}
+                disabled={!clientConnected || calling}
+              >
+                Voice Call
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => makeCall(true)}
+                disabled={!clientConnected || calling}
+              >
+                Video Call
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button variant="contained" color="error" onClick={endCall} disabled={!calling}>
+                Hang Up
+              </Button>
+            </Grid>
+          </Grid>
 
-      <Grid container spacing={2} mb={4}>
-        <Grid item>
-          <TextField
-            label="ID người nhận"
-            value={toUserId}
-            onChange={(e) => setToUserId(e.target.value)}
-          />
-        </Grid>
-        <Grid item>
-          <Button
-            variant="contained"
-            color="success"
-            onClick={() => makeCall(false)}
-            disabled={!clientConnected || calling}
-          >
-            Voice Call
-          </Button>
-        </Grid>
-        <Grid item>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => makeCall(true)}
-            disabled={!clientConnected || calling}
-          >
-            Video Call
-          </Button>
-        </Grid>
-        <Grid item>
-          <Button variant="contained" color="error" onClick={endCall} disabled={!calling}>
-            Hang Up
-          </Button>
-        </Grid>
-      </Grid>
-
-      <Grid container spacing={2} mb={4}>
-        <Grid item>
-          <Button
-            variant="outlined"
-            onClick={upgradeToVideoCall}
-            disabled={!calling || isVideoCall}
-          >
-            Upgrade to Video
-          </Button>
-        </Grid>
-        <Grid item>
-          <Button variant="outlined" onClick={switchVoiceVideoCall} disabled={!calling}>
-            Switch Voice/Video
-          </Button>
-        </Grid>
-        <Grid item>
-          <Button variant="outlined" onClick={mute} disabled={!calling}>
-            {isMuted ? 'Unmute' : 'Mute'}
-          </Button>
-        </Grid>
-        <Grid item>
-          <Button variant="outlined" onClick={enableVideo} disabled={!calling}>
-            {isVideoEnabled ? 'Disable Video' : 'Enable Video'}
-          </Button>
-        </Grid>
-      </Grid>
-
-      {callStatus && (
-        <Alert severity="info" sx={{ mb: 4 }}>
-          {callStatus}
-        </Alert>
-      )}
-
-      {incomingCall && (
-        <Alert
-          severity="warning"
-          sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-        >
-          <span>
-            Có cuộc gọi đến từ: <b>{incomingCall.from}</b>
-          </span>
-          <Box>
-            <Button color="success" onClick={answerIncomingCall}>
-              Trả lời
+          {/* <Grid container spacing={2} mb={4}>
+          <Grid item>
+            <Button
+              variant="outlined"
+              onClick={upgradeToVideoCall}
+              disabled={!calling || isVideoCall}
+            >
+              Upgrade to Video
             </Button>
-            <Button color="error" onClick={rejectIncomingCall}>
-              Từ chối
+          </Grid>
+          <Grid item>
+            <Button variant="outlined" onClick={switchVoiceVideoCall} disabled={!calling}>
+              Switch Voice/Video
             </Button>
-          </Box>
-        </Alert>
-      )}
+          </Grid>
+          <Grid item>
+            <Button variant="outlined" onClick={mute} disabled={!calling}>
+              {isMuted ? 'Tắt Âm thanh' : 'Bật Âm thanh'}
+            </Button>
+          </Grid>
+          <Grid item>
+            <Button variant="outlined" onClick={enableVideo} disabled={!calling}>
+              {isVideoEnabled ? 'Tắt Video' : 'Bật Video'}
+            </Button>
+          </Grid>
+        </Grid> */}
 
-      <Grid container spacing={2}>
+          {callStatus && (
+            <Alert severity="info" sx={{ mb: 4 }}>
+              {callStatus}
+            </Alert>
+          )}
+
+          {incomingCall && (
+            <Alert
+              severity="warning"
+              sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+            >
+              <span>
+                Có cuộc gọi đến từ: <b>{incomingCall.from}</b>
+              </span>
+              <Box>
+                <Button color="success" onClick={answerIncomingCall}>
+                  Trả lời
+                </Button>
+                <Button color="error" onClick={rejectIncomingCall}>
+                  Từ chối
+                </Button>
+              </Box>
+            </Alert>
+          )}
+        </>
+      )}
+      <Grid spacing={2}>
         <Grid item xs={6}>
           <video
             id="localVideo"
@@ -303,16 +305,78 @@ function CallCenter({ stringeeAccessToken, fromUserId, userInfor }: CallComponen
             <track kind="captions" src="captions.vtt" srcLang="en" label="English" default />
           </video>
         </Grid>
-        <Grid item xs={6}>
-          <video
-            id="remoteVideo"
-            playsInline
-            autoPlay
-            style={{ width: '100%', height: '300px', background: 'black', borderRadius: '8px' }}
+        <Stack direction="row" justifyContent="center" marginTop="10px" spacing={3} mb={4}>
+          {/* Mic */}
+          <Button
+            variant="contained"
+            sx={{
+              borderRadius: '50%',
+              backgroundColor: isMuted ? '#f59e0b' : '#3b82f6',
+              color: '#fff',
+              '&:hover': {
+                backgroundColor: isMuted ? '#d97706' : '#2563eb',
+              },
+            }}
+            onClick={mute}
           >
-            <track kind="captions" src="captions.vtt" srcLang="en" label="English" default />
-          </video>
-        </Grid>
+            <Icon icon={isMuted ? 'mdi:microphone-off' : 'mdi:microphone'} width={24} height={24} />
+          </Button>
+
+          {/* Camera */}
+          <Button
+            variant="contained"
+            sx={{
+              borderRadius: '50%',
+              backgroundColor: isVideoEnabled ? '#3b82f6' : '#f59e0b',
+              color: '#fff',
+              '&:hover': {
+                backgroundColor: isVideoEnabled ? '#2563eb' : '#d97706',
+              },
+            }}
+            onClick={enableVideo}
+          >
+            <Icon icon={isVideoEnabled ? 'mdi:video' : 'mdi:video-off'} width={24} height={24} />
+          </Button>
+
+          {/* Chat (placeholder) */}
+          <Button
+            variant="contained"
+            sx={{
+              borderRadius: '50%',
+              backgroundColor: '#e5e7eb',
+              color: '#111827',
+              '&:hover': { backgroundColor: '#d1d5db' },
+            }}
+          >
+            <Icon icon="mdi:chat-outline" width={24} height={24} />
+          </Button>
+
+          {/* Record */}
+          <Button
+            variant="contained"
+            sx={{
+              borderRadius: '50%',
+              backgroundColor: '#ef4444',
+              '&:hover': { backgroundColor: '#dc2626' },
+            }}
+          >
+            <Icon icon="mdi:record-circle" width={24} height={24} />
+          </Button>
+
+          {/* End Call */}
+          <Button
+            variant="contained"
+            onClick={endCall}
+            disabled={!calling}
+            sx={{
+              borderRadius: '50%',
+              backgroundColor: '#dc2626',
+              '&:hover': { backgroundColor: '#b91c1c' },
+            }}
+          >
+            <Icon icon="mdi:phone-hangup" width={24} height={24} />
+          </Button>
+        </Stack>
       </Grid>
     </Box>
   );

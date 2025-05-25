@@ -163,6 +163,7 @@ export function useNavData() {
               { title: t('Cấp Bậc'), path: paths.dashboard.ranking_doctor.list },
               { title: t('Bệnh Viện'), path: paths.dashboard.hospital.list },
               { title: t('Thuốc'), path: paths.dashboard.medicine.list },
+              { title: t('Cấu hình chức năng'), path: paths.dashboard.config.root },
             ],
           },
           // {
@@ -193,7 +194,13 @@ export function useNavData() {
           //   ],
           // },
           // // JOB
-
+          {
+            hidden: user?.role !== 'ADMIN',
+            title: t('Quản lý lịch hẹn'),
+            path: paths.dashboard.appointment.root,
+            icon: ICONS.medical,
+            children: [{ title: t('Danh Sách'), path: paths.dashboard.appointment.list }],
+          },
           // // ORDER
           {
             hidden: user?.role !== 'ADMIN',

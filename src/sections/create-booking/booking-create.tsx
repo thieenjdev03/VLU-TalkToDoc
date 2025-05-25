@@ -42,7 +42,6 @@ export default function BookingCreate() {
   const [currentStep, setCurrentStepState] = useState<string>(
     () => localStorage.getItem('booking_step') || 'select-specialty'
   );
-
   const { users: doctors } = useGetUsers({
     typeUser: 'doctor',
     query: '',
@@ -64,6 +63,7 @@ export default function BookingCreate() {
   const setCurrentStep = (step: string, back?: boolean) => {
     if (back) {
       setCurrentStepState(step);
+      localStorage.setItem('booking_step', step);
     } else {
       setCurrentStepState(step);
       localStorage.setItem('booking_step', step);
@@ -146,7 +146,10 @@ export default function BookingCreate() {
       {currentStep === 'select-time-booking' && (
         <BookingSelectTime
           doctors={doctors}
-          setCurrentStep={(step) => setCurrentStep('confirm-payment-step')}
+          setCurrentStep={(step) => {
+            localStorage.setItem('booking_step', step);
+            setCurrentStep(step, true);
+          }}
           handleSubmit={handleSubmit}
           formData={formData}
         />
