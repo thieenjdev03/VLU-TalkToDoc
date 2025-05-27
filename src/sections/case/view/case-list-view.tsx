@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState, useCallback } from 'react'
+import { useRef, useMemo, useState, useEffect, useCallback } from 'react'
 
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
@@ -11,6 +11,7 @@ import Tooltip from '@mui/material/Tooltip'
 import { alpha } from '@mui/material/styles'
 import Container from '@mui/material/Container'
 import TableBody from '@mui/material/TableBody'
+import TableCell from '@mui/material/TableCell'
 import IconButton from '@mui/material/IconButton'
 import TableContainer from '@mui/material/TableContainer'
 
@@ -19,9 +20,9 @@ import { useRouter } from 'src/routes/hooks'
 
 import { useBoolean } from 'src/hooks/use-boolean'
 
-import { isAfter, isBetween } from 'src/utils/format-time'
+import { isAfter } from 'src/utils/format-time'
 
-import { useGetCases } from 'src/api/case'
+import { useGetCases, softDeleteCase } from 'src/api/case'
 
 import Label from 'src/components/label'
 import Iconify from 'src/components/iconify'
@@ -40,15 +41,11 @@ import {
   TablePaginationCustom
 } from 'src/components/table'
 
-import {
-  IOrderItem,
-  IOrderTableFilters,
-  IOrderTableFilterValue
-} from 'src/types/order'
+import { CaseTableFilters, CaseTableFilterValue } from 'src/types/case'
 
-import OrderTableToolbar from '../case-table-toolbar'
-import OrderTableRow, { Case } from '../case-table-row'
-import OrderTableFiltersResult from '../case-table-filters-result'
+import CaseTableToolbar from '../case-table-toolbar'
+import CaseTableRow, { Case } from '../case-table-row'
+import CaseTableFiltersResult from '../case-table-filters-result'
 
 // ----------------------------------------------------------------------
 
@@ -81,7 +78,7 @@ const TABLE_HEAD_PATIENT = [
   { id: '', width: 88 }
 ]
 
-const defaultFilters: IOrderTableFilters = {
+const defaultFilters: CaseTableFilters = {
   name: '',
   status: 'all',
   startDate: null,
@@ -90,10 +87,10 @@ const defaultFilters: IOrderTableFilters = {
 
 // ----------------------------------------------------------------------
 
-export default function OrderListView() {
+export default function CaseListView() {
   const { enqueueSnackbar } = useSnackbar()
 
-  const table = useTable({ defaultOrderBy: 'caseId' })
+  const table = useTable<any>({ defaultCaseBy: 'caseId' })
 
   const settings = useSettingsContext()
 
@@ -104,7 +101,14 @@ export default function OrderListView() {
   const [filters, setFilters] = useState(defaultFilters)
 
   const dateError = isAfter(filters.startDate, filters.endDate)
-  const userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}')
+  // Sử dụng useRef để giữ userProfile, tránh parse lại mỗi lần render
+  const userProfileRef = useRef<any>(null)
+  if (!userProfileRef.current) {
+    userProfileRef.current = JSON.parse(
+      localStorage.getItem('userProfile') || '{}'
+    )
+  }
+  const userProfile = userProfileRef.current
 
   const { cases, total, isLoading, error } = useGetCases({
     q: filters.name,
@@ -113,20 +117,44 @@ export default function OrderListView() {
     limit: table.rowsPerPage
   })
 
+  const [tableData, setTableData] = useState<any[]>([])
+
+  // Chỉ setTableData khi cases thực sự thay đổi
+  useEffect(() => {
+    if (!cases) return
+    let filtered = cases
+    if (userProfile?.role === 'PATIENT') {
+      filtered = cases.filter((item: any) => item.patient === userProfile._id)
+    } else if (userProfile?.role === 'DOCTOR') {
+      filtered = cases.filter(
+        (item: any) => item.appointmentId?.doctor?._id === userProfile._id
+      )
+    }
+    // Chỉ setTableData nếu dữ liệu thực sự khác
+    setTableData(prev => {
+      if (JSON.stringify(prev) !== JSON.stringify(filtered)) {
+        return filtered
+      }
+      return prev
+    })
+  }, [cases, userProfile?._id, userProfile?.role])
+
   const mappedCases = useMemo(
     () =>
-      (cases || []).map((item: any) => ({
+      (tableData || []).map((item: any) => ({
         _id: item._id,
         patient: item.patient,
         specialty: item.specialty,
+        medicalForm: item.medicalForm,
+        appointmentId: item.appointmentId,
         status: item.status,
+        offers: item.offers,
         isDeleted: item.isDeleted,
         createdAt: item.createdAt,
-        offers: item.offers,
         updatedAt: item.updatedAt,
-        appointmentId: item.appointmentId
+        offerSummary: item.offerSummary
       })),
-    [cases]
+    [tableData]
   )
 
   const canReset =
@@ -137,7 +165,7 @@ export default function OrderListView() {
   const notFound = !mappedCases.length
 
   const handleFilters = useCallback(
-    (name: string, value: IOrderTableFilterValue) => {
+    (name: string, value: CaseTableFilterValue) => {
       table.onResetPage()
       setFilters(prevState => ({
         ...prevState,
@@ -151,22 +179,41 @@ export default function OrderListView() {
     setFilters(defaultFilters)
   }, [])
 
+  // Xoá 1 bệnh án
   const handleDeleteRow = useCallback(
-    (id: string) => {
-      enqueueSnackbar('Delete success!')
-      // TODO: Gọi API xoá mềm nếu cần
+    async (id: string) => {
+      try {
+        await softDeleteCase(id)
+        enqueueSnackbar('Xoá bệnh án thành công', { variant: 'success' })
+      } catch (err) {
+        enqueueSnackbar('Xoá bệnh án thất bại', { variant: 'error' })
+      }
     },
     [enqueueSnackbar]
   )
 
-  const handleDeleteRows = useCallback(() => {
-    enqueueSnackbar('Delete success!')
-    // TODO: Gọi API xoá mềm nhiều nếu cần
-  }, [enqueueSnackbar])
+  // Xoá nhiều bệnh án
+  const handleDeleteRows = useCallback(async () => {
+    if (!table.selected.length) return
+    let hasError = false
+    table.selected.forEach(async (id: string) => {
+      try {
+        await softDeleteCase(id)
+      } catch (err) {
+        hasError = true
+      }
+    })
+    if (hasError) {
+      enqueueSnackbar('Có lỗi khi xoá một số bệnh án', { variant: 'error' })
+    } else {
+      enqueueSnackbar('Xoá các bệnh án thành công', { variant: 'success' })
+    }
+    table.setSelected([])
+  }, [enqueueSnackbar, table])
 
   const handleViewRow = useCallback(
     (id: string) => {
-      router.push(paths.dashboard.order.details(id))
+      router.push(paths.dashboard.case.details(id))
     },
     [router]
   )
@@ -190,7 +237,7 @@ export default function OrderListView() {
           heading="Danh sách bệnh án"
           links={[
             { name: 'Trang quản trị', href: paths.dashboard.root },
-            { name: 'Quản lý bệnh án', href: paths.dashboard.order.root },
+            { name: 'Quản lý bệnh án', href: paths.dashboard.case.root },
             { name: 'Danh sách' }
           ]}
           sx={{ mb: { xs: 1, md: 2 } }}
@@ -238,14 +285,14 @@ export default function OrderListView() {
             ))}
           </Tabs>
 
-          <OrderTableToolbar
+          <CaseTableToolbar
             filters={filters}
             onFilters={handleFilters}
             dateError={dateError}
           />
 
           {canReset && (
-            <OrderTableFiltersResult
+            <CaseTableFiltersResult
               filters={filters}
               onFilters={handleFilters}
               onResetFilters={handleResetFilters}
@@ -266,7 +313,7 @@ export default function OrderListView() {
                 )
               }
               action={
-                <Tooltip title="Delete">
+                <Tooltip title="Xoá">
                   <IconButton color="primary" onClick={confirm.onTrue}>
                     <Iconify icon="solar:trash-bin-trash-bold" />
                   </IconButton>
@@ -280,8 +327,8 @@ export default function OrderListView() {
                 sx={{ minWidth: 960 }}
               >
                 <TableHeadCustom
-                  order={table.order}
-                  orderBy={table.orderBy}
+                  case={table.case as any}
+                  caseBy={table.caseBy as any}
                   headLabel={
                     userProfile?.role === 'PATIENT'
                       ? TABLE_HEAD_PATIENT
@@ -300,15 +347,27 @@ export default function OrderListView() {
 
                 <TableBody>
                   {mappedCases.map((row: Case) => (
-                    <OrderTableRow
+                    <CaseTableRow
                       key={row._id}
                       row={row}
                       selected={table.selected.includes(row._id)}
                       onSelectRow={() => table.onSelectRow(row._id)}
-                      onDeleteRow={() => handleDeleteRow(row._id)}
                       onViewRow={() => handleViewRow(row._id)}
                       userRole={userProfile?.role}
-                    />
+                      onDeleteRow={() => handleDeleteRow(row._id)}
+                    >
+                      <TableCell>
+                        {row.appointmentId?.appointmentId || '-'}
+                      </TableCell>
+                      <TableCell>
+                        {row.appointmentId?.doctor?.fullName || '-'}
+                      </TableCell>
+                      <TableCell>
+                        {row.appointmentId?.patient?.fullName || '-'}
+                      </TableCell>
+                      <TableCell>{row.specialty?.name || '-'}</TableCell>
+                      <TableCell>{row.status}</TableCell>
+                    </CaseTableRow>
                   ))}
 
                   <TableEmptyRows
@@ -337,7 +396,7 @@ export default function OrderListView() {
       <ConfirmDialog
         open={confirm.value}
         onClose={confirm.onFalse}
-        title="Delete"
+        title="Xoá bệnh án"
         content={
           <>
             Bạn có chắc muốn xoá <strong> {table.selected.length} </strong> bệnh
@@ -348,8 +407,8 @@ export default function OrderListView() {
           <Button
             variant="contained"
             color="error"
-            onClick={() => {
-              handleDeleteRows()
+            onClick={async () => {
+              await handleDeleteRows()
               confirm.onFalse()
             }}
           >
@@ -362,50 +421,3 @@ export default function OrderListView() {
 }
 
 // ----------------------------------------------------------------------
-
-function applyFilter({
-  inputData,
-  comparator,
-  filters,
-  dateError
-}: {
-  inputData: IOrderItem[]
-  comparator: (a: any, b: any) => number
-  filters: IOrderTableFilters
-  dateError: boolean
-}) {
-  const { status, name, startDate, endDate } = filters
-
-  const stabilizedThis = inputData.map((el, index) => [el, index] as const)
-
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0])
-    if (order !== 0) return order
-    return a[1] - b[1]
-  })
-
-  inputData = stabilizedThis.map(el => el[0])
-
-  if (name) {
-    inputData = inputData.filter(
-      order =>
-        order.orderNumber.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
-        order.customer.name.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
-        order.customer.email.toLowerCase().indexOf(name.toLowerCase()) !== -1
-    )
-  }
-
-  if (status !== 'all') {
-    inputData = inputData.filter(order => order.status === status)
-  }
-
-  if (!dateError) {
-    if (startDate && endDate) {
-      inputData = inputData.filter(order =>
-        isBetween(order.createdAt, startDate, endDate)
-      )
-    }
-  }
-
-  return inputData
-}

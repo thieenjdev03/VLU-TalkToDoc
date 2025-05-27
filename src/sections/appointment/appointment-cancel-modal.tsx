@@ -29,12 +29,10 @@ const CANCEL_REASONS = [
 export default function CancelReasonDialog({
   open,
   onClose,
-  onSubmit,
   appointmentId
 }: {
   open: boolean
   onClose: () => void
-  onSubmit: (reason: string) => void
   appointmentId: string
 }) {
   const [reason, setReason] = useState('')
@@ -43,7 +41,6 @@ export default function CancelReasonDialog({
   const { enqueueSnackbar } = useSnackbar()
 
   const handleSubmit = async (_id: string) => {
-    onSubmit(isOther ? otherText : reason)
     setReason('')
     setOtherText('')
     const res = await cancelAppointment(_id, reason)

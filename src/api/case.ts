@@ -39,17 +39,17 @@ export function useGetCases({
 }
 
 // 2. Lấy chi tiết case
-export function getCaseDetail(id?: string) {
-  const URL = id ? endpoints.case.detail(id) : null
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const { data, isLoading, error } = useSWR(
-    URL ? [URL, { method: 'GET' }] : null,
-    ([url, config]) => fetcher([url, config], true)
-  )
-  return {
-    caseDetail: data || null,
-    isLoading,
-    error
+export async function getCaseDetail(id?: string) {
+  if (!id) return { caseDetail: null, error: 'Thiếu ID', isLoading: false }
+  try {
+    const res = await axiosInstanceV2.get(endpoints.case.detail(id))
+    return {
+      caseDetail: res.data || null,
+      error: null,
+      isLoading: false
+    }
+  } catch (error) {
+    return { caseDetail: null, error, isLoading: false }
   }
 }
 
@@ -80,16 +80,17 @@ export function useAddOffer(caseId: string) {
   }
 }
 
-// 5. Xoá mềm case
-export function useSoftDeleteCase(caseId: string) {
-  const URL = endpoints.case.softDelete(caseId)
-  const { trigger, isMutating, error } = useSWRMutation(URL, async () => {
-    const res = await axiosInstanceV2.patch(URL)
-    return res.data
-  })
-  return {
-    softDeleteCase: trigger,
-    isDeleting: isMutating,
-    error
+export async function softDeleteCase(caseId: string): Promise<any> {
+  try {
+    const res = await axiosInstanceV2.patch(`/case/${caseId}/delete`)
+    return res.data // { message: "Đã xoá bệnh án (ẩn khỏi danh sách)" }
+  } catch (error: any) {
+    if (error.response?.status === 400) {
+      throw new Error('Không có quyền xoá.')
+    } else if (error.response?.status === 404) {
+      throw new Error('Không tìm thấy bệnh án.')
+    } else {
+      throw new Error('Có lỗi xảy ra khi xoá bệnh án.')
+    }
   }
 }

@@ -1,159 +1,151 @@
-import axios from 'axios'
 import { useState, useEffect } from 'react'
 
 import Grid from '@mui/material/Grid'
-import Stack from '@mui/material/Stack'
 import Container from '@mui/material/Container'
 
 import { paths } from 'src/routes/paths'
 
+import { getCaseDetail } from 'src/api/case'
+
 import { useSettingsContext } from 'src/components/settings'
+
+import { CaseDetails } from 'src/types/case'
 
 import CaseDetailsToolbar from '../case-details-toolbar'
 import CaseDetailsHistory from '../case-details-history'
+import { PrescriptionModal } from '../case-prescription-form'
 import CaseDetailsMedicalForms from '../case-details-medical-forms'
 
 // ----------------------------------------------------------------------
 
-// Define the CaseDetails type based on the API response structure
-interface CaseDetails {
+export type CaseSpecialty = {
   _id: string
-  patient: string
-  specialty: string
-  status: string
-  isDeleted: boolean
-  createdAt: string
-  offers: any[]
-  updatedAt: string
-  appointmentId: {
-    _id: string
-    appointmentId: string
-    patient: {
-      _id: string
-      username: string
-      email: string
-      fullName: string
-      phoneNumber: string
-      birthDate: string
-      isActive: boolean
-      city: {
-        name: string
-        code: number
-        division_type: string
-        codename: string
-        phone_code: number
-      }
-      role: string
-      gender: string
-      medicalHistory: {
-        condition: string
-        diagnosisDate: string
-        treatment: string
-        _id: string
-      }[]
-      address: string
-      appointments: {
-        doctorId: string
-        date: string
-        status: string
-        _id: string
-      }[]
-      id: string
-      avatarUrl: string
-    }
-    doctor: {
-      _id: string
-      username: string
-      email: string
-      fullName: string
-      phoneNumber: string
-      isActive: boolean
-      city: string
-      role: string
-      specialty: string[]
-      hospital: string
-      experienceYears: number
-      licenseNo: string
-      rank: string
-      position: string
-      registrationStatus: string
-      availability: any[]
-      id: string
-      avatarUrl?: string
-    }
-    specialty: string
-    date: string
-    slot: string
-    timezone: string
-    status: string
-    payment: {
-      platformFee: number
-      doctorFee: number
-      discount: number
-      total: number
-      status: string
-      paymentMethod: string
-      totalFee: number
-      billing_status: string
-    }
-    createdAt: string
-    updatedAt: string
-    cancelledAt?: string
-    reason?: string
-  }
-  offerSummary: any[]
+  name: string
 }
 
-type MedicalFormData = {
-  patientName?: string
-  patientAge?: number
-  gender?: string
-  address?: string
-  phone?: string
+export type CaseMedicalForm = {
   symptoms?: string
-  diagnosis?: string
+  questions?: { question: string; answer: string }[]
   note?: string
-  doctorName?: string
+}
+
+export type CasePatient = {
+  _id: string
+  fullName: string
+  email?: string
+  phoneNumber?: string
+  address?: string
   [key: string]: any
 }
 
-type Props = {
-  taxes: number
-  id: string
-  shipping: number
-  discount: number
-  subTotal: number
-  totalAmount: number
-  items: any[]
-  medicalFormData?: MedicalFormData
+export type CaseDoctor = {
+  _id: string
+  fullName: string
+  [key: string]: any
 }
 
-export default function CaseDetailsView({
-  id,
-  taxes,
-  shipping,
-  discount,
-  subTotal,
-  totalAmount,
-  items,
-  medicalFormData
-}: Props) {
+export type CaseAppointment = {
+  _id: string
+  appointmentId: string
+  date: string
+  slot: string
+  status: string
+  doctor: CaseDoctor
+  patient: CasePatient
+  [key: string]: any
+}
+
+export type CaseMedication = {
+  medicationId: string
+  name: string
+  dosage: string
+  usage: string
+  duration: string
+}
+
+export type CaseOffer = {
+  createdAt: string
+  createdBy: CaseDoctor
+  note?: string
+  medications: CaseMedication[]
+}
+
+export type CaseOfferSummary = {
+  date: string
+  doctor: string
+  summary: string
+}
+
+type Props = {
+  id: string
+}
+
+function getCaseTimeline(caseData: any) {
+  const timeline = []
+
+  if (caseData?.createdAt) {
+    timeline.push({
+      title: 'Tạo lịch hẹn',
+      time: new Date(caseData.createdAt)
+    })
+  }
+
+  if (caseData?.appointmentId?.confirmedAt) {
+    timeline.push({
+      title: 'Xác nhận lịch hẹn',
+      time: new Date(caseData.appointmentId.confirmedAt)
+    })
+  }
+
+  if (caseData?.appointmentId?.date) {
+    timeline.push({
+      title: 'Thời gian khám',
+      time: new Date(caseData.appointmentId.date)
+    })
+  }
+
+  if (Array.isArray(caseData?.offers)) {
+    caseData.offers.forEach((offer: any, idx: number) => {
+      if (offer.createdAt) {
+        timeline.push({
+          title: `Kê đơn lần ${idx + 1}`,
+          time: new Date(offer.createdAt)
+        })
+      }
+    })
+  }
+
+  if (caseData?.updatedAt) {
+    timeline.push({
+      title: 'Cập nhật bệnh án',
+      time: new Date(caseData.updatedAt)
+    })
+  }
+
+  if (
+    caseData?.appointmentId?.payment?.billing_status === 'PAID' &&
+    caseData?.appointmentId?.updatedAt
+  ) {
+    timeline.push({
+      title: 'Thanh toán',
+      time: new Date(caseData.appointmentId.updatedAt)
+    })
+  }
+
+  // Có thể bổ sung các mốc khác nếu có dữ liệu
+  return timeline
+}
+
+export default function CaseDetailsView({ id }: Props) {
   const settings = useSettingsContext()
   const [currentCase, setCurrentCase] = useState<CaseDetails | null>(null)
-  const [status, setStatus] = useState('')
+  const [prescriptionModalOpen, setPrescriptionModalOpen] = useState(false)
 
   useEffect(() => {
     const fetchCaseDetails = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/case/${id}`, {
-          headers: {
-            accept: '*/*',
-            Authorization:
-              'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFuaGR1bmc4OCIsInN1YiI6IjY3ZTNmMWZjNmI0ZGJmOTIyOWY2ODdkOCIsInJvbGUiOiJQQVRJRU5UIiwiaWF0IjoxNzQ4MDAzNTk0LCJleHAiOjE3NDgwODk5OTR9.QiNIdt8TQg9RRWbOln3dt1Ux2Q8g9-FNYZ9oq9pasyk'
-          }
-        })
-        setCurrentCase(response.data)
-        setStatus(response.data.status)
+        const response = await getCaseDetail(id)
+        setCurrentCase(response?.caseDetail || null)
       } catch (error) {
         console.error('Failed to fetch case details:', error)
       }
@@ -164,62 +156,82 @@ export default function CaseDetailsView({
 
   if (!currentCase) return <div>Đang tải...</div>
 
+  const caseData = currentCase.data
+  const timeline = getCaseTimeline(caseData)
+
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
       <CaseDetailsToolbar
         backLink={paths.dashboard.case.root}
-        orderNumber={currentCase.appointmentId.appointmentId}
-        createdAt={new Date(currentCase.createdAt)}
-        status={status}
-        onChangeStatus={setStatus}
+        orderNumber={caseData?.appointmentId?.appointmentId || ''}
+        createdAt={
+          caseData?.createdAt ? new Date(caseData.createdAt) : undefined
+        }
+        status={caseData?.status}
+        onChangeStatus={() => {}}
         statusOptions={[
           { value: 'pending', label: 'Chờ xử lý' },
           { value: 'completed', label: 'Hoàn thành' },
           { value: 'cancelled', label: 'Đã hủy' },
           { value: 'refunded', label: 'Hoàn tiền' }
         ]}
+        onOpenPrescriptionModal={() => setPrescriptionModalOpen(true)}
       />
+      <PrescriptionModal
+        open={prescriptionModalOpen}
+        onClose={() => setPrescriptionModalOpen(false)}
+        caseId={caseData?._id}
+      />
+
       <Grid container spacing={3}>
-        <Grid item xs={12} md={8}>
-          <Stack spacing={3} direction={{ xs: 'column-reverse', md: 'column' }}>
-            <CaseDetailsMedicalForms
-              medicalFormData={currentCase.appointmentId.patient}
-            />
-            <CaseDetailsHistory
-              history={{
-                orderTime: new Date(currentCase.createdAt),
-                paymentTime: new Date(currentCase.appointmentId.date),
-                deliveryTime: new Date(currentCase.appointmentId.date),
-                completionTime: new Date(currentCase.updatedAt),
-                timeline: [
-                  {
-                    title: 'Tạo lịch hẹn',
-                    time: new Date(currentCase.createdAt)
-                  },
-                  {
-                    title: 'Hủy lịch hẹn',
-                    time: new Date(
-                      currentCase.appointmentId.cancelledAt ||
-                        currentCase.updatedAt
-                    )
-                  }
-                ]
-              }}
-            />
-          </Stack>
+        {/* Form bệnh án */}
+        <Grid item xs={12} md={10}>
+          <CaseDetailsMedicalForms medicalFormData={caseData || {}} />
         </Grid>
-        <Grid item xs={12} md={8}>
-          <Stack spacing={3} direction={{ xs: 'column-reverse', md: 'column' }}>
-            {/* <CaseDetailsItems
-              items={currentCase.offers}
-              taxes={0}
-              shipping={0}
-              discount={currentCase.appointmentId.payment.discount}
-              subTotal={currentCase.appointmentId.payment.totalFee}
-              totalAmount={currentCase.appointmentId.payment.totalFee}
-            /> */}
-          </Stack>
+
+        {/* Lịch sử */}
+        <Grid item xs={6} md={2}>
+          <CaseDetailsHistory
+            history={{
+              orderTime: new Date(caseData?.createdAt),
+              paymentTime: new Date(caseData?.appointmentId?.updatedAt),
+              deliveryTime: new Date(caseData?.updatedAt),
+              completionTime: new Date(caseData?.updatedAt),
+              timeline
+            }}
+          />
         </Grid>
+
+        {/* Đơn thuốc/Offer */}
+        {/* <Grid item xs={12}>
+          {Array.isArray(caseData?.offers) &&
+            caseData.offers.map((offer: any, idx: number) => (
+              <div
+                key={offer._id || idx}
+                style={{
+                  marginBottom: 16,
+                  padding: 12,
+                  border: '1px solid #eee',
+                  borderRadius: 8
+                }}
+              >
+                <b>Thời gian kê đơn:</b>{' '}
+                {offer.createdAt
+                  ? new Date(offer.createdAt).toLocaleString('vi-VN')
+                  : '-'}{' '}
+                <br />
+                <b>Bác sĩ kê:</b> {offer.createdBy?.fullName || '-'} <br />
+                <b>Ghi chú:</b> {offer.note || '-'}
+                <ul>
+                  {offer.medications?.map((med: any, i: number) => (
+                    <li key={med._id || i}>
+                      {med.name} - {med.dosage} - {med.usage} - {med.duration}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+        </Grid> */}
       </Grid>
     </Container>
   )

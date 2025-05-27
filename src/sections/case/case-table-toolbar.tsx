@@ -34,20 +34,6 @@ export default function OrderTableToolbar({
     [onFilters]
   )
 
-  const handleFilterStartDate = useCallback(
-    (newValue: Date | null) => {
-      onFilters('startDate', newValue)
-    },
-    [onFilters]
-  )
-
-  const handleFilterEndDate = useCallback(
-    (newValue: Date | null) => {
-      onFilters('endDate', newValue)
-    },
-    [onFilters]
-  )
-
   return (
     <>
       <Stack

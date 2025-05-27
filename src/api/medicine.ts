@@ -1,33 +1,33 @@
-import { useMemo } from 'react';
-import useSWR, { mutate } from 'swr';
-import useSWRMutation from 'swr/mutation';
+import { useMemo } from 'react'
+import useSWR, { mutate } from 'swr'
+import useSWRMutation from 'swr/mutation'
 
-import { endpoints, axiosInstanceV2 } from 'src/utils/axios';
+import { endpoints, axiosInstanceV2 } from 'src/utils/axios'
 
 type UpdateMedicineParams = {
-  id: string;
+  id: string
   data: {
-    name?: string;
-    price?: number;
-    quantity?: string;
-    description?: string;
-    isActive?: boolean;
-  };
-};
+    name?: string
+    price?: number
+    quantity?: string
+    description?: string
+    isActive?: boolean
+  }
+}
 export const useGetMedicine = ({
   keyword = '',
   page = 1,
-  limit = 10,
+  limit,
   sortField = 'name',
-  sortOrder = 'asc',
+  sortOrder = 'asc'
 }: {
-  keyword?: string;
-  page?: number;
-  limit?: number;
-  sortField?: string;
-  sortOrder?: 'asc' | 'desc';
+  keyword?: string
+  page?: number
+  limit?: number
+  sortField?: string
+  sortOrder?: 'asc' | 'desc'
 }) => {
-  const URL = endpoints.medicine.search;
+  const URL = endpoints.medicine.search
 
   const { data, isLoading, error, isValidating } = useSWR(
     [URL, keyword, page, limit, sortField, sortOrder],
@@ -39,11 +39,11 @@ export const useGetMedicine = ({
             page,
             limit,
             sortField,
-            sortOrder,
-          },
+            sortOrder
+          }
         })
-        .then((res) => res.data)
-  );
+        .then(res => res.data)
+  )
 
   const memoizedValue = useMemo(
     () => ({
@@ -51,43 +51,47 @@ export const useGetMedicine = ({
       medicineLoading: isLoading,
       medicineError: error,
       medicineValidating: isValidating,
-      medicineEmpty: !isLoading && (!data || data.length === 0),
+      medicineEmpty: !isLoading && (!data || data.length === 0)
     }),
     [data, error, isLoading, isValidating]
-  );
+  )
 
-  return memoizedValue;
-};
+  return memoizedValue
+}
 export const useDeleteMedicine = () => {
-  const URL = endpoints.medicine.delete;
+  const URL = endpoints.medicine.delete
   const deleteMedicine = async (id: string) => {
-    await axiosInstanceV2.delete(`${URL}/${id}`);
-    mutate(URL);
-  };
-  return { deleteMedicine };
-};
+    await axiosInstanceV2.delete(`${URL}/${id}`)
+    mutate(URL)
+  }
+  return { deleteMedicine }
+}
 export const useCreateMedicine = () => {
-  const URL = endpoints.medicine.create;
+  const URL = endpoints.medicine.create
   const { trigger, isMutating, error } = useSWRMutation(
     URL,
     async (_url, { arg }: { arg: any }) => {
-      const response = await axiosInstanceV2.post(URL, arg.data);
-      return response.data;
+      const response = await axiosInstanceV2.post(URL, arg.data)
+      return response.data
     }
-  );
+  )
 
   return {
     createMedicine: trigger,
     isCreating: isMutating,
-    error,
-  };
-};
+    error
+  }
+}
 // Hàm gọi API thực tế
-const updateMedicineFn = async (url: string, { arg }: { arg: UpdateMedicineParams }) => {
-  const { id, data } = arg;
-  const res = await axiosInstanceV2.put(`${url}/${id}`, data);
-  return res.data;
-};
+const updateMedicineFn = async (
+  url: string,
+  { arg }: { arg: UpdateMedicineParams }
+) => {
+  const { id, data } = arg
+  const res = await axiosInstanceV2.put(`${url}/${id}`, data)
+  return res.data
+}
 
 // Hook SWR Mutation
-export const useUpdateMedicine = () => useSWRMutation(endpoints.medicine.update, updateMedicineFn);
+export const useUpdateMedicine = () =>
+  useSWRMutation(endpoints.medicine.update, updateMedicineFn)

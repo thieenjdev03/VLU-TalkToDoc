@@ -6,8 +6,6 @@ import Typography from '@mui/material/Typography'
 
 import { RouterLink } from 'src/routes/components'
 
-import { fDateTime } from 'src/utils/format-time'
-
 import Label from 'src/components/label'
 import Iconify from 'src/components/iconify'
 import CustomPopover, { usePopover } from 'src/components/custom-popover'
@@ -32,9 +30,34 @@ export default function OrderDetailsToolbar({
   createdAt,
   orderNumber,
   statusOptions,
-  onChangeStatus
-}: Props) {
+  onChangeStatus,
+  onOpenPrescriptionModal
+}: Props & { onOpenPrescriptionModal?: () => void }) {
   const popover = usePopover()
+
+  const handleRenderStatus = (statusString: string) => {
+    switch (statusString) {
+      case 'completed':
+        return 'Hoàn thành'
+      case 'pending':
+        return 'Chờ xử lý'
+      case 'cancelled':
+        return 'Đã hủy'
+      case 'refunded':
+        return 'Hoàn tiền'
+      case 'assigned':
+        return 'Đã tiếp nhận'
+      case 'in_progress':
+        return 'Đang xử lý'
+      case 'waiting_for_confirmation':
+        return 'Chờ xác nhận'
+      case 'waiting_for_payment':
+        return 'Chờ thanh toán'
+      case 'waiting_for_delivery':
+      default:
+        return statusString
+    }
+  }
 
   return (
     <>
@@ -59,16 +82,13 @@ export default function OrderDetailsToolbar({
                   (status === 'completed' && 'success') ||
                   (status === 'pending' && 'warning') ||
                   (status === 'cancelled' && 'error') ||
+                  (status === 'assigned' && 'info') ||
                   'default'
                 }
               >
-                {status}
+                {handleRenderStatus(status)}
               </Label>
             </Stack>
-
-            <Typography variant="body2" sx={{ color: 'text.disabled' }}>
-              {fDateTime(createdAt)}
-            </Typography>
           </Stack>
         </Stack>
 
@@ -79,26 +99,13 @@ export default function OrderDetailsToolbar({
           alignItems="center"
           justifyContent="flex-end"
         >
-          {/* <Button
-            color="inherit"
-            variant="outlined"
-            endIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}
-            onClick={popover.onOpen}
-            sx={{ textTransform: 'capitalize' }}
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={onOpenPrescriptionModal}
+            sx={{ minWidth: 160 }}
           >
-            {status}
-          </Button> */}
-
-          {/* <Button
-            color="inherit"
-            variant="outlined"
-            startIcon={<Iconify icon="solar:printer-minimalistic-bold" />}
-          >
-            In
-          </Button> */}
-
-          <Button color="inherit" variant="contained">
-            Hoàn Thành Bệnh Án
+            Kê đơn thuốc
           </Button>
         </Stack>
       </Stack>

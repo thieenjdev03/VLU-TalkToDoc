@@ -83,11 +83,6 @@ interface Doctor {
   avatarUrl?: string
 }
 
-interface Specialty {
-  _id: string
-  name: string
-}
-
 interface Payment {
   platformFee: number
   doctorFee: number
@@ -132,7 +127,7 @@ type Props = {
   selected: boolean
   onViewRow: VoidFunction
   onSelectRow: VoidFunction
-  onDeleteRow: VoidFunction
+  onDeleteRow: (id: string) => void
   userRole?: string
 }
 
@@ -142,7 +137,7 @@ export default function CaseTableRow({
   onViewRow,
   onSelectRow,
   onDeleteRow,
-  userRole = 'PATIENT'
+  userRole
 }: Props) {
   const confirm = useBoolean()
   const collapse = useBoolean()
@@ -189,7 +184,7 @@ export default function CaseTableRow({
         </Box>
       </TableCell>
 
-      {userRole === 'doctor' ? (
+      {userRole === 'DOCTOR' ? (
         // Hiển thị thông tin bệnh nhân cho bác sĩ
         <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
           <Avatar
@@ -230,18 +225,31 @@ export default function CaseTableRow({
           />
         </TableCell>
       )}
-
-      <TableCell>
-        <ListItemText
-          primary={row.appointmentId?.patient?.fullName || '-'}
-          secondary={row.specialty?.name || '-'}
-          primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          secondaryTypographyProps={{
-            component: 'span',
-            color: 'text.disabled'
-          }}
-        />
-      </TableCell>
+      {userRole === 'PATIENT' ? (
+        <TableCell>
+          <ListItemText
+            primary={row.appointmentId?.patient?.fullName || '-'}
+            secondary={row.specialty?.name || '-'}
+            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+            secondaryTypographyProps={{
+              component: 'span',
+              color: 'text.disabled'
+            }}
+          />
+        </TableCell>
+      ) : (
+        <TableCell>
+          <ListItemText
+            primary={row.appointmentId?.doctor?.fullName || '-'}
+            secondary={row.specialty?.name || '-'}
+            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+            secondaryTypographyProps={{
+              component: 'span',
+              color: 'text.disabled'
+            }}
+          />
+        </TableCell>
+      )}
 
       <TableCell>
         <ListItemText
@@ -416,7 +424,11 @@ export default function CaseTableRow({
         title="Xoá"
         content="Bạn có chắc chắn muốn xoá?"
         action={
-          <Button variant="contained" color="error" onClick={onDeleteRow}>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={() => onDeleteRow(row?._id)}
+          >
             Xoá
           </Button>
         }

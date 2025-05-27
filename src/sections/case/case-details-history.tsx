@@ -1,6 +1,5 @@
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
-import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
 import Timeline from '@mui/lab/Timeline'
 import TimelineDot from '@mui/lab/TimelineDot'
@@ -11,8 +10,6 @@ import TimelineSeparator from '@mui/lab/TimelineSeparator'
 import TimelineConnector from '@mui/lab/TimelineConnector'
 import TimelineItem, { timelineItemClasses } from '@mui/lab/TimelineItem'
 
-import { fDateTime } from 'src/utils/format-time'
-
 import { IOrderHistory } from 'src/types/order'
 
 // ----------------------------------------------------------------------
@@ -22,39 +19,6 @@ type Props = {
 }
 
 export default function OrderDetailsHistory({ history }: Props) {
-  const renderSummary = (
-    <Stack
-      spacing={2}
-      component={Paper}
-      variant="outlined"
-      sx={{
-        p: 2.5,
-        minWidth: 260,
-        flexShrink: 0,
-        borderRadius: 2,
-        typography: 'body2',
-        borderStyle: 'dashed'
-      }}
-    >
-      <Stack spacing={0.5}>
-        <Box sx={{ color: 'text.disabled' }}>Thời</Box>
-        {fDateTime(history.orderTime)}
-      </Stack>
-      <Stack spacing={0.5}>
-        <Box sx={{ color: 'text.disabled' }}>Payment time</Box>
-        {fDateTime(history.orderTime)}
-      </Stack>
-      <Stack spacing={0.5}>
-        <Box sx={{ color: 'text.disabled' }}>Delivery time for the carrier</Box>
-        {fDateTime(history.orderTime)}
-      </Stack>
-      <Stack spacing={0.5}>
-        <Box sx={{ color: 'text.disabled' }}>Completion time</Box>
-        {fDateTime(history.orderTime)}
-      </Stack>
-    </Stack>
-  )
-
   const renderTimeline = (
     <Timeline
       sx={{
@@ -84,7 +48,7 @@ export default function OrderDetailsHistory({ history }: Props) {
               <Box
                 sx={{ color: 'text.disabled', typography: 'caption', mt: 0.5 }}
               >
-                {fDateTime(item.time)}
+                {/* {fDateTime(item.time)} */}
               </Box>
             </TimelineContent>
           </TimelineItem>
@@ -103,8 +67,6 @@ export default function OrderDetailsHistory({ history }: Props) {
         sx={{ p: 3 }}
       >
         {renderTimeline}
-
-        {/* {renderSummary} */}
       </Stack>
     </Card>
   )

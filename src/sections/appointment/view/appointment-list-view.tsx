@@ -164,16 +164,6 @@ export default function AppointmentListView() {
     setAppointmentSelected(appointmentId)
   }
 
-  const handleConfirmCancel = async (appointmentId: string) => {
-    setOpenCancelDialog(false)
-    if (response.statusCode === 200) {
-      enqueueSnackbar('Hủy lịch hẹn thành công!')
-    } else {
-      enqueueSnackbar('Hủy lịch hẹn thất bại!')
-    }
-    setCancelReason('')
-  }
-
   useEffect(() => {
     const fetchAppointments = async () => {
       const appointments = await getAppointments()
@@ -413,7 +403,6 @@ export default function AppointmentListView() {
       <CancelReasonDialog
         open={openCancelDialog}
         onClose={() => setOpenCancelDialog(false)}
-        onSubmit={handleConfirmCancel}
         appointmentId={appointmentSelected}
       />
       <ConfirmDialog

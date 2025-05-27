@@ -29,6 +29,7 @@ export type CaseContact = {
 export type CaseAssignee = {
   id: string
   name: string
+  fullName: string
   email: string
   avatarUrl: string
   role: string
@@ -54,4 +55,47 @@ export type CaseItem = {
   history: CaseHistory
   createdAt: Date
   updatedAt: Date
+}
+
+export type CaseOffer = {
+  createdAt: Date
+  _id: string
+  createdBy: CaseAssignee
+  note: string
+  medications: CaseMedication[]
+}
+
+export type CaseMedication = {
+  medicationId: string
+  _id?: string
+  name: string
+  dosage: string
+  usage: string
+  duration: string
+  price?: number
+  quantity?: number
+}
+
+export type PatientDetails = {
+  _id: string
+  fullName: string
+  email?: string
+  phoneNumber?: string
+  address?: string
+  [key: string]: any
+}
+
+export type CaseDetails = {
+  data: {
+    _id: string
+    patient: PatientDetails
+    specialty: any
+    medicalForm?: any
+    appointmentId: any
+    status: string
+    offers: CaseOffer[]
+    createdAt: Date
+    updatedAt: Date
+    history: CaseHistory
+  }
 }
