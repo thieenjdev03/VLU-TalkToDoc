@@ -26,7 +26,7 @@ function CallListener() {
     callerInfo,
     showRatingModal,
     currentAppointment,
-    openCall,
+    closeComingCall,
     closeCall,
     acceptIncomingCall,
     rejectIncomingCall,

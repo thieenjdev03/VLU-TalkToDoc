@@ -5,6 +5,7 @@ interface CallState {
   isCallOpen: boolean
   incomingCall: any | null
   activeCall: any | null
+  closeComingCall: boolean
   currentAppointment: any | null
   showRatingModal: boolean
   stringeeClient: any | null
@@ -56,6 +57,7 @@ export const useCallStore = create<CallState>((set, get) => ({
   stringeeClient: null,
   customData: null,
   callerInfo: null,
+  closeComingCall: false,
 
   // Actions để quản lý client
   setStringeeClient: client => set({ stringeeClient: client }),
@@ -244,6 +246,7 @@ export const useCallStore = create<CallState>((set, get) => ({
             set({ currentAppointment: appointmentData })
           }
         }
+        set({ closeComingCall: true })
       } catch (error) {
         console.error(
           'Lỗi khi xử lý custom data trong acceptIncomingCall:',

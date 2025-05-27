@@ -54,15 +54,11 @@ function CallChatBox({
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const isTablet = useMediaQuery(theme.breakpoints.down('md'))
-
-  // Tạo conversationId duy nhất cho cuộc trò chuyện (không phụ thuộc vào role)
-  const conversationId = [currentUser, peerUser].sort().join('_')
-
   useEffect(() => {
-    if (!conversationId) return
+    if (!appointmentId) return
 
     const q = query(
-      collection(db, 'conversations', conversationId, 'messages'),
+      collection(db, 'conversations', appointmentId, 'messages'),
       orderBy('timestamp', 'asc')
     )
 
@@ -86,7 +82,11 @@ function CallChatBox({
       })
       setMessages(msgs)
     })
-  }, [conversationId])
+
+    return () => {
+      unsubscribe()
+    }
+  }, [appointmentId])
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -135,17 +135,14 @@ function CallChatBox({
     if ((!input.trim() && imageUrls.length === 0) || isSending) return
     setIsSending(true)
     try {
-      await addDoc(
-        collection(db, 'conversations', conversationId, 'messages'),
-        {
-          from: currentUser,
-          ...(peerUser && { to: peerUser }),
-          fromName: userInfor?.fullName || 'Bạn',
-          content: input.trim(),
-          ...(imageUrls.length > 0 ? { imageUrls } : {}),
-          timestamp: serverTimestamp()
-        }
-      )
+      await addDoc(collection(db, 'conversations', appointmentId, 'messages'), {
+        from: currentUser,
+        ...(peerUser && { to: peerUser }),
+        fromName: userInfor?.fullName || 'Bạn',
+        content: input.trim(),
+        ...(imageUrls.length > 0 ? { imageUrls } : {}),
+        timestamp: serverTimestamp()
+      })
       setInput('')
       setImageUrls([])
     } catch (err) {
@@ -157,7 +154,7 @@ function CallChatBox({
     imageUrls,
     currentUser,
     peerUser,
-    conversationId,
+    appointmentId,
     isSending,
     userInfor
   ])
