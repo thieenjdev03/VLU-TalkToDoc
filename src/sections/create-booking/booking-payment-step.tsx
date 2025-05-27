@@ -26,7 +26,7 @@ export default function BookingPayment({
   const data1 = localStorage.getItem('booking_form_data_1')
   const parsedData2 = JSON.parse(data2 || '{}')
   const parsedData1 = JSON.parse(data1 || '{}')
-
+  const [paymentMethod, setPaymentMethod] = useState<string>('')
   const booking = {
     ...parsedData2,
     ...parsedData1
@@ -69,15 +69,15 @@ export default function BookingPayment({
       })
     }
   }
-  const userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}')
   const finalTotalFee = totalFee - discount
 
   const handleSubmitConfirm = async () => {
     const updatedFormData = {
       discount,
-      totalFee: finalTotalFee
+      total: finalTotalFee,
+      paymentMethod
     }
-    handleSubmit(
+    await handleSubmit(
       {
         ...formData,
         payment: updatedFormData
@@ -217,7 +217,7 @@ export default function BookingPayment({
               className={`mx-auto mb-4 ${isMobile ? 'h-14' : 'h-20'}`}
             />
 
-            <PaymentMethods />
+            <PaymentMethods setPaymentMethod={setPaymentMethod} />
             <p className="text-sm text-gray-600 text-center mt-4">
               Vui lòng kiểm tra lại thanh toán và bấm tiếp tục để thanh toán.
             </p>

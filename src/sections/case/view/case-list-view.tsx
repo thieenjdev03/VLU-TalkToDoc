@@ -327,8 +327,6 @@ export default function CaseListView() {
                 sx={{ minWidth: 960 }}
               >
                 <TableHeadCustom
-                  case={table.case as any}
-                  caseBy={table.caseBy as any}
                   headLabel={
                     userProfile?.role === 'PATIENT'
                       ? TABLE_HEAD_PATIENT

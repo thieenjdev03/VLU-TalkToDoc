@@ -349,11 +349,11 @@ export function PrescriptionModal({
           !m.name ||
           m.price === undefined ||
           m.price === null ||
-          m.price === '' ||
+          m.price === 0 ||
           Number.isNaN(Number(m.price)) ||
           m.quantity === undefined ||
           m.quantity === null ||
-          m.quantity === '' ||
+          m.quantity === 0 ||
           Number.isNaN(Number(m.quantity))
       )
     ) {

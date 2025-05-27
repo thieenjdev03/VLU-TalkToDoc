@@ -22,12 +22,20 @@ const PAYMENT_OPTIONS = [
 
 // ----------------------------------------------------------------------
 
-export default function PaymentMethods() {
+export default function PaymentMethods({
+  setPaymentMethod
+}: {
+  setPaymentMethod: (payment_method: string) => void
+}) {
   const [method, setMethod] = useState('vnqr')
 
-  const handleChangeMethod = useCallback((newValue: string) => {
-    setMethod(newValue)
-  }, [])
+  const handleChangeMethod = useCallback(
+    (newValue: string) => {
+      setMethod(newValue)
+      setPaymentMethod(newValue)
+    },
+    [setPaymentMethod]
+  )
 
   return (
     <Stack spacing={2} sx={{ width: '100%' }}>

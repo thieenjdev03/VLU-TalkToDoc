@@ -77,7 +77,7 @@ export default function DynamicFormMUI({
     handleSubmit(
       {
         ...currentCase,
-        medicalForm: {
+        medical_form: {
           ...currentCase.medicalForm,
           ...data
         }

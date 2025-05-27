@@ -53,7 +53,6 @@ export default function CaseDetailsMedicalForms({
   const handleSubmit = () => {
     console.log('handleSubmit')
   }
-  console.log('medicalFormData', medicalFormData)
   return (
     <Card sx={{ mb: 3, p: 2, borderRadius: 2, boxShadow: 3 }}>
       <Typography variant="h6" sx={{ mb: 1 }}>

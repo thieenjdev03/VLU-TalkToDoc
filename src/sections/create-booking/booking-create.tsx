@@ -20,7 +20,7 @@ export type FormValuesProps = {
   specialty: any
   appointment: any
   appointmentId: string
-  medicalForm: any
+  medical_form: any
   payment: {
     platformFee: number
     doctorFee: number
@@ -51,7 +51,7 @@ export default function BookingCreate() {
     doctor: null,
     specialty: null,
     appointment: { date: '', slot: '', timezone: '', appointmentId: '' },
-    medicalForm: { symptoms: '', pain_level: '' },
+    medical_form: { symptoms: '', pain_level: '' },
     payment: {
       platformFee: 0,
       doctorFee: 0,
@@ -97,7 +97,7 @@ export default function BookingCreate() {
             const res = await submitCase({
               specialty: data.specialty._id,
               action: 'create',
-              patient: data.patient._id
+              patient: data.patient
             })
             updatedData = res?.data || data
             localStorage.setItem('currentCase', JSON.stringify(res?.data))
@@ -115,7 +115,7 @@ export default function BookingCreate() {
               action: 'save',
               patient: data.patient,
               specialty: data.specialty,
-              medicalForm: data.medicalForm
+              medical_form: data.medical_form
             })
             updatedData = res?.data || data
             localStorage.setItem('currentCase', JSON.stringify(res?.data))
@@ -131,7 +131,7 @@ export default function BookingCreate() {
             const res = await submitCase({
               case_id: currentCase?._id,
               action: 'save',
-              patient: data.patient?._id,
+              patient: data.patient,
               appointment: data.appointment
             })
             if (res?.data?._id) {
@@ -153,11 +153,12 @@ export default function BookingCreate() {
             }
           })
           const getLastedCaseRes = await getCaseDetail(currentCase?._id)
-          updatedData = getLastedCaseRes?.caseDetail || data
+          updatedData = getLastedCaseRes?.caseDetail?.data || data
           localStorage.setItem(
             'currentCase',
-            JSON.stringify(getLastedCaseRes?.caseDetail)
+            JSON.stringify(getLastedCaseRes?.caseDetail?.data)
           )
+          console.log('updatedData', updatedData)
         } catch (err) {
           // Xử lý lỗi nếu cần
         }
@@ -176,7 +177,6 @@ export default function BookingCreate() {
         break
       }
     }
-
     setFormData(updatedData)
   }
   useEffect(() => {
@@ -239,14 +239,14 @@ export default function BookingCreate() {
           handleSubmit={handleSubmit}
         />
       )}
-      {currentStep === 'payment-step' && (
+      {/* {currentStep === 'payment-step' && (
         <BookingConfirmPayment
           setCurrentStep={setCurrentStep}
           specialty={selected as ISpecialtyItem}
           formData={formData}
           handleSubmit={handleSubmit}
         />
-      )}
+      )} */}
       {currentStep === 'payment-completed' && (
         <BookingPaymentCompleted
           setCurrentStep={setCurrentStep}
@@ -257,37 +257,37 @@ export default function BookingCreate() {
     </>
   )
 }
-function BookingConfirmPayment({
-  setCurrentStep,
-  specialty,
-  formData,
-  handleSubmit
-}: {
-  setCurrentStep: any
-  specialty: ISpecialtyItem
-  formData: FormValuesProps
-  handleSubmit: (data: FormValuesProps, step: any) => Promise<void>
-}) {
-  return (
-    <div className="max-w-6xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
-      {/* LEFT: Payment Gateway */}
-      <div className="col-span-1 lg:col-span-2 flex justify-between mt-6">
-        <Button
-          variant="outlined"
-          onClick={() => setCurrentStep('select-time-booking', true)}
-        >
-          Trở về
-        </Button>
-        <Button
-          variant="contained"
-          onClick={() => setCurrentStep('payment-completed')}
-        >
-          Thanh Toán
-        </Button>
-      </div>
-    </div>
-  )
-}
+// function BookingConfirmPayment({
+//   setCurrentStep,
+//   specialty,
+//   formData,
+//   handleSubmit
+// }: {
+//   setCurrentStep: any
+//   specialty: ISpecialtyItem
+//   formData: FormValuesProps
+//   handleSubmit: (data: FormValuesProps, step: any) => Promise<void>
+// }) {
+//   return (
+//     <div className="max-w-6xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+//       {/* LEFT: Payment Gateway */}
+//       <div className="col-span-1 lg:col-span-2 flex justify-between mt-6">
+//         <Button
+//           variant="outlined"
+//           onClick={() => setCurrentStep('select-time-booking', true)}
+//         >
+//           Trở về
+//         </Button>
+//         <Button
+//           variant="contained"
+//           onClick={() => setCurrentStep('payment-completed')}
+//         >
+//           Thanh Toán
+//         </Button>
+//       </div>
+//     </div>
+//   )
+// }
 function BookingPaymentCompleted({
   setCurrentStep,
   formData,

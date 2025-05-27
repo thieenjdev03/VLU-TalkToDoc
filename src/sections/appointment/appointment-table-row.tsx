@@ -211,7 +211,7 @@ export default function AppointmentTableRow({
         <Typography variant="body2">{row.specialty?.name}</Typography>
       </TableCell>
 
-      <TableCell>{payment?.totalFee?.toLocaleString('vi-VN') || 0}đ</TableCell>
+      <TableCell>{payment?.total?.toLocaleString('vi-VN') || 0}đ</TableCell>
 
       <TableCell align="center">
         {status === 'PENDING' && typeUser === 'DOCTOR' ? (
@@ -354,7 +354,7 @@ export default function AppointmentTableRow({
         <Typography variant="body2">{row?.specialty?.name || '-'}</Typography>
       </TableCell>
 
-      <TableCell>{payment?.totalFee?.toLocaleString('vi-VN') || 0}đ</TableCell>
+      <TableCell>{payment?.total?.toLocaleString('vi-VN') || 0}đ</TableCell>
 
       <TableCell align="center">
         <Label
