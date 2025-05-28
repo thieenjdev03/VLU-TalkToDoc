@@ -10,15 +10,24 @@ import TimelineSeparator from '@mui/lab/TimelineSeparator'
 import TimelineConnector from '@mui/lab/TimelineConnector'
 import TimelineItem, { timelineItemClasses } from '@mui/lab/TimelineItem'
 
-import { IOrderHistory } from 'src/types/order'
-
 // ----------------------------------------------------------------------
 
-type Props = {
-  history: IOrderHistory
+type CaseHistory = {
+  orderTime: Date
+  paymentTime: Date
+  deliveryTime: Date
+  completionTime: Date
+  timeline: {
+    title: string
+    time: Date
+  }[]
 }
 
-export default function OrderDetailsHistory({ history }: Props) {
+type Props = {
+  history: CaseHistory
+}
+
+export default function CaseDetailsHistory({ history }: Props) {
   const renderTimeline = (
     <Timeline
       sx={{
@@ -48,7 +57,7 @@ export default function OrderDetailsHistory({ history }: Props) {
               <Box
                 sx={{ color: 'text.disabled', typography: 'caption', mt: 0.5 }}
               >
-                {/* {fDateTime(item.time)} */}
+                {item.time.toLocaleString('vi-VN')}
               </Box>
             </TimelineContent>
           </TimelineItem>

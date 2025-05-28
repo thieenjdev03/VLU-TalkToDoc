@@ -264,7 +264,7 @@ export default function CaseTableRow({
 
       <TableCell>
         <ListItemText
-          primary={`${row.appointmentId?.payment?.totalFee?.toLocaleString('vi-VN') || '0'}đ`}
+          primary={`${row.appointmentId?.payment?.total?.toLocaleString('vi-VN') || '0'}đ`}
           secondary={
             row.appointmentId?.payment?.status === 'PAID'
               ? 'Đã thanh toán'
@@ -360,7 +360,7 @@ export default function CaseTableRow({
               <Stack direction="row" justifyContent="space-between">
                 <Box sx={{ typography: 'body2' }}>Tổng cộng:</Box>
                 <Box sx={{ typography: 'subtitle2' }}>
-                  {`${row.appointmentId?.payment?.totalFee?.toLocaleString('vi-VN') || '0'}đ`}
+                  {`${row.appointmentId?.payment?.total?.toLocaleString('vi-VN') || '0'}đ`}
                 </Box>
               </Stack>
 

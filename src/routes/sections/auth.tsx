@@ -1,41 +1,63 @@
-import { lazy, Suspense } from 'react';
-import { Outlet } from 'react-router-dom';
+import { lazy, Suspense } from 'react'
+import { Outlet } from 'react-router-dom'
 
-import { GuestGuard } from 'src/auth/guard';
-import CompactLayout from 'src/layouts/compact';
-import AuthClassicLayout from 'src/layouts/auth/classic';
+import { GuestGuard } from 'src/auth/guard'
+import CompactLayout from 'src/layouts/compact'
+import AuthClassicLayout from 'src/layouts/auth/classic'
 
-import { SplashScreen } from 'src/components/loading-screen';
+import { SplashScreen } from 'src/components/loading-screen'
 
 // ----------------------------------------------------------------------
 
 // AMPLIFY
-const AmplifyLoginPage = lazy(() => import('src/pages/auth/amplify/login'));
-const AmplifyRegisterPage = lazy(() => import('src/pages/auth/amplify/register'));
-const AmplifyVerifyPage = lazy(() => import('src/pages/auth/amplify/verify'));
-const AmplifyNewPasswordPage = lazy(() => import('src/pages/auth/amplify/new-password'));
-const AmplifyForgotPasswordPage = lazy(() => import('src/pages/auth/amplify/forgot-password'));
+const AmplifyLoginPage = lazy(() => import('src/pages/auth/amplify/login'))
+const AmplifyRegisterPage = lazy(
+  () => import('src/pages/auth/amplify/register')
+)
+const AmplifyVerifyPage = lazy(() => import('src/pages/auth/amplify/verify'))
+const AmplifyNewPasswordPage = lazy(
+  () => import('src/pages/auth/amplify/new-password')
+)
+const AmplifyForgotPasswordPage = lazy(
+  () => import('src/pages/auth/amplify/forgot-password')
+)
 
 // JWT
-const JwtLoginPage = lazy(() => import('src/pages/auth/jwt/login'));
-const JwtRegisterPage = lazy(() => import('src/pages/auth/jwt/register'));
+const JwtLoginPage = lazy(() => import('src/pages/auth/jwt/login'))
+const JwtRegisterPage = lazy(() => import('src/pages/auth/jwt/register'))
+const JwtForgotPasswordPage = lazy(
+  () => import('src/pages/auth/jwt/forgot-password')
+)
+const JwtResetPasswordPage = lazy(
+  () => import('src/pages/auth/jwt/reset-password')
+)
 
 // FIREBASE
-const FirebaseLoginPage = lazy(() => import('src/pages/auth/firebase/login'));
-const FirebaseRegisterPage = lazy(() => import('src/pages/auth/firebase/register'));
-const FirebaseVerifyPage = lazy(() => import('src/pages/auth/firebase/verify'));
-const FirebaseForgotPasswordPage = lazy(() => import('src/pages/auth/firebase/forgot-password'));
+const FirebaseLoginPage = lazy(() => import('src/pages/auth/firebase/login'))
+const FirebaseRegisterPage = lazy(
+  () => import('src/pages/auth/firebase/register')
+)
+const FirebaseVerifyPage = lazy(() => import('src/pages/auth/firebase/verify'))
+const FirebaseForgotPasswordPage = lazy(
+  () => import('src/pages/auth/firebase/forgot-password')
+)
 
 // AUTH0
-const Auth0LoginPage = lazy(() => import('src/pages/auth/auth0/login'));
-const Auth0Callback = lazy(() => import('src/pages/auth/auth0/callback'));
+const Auth0LoginPage = lazy(() => import('src/pages/auth/auth0/login'))
+const Auth0Callback = lazy(() => import('src/pages/auth/auth0/callback'))
 
 // SUPABASE
-const SupabaseLoginPage = lazy(() => import('src/pages/auth/supabase/login'));
-const SupabaseVerifyPage = lazy(() => import('src/pages/auth/supabase/verify'));
-const SupabaseRegisterPage = lazy(() => import('src/pages/auth/supabase/register'));
-const SupabaseNewPasswordPage = lazy(() => import('src/pages/auth/supabase/new-password'));
-const SupabaseForgotPasswordPage = lazy(() => import('src/pages/auth/supabase/forgot-password'));
+const SupabaseLoginPage = lazy(() => import('src/pages/auth/supabase/login'))
+const SupabaseVerifyPage = lazy(() => import('src/pages/auth/supabase/verify'))
+const SupabaseRegisterPage = lazy(
+  () => import('src/pages/auth/supabase/register')
+)
+const SupabaseNewPasswordPage = lazy(
+  () => import('src/pages/auth/supabase/new-password')
+)
+const SupabaseForgotPasswordPage = lazy(
+  () => import('src/pages/auth/supabase/forgot-password')
+)
 
 // ----------------------------------------------------------------------
 
@@ -55,7 +77,7 @@ const authAmplify = {
             <AmplifyLoginPage />
           </AuthClassicLayout>
         </GuestGuard>
-      ),
+      )
     },
     {
       path: 'register',
@@ -65,7 +87,7 @@ const authAmplify = {
             <AmplifyRegisterPage />
           </AuthClassicLayout>
         </GuestGuard>
-      ),
+      )
     },
     {
       element: (
@@ -76,11 +98,11 @@ const authAmplify = {
       children: [
         { path: 'verify', element: <AmplifyVerifyPage /> },
         { path: 'new-password', element: <AmplifyNewPasswordPage /> },
-        { path: 'forgot-password', element: <AmplifyForgotPasswordPage /> },
-      ],
-    },
-  ],
-};
+        { path: 'forgot-password', element: <AmplifyForgotPasswordPage /> }
+      ]
+    }
+  ]
+}
 
 const authJwt = {
   path: 'jwt',
@@ -98,7 +120,7 @@ const authJwt = {
             <JwtLoginPage />
           </AuthClassicLayout>
         </GuestGuard>
-      ),
+      )
     },
     {
       path: 'register',
@@ -108,10 +130,30 @@ const authJwt = {
             <JwtRegisterPage />
           </AuthClassicLayout>
         </GuestGuard>
-      ),
+      )
     },
-  ],
-};
+    {
+      path: 'forgot-password',
+      element: (
+        <GuestGuard>
+          <AuthClassicLayout>
+            <JwtForgotPasswordPage />
+          </AuthClassicLayout>
+        </GuestGuard>
+      )
+    },
+    {
+      path: 'reset-password',
+      element: (
+        <GuestGuard>
+          <AuthClassicLayout>
+            <JwtResetPasswordPage />
+          </AuthClassicLayout>
+        </GuestGuard>
+      )
+    }
+  ]
+}
 
 const authFirebase = {
   path: 'firebase',
@@ -129,7 +171,7 @@ const authFirebase = {
             <FirebaseLoginPage />
           </AuthClassicLayout>
         </GuestGuard>
-      ),
+      )
     },
     {
       path: 'register',
@@ -139,7 +181,7 @@ const authFirebase = {
             <FirebaseRegisterPage />
           </AuthClassicLayout>
         </GuestGuard>
-      ),
+      )
     },
     {
       element: (
@@ -149,11 +191,11 @@ const authFirebase = {
       ),
       children: [
         { path: 'verify', element: <FirebaseVerifyPage /> },
-        { path: 'forgot-password', element: <FirebaseForgotPasswordPage /> },
-      ],
-    },
-  ],
-};
+        { path: 'forgot-password', element: <FirebaseForgotPasswordPage /> }
+      ]
+    }
+  ]
+}
 
 const authAuth0 = {
   path: 'auth0',
@@ -171,7 +213,7 @@ const authAuth0 = {
             <Auth0LoginPage />
           </AuthClassicLayout>
         </GuestGuard>
-      ),
+      )
     },
     {
       path: 'callback',
@@ -179,10 +221,10 @@ const authAuth0 = {
         <GuestGuard>
           <Auth0Callback />
         </GuestGuard>
-      ),
-    },
-  ],
-};
+      )
+    }
+  ]
+}
 
 const authSupabase = {
   path: 'supabase',
@@ -200,7 +242,7 @@ const authSupabase = {
             <SupabaseLoginPage />
           </AuthClassicLayout>
         </GuestGuard>
-      ),
+      )
     },
     {
       path: 'register',
@@ -210,7 +252,7 @@ const authSupabase = {
             <SupabaseRegisterPage />
           </AuthClassicLayout>
         </GuestGuard>
-      ),
+      )
     },
     {
       element: (
@@ -222,17 +264,17 @@ const authSupabase = {
         { path: 'verify', element: <SupabaseVerifyPage /> },
         {
           path: 'forgot-password',
-          element: <SupabaseForgotPasswordPage />,
+          element: <SupabaseForgotPasswordPage />
         },
-        { path: 'new-password', element: <SupabaseNewPasswordPage /> },
-      ],
-    },
-  ],
-};
+        { path: 'new-password', element: <SupabaseNewPasswordPage /> }
+      ]
+    }
+  ]
+}
 
 export const authRoutes = [
   {
     path: 'auth',
-    children: [authAmplify, authJwt, authFirebase, authAuth0, authSupabase],
-  },
-];
+    children: [authAmplify, authJwt, authFirebase, authAuth0, authSupabase]
+  }
+]

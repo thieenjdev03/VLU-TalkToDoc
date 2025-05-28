@@ -6,6 +6,8 @@ import Typography from '@mui/material/Typography'
 
 import { RouterLink } from 'src/routes/components'
 
+import { useCallStore } from 'src/store/call-store'
+
 import Label from 'src/components/label'
 import Iconify from 'src/components/iconify'
 import CustomPopover, { usePopover } from 'src/components/custom-popover'
@@ -22,6 +24,7 @@ type Props = {
     value: string
     label: string
   }[]
+  currentAppointment: any
 }
 
 export default function OrderDetailsToolbar({
@@ -31,10 +34,11 @@ export default function OrderDetailsToolbar({
   orderNumber,
   statusOptions,
   onChangeStatus,
-  onOpenPrescriptionModal
+  onOpenPrescriptionModal,
+  currentAppointment
 }: Props & { onOpenPrescriptionModal?: () => void }) {
   const popover = usePopover()
-
+  const { openCall } = useCallStore()
   const handleRenderStatus = (statusString: string) => {
     switch (statusString) {
       case 'completed':
@@ -99,6 +103,15 @@ export default function OrderDetailsToolbar({
           alignItems="center"
           justifyContent="flex-end"
         >
+          <Button
+            variant="outlined"
+            color="primary"
+            onClick={() => openCall(currentAppointment)}
+            sx={{ minWidth: 160 }}
+          >
+            <Iconify icon="eva:phone-fill" />
+            Gọi thoại
+          </Button>
           <Button
             variant="contained"
             color="primary"

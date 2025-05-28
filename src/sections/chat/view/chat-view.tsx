@@ -257,7 +257,7 @@ export default function ChatView() {
   const { messages, addMessages, clearHistory } = useChatHistory(
     selectedConversationId
   )
-
+  console.log('messages', messages)
   useEffect(() => {
     if (conversationError) {
       router.push(paths.dashboard.chat)

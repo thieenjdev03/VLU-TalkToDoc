@@ -329,18 +329,7 @@ export function useNavData() {
         subheader: t('Quản lý hệ thống - Bác Sĩ'),
         items: [
           // Patient Role
-          {
-            hidden: user?.role !== 'DOCTOR',
-            title: t('Quản lý tài khoản'),
-            path: paths.dashboard.account.root,
-            icon: ICONS.user,
-            children: [
-              {
-                title: t('Cập nhật thông tin'),
-                path: paths.dashboard.user.account
-              }
-            ]
-          },
+
           {
             hidden:
               user?.role !== 'DOCTOR' ||
@@ -372,6 +361,18 @@ export function useNavData() {
             icon: ICONS.medical,
             children: [
               { title: t('Danh sách'), path: paths.dashboard.prescription.list }
+            ]
+          },
+          {
+            hidden: user?.role !== 'DOCTOR',
+            title: t('Quản lý tài khoản'),
+            path: paths.dashboard.account.root,
+            icon: ICONS.user,
+            children: [
+              {
+                title: t('Cập nhật thông tin'),
+                path: paths.dashboard.user.account
+              }
             ]
           }
         ]

@@ -248,6 +248,7 @@ export default function AppointmentTableRow({
               (status === 'REJECTED' && 'error') ||
               (status === 'PENDING' && 'warning') ||
               (status === 'CANCELLED' && 'error') ||
+              (status === 'COMPLETED' && 'success') ||
               'default'
             }
           >
@@ -255,6 +256,7 @@ export default function AppointmentTableRow({
             {status === 'REJECTED' && 'Đã huỷ'}
             {status === 'PENDING' && 'Đang chờ'}
             {status === 'CANCELLED' && 'Đã huỷ'}
+            {status === 'COMPLETED' && 'Đã hoàn thành'}
           </Label>
         )}
       </TableCell>
@@ -364,6 +366,7 @@ export default function AppointmentTableRow({
             (status === 'REJECTED' && 'error') ||
             (status === 'PENDING' && 'warning') ||
             (status === 'CANCELLED' && 'error') ||
+            (status === 'COMPLETED' && 'success') ||
             'default'
           }
         >
@@ -371,6 +374,7 @@ export default function AppointmentTableRow({
           {status === 'REJECTED' && 'Đã huỷ'}
           {status === 'PENDING' && 'Đang chờ'}
           {status === 'CANCELLED' && 'Đã huỷ'}
+          {status === 'COMPLETED' && 'Đã hoàn thành'}
         </Label>
       </TableCell>
 

@@ -1,55 +1,57 @@
-import * as Yup from 'yup';
-import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
+import * as Yup from 'yup'
+import { useForm } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
 
-import Link from '@mui/material/Link';
-import Stack from '@mui/material/Stack';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import LoadingButton from '@mui/lab/LoadingButton';
-import InputAdornment from '@mui/material/InputAdornment';
+import Link from '@mui/material/Link'
+import Stack from '@mui/material/Stack'
+import IconButton from '@mui/material/IconButton'
+import Typography from '@mui/material/Typography'
+import LoadingButton from '@mui/lab/LoadingButton'
+import InputAdornment from '@mui/material/InputAdornment'
 
-import { paths } from 'src/routes/paths';
-import { RouterLink } from 'src/routes/components';
+import { paths } from 'src/routes/paths'
+import { RouterLink } from 'src/routes/components'
 
-import { useBoolean } from 'src/hooks/use-boolean';
+import { useBoolean } from 'src/hooks/use-boolean'
 
-import Iconify from 'src/components/iconify';
-import FormProvider, { RHFTextField } from 'src/components/hook-form';
+import Iconify from 'src/components/iconify'
+import FormProvider, { RHFTextField } from 'src/components/hook-form'
 
 // ----------------------------------------------------------------------
 
 export default function ClassicLoginView() {
-  const password = useBoolean();
+  const password = useBoolean()
 
   const LoginSchema = Yup.object().shape({
-    email: Yup.string().required('Email is required').email('Email must be a valid email address'),
-    password: Yup.string().required('Password is required'),
-  });
+    email: Yup.string()
+      .required('Email is required')
+      .email('Email must be a valid email address'),
+    password: Yup.string().required('Password is required')
+  })
 
   const defaultValues = {
     email: '',
-    password: '',
-  };
+    password: ''
+  }
 
   const methods = useForm({
     resolver: yupResolver(LoginSchema),
-    defaultValues,
-  });
+    defaultValues
+  })
 
   const {
     handleSubmit,
-    formState: { isSubmitting },
-  } = methods;
+    formState: { isSubmitting }
+  } = methods
 
-  const onSubmit = handleSubmit(async (data) => {
+  const onSubmit = handleSubmit(async data => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      console.info('DATA', data);
+      await new Promise(resolve => setTimeout(resolve, 500))
+      console.info('DATA', data)
     } catch (error) {
-      console.error(error);
+      console.error(error)
     }
-  });
+  })
 
   const renderHead = (
     <Stack spacing={2} sx={{ mb: 5 }}>
@@ -63,7 +65,7 @@ export default function ClassicLoginView() {
         </Link> */}
       </Stack>
     </Stack>
-  );
+  )
 
   const renderForm = (
     <Stack spacing={2.5}>
@@ -77,10 +79,14 @@ export default function ClassicLoginView() {
           endAdornment: (
             <InputAdornment position="end">
               <IconButton onClick={password.onToggle} edge="end">
-                <Iconify icon={password.value ? 'solar:eye-bold' : 'solar:eye-closed-bold'} />
+                <Iconify
+                  icon={
+                    password.value ? 'solar:eye-bold' : 'solar:eye-closed-bold'
+                  }
+                />
               </IconButton>
             </InputAdornment>
-          ),
+          )
         }}
       />
 
@@ -92,7 +98,7 @@ export default function ClassicLoginView() {
         underline="always"
         sx={{ alignSelf: 'flex-end' }}
       >
-        Quên mật khẩu?
+        Quên mật khẩu 1?
       </Link>
 
       <LoadingButton
@@ -106,7 +112,7 @@ export default function ClassicLoginView() {
         Đăng nhập
       </LoadingButton>
     </Stack>
-  );
+  )
 
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
@@ -114,5 +120,5 @@ export default function ClassicLoginView() {
 
       {renderForm}
     </FormProvider>
-  );
+  )
 }

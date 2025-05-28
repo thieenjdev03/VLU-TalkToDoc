@@ -19,28 +19,32 @@ import {
 
 import { useAddOffer } from 'src/api/case'
 import { useGetMedicine } from 'src/api/medicine'
+import { useGetPharmacies } from 'src/api/pharmacy'
 
 import { CaseMedication } from 'src/types/case'
 import { IMedicineItem } from 'src/types/medicine'
+import { IPharmacyItem } from 'src/types/pharmacy'
 
 type PrescriptionFormProps = {
   caseId: string
   onSuccess?: () => void
   handleSubmit?: () => void
   medications?: (CaseMedication & {
-    price?: string | number
-    quantity?: string | number
+    price?: number
+    quantity?: number
   })[]
   setMedications?: React.Dispatch<
     React.SetStateAction<
       (CaseMedication & {
-        price?: string | number
-        quantity?: string | number
+        price?: number
+        quantity?: number
       })[]
     >
   >
   note?: string
   setNote?: React.Dispatch<React.SetStateAction<string>>
+  pharmacyId?: string
+  setPharmacyId?: React.Dispatch<React.SetStateAction<string>>
 }
 
 export default function PrescriptionForm({
@@ -50,11 +54,13 @@ export default function PrescriptionForm({
   medications: externalMedications,
   setMedications: setExternalMedications,
   note: externalNote,
-  setNote: setExternalNote
+  setNote: setExternalNote,
+  pharmacyId: externalPharmacyId,
+  setPharmacyId: setExternalPharmacyId
 }: PrescriptionFormProps) {
   const [medicines, setMedicines] = useState<IMedicineItem[]>([])
   const [internalMedications, setInternalMedications] = useState<
-    (CaseMedication & { price?: string | number; quantity?: string | number })[]
+    (CaseMedication & { price?: number; quantity?: number })[]
   >([
     {
       medicationId: '',
@@ -62,11 +68,13 @@ export default function PrescriptionForm({
       dosage: '',
       usage: '',
       duration: '',
-      price: '',
+      price: 0,
       quantity: 1
     }
   ])
   const [internalNote, setInternalNote] = useState('')
+  const [internalPharmacyId, setInternalPharmacyId] = useState('')
+
   const medications =
     externalMedications !== undefined
       ? externalMedications
@@ -79,6 +87,14 @@ export default function PrescriptionForm({
   const note = externalNote !== undefined ? externalNote : internalNote
   const setNote =
     setExternalNote !== undefined ? setExternalNote : setInternalNote
+
+  const pharmacyId =
+    externalPharmacyId !== undefined ? externalPharmacyId : internalPharmacyId
+  const setPharmacyId =
+    setExternalPharmacyId !== undefined
+      ? setExternalPharmacyId
+      : setInternalPharmacyId
+
   const { medicine, medicineLoading, medicineError, medicineValidating } =
     useGetMedicine({
       keyword: '',
@@ -87,6 +103,19 @@ export default function PrescriptionForm({
       sortField: 'name',
       sortOrder: 'asc'
     })
+
+  const {
+    pharmacies,
+    pharmaciesLoading,
+    pharmaciesError,
+    pharmaciesValidating
+  } = useGetPharmacies({
+    query: '',
+    page: 1,
+    limit: 10,
+    sortField: 'name',
+    sortOrder: 'asc'
+  })
 
   useEffect(() => {
     if (medicine?.data?.length || []) {
@@ -100,16 +129,8 @@ export default function PrescriptionForm({
   const totalPrice = useMemo(
     () =>
       medications.reduce((sum, med) => {
-        const price =
-          med.price !== undefined && med.price !== null && med.price !== ''
-            ? Number(med.price)
-            : 0
-        const quantity =
-          med.quantity !== undefined &&
-          med.quantity !== null &&
-          med.quantity !== ''
-            ? Number(med.quantity)
-            : 1
+        const price = med.price ?? 0
+        const quantity = med.quantity ?? 1
         return (
           sum +
           (Number.isNaN(price) || Number.isNaN(quantity) ? 0 : price * quantity)
@@ -122,27 +143,32 @@ export default function PrescriptionForm({
   const handleChange = (
     idx: number,
     field: keyof CaseMedication | 'price' | 'quantity',
-    value: string
+    value: string | number
   ) => {
     setMedications(meds =>
-      meds.map((med, i) =>
-        i === idx
-          ? {
-              ...med,
-              [field]: value,
-              ...(field === 'medicationId'
-                ? {
-                    name: medicines.find(m => m._id === value)?.name || '',
-                    price:
-                      medicines.find(m => m._id === value)?.price?.toString() ||
-                      '',
-                    // reset quantity về 1 khi chọn thuốc mới
-                    quantity: 1
-                  }
-                : {})
-            }
-          : med
-      )
+      meds.map((med, i) => {
+        if (i === idx) {
+          const updatedMed = { ...med } as any
+
+          if (field === 'medicationId') {
+            const selectedMedicine = medicines.find(m => m._id === value)
+            updatedMed.medicationId = value as string
+            updatedMed.name = selectedMedicine?.name || ''
+            updatedMed.price = selectedMedicine?.price
+              ? Number(selectedMedicine.price)
+              : 0
+            updatedMed.quantity = 1
+          } else if (field === 'price' || field === 'quantity') {
+            updatedMed[field] =
+              typeof value === 'string' ? Number(value) : value
+          } else {
+            updatedMed[field] = value
+          }
+
+          return updatedMed
+        }
+        return med
+      })
     )
   }
 
@@ -156,7 +182,7 @@ export default function PrescriptionForm({
         dosage: '',
         usage: '',
         duration: '',
-        price: '',
+        price: 0,
         quantity: 1
       }
     ])
@@ -172,23 +198,42 @@ export default function PrescriptionForm({
       <Typography variant="h6" mb={2}>
         Kê đơn thuốc cho bệnh nhân
       </Typography>
+
+      <Box mb={3}>
+        <Autocomplete
+          options={pharmacies?.data || []}
+          getOptionLabel={(option: IPharmacyItem) =>
+            `${option.name} - ${option.address}`
+          }
+          value={
+            pharmacies?.data?.find(
+              (pharmacy: IPharmacyItem) => pharmacy._id === pharmacyId
+            ) || null
+          }
+          onChange={(_, value) => setPharmacyId(value?._id || '')}
+          renderInput={params => (
+            <TextField
+              {...params}
+              label="Chọn nhà thuốc mua thuốc"
+              fullWidth
+              required
+              helperText={
+                !pharmacyId ? 'Vui lòng chọn nhà thuốc để mua thuốc' : ''
+              }
+            />
+          )}
+          isOptionEqualToValue={(option, value) => option._id === value._id}
+          loading={pharmaciesLoading}
+        />
+      </Box>
+
       <form onSubmit={handleSubmit}>
         <Stack spacing={2}>
           {medications.map((med, idx) => {
-            const price =
-              med.price !== undefined && med.price !== null && med.price !== ''
-                ? Number(med.price)
-                : 0
-            const quantity =
-              med.quantity !== undefined &&
-              med.quantity !== null &&
-              med.quantity !== ''
-                ? Number(med.quantity)
-                : 1
-            const lineTotal =
-              !Number.isNaN(price) && !Number.isNaN(quantity)
-                ? price * quantity
-                : 0
+            const price = med.price ?? 0
+            const quantity = med.quantity ?? 1
+            const lineTotal = price * quantity
+
             return (
               <Stack key={idx} direction="row" spacing={1} alignItems="center">
                 <Autocomplete
@@ -213,7 +258,9 @@ export default function PrescriptionForm({
                   select
                   label="Số lượng"
                   value={med.quantity || 1}
-                  onChange={e => handleChange(idx, 'quantity', e.target.value)}
+                  onChange={e =>
+                    handleChange(idx, 'quantity', Number(e.target.value))
+                  }
                   sx={{ minWidth: 120 }}
                   required
                   SelectProps={{
@@ -252,14 +299,10 @@ export default function PrescriptionForm({
                 />
                 <TextField
                   label="Giá thuốc"
-                  value={
-                    med.price !== undefined &&
-                    med.price !== null &&
-                    med.price !== ''
-                      ? Number(med.price * 1000).toLocaleString('vi-VN')
-                      : ''
+                  value={med.price}
+                  onChange={e =>
+                    handleChange(idx, 'price', Number(e.target.value))
                   }
-                  onChange={e => handleChange(idx, 'price', e.target.value)}
                   sx={{ minWidth: 100 }}
                   required
                   type="number"
@@ -319,7 +362,7 @@ export function PrescriptionModal({
   onSuccess?: () => void
 }) {
   const [medications, setMedications] = useState<
-    (CaseMedication & { price?: string | number; quantity?: string | number })[]
+    (CaseMedication & { price?: number; quantity?: number })[]
   >([
     {
       medicationId: '',
@@ -327,17 +370,24 @@ export function PrescriptionModal({
       dosage: '',
       usage: '',
       duration: '',
-      price: '',
+      price: 0,
       quantity: 1
     }
   ])
   const [note, setNote] = useState('')
+  const [pharmacyId, setPharmacyId] = useState('')
   const { addOffer = async () => {}, isAdding } = useAddOffer(caseId) || {}
   const [error, setError] = useState('')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+
+    if (!pharmacyId) {
+      setError('Vui lòng chọn nhà thuốc để mua thuốc')
+      return
+    }
+
     if (
       !medications.length ||
       medications.some(
@@ -350,11 +400,9 @@ export function PrescriptionModal({
           m.price === undefined ||
           m.price === null ||
           m.price === 0 ||
-          Number.isNaN(Number(m.price)) ||
           m.quantity === undefined ||
           m.quantity === null ||
-          m.quantity === 0 ||
-          Number.isNaN(Number(m.quantity))
+          m.quantity === 0
       )
     ) {
       setError('Vui lòng nhập đầy đủ thông tin thuốc')
@@ -377,11 +425,12 @@ export function PrescriptionModal({
             usage,
             duration,
             name,
-            price: price ? Number(price) : 0,
-            quantity: quantity ? Number(quantity) : 1
+            price: price ?? 0,
+            quantity: quantity ?? 1
           })
         ),
-        note
+        note,
+        pharmacyId
       } as any)
       if (onSuccess) onSuccess()
       onClose()
@@ -400,6 +449,8 @@ export function PrescriptionModal({
           setMedications={setMedications}
           note={note}
           setNote={setNote}
+          pharmacyId={pharmacyId}
+          setPharmacyId={setPharmacyId}
         />
         {error && (
           <Typography color="error" mt={2}>

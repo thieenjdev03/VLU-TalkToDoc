@@ -126,7 +126,10 @@ export const endpoints = {
     me: '/api/auth/me',
     login: '/api/v1/auth/login',
     register: '/api/auth/register',
-    generalSettings: '/api/v1/form-config'
+    generalSettings: '/api/v1/form-config',
+    forgotPassword: '/api/v1/auth/forgot-password',
+    sendPasswordResetOTP: '/api/v1/otp/send-password-reset',
+    resetPassword: '/api/v1/auth/reset-password'
   },
   mail: {
     list: '/api/mail/list',

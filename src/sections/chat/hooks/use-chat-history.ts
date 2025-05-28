@@ -1,60 +1,62 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react'
 
-import { IChatMessage } from 'src/types/chat';
+import { IChatMessage } from 'src/types/chat'
 
-const STORAGE_KEY = 'chat_history';
+const STORAGE_KEY = 'chat_history'
 
 interface ChatHistory {
-  [chatId: string]: IChatMessage[];
+  [chatId: string]: IChatMessage[]
 }
 
 export function useChatHistory(chatId: string) {
-  const [messages, setMessages] = useState<IChatMessage[]>([]);
+  const [messages, setMessages] = useState<IChatMessage[]>([])
 
   // Load messages from localStorage when chatId changes
   useEffect(() => {
-    if (!chatId) return;
+    if (!chatId) return
 
-    const storedHistory = localStorage.getItem(STORAGE_KEY);
+    const storedHistory = localStorage.getItem(STORAGE_KEY)
+    console.log('storedHistory', storedHistory)
     if (storedHistory) {
-      const history: ChatHistory = JSON.parse(storedHistory);
-      setMessages(history[chatId] || []);
+      const history: ChatHistory = JSON.parse(storedHistory)
+      setMessages(history[chatId] || [])
+      console.log('history', history)
     }
-  }, [chatId]);
+  }, [chatId])
 
   // Save messages to localStorage whenever messages change
   useEffect(() => {
-    if (!chatId || messages.length === 0) return;
+    if (!chatId || messages.length === 0) return
 
-    const storedHistory = localStorage.getItem(STORAGE_KEY);
-    const history: ChatHistory = storedHistory ? JSON.parse(storedHistory) : {};
+    const storedHistory = localStorage.getItem(STORAGE_KEY)
+    const history: ChatHistory = storedHistory ? JSON.parse(storedHistory) : {}
 
-    history[chatId] = messages;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
-  }, [chatId, messages]);
+    history[chatId] = messages
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(history))
+  }, [chatId, messages])
 
   const addMessage = (message: IChatMessage) => {
-    setMessages((prev) => [...prev, message]);
-  };
+    setMessages(prev => [...prev, message])
+  }
 
   const addMessages = (newMessages: IChatMessage[]) => {
-    setMessages((prev) => [...prev, ...newMessages]);
-  };
+    setMessages(prev => [...prev, ...newMessages])
+  }
 
   const clearHistory = () => {
-    setMessages([]);
-    const storedHistory = localStorage.getItem(STORAGE_KEY);
+    setMessages([])
+    const storedHistory = localStorage.getItem(STORAGE_KEY)
     if (storedHistory) {
-      const history: ChatHistory = JSON.parse(storedHistory);
-      delete history[chatId];
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+      const history: ChatHistory = JSON.parse(storedHistory)
+      delete history[chatId]
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(history))
     }
-  };
+  }
 
   return {
     messages,
     addMessage,
     addMessages,
-    clearHistory,
-  };
+    clearHistory
+  }
 }

@@ -140,6 +140,7 @@ export default function CaseDetailsView({ id }: Props) {
   const settings = useSettingsContext()
   const [currentCase, setCurrentCase] = useState<CaseDetails | null>(null)
   const [prescriptionModalOpen, setPrescriptionModalOpen] = useState(false)
+  const [medicalFormConfig, setMedicalFormConfig] = useState<any[]>([])
 
   useEffect(() => {
     const fetchCaseDetails = async () => {
@@ -154,18 +155,51 @@ export default function CaseDetailsView({ id }: Props) {
     fetchCaseDetails()
   }, [id])
 
+  useEffect(() => {
+    // Lấy cấu hình form từ localStorage (giống như trong booking-create.tsx)
+    const generalSettings = JSON.parse(
+      localStorage.getItem('generalSettings') || '{}'
+    )
+    const formConfig = generalSettings?.general_setting?.form_json || []
+    setMedicalFormConfig(formConfig)
+  }, [])
+
   if (!currentCase) return <div>Đang tải...</div>
 
   const caseData = currentCase.data
   const timeline = getCaseTimeline(caseData)
 
+  // Tìm cấu hình form phù hợp với chuyên khoa của case
+  const specialtyId = caseData?.specialty?.id || ''
+  const formFields =
+    medicalFormConfig?.find((item: any) => item?.specialty_id === specialtyId)
+      ?.fields || []
+  console.log('caseData', caseData)
+  console.log('specialtyId', specialtyId)
+  console.log('medicalFormConfig', medicalFormConfig)
+  console.log('formFields', formFields)
+  // Xử lý các ngày để tránh lỗi undefined
+  const orderTime = caseData?.createdAt
+    ? new Date(caseData.createdAt)
+    : new Date()
+  const paymentTime = caseData?.appointmentId?.updatedAt
+    ? new Date(caseData.appointmentId.updatedAt)
+    : new Date()
+  const deliveryTime = caseData?.updatedAt
+    ? new Date(caseData.updatedAt)
+    : new Date()
+  const completionTime = caseData?.updatedAt
+    ? new Date(caseData.updatedAt)
+    : new Date()
+
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
       <CaseDetailsToolbar
+        currentAppointment={caseData?.appointmentId}
         backLink={paths.dashboard.case.root}
         orderNumber={caseData?.appointmentId?.appointmentId || ''}
         createdAt={
-          caseData?.createdAt ? new Date(caseData.createdAt) : undefined
+          caseData?.createdAt ? new Date(caseData.createdAt) : new Date()
         }
         status={caseData?.status}
         onChangeStatus={() => {}}
@@ -186,52 +220,24 @@ export default function CaseDetailsView({ id }: Props) {
       <Grid container spacing={3}>
         {/* Form bệnh án */}
         <Grid item xs={12} md={10}>
-          <CaseDetailsMedicalForms medicalFormData={caseData || {}} />
+          <CaseDetailsMedicalForms
+            medicalFormData={caseData || {}}
+            formFields={formFields}
+          />
         </Grid>
 
         {/* Lịch sử */}
         <Grid item xs={6} md={2}>
           <CaseDetailsHistory
             history={{
-              orderTime: new Date(caseData?.createdAt),
-              paymentTime: new Date(caseData?.appointmentId?.updatedAt),
-              deliveryTime: new Date(caseData?.updatedAt),
-              completionTime: new Date(caseData?.updatedAt),
+              orderTime,
+              paymentTime,
+              deliveryTime,
+              completionTime,
               timeline
             }}
           />
         </Grid>
-
-        {/* Đơn thuốc/Offer */}
-        {/* <Grid item xs={12}>
-          {Array.isArray(caseData?.offers) &&
-            caseData.offers.map((offer: any, idx: number) => (
-              <div
-                key={offer._id || idx}
-                style={{
-                  marginBottom: 16,
-                  padding: 12,
-                  border: '1px solid #eee',
-                  borderRadius: 8
-                }}
-              >
-                <b>Thời gian kê đơn:</b>{' '}
-                {offer.createdAt
-                  ? new Date(offer.createdAt).toLocaleString('vi-VN')
-                  : '-'}{' '}
-                <br />
-                <b>Bác sĩ kê:</b> {offer.createdBy?.fullName || '-'} <br />
-                <b>Ghi chú:</b> {offer.note || '-'}
-                <ul>
-                  {offer.medications?.map((med: any, i: number) => (
-                    <li key={med._id || i}>
-                      {med.name} - {med.dosage} - {med.usage} - {med.duration}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-        </Grid> */}
       </Grid>
     </Container>
   )
