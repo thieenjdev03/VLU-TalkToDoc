@@ -123,7 +123,7 @@ function getCaseTimeline(caseData: any) {
   }
 
   if (
-    caseData?.appointmentId?.payment?.billing_status === 'PAID' &&
+    caseData?.appointmentId?.payment?.status === 'PAID' &&
     caseData?.appointmentId?.updatedAt
   ) {
     timeline.push({

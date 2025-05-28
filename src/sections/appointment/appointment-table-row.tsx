@@ -261,8 +261,8 @@ export default function AppointmentTableRow({
 
       <TableCell>
         <Checkbox
-          checked={row?.payment?.billing_status === 'PAID'}
-          color={row?.payment?.billing_status === 'PAID' ? 'success' : 'error'}
+          checked={row?.payment?.status === 'PAID'}
+          color={row?.payment?.status === 'PAID' ? 'success' : 'error'}
           onChange={() => {}}
           disabled
         />
@@ -376,8 +376,8 @@ export default function AppointmentTableRow({
 
       <TableCell align="center">
         <Checkbox
-          checked={row?.payment?.billing_status === 'PAID'}
-          color={row?.payment?.billing_status === 'PAID' ? 'success' : 'error'}
+          checked={row?.payment?.status === 'PAID'}
+          color={row?.payment?.status === 'PAID' ? 'success' : 'error'}
           onChange={() => {}}
           disabled
         />

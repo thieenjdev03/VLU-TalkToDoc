@@ -86,6 +86,7 @@ export default function BookingPayment({
     )
     const paymentURL = await createPaymentURL({
       patient: formData?.patient,
+      appointmentId: formData?.appointmentId,
       amount: finalTotalFee
     })
     localStorage.removeItem('booking_step')

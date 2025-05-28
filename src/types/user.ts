@@ -1,157 +1,164 @@
-import { CustomFile } from 'src/components/upload';
+import { CustomFile } from 'src/components/upload'
 // ----------------------------------------------------------------------
 
-export type IUserTableFilterValue = string | string[];
+export type IUserTableFilterValue = string | string[]
 
 export type IUserTableFilters = {
-  fullName: string;
-  specialty: string[];
-  status: string;
-};
+  fullName: string
+  specialty: string[]
+  status: string
+}
 
 // ----------------------------------------------------------------------
 
 export type IUserSocialLink = {
-  facebook: string;
-  instagram: string;
-  linkedin: string;
-  twitter: string;
-};
+  facebook: string
+  instagram: string
+  linkedin: string
+  twitter: string
+}
 
 export type IUserProfileCover = {
-  name: string;
-  role: string;
-  coverUrl: string;
-  avatarUrl: string;
-};
+  name: string
+  role: string
+  coverUrl: string
+  avatarUrl: string
+}
 
 export type IUserProfile = {
-  id: string;
-  role: string;
-  quote: string;
-  email: string;
-  school: string;
-  country: string;
-  company: string;
-  totalFollowers: number;
-  totalFollowing: number;
-  socialLinks: IUserSocialLink;
-};
+  id: string
+  role: string
+  quote: string
+  email: string
+  school: string
+  country: string
+  company: string
+  totalFollowers: number
+  totalFollowing: number
+  socialLinks: IUserSocialLink
+}
 
 export type IUserProfileFollower = {
-  id: string;
-  name: string;
-  country: string;
-  avatarUrl: string;
-};
+  id: string
+  name: string
+  country: string
+  avatarUrl: string
+}
 
 export type IUserProfileGallery = {
-  id: string;
-  title: string;
-  imageUrl: string;
-  postedAt: Date;
-};
+  id: string
+  title: string
+  imageUrl: string
+  postedAt: Date
+}
 
 export type IUserProfileFriend = {
-  id: string;
-  name: string;
-  role: string;
-  avatarUrl: string;
-};
+  id: string
+  name: string
+  role: string
+  avatarUrl: string
+}
 
 export type IUserProfilePost = {
-  id: string;
-  media: string;
-  message: string;
-  createdAt: Date;
+  id: string
+  media: string
+  message: string
+  createdAt: Date
   personLikes: {
-    name: string;
-    avatarUrl: string;
-  }[];
+    name: string
+    avatarUrl: string
+  }[]
   comments: {
-    id: string;
-    message: string;
-    createdAt: Date;
+    id: string
+    message: string
+    createdAt: Date
     author: {
-      id: string;
-      name: string;
-      avatarUrl: string;
-    };
-  }[];
-};
+      id: string
+      name: string
+      avatarUrl: string
+    }
+  }[]
+}
 
 export type IUserCard = {
-  id: string;
-  name: string;
-  role: string;
-  coverUrl: string;
-  avatarUrl: string;
-  totalPosts: number;
-  totalFollowers: number;
-  totalFollowing: number;
-};
+  id: string
+  name: string
+  role: string
+  coverUrl: string
+  avatarUrl: string
+  totalPosts: number
+  totalFollowers: number
+  totalFollowing: number
+}
 
 export type IUserItem = {
-  id: string;
-  _id: string;
-  emergencyContact: any[];
-  fullName: string;
-  department: string;
-  registrationStatus: 'pending' | 'approved' | 'rejected' | 'updating' | undefined;
+  id: string
+  avgScore: number
+  ratingDetails: any
+  _id: string
+  emergencyContact: any[]
+  fullName: string
+  department: string
+  registrationStatus:
+    | 'pending'
+    | 'approved'
+    | 'rejected'
+    | 'updating'
+    | undefined
   wallet: {
-    balance: number;
-  };
-  username: string;
-  city: any;
-  medicalHistory: any[];
-  birthDate: string;
-  gender: string;
-  password: string;
-  role: string;
-  email: string;
-  position: string;
-  state: string;
-  status: string;
-  address: string;
-  salary: number;
-  country: string;
-  zipCode: string;
-  isActive: boolean;
-  company: string;
-  avatarUrl: any;
-  phoneNumber: string;
-  isVerified: boolean;
-  rank: any;
-  specialty: any[];
-  dateOfBirth: string;
-  licenseNo: string;
-  experienceYears: string;
-  hospital: any;
-};
+    balance: number
+  }
+  username: string
+  city: any
+  medicalHistory: any[]
+  birthDate: string
+  gender: string
+  password: string
+  role: string
+  email: string
+  position: string
+  state: string
+  status: string
+  address: string
+  salary: number
+  country: string
+  zipCode: string
+  isActive: boolean
+  company: string
+  avatarUrl: any
+  phoneNumber: string
+  isVerified: boolean
+  rank: any
+  specialty: any[]
+  dateOfBirth: string
+  licenseNo: string
+  experienceYears: string
+  hospital: any
+}
 
 export type IUserAccount = {
-  email: string;
-  isPublic: boolean;
-  name: string;
-  city: string | null;
-  state: string | null;
-  about: string | null;
-  country: string | null;
-  address: string | null;
-  zipCode: string | null;
-  phoneNumber: string | null;
-  photoURL: CustomFile | string | null;
-};
+  email: string
+  isPublic: boolean
+  name: string
+  city: string | null
+  state: string | null
+  about: string | null
+  country: string | null
+  address: string | null
+  zipCode: string | null
+  phoneNumber: string | null
+  photoURL: CustomFile | string | null
+}
 
 export type IUserAccountBillingHistory = {
-  id: string;
-  price: number;
-  createdAt: Date;
-  invoiceNumber: string;
-};
+  id: string
+  price: number
+  createdAt: Date
+  invoiceNumber: string
+}
 
 export type IUserAccountChangePassword = {
-  oldPassword: string;
-  newPassword: string;
-  confirmNewPassword: string;
-};
+  oldPassword: string
+  newPassword: string
+  confirmNewPassword: string
+}

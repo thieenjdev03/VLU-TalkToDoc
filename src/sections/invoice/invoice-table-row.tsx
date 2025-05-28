@@ -1,45 +1,58 @@
-import moment from 'moment';
+import moment from 'moment'
 
-import Link from '@mui/material/Link';
-import Avatar from '@mui/material/Avatar';
-import TableRow from '@mui/material/TableRow';
-import Checkbox from '@mui/material/Checkbox';
-import TableCell from '@mui/material/TableCell';
-import Typography from '@mui/material/Typography';
-import ListItemText from '@mui/material/ListItemText';
+import Link from '@mui/material/Link'
+import Avatar from '@mui/material/Avatar'
+import TableRow from '@mui/material/TableRow'
+import Checkbox from '@mui/material/Checkbox'
+import TableCell from '@mui/material/TableCell'
+import Typography from '@mui/material/Typography'
+import ListItemText from '@mui/material/ListItemText'
 
-import Label from 'src/components/label';
+import Label from 'src/components/label'
 
-import { IInvoice } from 'src/types/invoice';
+import { IInvoice } from 'src/types/invoice'
 
 // ----------------------------------------------------------------------
 
 type Props = {
-  row: IInvoice;
-  selected: boolean;
-  onSelectRow: VoidFunction;
-  onViewRow: VoidFunction;
-};
+  row: IInvoice
+  selected: boolean
+  onSelectRow: VoidFunction
+  onViewRow: VoidFunction
+}
 
-export default function InvoiceTableRow({ row, selected, onSelectRow, onViewRow }: Props) {
-  const { orderId, createdAt, status, userInfo, amount } = row as any;
+export default function InvoiceTableRow({
+  row,
+  selected,
+  onSelectRow,
+  onViewRow
+}: Props) {
+  const {
+    orderId,
+    createdAt,
+    status,
+    userInfo,
+    amount,
+    appointmentInfo,
+    doctorInfo
+  } = row as any
 
   const renderStatus = (statusParams: string) => {
     switch (statusParams) {
       case 'paid':
-        return 'Đã thanh toán';
+        return 'Đã thanh toán'
       case 'pending':
-        return 'Chưa thanh toán';
+        return 'Đang thanh toán'
       case 'overdue':
-        return 'Quá hạn';
+        return 'Quá hạn'
       case 'canceled':
-        return 'Đã hủy';
+        return 'Đã hủy'
       case 'completed':
-        return 'Đã hoàn thành';
+        return 'Đã thanh toán'
       default:
-        return 'Chưa xác định';
+        return 'Chưa xác định'
     }
-  };
+  }
   return (
     <>
       <TableRow hover selected={selected}>
@@ -51,8 +64,17 @@ export default function InvoiceTableRow({ row, selected, onSelectRow, onViewRow 
             {orderId}
           </Typography>
         </TableCell>
+        <TableCell padding="checkbox">
+          <Typography variant="body2" noWrap>
+            {appointmentInfo?.appointmentId}
+          </Typography>
+        </TableCell>
         <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-          <Avatar alt={userInfo?.fullName} src={userInfo?.avatarUrl} sx={{ mr: 2 }}>
+          <Avatar
+            alt={userInfo?.fullName}
+            src={userInfo?.avatarUrl}
+            sx={{ mr: 2 }}
+          >
             {userInfo?.fullName?.charAt(0).toUpperCase()}
           </Avatar>
           {userInfo?.fullName ? (
@@ -80,7 +102,41 @@ export default function InvoiceTableRow({ row, selected, onSelectRow, onViewRow 
             </Typography>
           )}
         </TableCell>
-
+        <TableCell>
+          <div className="flex items-center gap-2">
+            <Avatar
+              alt={doctorInfo?.fullName}
+              src={doctorInfo?.avatarUrl}
+              sx={{ mr: 2 }}
+            >
+              {doctorInfo?.fullName?.charAt(0).toUpperCase()}
+            </Avatar>
+            {doctorInfo?.fullName ? (
+              <ListItemText
+                disableTypography
+                primary={
+                  <Typography variant="body2" noWrap>
+                    {doctorInfo?.fullName}
+                  </Typography>
+                }
+                secondary={
+                  <Link
+                    noWrap
+                    variant="body2"
+                    onClick={onViewRow}
+                    sx={{ color: 'text.disabled', cursor: 'pointer' }}
+                  >
+                    {doctorInfo?.email}
+                  </Link>
+                }
+              />
+            ) : (
+              <Typography variant="body2" noWrap>
+                Chưa xác định
+              </Typography>
+            )}
+          </div>
+        </TableCell>
         <TableCell>
           <ListItemText
             primary={moment(createdAt).format('DD/MM/YYYY')}
@@ -89,7 +145,7 @@ export default function InvoiceTableRow({ row, selected, onSelectRow, onViewRow 
             secondaryTypographyProps={{
               mt: 0.5,
               component: 'span',
-              typography: 'caption',
+              typography: 'caption'
             }}
           />
         </TableCell>
@@ -178,5 +234,5 @@ export default function InvoiceTableRow({ row, selected, onSelectRow, onViewRow 
         }
       /> */}
     </>
-  );
+  )
 }

@@ -1,6 +1,7 @@
 'use client'
 
 import dayjs from 'dayjs'
+import { Icon } from '@iconify/react'
 import { useState, useEffect } from 'react'
 import Select, { components as selectComponents } from 'react-select'
 
@@ -59,7 +60,23 @@ const generateTimeSlots = (timeSlots: TimeSlot[]): string[] => {
 
   return slots.sort()
 }
-
+const renderStars = (rating: number) => {
+  const stars = []
+  for (let i = 1; i <= 5; i++) {
+    if (rating >= i) {
+      stars.push(<Icon key={i} icon="mdi:star" className="text-yellow-400" />)
+    } else if (rating >= i - 0.5) {
+      stars.push(
+        <Icon key={i} icon="mdi:star-half-full" className="text-yellow-400" />
+      )
+    } else {
+      stars.push(
+        <Icon key={i} icon="mdi:star-outline" className="text-yellow-400" />
+      )
+    }
+  }
+  return <span className="flex items-start gap-1">{stars}</span>
+}
 const CustomOption = (props: any) => {
   const { data, innerRef, innerProps } = props
   return (
@@ -86,14 +103,18 @@ const CustomOption = (props: any) => {
 
 const CustomSingleValue = (props: any) => {
   const { data } = props
+  const [open, setOpen] = useState(false)
   return (
     <selectComponents.SingleValue {...props}>
       <div className="flex items-center gap-4 p-2 shadow-sm">
         <Avatar src={data.avatarUrl} sx={{ width: 60, height: 60 }} />
         <div className="flex flex-col">
-          <Typography variant="body1" fontWeight="bold">
-            {data.label}
-          </Typography>
+          <div className="flex items-center justify-between gap-2">
+            <Typography variant="body1" fontWeight="bold">
+              {data.label}
+            </Typography>
+            {renderStars(data.rating)}
+          </div>
           <Typography variant="body2" color="text.secondary">
             {data.hospital}
           </Typography>
@@ -135,7 +156,9 @@ export default function BookingSelectTime({
     label: doc.fullName,
     avatarUrl: doc.avatarUrl,
     hospital: doc.hospital?.name,
-    base_price: doc.rank?.base_price
+    base_price: doc.rank?.base_price,
+    rating: doc.avgScore,
+    ratingDetails: doc.ratingDetails
   }))
 
   // Lấy thông tin chi tiết của bác sĩ khi được chọn
@@ -234,15 +257,6 @@ export default function BookingSelectTime({
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <div className="bg-white p-6 rounded-xl shadow max-w-screen-lg mx-auto space-y-8">
-        {formData && (
-          <Typography variant="h6" gutterBottom>
-            Chuyên khoa đã chọn:
-            <span className="font-normal">
-              {' '}
-              {formData?.specialtyObject?.name}
-            </span>
-          </Typography>
-        )}
         <div>
           <Typography variant="h6" gutterBottom>
             Chọn bác sĩ:

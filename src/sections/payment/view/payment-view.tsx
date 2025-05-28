@@ -41,7 +41,7 @@ export default function PaymentView() {
             timezone: currentCase?.timezone,
             payment: {
               ...currentCase?.payment,
-              billing_status: 'PAID'
+              status: 'PAID'
             }
           }
         })

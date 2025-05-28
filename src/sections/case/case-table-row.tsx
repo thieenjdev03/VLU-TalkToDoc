@@ -91,7 +91,6 @@ interface Payment {
   status: string
   paymentMethod: string
   totalFee: number
-  billing_status: string
 }
 
 export interface Case {
@@ -267,7 +266,7 @@ export default function CaseTableRow({
         <ListItemText
           primary={`${row.appointmentId?.payment?.totalFee?.toLocaleString('vi-VN') || '0'}đ`}
           secondary={
-            row.appointmentId?.payment?.billing_status === 'PAID'
+            row.appointmentId?.payment?.status === 'PAID'
               ? 'Đã thanh toán'
               : 'Chưa thanh toán'
           }
@@ -275,7 +274,7 @@ export default function CaseTableRow({
           secondaryTypographyProps={{
             component: 'span',
             color:
-              row.appointmentId?.payment?.billing_status === 'PAID'
+              row.appointmentId?.payment?.status === 'PAID'
                 ? 'success.main'
                 : 'error.main'
           }}
@@ -370,12 +369,12 @@ export default function CaseTableRow({
                 <Label
                   variant="soft"
                   color={
-                    row.appointmentId?.payment?.billing_status === 'PAID'
+                    row.appointmentId?.payment?.status === 'PAID'
                       ? 'success'
                       : 'error'
                   }
                 >
-                  {row.appointmentId?.payment?.billing_status === 'PAID'
+                  {row.appointmentId?.payment?.status === 'PAID'
                     ? 'Đã thanh toán'
                     : 'Chưa thanh toán'}
                 </Label>

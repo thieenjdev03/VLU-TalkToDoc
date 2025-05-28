@@ -218,6 +218,7 @@ export default function UserNewEditForm({
       isActive: currentUser?.isActive || false,
       phoneNumber: currentUser?.phoneNumber || '',
       avatarUrl: currentUser?.avatarUrl || '',
+      username: currentUser?.username || '',
       ...(typeUser === 'doctor' && {
         specialty: Array.isArray(currentUser?.specialty)
           ? currentUser.specialty.map((s: any) =>
