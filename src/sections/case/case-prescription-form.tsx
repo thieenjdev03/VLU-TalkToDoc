@@ -21,6 +21,8 @@ import { useAddOffer } from 'src/api/case'
 import { useGetMedicine } from 'src/api/medicine'
 import { useGetPharmacies } from 'src/api/pharmacy'
 
+import { useSnackbar, enqueueSnackbar } from 'src/components/snackbar'
+
 import { CaseMedication } from 'src/types/case'
 import { IMedicineItem } from 'src/types/medicine'
 import { IPharmacyItem } from 'src/types/pharmacy'
@@ -59,6 +61,7 @@ export default function PrescriptionForm({
   setPharmacyId: setExternalPharmacyId
 }: PrescriptionFormProps) {
   const [medicines, setMedicines] = useState<IMedicineItem[]>([])
+  const { enqueueSnackbar } = useSnackbar()
   const [internalMedications, setInternalMedications] = useState<
     (CaseMedication & { price?: number; quantity?: number })[]
   >([
@@ -199,7 +202,7 @@ export default function PrescriptionForm({
         Kê đơn thuốc cho bệnh nhân
       </Typography>
 
-      <Box mb={3}>
+      <Box mb={3} display="flex" flexDirection="column" gap={2}>
         <Autocomplete
           options={pharmacies?.data || []}
           getOptionLabel={(option: IPharmacyItem) =>
@@ -225,8 +228,16 @@ export default function PrescriptionForm({
           isOptionEqualToValue={(option, value) => option._id === value._id}
           loading={pharmaciesLoading}
         />
+        <TextField
+          label="Địa chỉ"
+          value={pharmacyId}
+          onChange={e => setPharmacyId(e.target.value)}
+          fullWidth
+          multiline
+        />
       </Box>
 
+      <Divider />
       <form onSubmit={handleSubmit}>
         <Stack spacing={2}>
           {medications.map((med, idx) => {
@@ -254,6 +265,7 @@ export default function PrescriptionForm({
                     option._id === value._id
                   }
                 />
+
                 <TextField
                   select
                   label="Số lượng"
@@ -342,6 +354,9 @@ export default function PrescriptionForm({
             rows={2}
           />
           <Typography variant="subtitle1" color="primary" mt={1}>
+            Phí vận chuyển: 30.000 VNĐ
+          </Typography>
+          <Typography variant="subtitle1" color="primary" mt={1}>
             Tạm tính tổng: {(totalPrice * 1000).toLocaleString('vi-VN')} VNĐ
           </Typography>
         </Stack>
@@ -409,7 +424,7 @@ export function PrescriptionModal({
       return
     }
     try {
-      await addOffer({
+      const res = await addOffer({
         medications: medications.map(
           ({
             medicationId,
@@ -432,7 +447,16 @@ export function PrescriptionModal({
         note,
         pharmacyId
       } as any)
-      if (onSuccess) onSuccess()
+      if (res?.data) {
+        enqueueSnackbar('Kê đơn thuốc thành công', {
+          variant: 'success'
+        })
+      } else {
+        enqueueSnackbar(res?.message || 'Có lỗi khi lưu đơn thuốc', {
+          variant: 'error'
+        })
+        setError(res?.message || 'Có lỗi khi lưu đơn thuốc')
+      }
       onClose()
     } catch (err) {
       setError('Có lỗi khi lưu đơn thuốc')

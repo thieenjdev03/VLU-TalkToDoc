@@ -54,7 +54,7 @@ const generateTimeSlots = (timeSlots: TimeSlot[]): string[] => {
       if (!excludeBreakTime.includes(timeStr)) {
         slots.push(timeStr)
       }
-      current = current.add(30, 'minute')
+      current = current.add(60, 'minute')
     }
   })
 
@@ -113,13 +113,13 @@ const CustomSingleValue = (props: any) => {
             <Typography variant="body1" fontWeight="bold">
               {data.label}
             </Typography>
-            {renderStars(data.rating)}
+            {renderStars(data.rating)} {`(${0})`}
           </div>
           <Typography variant="body2" color="text.secondary">
             {data.hospital}
           </Typography>
           <Typography variant="body2" fontWeight="medium">
-            {data.base_price?.toLocaleString()}đ
+            {data.base_price?.toLocaleString()}đ / lần khám
           </Typography>
         </div>
       </div>

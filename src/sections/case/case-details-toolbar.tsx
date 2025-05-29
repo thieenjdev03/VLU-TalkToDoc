@@ -118,6 +118,7 @@ export default function OrderDetailsToolbar({
             onClick={onOpenPrescriptionModal}
             sx={{ minWidth: 160 }}
           >
+            <Iconify icon="eva:file-text-fill" sx={{ mr: 1 }} />
             Kê đơn thuốc
           </Button>
         </Stack>

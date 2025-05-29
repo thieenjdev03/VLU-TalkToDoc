@@ -352,17 +352,17 @@ export function useNavData() {
               { title: t('Danh Sách'), path: paths.dashboard.case.list }
             ]
           },
-          {
-            hidden:
-              user?.role !== 'DOCTOR' ||
-              user?.registrationStatus !== 'approved',
-            title: t('Quản lý toa thuốc'),
-            path: paths.dashboard.prescription.root,
-            icon: ICONS.medical,
-            children: [
-              { title: t('Danh sách'), path: paths.dashboard.prescription.list }
-            ]
-          },
+          // {
+          //   hidden:
+          //     user?.role !== 'DOCTOR' ||
+          //     user?.registrationStatus !== 'approved',
+          //   title: t('Quản lý toa thuốc'),
+          //   path: paths.dashboard.prescription.root,
+          //   icon: ICONS.medical,
+          //   children: [
+          //     { title: t('Danh sách'), path: paths.dashboard.prescription.list }
+          //   ]
+          // },
           {
             hidden: user?.role !== 'DOCTOR',
             title: t('Quản lý tài khoản'),

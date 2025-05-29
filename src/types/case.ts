@@ -63,6 +63,10 @@ export type CaseOffer = {
   createdBy: CaseAssignee
   note: string
   medications: CaseMedication[]
+  pharmacyId: {
+    _id: string
+    name: string
+  }
 }
 
 export type CaseMedication = {
