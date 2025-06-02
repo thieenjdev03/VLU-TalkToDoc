@@ -53,7 +53,7 @@ const STATUS_OPTIONS = [
   { value: 'all', label: 'Tất cả' },
   { value: 'draft', label: 'Nháp' },
   { value: 'pending', label: 'Chờ duyệt' },
-  { value: 'assigned', label: 'Đã nhận' },
+  { value: 'assigned', label: 'Đã tiếp nhận' },
   { value: 'completed', label: 'Hoàn thành' }
 ]
 
@@ -152,7 +152,8 @@ export default function CaseListView() {
         isDeleted: item.isDeleted,
         createdAt: item.createdAt,
         updatedAt: item.updatedAt,
-        offerSummary: item.offerSummary
+        offerSummary: item.offerSummary,
+        caseId: item.caseId
       })),
     [tableData]
   )

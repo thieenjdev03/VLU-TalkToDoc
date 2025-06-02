@@ -156,7 +156,7 @@ export default function CaseTableRow({
   function getStatusColor(_status: string) {
     if (_status === 'completed') return 'success'
     if (_status === 'pending' || _status === 'PENDING') return 'warning'
-    if (_status === 'assigned') return 'success'
+    if (_status === 'assigned') return 'info'
     if (_status === 'cancelled') return 'error'
     if (_status === 'refunded') return 'info'
     if (_status === 'draft') return 'default'
@@ -179,7 +179,7 @@ export default function CaseTableRow({
             }
           }}
         >
-          {row.appointmentId?.appointmentId || '-'}
+          {row.caseId || '-'}
         </Box>
       </TableCell>
 

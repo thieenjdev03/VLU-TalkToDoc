@@ -71,7 +71,7 @@ const TABLE_HEAD = [
     align: 'center'
   },
   { id: 'paid', label: 'Đã thanh toán', width: { xs: 100, sm: 120 } },
-  { id: 'ctaButton', label: 'Thao tác', width: { xs: 100, sm: 120 } },
+  { id: 'ctaButton', label: 'Thao tác', minWidth: { xs: 160, sm: 200 } },
   { id: '', width: { xs: 30, sm: 40 } }
 ]
 
@@ -106,6 +106,7 @@ const TABLE_HEAD_PATIENT = [
     minWidth: { xs: 120, sm: 140 },
     align: 'center'
   },
+  { id: 'doctorRating', label: 'Đánh giá', minWidth: { xs: 100, sm: 120 } },
   { id: '', minWidth: { xs: 60, sm: 88 } }
 ]
 
@@ -128,6 +129,7 @@ export default function AppointmentListView() {
     useState<IAppointmentTableFilters>(defaultFilters)
   const [openCancelDialog, setOpenCancelDialog] = useState(false)
   const [cancelReason, setCancelReason] = useState('')
+  const [total, setTotal] = useState(0)
   const dateError = isAfter(filters?.startDate, filters?.endDate)
   const userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}')
   const [appointmentSelected, setAppointmentSelected] = useState('')
@@ -172,14 +174,17 @@ export default function AppointmentListView() {
           (appointment: IAppointmentItem) =>
             appointment?.patient?._id === userProfile?._id
         )
+        setTotal(appointments.total)
         setTableData(patientAppointments)
       } else if (userProfile.role === 'DOCTOR') {
         const doctorAppointments = appointments.data.filter(
           (appointment: IAppointmentItem) =>
             appointment?.doctor?._id === userProfile?._id
         )
+        setTotal(appointments.total)
         setTableData(doctorAppointments)
       } else {
+        setTotal(appointments.total)
         setTableData(appointments.data)
       }
     }
@@ -389,7 +394,7 @@ export default function AppointmentListView() {
           </TableContainer>
 
           <TablePaginationCustom
-            count={dataFiltered.length}
+            count={total}
             page={table.page}
             rowsPerPage={table.rowsPerPage}
             onPageChange={table.onChangePage}

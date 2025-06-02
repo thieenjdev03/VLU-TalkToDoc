@@ -1,15 +1,18 @@
-import { Box, Stack, Avatar, Typography } from '@mui/material'
+import { useState } from 'react'
 import ReactMarkdown from 'react-markdown'
-import { IChatMessage } from 'src/types/chat'
-import { db } from 'src/firebase/firebase-config'
+
 import {
-  collection,
-  addDoc,
-  serverTimestamp,
-  query,
-  onSnapshot,
-  orderBy
-} from 'firebase/firestore'
+  Box,
+  Stack,
+  Avatar,
+  Dialog,
+  Typography,
+  IconButton
+} from '@mui/material'
+
+import { CloseIcon } from 'src/components/lightbox'
+
+import { IChatMessage } from 'src/types/chat'
 
 interface Props {
   message: IChatMessage & { imageUrls?: string[] }
@@ -37,11 +40,79 @@ function splitContent(content: string) {
   return { text, images }
 }
 
+function ImagePreviewDialog({
+  open,
+  onClose,
+  url
+}: {
+  open: boolean
+  onClose: () => void
+  url: string
+}) {
+  return (
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="lg"
+      fullWidth
+      sx={{
+        '& .MuiDialog-paper': {
+          backgroundColor: 'rgba(0, 0, 0, 0.9)',
+          border: 'none',
+          boxShadow: 'none'
+        }
+      }}
+    >
+      <IconButton
+        onClick={onClose}
+        sx={{
+          position: 'absolute',
+          top: 16,
+          right: 16,
+          color: 'white',
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          '&:hover': {
+            backgroundColor: 'rgba(0, 0, 0, 0.7)'
+          }
+        }}
+      >
+        <CloseIcon />
+      </IconButton>
+
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: 300,
+          minWidth: 300,
+          p: 2
+        }}
+        onClick={onClose}
+      >
+        <img
+          src={url}
+          alt="preview"
+          style={{
+            maxWidth: '90vw',
+            maxHeight: '80vh',
+            borderRadius: 12,
+            boxShadow: '0 4px 32px rgba(0,0,0,0.25)',
+            background: '#fff'
+          }}
+        />
+      </Box>
+    </Dialog>
+  )
+}
+
 export default function ChatMessageItem({
   message,
   isCurrentUser,
   userProfile
 }: Props) {
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+
   const userAvatar =
     userProfile?.avatarUrl && typeof userProfile.avatarUrl === 'string'
       ? userProfile.avatarUrl
@@ -52,6 +123,14 @@ export default function ChatMessageItem({
   // Nếu không có imageUrls, tách ảnh từ content
   const { text, images } = splitContent(message.content)
   const allImages = imageUrls.length > 0 ? imageUrls : images
+
+  const handleImageClick = (url: string) => {
+    setPreviewUrl(url)
+  }
+
+  const handleClosePreview = () => {
+    setPreviewUrl(null)
+  }
 
   return (
     <Stack
@@ -132,30 +211,58 @@ export default function ChatMessageItem({
               sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}
             >
               {allImages.map(url => (
-                <img
+                <Box
                   key={url}
-                  src={url}
-                  alt="chat-img"
-                  style={{ maxWidth: 120, borderRadius: 8, display: 'block' }}
-                  loading="lazy"
-                />
+                  sx={{
+                    cursor: 'pointer',
+                    transition: 'transform 0.2s',
+                    '&:hover': { transform: 'scale(1.05)' }
+                  }}
+                  onClick={() => handleImageClick(url)}
+                >
+                  <img
+                    src={url}
+                    alt="chat-img"
+                    style={{ maxWidth: 120, borderRadius: 8, display: 'block' }}
+                    loading="lazy"
+                  />
+                </Box>
               ))}
             </Box>
           )}
           {/* Nếu không tách được thì fallback về kiểm tra là ảnh đơn lẻ */}
           {!text && allImages.length === 0 && isImageUrl(message.content) && (
-            <img
-              src={message.content}
-              alt="chat-img"
-              style={{ maxWidth: '100%', borderRadius: 8, display: 'block' }}
-              loading="lazy"
-            />
+            <Box
+              sx={{
+                cursor: 'pointer',
+                display: 'inline-block',
+                transition: 'transform 0.2s',
+                '&:hover': { transform: 'scale(1.05)' }
+              }}
+              onClick={() => handleImageClick(message.content)}
+            >
+              <img
+                src={message.content}
+                alt="chat-img"
+                style={{ maxWidth: '100%', borderRadius: 8, display: 'block' }}
+                loading="lazy"
+              />
+            </Box>
           )}
         </Box>
       </Box>
 
       {isCurrentUser && (
         <Avatar src={userAvatar} alt="You" sx={{ width: 36, height: 36 }} />
+      )}
+
+      {/* Dialog preview ảnh */}
+      {previewUrl && (
+        <ImagePreviewDialog
+          open={!!previewUrl}
+          onClose={handleClosePreview}
+          url={previewUrl}
+        />
       )}
     </Stack>
   )

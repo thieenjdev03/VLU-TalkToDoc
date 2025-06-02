@@ -2,7 +2,7 @@
 
 ## Tổng quan
 
-Module này cung cấp các API để quản lý bệnh án (case) cho bệnh nhân, bao gồm tạo/cập nhật, lấy danh sách, chi tiết, kê đơn thuốc, và xoá mềm.
+Module này cung cấp các API để quản lý bệnh án (case) cho bệnh nhân, bao gồm tạo/cập nhật, lấy danh sách, chi tiết, kê toa thuốc, và xoá mềm.
 
 ---
 
@@ -76,7 +76,9 @@ Module này cung cấp các API để quản lý bệnh án (case) cho bệnh nh
       },
       "medicalForm": {
         "symptoms": "Đau đầu 3 ngày",
-        "questions": [{ "question": "Có tiền sử cao huyết áp?", "answer": "Không" }],
+        "questions": [
+          { "question": "Có tiền sử cao huyết áp?", "answer": "Không" }
+        ],
         "note": "Bệnh nhân có biểu hiện nhẹ"
       },
       "appointmentId": {
@@ -170,7 +172,7 @@ Module này cung cấp các API để quản lý bệnh án (case) cho bệnh nh
 
 ---
 
-## 4. Bác sĩ kê đơn thuốc (thêm offer)
+## 4. Bác sĩ kê toa thuốc(thêm offer)
 
 - **Endpoint:** `PATCH /case/:id/offer`
 - **Yêu cầu xác thực:** Bearer Token, role `DOCTOR`
@@ -193,7 +195,7 @@ Module này cung cấp các API để quản lý bệnh án (case) cho bệnh nh
 - **Response:**
 
 ```json
-{ "message": "Đã thêm đơn thuốc thành công" }
+{ "message": "Đã thêm toa thuốcthành công" }
 ```
 
 - **Lỗi thường gặp:**

@@ -16,6 +16,7 @@ import { useCallStore } from 'src/store/call-store'
 import {
   deleteAppointment,
   rescheduleAppointment,
+  doctorRejectAppointment,
   doctorConfirmAppointment
 } from 'src/api/appointment'
 
@@ -78,10 +79,15 @@ export default function AppointmentTableRow({
     quickEdit.onTrue()
   }
 
-  const handleDoctorConfirm = async (accepted: boolean) => {
+  const handleDoctorConfirm = async (accepted: boolean, reason: string) => {
     try {
       setLoading(true)
-      const res = await doctorConfirmAppointment(row._id)
+      let res = null
+      if (accepted) {
+        res = await doctorConfirmAppointment(row._id)
+      } else {
+        res = await doctorRejectAppointment(row._id, reason)
+      }
       if (res) {
         enqueueSnackbar(
           accepted
@@ -222,7 +228,7 @@ export default function AppointmentTableRow({
               color="success"
               sx={{ width: '80px', whiteSpace: 'nowrap' }}
               onClick={() => {
-                handleDoctorConfirm(true)
+                handleDoctorConfirm(true, '')
               }}
               disabled={loading}
             >
@@ -233,7 +239,7 @@ export default function AppointmentTableRow({
               variant="outlined"
               color="error"
               onClick={() => {
-                handleDoctorConfirm(false)
+                handleDoctorConfirm(false, 'Bác sĩ từ chối lịch khám')
               }}
               disabled={loading}
             >
@@ -405,8 +411,12 @@ export default function AppointmentTableRow({
           </Button>
         )}
       </TableCell>
+
       <TableCell align="center">
         <Typography variant="body2">{row.reason || '-'}</Typography>
+      </TableCell>
+      <TableCell align="center">
+        <Typography variant="body2">{row.rating || '-'}</Typography>
       </TableCell>
       <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
         {conditionEditAppointment(row?.date) && (

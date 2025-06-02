@@ -101,7 +101,37 @@ export function useNavData() {
       // ----------------------------------------------------------------------
       {
         hidden: user?.role !== 'ADMIN',
-        subheader: t('Quản lý hệ thống - Admin'),
+        subheader: t('Thống kê chung - Quản Trị Viên'),
+        items: [
+          {
+            hidden: user?.role !== 'ADMIN',
+            title: t('Thống Kê'),
+            path: paths.dashboard.invoice.root,
+            icon: ICONS.analytics,
+            children: [
+              {
+                title: t('Thống Kê Chung'),
+                path: paths.dashboard.root
+              },
+              {
+                title: t('Thống Kê Người Dùng'),
+                path: paths.dashboard.report.user
+              },
+              {
+                title: t('Thống Kê Bệnh Án'),
+                path: paths.dashboard.report.case
+              },
+              {
+                title: t('Thống Kê Doanh Thu'),
+                path: paths.dashboard.report.revenue
+              }
+            ]
+          }
+        ]
+      },
+      {
+        hidden: user?.role !== 'ADMIN',
+        subheader: t('Quản lý hệ thống - Quản Trị Viên'),
         items: [
           // Patient Role
           {
@@ -323,6 +353,7 @@ export function useNavData() {
           // // },
         ]
       },
+
       // BÁC SĨ Navigation
       {
         hidden: user?.role !== 'DOCTOR',

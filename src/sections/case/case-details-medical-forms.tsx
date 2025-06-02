@@ -41,10 +41,12 @@ type PrescriptionFormProps = {
 
 export default function CaseDetailsMedicalForms({
   medicalFormData,
-  formFields
+  formFields,
+  onOpenPrescriptionModal
 }: {
   medicalFormData: any
   formFields: any[]
+  onOpenPrescriptionModal: () => void
 }) {
   const { enqueueSnackbar } = useSnackbar()
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -177,7 +179,10 @@ export default function CaseDetailsMedicalForms({
         />
         <Divider sx={{ my: 2 }} />
         <PrescriptionView
+          onOpenPrescriptionModal={onOpenPrescriptionModal}
           prescriptions={medicalFormData.offers || []}
+          userProfile={userProfile}
+          currentCase={medicalFormData}
           doctor_name={
             medicalFormData.appointmentId?.doctor?.fullName ||
             'Chưa có thông tin'
@@ -189,6 +194,7 @@ export default function CaseDetailsMedicalForms({
           sx={{ mt: 2 }}
           onClick={handleSubmit}
           disabled={isSubmitting}
+          hidden={userProfile?.role === 'PATIENT'}
         >
           {isSubmitting ? 'Đang xử lý...' : 'Hoàn Thành Bệnh Án'}
         </Button>

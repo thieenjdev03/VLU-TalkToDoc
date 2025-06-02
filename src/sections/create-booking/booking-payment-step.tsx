@@ -89,8 +89,9 @@ export default function BookingPayment({
       appointmentId: formData?.appointmentId,
       amount: finalTotalFee
     })
+    console.log('paymentURL', paymentURL)
     localStorage.removeItem('booking_step')
-    window.location.href = paymentURL?.paymentUrl
+    // window.location.href = paymentURL?.paymentUrl
   }
 
   return (

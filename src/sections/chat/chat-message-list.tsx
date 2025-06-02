@@ -1,5 +1,6 @@
-import { Box, Stack, Avatar, Typography } from '@mui/material'
 import { useMemo } from 'react'
+
+import { Box, Stack, Avatar } from '@mui/material'
 
 import Scrollbar from 'src/components/scrollbar'
 

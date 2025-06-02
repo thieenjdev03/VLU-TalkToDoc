@@ -34,9 +34,8 @@ export default function OrderDetailsToolbar({
   orderNumber,
   statusOptions,
   onChangeStatus,
-  onOpenPrescriptionModal,
   currentAppointment
-}: Props & { onOpenPrescriptionModal?: () => void }) {
+}: Props) {
   const popover = usePopover()
   const { openCall } = useCallStore()
   const handleRenderStatus = (statusString: string) => {
@@ -111,15 +110,6 @@ export default function OrderDetailsToolbar({
           >
             <Iconify icon="eva:phone-fill" />
             Gọi thoại
-          </Button>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={onOpenPrescriptionModal}
-            sx={{ minWidth: 160 }}
-          >
-            <Iconify icon="eva:file-text-fill" sx={{ mr: 1 }} />
-            Kê đơn thuốc
           </Button>
         </Stack>
       </Stack>

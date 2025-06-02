@@ -2,6 +2,7 @@
 
 import dayjs from 'dayjs'
 import { Icon } from '@iconify/react'
+import { useSnackbar } from 'notistack'
 import { useState, useEffect } from 'react'
 import Select, { components as selectComponents } from 'react-select'
 
@@ -103,7 +104,7 @@ const CustomOption = (props: any) => {
 
 const CustomSingleValue = (props: any) => {
   const { data } = props
-  const [open, setOpen] = useState(false)
+  console.log('data check', data)
   return (
     <selectComponents.SingleValue {...props}>
       <div className="flex items-center gap-4 p-2 shadow-sm">
@@ -113,7 +114,7 @@ const CustomSingleValue = (props: any) => {
             <Typography variant="body1" fontWeight="bold">
               {data.label}
             </Typography>
-            {renderStars(data.rating)} {`(${0})`}
+            {renderStars(data.rating)} {`(${data.ratingDetails?.length || 0})`}
           </div>
           <Typography variant="body2" color="text.secondary">
             {data.hospital}
@@ -139,6 +140,7 @@ export default function BookingSelectTime({
   const [doctorAvailability, setDoctorAvailability] = useState<
     AvailabilityItem[]
   >([])
+  const { enqueueSnackbar } = useSnackbar()
   const [selectedDate, setSelectedDate] = useState<dayjs.Dayjs | null>(dayjs())
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null)
   const [openModal, setOpenModal] = useState<boolean>(false)
@@ -242,16 +244,26 @@ export default function BookingSelectTime({
   }
 
   const handleSubmitWithAppointment = async () => {
-    localStorage.setItem('booking_step', 'confirm-payment-step')
-    setCurrentStep('confirm-payment-step', false)
-    const appointmentId = await handleCreateAppointment()
-    handleSubmit(
-      {
-        ...formData,
-        appointment: appointmentId
-      },
-      'select-time-booking'
-    )
+    try {
+      const appointmentId = await handleCreateAppointment()
+      if (appointmentId) {
+        localStorage.setItem('booking_step', 'confirm-payment-step')
+        setCurrentStep('confirm-payment-step', false)
+        handleSubmit(
+          {
+            ...formData,
+            appointment: appointmentId
+          },
+          'select-time-booking'
+        )
+      }
+    } catch (error) {
+      console.log(error)
+      enqueueSnackbar(error?.message, {
+        variant: 'error',
+        autoHideDuration: 3000
+      })
+    }
   }
 
   return (

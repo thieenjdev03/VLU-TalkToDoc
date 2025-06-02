@@ -209,7 +209,6 @@ export default function CaseDetailsView({ id }: Props) {
           { value: 'cancelled', label: 'Đã hủy' },
           { value: 'refunded', label: 'Hoàn tiền' }
         ]}
-        onOpenPrescriptionModal={() => setPrescriptionModalOpen(true)}
       />
       <PrescriptionModal
         open={prescriptionModalOpen}
@@ -223,6 +222,7 @@ export default function CaseDetailsView({ id }: Props) {
           <CaseDetailsMedicalForms
             medicalFormData={caseData || {}}
             formFields={formFields}
+            onOpenPrescriptionModal={() => setPrescriptionModalOpen(true)}
           />
         </Grid>
 

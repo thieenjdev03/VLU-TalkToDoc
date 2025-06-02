@@ -59,6 +59,8 @@ export type CaseItem = {
 
 export type CaseOffer = {
   createdAt: Date
+  shippingAddress: string
+  shippingPhone: string
   _id: string
   createdBy: CaseAssignee
   note: string

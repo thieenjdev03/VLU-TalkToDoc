@@ -10,14 +10,17 @@ import {
 
 import SendIcon from '@mui/icons-material/Send'
 import ImageIcon from '@mui/icons-material/Image'
+import CloseIcon from '@mui/icons-material/Close'
 import {
   Box,
   Stack,
   Paper,
+  Dialog,
   useTheme,
   TextField,
   Typography,
   IconButton,
+  DialogContent,
   useMediaQuery
 } from '@mui/material'
 
@@ -29,6 +32,7 @@ interface Message {
   to: string
   content: string
   time: string
+  imageUrls?: string[]
 }
 
 interface CallChatBoxProps {
@@ -49,13 +53,16 @@ function CallChatBox({
   const [isSending, setIsSending] = useState(false)
   const [imageUrls, setImageUrls] = useState<string[]>([])
   const [isUploading, setIsUploading] = useState(false)
+  const [previewImage, setPreviewImage] = useState<string | null>(null)
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const isTablet = useMediaQuery(theme.breakpoints.down('md'))
+
   useEffect(() => {
-    if (!appointmentId) return
+    if (!appointmentId) return undefined
 
     const q = query(
       collection(db, 'conversations', appointmentId, 'messages'),
@@ -83,9 +90,7 @@ function CallChatBox({
       setMessages(msgs)
     })
 
-    return () => {
-      unsubscribe()
-    }
+    return unsubscribe
   }, [appointmentId])
 
   useEffect(() => {
@@ -169,168 +174,270 @@ function CallChatBox({
     [handleSend]
   )
 
+  // Xử lý mở preview ảnh
+  const handleImageClick = (imageUrl: string) => {
+    setPreviewImage(imageUrl)
+    setIsPreviewOpen(true)
+  }
+
+  // Đóng preview ảnh
+  const handleClosePreview = () => {
+    setIsPreviewOpen(false)
+    setPreviewImage(null)
+  }
+
   return (
-    <Paper
-      elevation={3}
-      sx={{
-        maxWidth: { xs: '100%', md: 500 },
-        minWidth: { xs: '100%', md: 400 },
-        height: '100%',
-        minHeight: { xs: 400, md: '100%' },
-        p: { xs: 1, sm: 2 },
-        display: 'flex',
-        flexDirection: 'column',
-        borderRadius: 2,
-        bgcolor: 'background.paper',
-        zIndex: 10
-      }}
-    >
-      <Typography
-        variant={isMobile ? 'body1' : 'subtitle1'}
-        fontWeight={600}
-        gutterBottom
-      >
-        Chat với {userInfor?.role === 'DOCTOR' ? 'Bệnh Nhân' : 'Bác sĩ'}
-      </Typography>
-      <Box
+    <>
+      <Paper
+        elevation={3}
         sx={{
-          mb: 1,
-          pr: { xs: 0.5, sm: 1 },
-          flex: 1,
-          overflowY: 'auto',
-          maxHeight: { xs: 400, md: 580 }
+          maxWidth: { xs: '100%', md: 500 },
+          minWidth: { xs: '100%', md: 400 },
+          height: '100%',
+          minHeight: { xs: 400, md: '100%' },
+          p: { xs: 1, sm: 2 },
+          display: 'flex',
+          flexDirection: 'column',
+          borderRadius: 2,
+          bgcolor: 'background.paper',
+          zIndex: 10
         }}
       >
-        <Stack spacing={1}>
-          {messages.map((msg: any) => (
-            <Box
-              key={msg.id}
-              sx={{
-                alignSelf: msg.from === currentUser ? 'flex-end' : 'flex-start',
-                bgcolor: msg.from === currentUser ? 'primary.main' : 'grey.300',
-                color:
-                  msg.from === currentUser
-                    ? 'primary.contrastText'
-                    : 'text.primary',
-                px: { xs: 1, sm: 1.5 },
-                py: { xs: 0.5, sm: 1 },
-                borderRadius: 1.5,
-                maxWidth: '80%'
-              }}
-            >
-              <Typography variant={isMobile ? 'caption' : 'body2'}>
-                {msg.content}
-              </Typography>
-              {msg.imageUrls && msg.imageUrls.length > 0 && (
-                <Box sx={{ mt: 1, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                  {msg?.imageUrls?.map((url: any) => (
-                    <img
-                      key={url}
-                      src={url}
-                      alt="chat-img"
-                      style={{
-                        maxWidth: isMobile ? 80 : 120,
-                        borderRadius: 8,
-                        display: 'block'
-                      }}
-                      loading="lazy"
-                    />
-                  ))}
-                </Box>
-              )}
-              <Typography
-                variant="caption"
-                sx={{
-                  opacity: 0.6,
-                  fontSize: isMobile ? '0.65rem' : '0.75rem'
-                }}
-              >
-                {msg.time}
-              </Typography>
-            </Box>
-          ))}
-          <div ref={messagesEndRef} />
-        </Stack>
-      </Box>
-      {imageUrls.length > 0 && (
+        <Typography
+          variant={isMobile ? 'body1' : 'subtitle1'}
+          fontWeight={600}
+          gutterBottom
+        >
+          Chat với {userInfor?.role === 'DOCTOR' ? 'Bệnh Nhân' : 'Bác sĩ'}
+        </Typography>
         <Box
           sx={{
-            display: 'flex',
-            gap: 1,
             mb: 1,
-            flexWrap: 'wrap'
+            pr: { xs: 0.5, sm: 1 },
+            flex: 1,
+            overflowY: 'auto',
+            maxHeight: { xs: 400, md: 580 }
           }}
         >
-          {imageUrls.map(url => (
+          <Stack spacing={1}>
+            {messages.map((msg: any) => (
+              <Box
+                key={msg.id}
+                sx={{
+                  alignSelf:
+                    msg.from === currentUser ? 'flex-end' : 'flex-start',
+                  bgcolor:
+                    msg.from === currentUser ? 'primary.main' : 'grey.300',
+                  color:
+                    msg.from === currentUser
+                      ? 'primary.contrastText'
+                      : 'text.primary',
+                  px: { xs: 1, sm: 1.5 },
+                  py: { xs: 0.5, sm: 1 },
+                  borderRadius: 1.5,
+                  maxWidth: '80%'
+                }}
+              >
+                <Typography variant={isMobile ? 'caption' : 'body2'}>
+                  {msg.content}
+                </Typography>
+                {msg.imageUrls && msg.imageUrls.length > 0 && (
+                  <Box
+                    sx={{ mt: 1, display: 'flex', gap: 1, flexWrap: 'wrap' }}
+                  >
+                    {msg?.imageUrls?.map((url: any, index: number) => (
+                      <Box
+                        key={url}
+                        sx={{
+                          cursor: 'pointer',
+                          transition: 'transform 0.2s ease',
+                          '&:hover': {
+                            transform: 'scale(1.05)'
+                          }
+                        }}
+                        onClick={() => handleImageClick(url)}
+                      >
+                        <img
+                          src={url}
+                          alt={`chat-img-${index}`}
+                          style={{
+                            maxWidth: isMobile ? 80 : 120,
+                            borderRadius: 8,
+                            display: 'block'
+                          }}
+                          loading="lazy"
+                        />
+                      </Box>
+                    ))}
+                  </Box>
+                )}
+                <Typography
+                  variant="caption"
+                  sx={{
+                    opacity: 0.6,
+                    fontSize: isMobile ? '0.65rem' : '0.75rem'
+                  }}
+                >
+                  {msg.time}
+                </Typography>
+              </Box>
+            ))}
+            <div ref={messagesEndRef} />
+          </Stack>
+        </Box>
+        {imageUrls.length > 0 && (
+          <Box
+            sx={{
+              display: 'flex',
+              gap: 1,
+              mb: 1,
+              flexWrap: 'wrap'
+            }}
+          >
+            {imageUrls.map((url, index) => (
+              <Box
+                key={url}
+                sx={{
+                  position: 'relative',
+                  width: isMobile ? 40 : 60,
+                  height: isMobile ? 40 : 60,
+                  cursor: 'pointer',
+                  transition: 'transform 0.2s ease',
+                  '&:hover': {
+                    transform: 'scale(1.05)'
+                  }
+                }}
+                onClick={() => handleImageClick(url)}
+              >
+                <img
+                  src={url}
+                  alt={`preview-${index}`}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    borderRadius: 6
+                  }}
+                />
+              </Box>
+            ))}
+          </Box>
+        )}
+        <Box display="flex" gap={1} sx={{ mt: 1 }}>
+          <IconButton
+            component="label"
+            disabled={isUploading || isSending}
+            size={isMobile ? 'small' : 'medium'}
+          >
+            <ImageIcon fontSize={isMobile ? 'small' : 'medium'} />
+            <input
+              type="file"
+              accept="image/*"
+              hidden
+              ref={fileInputRef}
+              onChange={handleImageUpload}
+              multiple
+              disabled={isUploading || isSending}
+            />
+          </IconButton>
+          <TextField
+            fullWidth
+            size={isMobile ? 'small' : 'medium'}
+            placeholder="Nhập tin nhắn..."
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            disabled={isSending || isUploading}
+            inputProps={{ maxLength: 500 }}
+            sx={{
+              '& .MuiInputBase-root': {
+                fontSize: isMobile ? '0.875rem' : '1rem'
+              }
+            }}
+          />
+          <IconButton
+            color="primary"
+            onClick={handleSend}
+            disabled={
+              isSending ||
+              isUploading ||
+              (!input.trim() && imageUrls.length === 0)
+            }
+            aria-label="Gửi tin nhắn"
+            size={isMobile ? 'small' : 'medium'}
+          >
+            <SendIcon fontSize={isMobile ? 'small' : 'medium'} />
+          </IconButton>
+        </Box>
+      </Paper>
+
+      {/* Image Preview Modal */}
+      <Dialog
+        open={isPreviewOpen}
+        onClose={handleClosePreview}
+        maxWidth="lg"
+        fullWidth
+        sx={{
+          '& .MuiDialog-paper': {
+            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+            border: 'none',
+            boxShadow: 'none'
+          }
+        }}
+      >
+        <DialogContent
+          sx={{
+            p: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            position: 'relative',
+            minHeight: '60vh',
+            bgcolor: 'transparent'
+          }}
+        >
+          <IconButton
+            onClick={handleClosePreview}
+            sx={{
+              position: 'absolute',
+              top: 16,
+              right: 16,
+              color: 'white',
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              '&:hover': {
+                backgroundColor: 'rgba(0, 0, 0, 0.7)'
+              }
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+
+          {previewImage && (
             <Box
-              key={url}
               sx={{
-                position: 'relative',
-                width: isMobile ? 40 : 60,
-                height: isMobile ? 40 : 60
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '100%',
+                height: '100%',
+                p: 2
               }}
             >
               <img
-                src={url}
-                alt="preview"
+                src={previewImage}
+                alt="Preview"
                 style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  borderRadius: 6
+                  maxWidth: '100%',
+                  maxHeight: '80vh',
+                  objectFit: 'contain',
+                  borderRadius: 8
                 }}
               />
             </Box>
-          ))}
-        </Box>
-      )}
-      <Box display="flex" gap={1} sx={{ mt: 1 }}>
-        <IconButton
-          component="label"
-          disabled={isUploading || isSending}
-          size={isMobile ? 'small' : 'medium'}
-        >
-          <ImageIcon fontSize={isMobile ? 'small' : 'medium'} />
-          <input
-            type="file"
-            accept="image/*"
-            hidden
-            ref={fileInputRef}
-            onChange={handleImageUpload}
-            multiple
-            disabled={isUploading || isSending}
-          />
-        </IconButton>
-        <TextField
-          fullWidth
-          size={isMobile ? 'small' : 'medium'}
-          placeholder="Nhập tin nhắn..."
-          value={input}
-          onChange={e => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          disabled={isSending || isUploading}
-          inputProps={{ maxLength: 500 }}
-          sx={{
-            '& .MuiInputBase-root': {
-              fontSize: isMobile ? '0.875rem' : '1rem'
-            }
-          }}
-        />
-        <IconButton
-          color="primary"
-          onClick={handleSend}
-          disabled={
-            isSending ||
-            isUploading ||
-            (!input.trim() && imageUrls.length === 0)
-          }
-          aria-label="Gửi tin nhắn"
-          size={isMobile ? 'small' : 'medium'}
-        >
-          <SendIcon fontSize={isMobile ? 'small' : 'medium'} />
-        </IconButton>
-      </Box>
-    </Paper>
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }
 

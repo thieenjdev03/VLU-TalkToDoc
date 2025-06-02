@@ -640,16 +640,26 @@ export default function UserNewEditForm({
                     padding={1}
                     alignItems="center"
                   >
-                    <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
+                    <Typography
+                      hidden={currentUser?.role !== 'DOCTOR'}
+                      variant="subtitle2"
+                      sx={{ mb: 0.5 }}
+                    >
                       Điểm năng suất:
                     </Typography>
                     <Typography
                       variant="body2"
                       sx={{ color: 'text.secondary' }}
+                      hidden={currentUser?.role !== 'DOCTOR'}
                     >
-                      <span style={{ color: 'green' }}>{10}</span>
+                      <span style={{ color: 'green' }}>
+                        {currentUser?.performanceScore || 0}
+                      </span>
                     </Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Box
+                      hidden={currentUser?.role !== 'DOCTOR'}
+                      sx={{ display: 'flex', alignItems: 'center' }}
+                    >
                       <Tooltip title="Điểm năng suất được tính dựa trên số lượng cuộc hẹn hoàn thành và đánh giá từ bệnh nhân. Nếu điểm về 0, tài khoản sẽ bị tạm khóa.">
                         <IconButton size="medium">
                           <Icon
@@ -676,7 +686,8 @@ export default function UserNewEditForm({
                     >
                       <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         <span style={{ color: 'green' }}>
-                          {currentUser?.wallet?.balance || 0} VNĐ
+                          {currentUser?.walletBalance?.toLocaleString() || 0}{' '}
+                          VNĐ
                         </span>
                         <Tooltip title="Số dư hiện tại là doanh thu đã trừ phí nền tảng. Số dư này sẽ được hệ thống tự động chốt và chuyển khoản cho bạn vào cuối mỗi tháng. Bạn không thể rút thủ công.">
                           <IconButton size="medium">

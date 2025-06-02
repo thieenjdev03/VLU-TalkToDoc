@@ -1,0 +1,111 @@
+---
+description: TalkToDoc FrontEnd Rules
+globs: 
+alwaysApply: false
+---
+# 📘 Quy tắc phát triển Frontend cho dự án minimals.cc
+
+Dưới đây là các quy định nhằm đồng bộ code, tài liệu và luồng làm việc giữa các thành viên frontend và backend trong dự án `minimals.cc`. Mỗi thành viên cần tuân thủ để đảm bảo chất lượng và dễ bảo trì.
+
+---
+
+## 📁 1. Cấu trúc thư mục & đặt tên
+
+* Sử dụng `kebab-case` cho tên thư mục và file (trừ React component dùng PascalCase).
+* Mỗi tính năng lớn cần có folder riêng, ví dụ: `user-profile`, `case-form`, `video-call`.
+* Bên trong mỗi tính năng nên có:
+
+  * `components/` – chứa React components
+  * `hooks/` – chứa custom hooks
+  * `helpers/` – hàm xử lý logic
+  * `docs/` – tài liệu chi tiết (API sử dụng, cấu trúc dữ liệu...)
+
+---
+
+## 📄 2. Tài liệu hoá (Documentation)
+
+### 2.1. Quy định chung
+
+* Mỗi module cần có 1 file tài liệu dạng Markdown:
+
+  * `docs/api-docs.front.md` – mô tả cách frontend dùng API.
+  * `docs/api-docs.back.md` – mô tả backend cung cấp (nếu có).
+
+### 2.2. Nội dung tối thiểu cho `api-docs.front.md`
+
+1. Mô tả chức năng sử dụng
+2. Endpoint sử dụng
+3. Mẫu request (input/payload)
+4. Mẫu response
+5. Giải thích chi tiết từng field
+6. Ghi chú field nào chỉ dùng nội bộ (FE/BE)
+
+#### Ví dụ:
+
+```json
+// API response mẫu:
+{
+  "message": "Lấy danh sách lịch hẹn thành công",
+  "data": {
+    "items": [ ... ],
+    "page": 1,
+    "pageSize": 10,
+    "total": 36
+  },
+  "status": 200
+}
+```
+
+---
+
+## 🔁 3. Đồng bộ với Backend
+
+* Nếu sử dụng API mới → cần viết ngay tài liệu tại `api-docs.front.md`.
+* Nếu phát hiện sai định dạng (thiếu `data`, không có `items`, sai field...) → báo BE sửa và cập nhật lại doc.
+* Nếu field không dùng → ghi rõ `// only used by BE`.
+
+---
+
+## 🧩 4. Thư viện dùng trong dự án
+
+Dự án hiện tại đang dùng:
+
+* `Zustand` → state management
+* `Shadcn UI + Tailwind` → UI framework
+* `Radix UI` → hỗ trợ accessibility
+* `Moment.js` → xử lý thời gian
+* `Form.io` → hiển thị dynamic form từ JSON
+
+Khi muốn thêm lib mới: cần ghi lý do rõ ràng và đảm bảo nhẹ, phù hợp dự án.
+
+---
+
+## ✅ 5. Quy định về pagination với cursor
+
+Tất cả API trả danh sách cần theo chuẩn:
+
+```json
+{
+  "message": "success",
+  "data": {
+    "items": [...],
+    "nextCursor": "abc123", // hoặc page, pageSize
+    "total": 100
+  },
+  "status": 200
+}
+```
+
+> Nếu backend dùng `cursor` thì FE cần truyền đúng cursor, dừng load nếu không có `nextCursor`.
+
+---
+
+## 🛠 6. Công cụ tự động hóa & hỗ trợ
+
+* Sử dụng `eslint`, `prettier`, `lint-staged` để format code thống nhất.
+* Có thể tích hợp tool tạo README template cho tính năng mới (Plop.js hoặc bash script).
+* Cần đảm bảo mỗi module có tài liệu mô tả đi kèm.
+
+---
+
+> Mọi thành viên đều có trách nhiệm cập nhật tài liệu khi thay đổi code liên quan. Nếu bạn cần hỗ trợ viết template `README.md` hoặc `api-docs.front.md`, vui lòng ping team lead hoặc Ciel.

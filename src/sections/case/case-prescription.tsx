@@ -18,7 +18,7 @@ export function PrescriptionCard({ offer, idx }: PrescriptionCardProps) {
           sx={{ mb: 1 }}
         >
           <Typography fontWeight="bold" fontSize={18} color="primary">
-            Đơn thuốc #{idx + 1}
+            toa thuốc#{idx + 1}
           </Typography>
           <Typography variant="caption" color="text.secondary">
             {new Date(offer.createdAt).toLocaleString('vi-VN')}

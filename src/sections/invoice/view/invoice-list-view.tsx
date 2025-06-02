@@ -225,38 +225,28 @@ export default function InvoiceListView() {
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
         <CustomBreadcrumbs
-          heading="Thống Kê Doanh Thu"
+          heading="Thống Kê Giao Dịch"
           links={[
             {
               name: 'Quản Trị',
               href: paths.dashboard.root
             },
             {
-              name: 'Hoá Đơn',
+              name: 'Giao Dịch',
               href: paths.dashboard.invoice.root
             },
             {
               name: 'Danh Sách'
             }
           ]}
-          // action={
-          //   <Button
-          //     component={RouterLink}
-          //     href={paths.dashboard.invoice.new}
-          //     variant="contained"
-          //     startIcon={<Iconify icon="mingcute:add-line" />}
-          //   >
-          //     New Invoice
-          //   </Button>
-          // }
           sx={{
-            mb: { xs: 3, md: 5 }
+            mb: { xs: 1, md: 2 }
           }}
         />
 
         <Card
           sx={{
-            mb: { xs: 3, md: 5 }
+            mb: { xs: 1, md: 2 }
           }}
         >
           <Scrollbar>

@@ -96,6 +96,8 @@ export type IUserItem = {
   avgScore: number
   ratingDetails: any
   _id: string
+  performanceScore: number
+  walletBalance: number
   emergencyContact: any[]
   fullName: string
   department: string
