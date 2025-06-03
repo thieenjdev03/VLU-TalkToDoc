@@ -11,11 +11,11 @@ import Iconify from 'src/components/iconify'
 
 const PAYMENT_OPTIONS = [
   {
-    value: 'vnqr',
+    value: 'VNPAY',
     label: 'VNQR Pay'
   },
   {
-    value: 'wallet',
+    value: 'WALLET',
     label: 'Ví hệ thống'
   }
 ]

@@ -3,8 +3,8 @@ import { useState, useEffect } from 'react'
 
 import { Button, useTheme, TextField, useMediaQuery } from '@mui/material'
 
-import { createPaymentURL } from './api'
 import PaymentMethods from '../payment/payment-methods'
+import { createPaymentURL, createAppointment } from './api'
 
 export default function BookingPayment({
   setCurrentStep,
@@ -72,26 +72,65 @@ export default function BookingPayment({
   const finalTotalFee = totalFee - discount
 
   const handleSubmitConfirm = async () => {
-    const updatedFormData = {
-      discount,
-      total: finalTotalFee,
-      paymentMethod
-    }
-    await handleSubmit(
-      {
+    try {
+      if (!paymentMethod) {
+        enqueueSnackbar('Vui lòng chọn phương thức thanh toán', {
+          variant: 'warning'
+        })
+        return
+      }
+      const paymentPayload = {
+        paymentMethod,
+        total: finalTotalFee,
+        platformFee: generalSettings?.general_setting?.PLATFORM_FEE,
+        doctorFee,
+        discount
+      }
+      const appointmentPayload = {
         ...formData,
-        payment: updatedFormData
-      },
-      'confirm-payment-step'
-    )
-    const paymentURL = await createPaymentURL({
-      patient: formData?.patient,
-      appointmentId: formData?.appointmentId,
-      amount: finalTotalFee
-    })
-    console.log('paymentURL', paymentURL)
-    localStorage.removeItem('booking_step')
-    // window.location.href = paymentURL?.paymentUrl
+        doctor: booking.doctor,
+        date: booking.date,
+        slot: booking.slot,
+        timezone: booking.timezone,
+        paymentMethod,
+        payment: paymentPayload
+      }
+      // Nếu WALLET
+      if (paymentMethod === 'WALLET') {
+        const res = await createAppointment(appointmentPayload)
+        if (res?.payment?.status === 'PAID') {
+          enqueueSnackbar('Thanh toán thành công bằng ví!', {
+            variant: 'success'
+          })
+          setCurrentStep('payment-completed')
+        } else {
+          enqueueSnackbar('Có lỗi khi thanh toán bằng ví!', {
+            variant: 'error'
+          })
+        }
+      }
+      // Nếu VNPAY
+      else if (paymentMethod === 'VNPAY') {
+        const res = await createPaymentURL({
+          patient: formData?.patient,
+          amount: finalTotalFee,
+          appointmentId: formData.appointmentId
+        })
+        if (res?.paymentUrl) {
+          window.location.href = res.paymentUrl
+        } else {
+          enqueueSnackbar('Không lấy được link thanh toán VNPAY', {
+            variant: 'error'
+          })
+        }
+      }
+    } catch (err: any) {
+      if (err?.response?.data?.message?.includes('số dư')) {
+        enqueueSnackbar('Số dư ví không đủ!', { variant: 'error' })
+      } else {
+        enqueueSnackbar('Có lỗi khi tạo lịch hẹn', { variant: 'error' })
+      }
+    }
   }
 
   return (

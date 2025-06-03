@@ -11,6 +11,8 @@ import { shortDateLabel } from 'src/components/custom-date-range-picker'
 
 import { IOrderTableFilters, IOrderTableFilterValue } from 'src/types/order'
 
+import { renderStatus } from './utils'
+
 // ----------------------------------------------------------------------
 
 type Props = StackProps & {
@@ -51,7 +53,7 @@ export default function OrderTableFiltersResult({
       <Box sx={{ typography: 'body2' }}>
         <strong>{results}</strong>
         <Box component="span" sx={{ color: 'text.secondary', ml: 0.25 }}>
-          kết quả
+          Kết quả
         </Box>
       </Box>
 
@@ -63,17 +65,21 @@ export default function OrderTableFiltersResult({
         alignItems="center"
       >
         {filters.status !== 'all' && (
-          <Block label="Status:">
+          <Block label="Trạng thái:">
             <Chip
               size="small"
-              label={filters.status}
+              label={
+                filters.status === 'all'
+                  ? 'Tất cả'
+                  : renderStatus(filters.status.toUpperCase())
+              }
               onDelete={handleRemoveStatus}
             />
           </Block>
         )}
 
         {filters.startDate && filters.endDate && (
-          <Block label="Date:">
+          <Block label="Ngày:">
             <Chip size="small" label={shortLabel} onDelete={handleRemoveDate} />
           </Block>
         )}

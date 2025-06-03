@@ -113,17 +113,17 @@ export function useNavData() {
                 title: t('Thống Kê Chung'),
                 path: paths.dashboard.root
               },
-              {
-                title: t('Thống Kê Người Dùng'),
-                path: paths.dashboard.report.user
-              },
-              {
-                title: t('Thống Kê Bệnh Án'),
-                path: paths.dashboard.report.case
-              },
+              // {
+              //   title: t('Thống Kê Người Dùng'),
+              //   path: paths.dashboard.report.user
+              // },
+              // {
+              //   title: t('Thống Kê Bệnh Án'),
+              //   path: paths.dashboard.report.case
+              // },
               {
                 title: t('Thống Kê Doanh Thu'),
-                path: paths.dashboard.report.revenue
+                path: paths.dashboard.invoice.root
               }
             ]
           }
@@ -270,21 +270,21 @@ export function useNavData() {
           },
 
           // // INVOICE
-          {
-            hidden: user?.role !== 'ADMIN',
-            title: t('Thanh Toán'),
-            path: paths.dashboard.invoice.root,
-            icon: ICONS.invoice,
-            children: [
-              { title: t('Danh Sách'), path: paths.dashboard.invoice.root }
-              // {
-              //   title: t('details'),
-              //   path: paths.dashboard.invoice.demo.details,
-              // },
-              // { title: t('Tạo Hóa Đơn'), path: paths.dashboard.invoice.new },
-              // { title: t('edit'), path: paths.dashboard.invoice.demo.edit },
-            ]
-          },
+          // {
+          //   hidden: user?.role !== 'ADMIN',
+          //   title: t('Thanh Toán'),
+          //   path: paths.dashboard.invoice.root,
+          //   icon: ICONS.invoice,
+          //   children: [
+          //     { title: t('Danh Sách'), path: paths.dashboard.invoice.root }
+          //     // {
+          //     //   title: t('details'),
+          //     //   path: paths.dashboard.invoice.demo.details,
+          //     // },
+          //     // { title: t('Tạo Hóa Đơn'), path: paths.dashboard.invoice.new },
+          //     // { title: t('edit'), path: paths.dashboard.invoice.demo.edit },
+          //   ]
+          // },
           {
             title: t('chat'),
             path: paths.dashboard.chat,

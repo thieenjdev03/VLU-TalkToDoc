@@ -25,9 +25,9 @@ import AccountAvailability from '../account-availability'
 import AccountNotifications from '../account-notifications'
 import AccountChangePassword from '../account-change-password'
 
-// ----------------------------------------------------------------------
-const userProfile = localStorage.getItem('userProfile')
-const user = JSON.parse(userProfile || '{}')
+// ----------------------------------------------------------------------ư
+const userProfileLocal = localStorage.getItem('userProfile')
+const user = JSON.parse(userProfileLocal || '{}')
 const TABS = [
   {
     value: 'general',
@@ -61,6 +61,7 @@ const TABS = [
 
 export default function AccountView() {
   const settings = useSettingsContext()
+  const [userProfile, setUserProfile] = useState<any>(user)
 
   const [currentTab, setCurrentTab] = useState('general')
 
@@ -105,7 +106,12 @@ export default function AccountView() {
         )}
       </Tabs>
 
-      {currentTab === 'general' && <AccountGeneral />}
+      {currentTab === 'general' && (
+        <AccountGeneral
+          userProfile={userProfile}
+          setUserProfile={setUserProfile}
+        />
+      )}
       {currentTab === 'availability' && <AccountAvailability />}
 
       {currentTab === 'billing' && (
@@ -114,6 +120,9 @@ export default function AccountView() {
           cards={_userPayment}
           invoices={_userInvoices}
           addressBook={_userAddressBook}
+          userProfile={userProfile}
+          walletBalance={userProfile?.walletBalance || 0}
+          walletHistory={userProfile?.walletHistory || []}
         />
       )}
 

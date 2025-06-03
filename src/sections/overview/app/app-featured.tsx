@@ -1,26 +1,30 @@
-import { m } from 'framer-motion';
+import { m } from 'framer-motion'
 
-import Link from '@mui/material/Link';
-import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
-import Card, { CardProps } from '@mui/material/Card';
-import { alpha, useTheme } from '@mui/material/styles';
+import Link from '@mui/material/Link'
+import Stack from '@mui/material/Stack'
+import Typography from '@mui/material/Typography'
+import Card, { CardProps } from '@mui/material/Card'
+import { alpha, useTheme } from '@mui/material/styles'
 
-import Image from 'src/components/image';
-import { varFade, MotionContainer } from 'src/components/animate';
-import Carousel, { useCarousel, CarouselDots, CarouselArrows } from 'src/components/carousel';
+import Image from 'src/components/image'
+import { varFade, MotionContainer } from 'src/components/animate'
+import Carousel, {
+  useCarousel,
+  CarouselDots,
+  CarouselArrows
+} from 'src/components/carousel'
 
 // ----------------------------------------------------------------------
 
 type ItemProps = {
-  id: string;
-  title: string;
-  coverUrl: string;
-  description: string;
-};
+  id: string
+  title: string
+  coverUrl: string
+  description: string
+}
 
 interface Props extends CardProps {
-  list: ItemProps[];
+  list: ItemProps[]
 }
 
 export default function AppFeatured({ list, ...other }: Props) {
@@ -32,16 +36,20 @@ export default function AppFeatured({ list, ...other }: Props) {
         top: 16,
         left: 16,
         position: 'absolute',
-        color: 'primary.light',
-      },
-    }),
-  });
+        color: 'primary.light'
+      }
+    })
+  })
 
   return (
     <Card {...other}>
       <Carousel ref={carousel.carouselRef} {...carousel.carouselSettings}>
         {list.map((app, index) => (
-          <CarouselItem key={app.id} item={app} active={index === carousel.currentIndex} />
+          <CarouselItem
+            key={app.id}
+            item={app}
+            active={index === carousel.currentIndex}
+          />
         ))}
       </Carousel>
 
@@ -51,37 +59,38 @@ export default function AppFeatured({ list, ...other }: Props) {
         sx={{ top: 8, right: 8, position: 'absolute', color: 'common.white' }}
       />
     </Card>
-  );
+  )
 }
 
 // ----------------------------------------------------------------------
 
 type CarouselItemProps = {
-  item: ItemProps;
-  active?: boolean;
-};
+  item: ItemProps
+  active?: boolean
+}
 
 function CarouselItem({ item, active }: CarouselItemProps) {
-  const theme = useTheme();
+  const theme = useTheme()
 
-  const { coverUrl, title, description } = item;
+  const { coverUrl, title, description } = item
 
   const renderImg = (
     <Image
       alt={title}
       src={coverUrl}
-      overlay={`linear-gradient(to bottom, ${alpha(theme.palette.grey[900], 0)} 0%, ${
-        theme.palette.grey[900]
-      } 75%)`}
+      overlay={`linear-gradient(to bottom, ${alpha(
+        theme.palette.grey[900],
+        0
+      )} 0%, ${theme.palette.grey[900]} 75%)`}
       sx={{
         width: 1,
         height: {
           xs: 280,
-          xl: 320,
-        },
+          xl: 320
+        }
       }}
     />
-  );
+  )
 
   return (
     <MotionContainer action animate={active} sx={{ position: 'relative' }}>
@@ -94,12 +103,12 @@ function CarouselItem({ item, active }: CarouselItemProps) {
           zIndex: 9,
           textAlign: 'left',
           position: 'absolute',
-          color: 'common.white',
+          color: 'common.white'
         }}
       >
         <m.div variants={varFade().inRight}>
           <Typography variant="overline" sx={{ color: 'primary.light' }}>
-            Featured App
+            Banner
           </Typography>
         </m.div>
 
@@ -120,5 +129,5 @@ function CarouselItem({ item, active }: CarouselItemProps) {
 
       {renderImg}
     </MotionContainer>
-  );
+  )
 }

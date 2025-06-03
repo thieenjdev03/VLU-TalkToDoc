@@ -7,7 +7,13 @@ import { IUserItem } from 'src/types/user'
 import { getUserById } from '../../api/user'
 import UserNewEditForm from '../user/user-new-edit-form'
 
-export default function AccountGeneral() {
+export default function AccountGeneral({
+  userProfile,
+  setUserProfile
+}: {
+  userProfile: any
+  setUserProfile: (userProfile: any) => void
+}) {
   const [currentUser, setCurrentUser] = useState<IUserItem | null>(null)
   const [loading, setLoading] = useState(true)
   const [hospitalList, setHospitalList] = useState<any[]>([])
@@ -35,9 +41,11 @@ export default function AccountGeneral() {
       try {
         const data = await getUserById(_id, role.toLowerCase())
         setCurrentUser({ ...data, role: data.role?.toLowerCase() })
+        setUserProfile(data)
       } catch (error) {
         console.error('Lỗi khi fetch user:', error)
         setCurrentUser({ ...userProfile, role: role.toLowerCase() })
+        setUserProfile(userProfile)
       } finally {
         setLoading(false)
       }
@@ -48,6 +56,17 @@ export default function AccountGeneral() {
 
   if (loading || !currentUser)
     return <div>Đang tải thông tin người dùng...</div>
+
+  let walletBalance = 0
+  let walletHistory = []
+
+  if (currentUser.role === 'doctor') {
+    walletBalance = currentUser.wallet?.balance || 0
+    walletHistory = currentUser.wallet?.transactionHistory || []
+  } else if (currentUser.role === 'patient') {
+    walletBalance = currentUser.walletBalance || 0
+    walletHistory = currentUser.walletHistory || []
+  }
 
   return (
     <UserNewEditForm

@@ -10,21 +10,18 @@ import Grid from '@mui/material/Unstable_Grid2'
 import { useTheme } from '@mui/material/styles'
 import TextField from '@mui/material/TextField'
 
+import { _appFeatured } from 'src/_mock'
 import { API_URL } from 'src/config-global'
 import { SeoIllustration } from 'src/assets/illustrations'
-import { _appFeatured, _appInvoices, _appInstalled } from 'src/_mock'
 
 import { useSettingsContext } from 'src/components/settings'
 
-import AppWidget from '../app-widget'
 import AppWelcome from '../app-welcome'
 import AppFeatured from '../app-featured'
-import AppNewInvoice from '../app-new-invoice'
 import AppTopDoctors from '../app-top-doctors'
 import AppWidgetSummary from '../app-widget-summary'
 import AppAreaInstalled from '../app-area-installed'
 import AppCurrentDownload from '../app-current-download'
-import AppTopInstalledCountries from '../app-top-installed-countries'
 
 // ----------------------------------------------------------------------
 
@@ -108,8 +105,8 @@ const useSummaryStats = () => {
   useEffect(() => {
     const loadAllStats = async () => {
       setLoading(true)
-      const startDate = moment().startOf('month').format('YYYY-MM-DD')
-      const endDate = moment().endOf('month').format('YYYY-MM-DD')
+      const startDate = moment().startOf('year').format('YYYY-MM-DD')
+      const endDate = moment().endOf('year').format('YYYY-MM-DD')
       try {
         const [patientData, appointmentData, revenueData] = await Promise.all([
           fetchSummaryData('patient', startDate, endDate),
@@ -241,7 +238,7 @@ export default function OverviewAppView() {
             categories,
             series: result.data.map((yearObj: any) => ({
               year: String(yearObj.year),
-              data: yearObj.specialties.map(s => ({
+              data: yearObj.specialties.map((s: any) => ({
                 name: s.name,
                 data: s.monthly
               }))
@@ -382,7 +379,7 @@ export default function OverviewAppView() {
         <Grid xs={12} md={4}>
           <AppWidgetSummary
             title={`Tổng Bệnh Nhân Mới Năm ${currentYear}`}
-            percent={stats.patient.percent || 0}
+            percent={stats.patient.percent * 100 || 0}
             total={stats.patient.total || 0}
             chart={{
               series: stats.patient.series || []
@@ -394,7 +391,7 @@ export default function OverviewAppView() {
         <Grid xs={12} md={4}>
           <AppWidgetSummary
             title={`Tổng Lịch Hẹn Năm ${currentYear}`}
-            percent={stats.appointment.percent || 0}
+            percent={stats.appointment.percent * 100 || 0}
             total={stats.appointment.total || 0}
             chart={{
               colors: [theme.palette.info.light, theme.palette.info.main],
@@ -407,7 +404,7 @@ export default function OverviewAppView() {
         <Grid xs={12} md={4}>
           <AppWidgetSummary
             title={`Tổng Doanh Thu Năm ${currentYear}`}
-            percent={stats.revenue.percent || 0}
+            percent={stats.revenue.percent * 100 || 0}
             total={stats.revenue.total || 0}
             chart={{
               colors: [theme.palette.warning.light, theme.palette.warning.main],
@@ -425,6 +422,7 @@ export default function OverviewAppView() {
             startDate={startDate}
             endDate={endDate}
             enableDatePicker
+            defaultRange="month"
           />
         </Grid>
         <Grid xs={12} md={6} lg={6}>
@@ -548,6 +546,7 @@ export default function OverviewAppView() {
                 series: donutData
               }}
               enableDatePicker={false}
+              handleShowRangeMonth
             />
           ) : (
             <AppAreaInstalled
@@ -558,7 +557,7 @@ export default function OverviewAppView() {
           )}
         </Grid>
 
-        <Grid xs={12} lg={8}>
+        {/* <Grid xs={12} lg={8}>
           <AppNewInvoice
             title="New Invoice"
             tableData={_appInvoices}
@@ -570,37 +569,7 @@ export default function OverviewAppView() {
               { id: '' }
             ]}
           />
-        </Grid>
-
-        <Grid xs={12} md={6} lg={4}>
-          <AppTopInstalledCountries
-            title="Top Installed Countries"
-            list={_appInstalled}
-          />
-        </Grid>
-
-        <Grid xs={12} md={6} lg={4}>
-          <Stack spacing={3}>
-            <AppWidget
-              title="Conversion"
-              total={38566}
-              icon="solar:user-rounded-bold"
-              chart={{
-                series: 48
-              }}
-            />
-
-            <AppWidget
-              title="Applications"
-              total={55566}
-              icon="fluent:mail-24-filled"
-              color="info"
-              chart={{
-                series: 75
-              }}
-            />
-          </Stack>
-        </Grid>
+        </Grid> */}
       </Grid>
     </Container>
   )

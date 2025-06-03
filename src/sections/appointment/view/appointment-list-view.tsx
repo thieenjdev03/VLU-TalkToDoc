@@ -17,7 +17,7 @@ import { useRouter } from 'src/routes/hooks'
 
 import { useBoolean } from 'src/hooks/use-boolean'
 
-import { isAfter, isBetween } from 'src/utils/format-time'
+import { isAfter } from 'src/utils/format-time'
 
 import { useGetUsers } from 'src/api/user'
 import { getAppointments } from 'src/api/appointment'
@@ -31,10 +31,7 @@ import { useSettingsContext } from 'src/components/settings'
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs'
 import {
   useTable,
-  emptyRows,
   TableNoData,
-  getComparator,
-  TableEmptyRows,
   TableHeadCustom,
   TableSelectedAction,
   TablePaginationCustom
@@ -124,34 +121,19 @@ export default function AppointmentListView() {
   const settings = useSettingsContext()
   const router = useRouter()
   const confirm = useBoolean()
+  const [page, setPage] = useState(1)
+  const [limit, setLimit] = useState(10)
+  const [total, setTotal] = useState(0)
   const [tableData, setTableData] = useState<IAppointmentItem[]>([])
   const [filters, setFilters] =
     useState<IAppointmentTableFilters>(defaultFilters)
   const [openCancelDialog, setOpenCancelDialog] = useState(false)
   const [cancelReason, setCancelReason] = useState('')
-  const [total, setTotal] = useState(0)
   const dateError = isAfter(filters?.startDate, filters?.endDate)
   const userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}')
   const [appointmentSelected, setAppointmentSelected] = useState('')
-  const dataFiltered = applyFilter({
-    inputData: tableData,
-    comparator: getComparator(table.order, table.orderBy),
-    filters,
-    dateError
-  })
-  const dataInPage = dataFiltered.slice(
-    table.page * table.rowsPerPage,
-    table.page * table.rowsPerPage + table.rowsPerPage
-  )
 
   const denseHeight = table.dense ? 56 : 56 + 20
-
-  const canReset =
-    !!filters.patient ||
-    filters.status !== 'all' ||
-    (!!filters.startDate && !!filters.endDate)
-
-  const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length
 
   const { users: doctorsList } = useGetUsers({
     typeUser: 'doctor',
@@ -168,28 +150,16 @@ export default function AppointmentListView() {
 
   useEffect(() => {
     const fetchAppointments = async () => {
-      const appointments = await getAppointments()
-      if (userProfile.role === 'PATIENT') {
-        const patientAppointments = appointments.data.filter(
-          (appointment: IAppointmentItem) =>
-            appointment?.patient?._id === userProfile?._id
-        )
-        setTotal(appointments.total)
-        setTableData(patientAppointments)
-      } else if (userProfile.role === 'DOCTOR') {
-        const doctorAppointments = appointments.data.filter(
-          (appointment: IAppointmentItem) =>
-            appointment?.doctor?._id === userProfile?._id
-        )
-        setTotal(appointments.total)
-        setTableData(doctorAppointments)
-      } else {
-        setTotal(appointments.total)
-        setTableData(appointments.data)
-      }
+      const appointments = await getAppointments({
+        page,
+        limit,
+        q: filters.name
+      })
+      setTableData(appointments.data)
+      setTotal(appointments.total)
     }
     fetchAppointments()
-  }, [userProfile?._id, userProfile.role])
+  }, [page, limit, userProfile.id, userProfile.role, filters.name])
 
   const handleFilters = useCallback(
     (name: any, value: IAppointmentTableFilterValue) => {
@@ -207,9 +177,9 @@ export default function AppointmentListView() {
       const deleteRow = tableData.filter(row => row._id !== id)
       enqueueSnackbar('Xóa thành công!')
       setTableData(deleteRow)
-      table.onUpdatePageDeleteRow(dataInPage.length)
+      table.onUpdatePageDeleteRow(tableData.length)
     },
-    [dataInPage.length, enqueueSnackbar, table, tableData]
+    [tableData, enqueueSnackbar, table]
   )
 
   const handleDeleteRows = useCallback(() => {
@@ -219,16 +189,10 @@ export default function AppointmentListView() {
     enqueueSnackbar('Xóa thành công!')
     setTableData(deleteRows)
     table.onUpdatePageDeleteRows({
-      totalRowsInPage: dataInPage.length,
-      totalRowsFiltered: dataFiltered.length
+      totalRowsInPage: tableData.length,
+      totalRowsFiltered: tableData.length
     })
-  }, [
-    dataFiltered.length,
-    dataInPage.length,
-    enqueueSnackbar,
-    table,
-    tableData
-  ])
+  }, [tableData, enqueueSnackbar, table])
 
   const handleViewRow = useCallback(
     (id: string) => {
@@ -296,7 +260,7 @@ export default function AppointmentListView() {
                     }
                   >
                     {tab.value === 'all'
-                      ? tableData?.length
+                      ? total
                       : tableData.filter(
                           appointment => appointment.status === tab.value
                         ).length}
@@ -315,11 +279,11 @@ export default function AppointmentListView() {
             <TableSelectedAction
               dense={table.dense}
               numSelected={table.selected.length}
-              rowCount={dataFiltered.length}
+              rowCount={tableData.length}
               onSelectAllRows={checked =>
                 table.onSelectAllRows(
                   checked,
-                  dataFiltered.map((row: any) => row._id) // Cập nhật để sử dụng _id
+                  tableData.map((row: any) => row._id)
                 )
               }
               action={
@@ -344,50 +308,35 @@ export default function AppointmentListView() {
                       ? TABLE_HEAD_PATIENT
                       : TABLE_HEAD
                   }
-                  rowCount={dataFiltered.length}
+                  rowCount={tableData.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
                   onSelectAllRows={checked =>
                     table.onSelectAllRows(
                       checked,
-                      dataFiltered.map((row: any) => row._id) // Cập nhật để sử dụng _id
+                      tableData.map((row: any) => row._id)
                     )
                   }
                 />
 
                 <TableBody>
-                  {dataFiltered
-                    .slice(
-                      table.page * table.rowsPerPage,
-                      table.page * table.rowsPerPage + table.rowsPerPage
-                    )
-                    .map(row => (
-                      <AppointmentTableRow
-                        doctorsList={doctorsList}
-                        key={row._id}
-                        row={row}
-                        typeUser={userProfile.role}
-                        selected={table.selected.includes(row._id)}
-                        onSelectRow={() => table.onSelectRow(row._id)}
-                        onDeleteRow={() => handleDeleteRow(row._id)}
-                        onViewRow={() => handleViewRow(row._id)}
-                        onCancelAppointment={() => {
-                          handleCancelAppointment(row._id)
-                        }}
-                        user={userProfile}
-                      />
-                    ))}
-                  {dataFiltered.length === 0 && (
-                    <TableEmptyRows
-                      height={denseHeight}
-                      emptyRows={emptyRows(
-                        table.page,
-                        table.rowsPerPage,
-                        dataFiltered.length
-                      )}
+                  {tableData.map((row: IAppointmentItem) => (
+                    <AppointmentTableRow
+                      doctorsList={doctorsList}
+                      key={row._id}
+                      row={row}
+                      typeUser={userProfile.role}
+                      selected={table.selected.includes(row._id)}
+                      onSelectRow={() => table.onSelectRow(row._id)}
+                      onDeleteRow={() => handleDeleteRow(row._id)}
+                      onViewRow={() => handleViewRow(row._id)}
+                      onCancelAppointment={() => {
+                        handleCancelAppointment(row._id)
+                      }}
+                      user={userProfile}
                     />
-                  )}
-                  <TableNoData notFound={notFound} />
+                  ))}
+                  {tableData.length === 0 && <TableNoData notFound />}
                 </TableBody>
               </Table>
             </Scrollbar>
@@ -395,11 +344,13 @@ export default function AppointmentListView() {
 
           <TablePaginationCustom
             count={total}
-            page={table.page}
-            rowsPerPage={table.rowsPerPage}
-            onPageChange={table.onChangePage}
-            onRowsPerPageChange={table.onChangeRowsPerPage}
-            //
+            page={page - 1}
+            rowsPerPage={limit}
+            onPageChange={(_, newPage) => setPage(newPage + 1)}
+            onRowsPerPageChange={e => {
+              setLimit(parseInt(e.target.value, 10))
+              setPage(1)
+            }}
             dense={table.dense}
             onChangeDense={table.onChangeDense}
           />
@@ -435,58 +386,4 @@ export default function AppointmentListView() {
       />
     </>
   )
-}
-
-// ----------------------------------------------------------------------
-
-function applyFilter({
-  inputData,
-  comparator,
-  filters,
-  dateError
-}: {
-  inputData: IAppointmentItem[] // Cập nhật để sử dụng IAppointmentItem
-  comparator: (a: any, b: any) => number
-  filters: IAppointmentTableFilters // Cập nhật để sử dụng IAppointmentTableFilters
-  dateError: boolean
-}) {
-  const { status, patient, startDate, endDate } = filters
-
-  const stabilizedThis = inputData.map(
-    (el: any, index: any) => [el, index] as const
-  )
-
-  stabilizedThis.sort((a: any, b: any) => {
-    const order = comparator(a[0], b[0])
-    if (order !== 0) return order
-    return a[1] - b[1]
-  })
-
-  inputData = stabilizedThis.map((el: any) => el[0])
-
-  if (patient) {
-    inputData = inputData.filter(
-      appointment =>
-        appointment.patient.fullName
-          .toLowerCase()
-          .indexOf(patient.toLowerCase()) !== -1 ||
-        appointment.patient.email
-          .toLowerCase()
-          .indexOf(patient.toLowerCase()) !== -1
-    )
-  }
-
-  if (status !== 'all') {
-    inputData = inputData.filter(appointment => appointment.status === status)
-  }
-
-  if (!dateError) {
-    if (startDate && endDate) {
-      inputData = inputData.filter(appointment =>
-        isBetween(appointment.createdAt, startDate, endDate)
-      )
-    }
-  }
-
-  return inputData
 }

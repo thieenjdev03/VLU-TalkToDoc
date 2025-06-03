@@ -1,6 +1,6 @@
 import moment from 'moment'
 import { ApexOptions } from 'apexcharts'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
@@ -66,6 +66,8 @@ interface Props extends CardProps {
     }[]
     options?: ApexOptions
   }
+  handleShowRangeMonth?: boolean
+  defaultRange?: 'week' | 'month' | 'quarter' | 'year'
 }
 
 export default function AppCurrentDownload({
@@ -76,6 +78,8 @@ export default function AppCurrentDownload({
   enableDatePicker = true,
   chart,
   removeFilter = false,
+  handleShowRangeMonth = false,
+  defaultRange = 'month',
   ...other
 }: Props) {
   const theme = useTheme()
@@ -97,6 +101,9 @@ export default function AppCurrentDownload({
     { label: 'Đã Hủy', value: 0 },
     { label: 'Đã Hoàn Thành', value: 0 }
   ])
+  const [activeRange, setActiveRange] = useState<
+    'week' | 'month' | 'quarter' | 'year' | null
+  >(defaultRange || null)
 
   // Màu sắc tương ứng với từng trạng thái
   const statusColors = [
@@ -160,59 +167,53 @@ export default function AppCurrentDownload({
     setLoading(false)
   }
 
-  const handleQuickRange = (range: 'week' | 'month' | 'quarter' | 'year') => {
-    let start: string
-    let end: string
-
-    switch (range) {
-      case 'week':
-        start = moment().startOf('week').format('YYYY-MM-DD')
-        end = moment().endOf('week').format('YYYY-MM-DD')
-        break
-      case 'month':
-        start = moment().startOf('month').format('YYYY-MM-DD')
-        end = moment().endOf('month').format('YYYY-MM-DD')
-        break
-      case 'quarter':
-        start = moment().startOf('quarter').format('YYYY-MM-DD')
-        end = moment().endOf('quarter').format('YYYY-MM-DD')
-        break
-      case 'year':
-        start = moment().startOf('year').format('YYYY-MM-DD')
-        end = moment().endOf('year').format('YYYY-MM-DD')
-        break
-      default:
-        start = moment().startOf('month').format('YYYY-MM-DD')
-        end = moment().endOf('month').format('YYYY-MM-DD')
-    }
-
-    setLocalStartDate(start)
-    setLocalEndDate(end)
-
-    // Auto update data
-    setLoading(true)
-    fetchAppointmentStatusData(start, end).then(() => setLoading(false))
-  }
-
-  useEffect(() => {
-    const loadData = async () => {
+  const handleQuickRange = useCallback(
+    (range: 'week' | 'month' | 'quarter' | 'year') => {
+      setActiveRange(range)
+      let start: string
+      let end: string
+      switch (range) {
+        case 'week':
+          start = moment().startOf('week').format('YYYY-MM-DD')
+          end = moment().endOf('week').format('YYYY-MM-DD')
+          break
+        case 'month':
+          start = moment().startOf('month').format('YYYY-MM-DD')
+          end = moment().endOf('month').format('YYYY-MM-DD')
+          break
+        case 'quarter':
+          start = moment().startOf('quarter').format('YYYY-MM-DD')
+          end = moment().endOf('quarter').format('YYYY-MM-DD')
+          break
+        case 'year':
+          start = moment().startOf('year').format('YYYY-MM-DD')
+          end = moment().endOf('year').format('YYYY-MM-DD')
+          break
+        default:
+          start = moment().startOf('month').format('YYYY-MM-DD')
+          end = moment().endOf('month').format('YYYY-MM-DD')
+      }
+      setLocalStartDate(start)
+      setLocalEndDate(end)
       setLoading(true)
-      await fetchAppointmentStatusData(localStartDate, localEndDate)
-      setLoading(false)
-    }
+      fetchAppointmentStatusData(start, end).then(() => setLoading(false))
+    },
+    []
+  )
 
-    loadData()
-  }, [localStartDate, localEndDate])
-
-  // Update local dates when props change
   useEffect(() => {
-    if (startDate && startDate !== localStartDate) {
-      setLocalStartDate(startDate)
+    if (handleShowRangeMonth) {
+      setActiveRange('month')
+      handleQuickRange('month')
+    } else if (defaultRange) {
+      setActiveRange(defaultRange)
+      handleQuickRange(defaultRange)
     }
-    if (endDate && endDate !== localEndDate) {
-      setLocalEndDate(endDate)
-    }
-  }, [startDate, endDate, localStartDate, localEndDate])
+  }, [handleShowRangeMonth, handleQuickRange, defaultRange])
+  useEffect(() => {
+    if (startDate) setLocalStartDate(startDate)
+    if (endDate) setLocalEndDate(endDate)
+  }, [startDate, endDate])
 
   // Sử dụng dữ liệu từ props hoặc dữ liệu API
   const finalData = chart?.series || appointmentData
@@ -284,7 +285,7 @@ export default function AppCurrentDownload({
           <Stack direction="row" spacing={1} sx={{ mb: 2 }} flexWrap="wrap">
             <Button
               size="small"
-              variant="outlined"
+              variant={activeRange === 'week' ? 'contained' : 'outlined'}
               onClick={() => handleQuickRange('week')}
               sx={{ minWidth: 'auto' }}
             >
@@ -292,7 +293,7 @@ export default function AppCurrentDownload({
             </Button>
             <Button
               size="small"
-              variant="outlined"
+              variant={activeRange === 'month' ? 'contained' : 'outlined'}
               onClick={() => handleQuickRange('month')}
               sx={{ minWidth: 'auto' }}
             >
@@ -300,7 +301,7 @@ export default function AppCurrentDownload({
             </Button>
             <Button
               size="small"
-              variant="outlined"
+              variant={activeRange === 'quarter' ? 'contained' : 'outlined'}
               onClick={() => handleQuickRange('quarter')}
               sx={{ minWidth: 'auto' }}
             >
@@ -308,7 +309,7 @@ export default function AppCurrentDownload({
             </Button>
             <Button
               size="small"
-              variant="outlined"
+              variant={activeRange === 'year' ? 'contained' : 'outlined'}
               onClick={() => handleQuickRange('year')}
               sx={{ minWidth: 'auto' }}
             >
