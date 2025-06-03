@@ -127,6 +127,11 @@ export default function AppointmentTableRow({
       enqueueSnackbar('Đã đặt lại lịch khám thành công!')
     }
   }
+
+  const isOverdue =
+    moment(row?.date).isBefore(moment(), 'day') &&
+    (status === 'CONFIRMED' || status === 'PENDING')
+
   const handleDeleteAppointment = async () => {
     if (user?.role !== 'ADMIN') {
       enqueueSnackbar('Bạn không có quyền xoá lịch hẹn.', { variant: 'error' })
@@ -364,7 +369,15 @@ export default function AppointmentTableRow({
 
       <TableCell>{payment?.total?.toLocaleString('vi-VN') || 0}đ</TableCell>
 
-      <TableCell align="center">
+      <TableCell
+        align="center"
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1,
+          justifyContent: 'center'
+        }}
+      >
         <Label
           variant="soft"
           color={
@@ -382,6 +395,9 @@ export default function AppointmentTableRow({
           {status === 'CANCELLED' && 'Đã huỷ'}
           {status === 'COMPLETED' && 'Đã hoàn thành'}
         </Label>
+        <span style={{ color: 'red', whiteSpace: 'nowrap' }}>
+          {isOverdue && '(Quá hạn)'}
+        </span>
       </TableCell>
 
       <TableCell align="center">
@@ -394,7 +410,7 @@ export default function AppointmentTableRow({
       </TableCell>
 
       <TableCell align="center">
-        {row?.status === 'CONFIRMED' && (
+        {row?.status === 'CONFIRMED' && !isOverdue && (
           <Button
             sx={{
               display: 'flex',
