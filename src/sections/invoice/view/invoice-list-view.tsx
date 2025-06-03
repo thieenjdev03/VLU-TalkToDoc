@@ -52,16 +52,21 @@ import {
 import InvoiceAnalytic from '../invoice-analytic'
 import InvoiceTableRow from '../invoice-table-row'
 import InvoiceTableFiltersResult from '../invoice-table-filters-result'
+import InvoiceTableToolbar from '../invoice-table-toolbar'
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'orderId', label: 'Mã Thanh Toán', width: '10%' },
-  { id: 'appointmentId', label: 'Mã Lịch Hẹn', width: '10%' },
-  { id: 'patient', label: 'Bệnh Nhân', minWidth: 250 },
-  { id: 'doctor', label: 'Bác Sĩ', minWidth: 250 },
-  { id: 'createdAt', label: 'Ngày Tạo' },
-  { id: 'amount', label: 'Số Tiền' },
-  { id: 'status', label: 'Trạng Thái' }
+  { id: 'orderId', label: 'Mã Thanh Toán', minWidth: 100 },
+  { id: 'appointmentId', label: 'Mã Lịch Hẹn', minWidth: 100 },
+  { id: 'patient', label: 'Bệnh Nhân', minWidth: 250, align: 'center' },
+  { id: 'doctor', label: 'Bác Sĩ', minWidth: 250, align: 'center' },
+  { id: 'createdAt', label: 'Ngày Tạo', minWidth: 140, align: 'center' },
+  { id: 'paymentMethod', label: 'Phương Thức', minWidth: 120, align: 'center' },
+  { id: 'amount', label: 'Số Tiền', minWidth: 120, align: 'center' },
+  { id: 'platformFee', label: 'Phí Nền Tảng', minWidth: 120, align: 'center' },
+  { id: 'discount', label: 'Giảm giá', minWidth: 120, align: 'center' },
+  { id: 'doctorRevenue', label: 'Doanh Thu', minWidth: 120, align: 'center' },
+  { id: 'status', label: 'Trạng Thái', minWidth: 120, align: 'center' }
 ]
 
 const defaultFilters: IInvoiceTableFilters = {
@@ -339,7 +344,12 @@ export default function InvoiceListView() {
               />
             ))}
           </Tabs>
-
+          <InvoiceTableToolbar
+            filters={filters}
+            onFilters={handleFilters}
+            dateError={dateError}
+            serviceOptions={[]}
+          />
           {canReset && (
             <InvoiceTableFiltersResult
               filters={filters}

@@ -11,6 +11,8 @@ import ListItemText from '@mui/material/ListItemText'
 import Label from 'src/components/label'
 
 import { IInvoice } from 'src/types/invoice'
+import IconButton from '@mui/material/IconButton'
+import Iconify from 'src/components/iconify'
 
 // ----------------------------------------------------------------------
 
@@ -34,7 +36,12 @@ export default function InvoiceTableRow({
     userInfo,
     amount,
     appointmentInfo,
-    doctorInfo
+    doctorInfo,
+    platformFee,
+    discount,
+    doctorFee,
+    doctorRevenue,
+    paymentMethod
   } = row as any
 
   const renderStatus = (statusParams: string) => {
@@ -56,7 +63,7 @@ export default function InvoiceTableRow({
   return (
     <>
       <TableRow hover selected={selected}>
-        <TableCell padding="checkbox">
+        <TableCell align="center" padding="checkbox">
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell>
         <TableCell padding="checkbox">
@@ -150,9 +157,21 @@ export default function InvoiceTableRow({
           />
         </TableCell>
 
-        <TableCell>{amount.toLocaleString()} VNĐ</TableCell>
+        <TableCell align="center">
+          {appointmentInfo?.payment?.paymentMethod || '-'}
+        </TableCell>
+        <TableCell align="center">
+          {amount?.toLocaleString() || 0} VNĐ
+        </TableCell>
+        <TableCell align="center">{'10%'}</TableCell>
+        <TableCell align="center">
+          {appointmentInfo?.payment?.discount?.toLocaleString() || 0} VNĐ
+        </TableCell>
+        <TableCell align="center">
+          {(amount * 0.9).toLocaleString() || 0} VNĐ
+        </TableCell>
 
-        <TableCell>
+        <TableCell align="center">
           <Label
             variant="soft"
             color={
@@ -167,12 +186,6 @@ export default function InvoiceTableRow({
             {renderStatus(status)}
           </Label>
         </TableCell>
-
-        {/* <TableCell align="right" sx={{ px: 1 }}>
-          <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
-            <Iconify icon="eva:more-vertical-fill" />
-          </IconButton>
-        </TableCell> */}
       </TableRow>
 
       {/* <CustomPopover

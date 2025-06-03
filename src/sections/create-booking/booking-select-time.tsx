@@ -252,6 +252,7 @@ export default function BookingSelectTime({
         handleSubmit(
           {
             ...formData,
+            doctor: selectedDoctor,
             appointment: appointmentId
           },
           'select-time-booking'

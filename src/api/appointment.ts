@@ -100,7 +100,12 @@ export const submitDoctorRating = async ({
 
 export const cancelAppointment = async (
   appointmentId: string,
-  reason: string
+  reason: {
+    value: string
+    decreaseScore?: number
+    label?: string
+    otherText?: string
+  }
 ) => {
   console.log('appointmentId', appointmentId)
   const response = await axiosInstanceV2.patch(

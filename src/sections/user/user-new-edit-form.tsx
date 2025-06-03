@@ -1,5 +1,6 @@
 import axios from 'axios'
 import * as Yup from 'yup'
+import moment from 'moment'
 import { Icon } from '@iconify/react'
 import { useMemo, useState, useEffect } from 'react'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -13,9 +14,22 @@ import Switch from '@mui/material/Switch'
 import Divider from '@mui/material/Divider'
 import Typography from '@mui/material/Typography'
 import LoadingButton from '@mui/lab/LoadingButton'
-import { Tooltip, IconButton } from '@mui/material'
 import InputAdornment from '@mui/material/InputAdornment'
 import FormControlLabel from '@mui/material/FormControlLabel'
+import {
+  Table,
+  Dialog,
+  Button,
+  Tooltip,
+  TableRow,
+  TableHead,
+  TableCell,
+  TableBody,
+  IconButton,
+  DialogTitle,
+  DialogContent,
+  DialogActions
+} from '@mui/material'
 
 import { paths } from 'src/routes/paths'
 import { useRouter } from 'src/routes/hooks'
@@ -55,6 +69,64 @@ interface IProvince {
   codename: string
   phone_code: number
 }
+
+type PerformanceScoreLog = {
+  appointmentId: string
+  score: number
+  reason: string
+  createdAt: string
+  _id: string
+}
+
+function PerformanceScoreLogModal({
+  open,
+  onClose,
+  logs
+}: {
+  open: boolean
+  onClose: () => void
+  logs: PerformanceScoreLog[]
+}) {
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+      <DialogTitle>Lịch sử trừ điểm</DialogTitle>
+      <DialogContent>
+        {logs?.length ? (
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell>Thời gian</TableCell>
+                <TableCell>Lý do</TableCell>
+                <TableCell>Số điểm</TableCell>
+                <TableCell>Mã lịch hẹn</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {logs.map((log: PerformanceScoreLog) => (
+                <TableRow key={log._id}>
+                  <TableCell>
+                    {moment(log.createdAt).format('DD/MM/YYYY HH:mm')}
+                  </TableCell>
+                  <TableCell>{log.reason}</TableCell>
+                  <TableCell style={{ color: log.score < 0 ? 'red' : 'green' }}>
+                    {log.score}
+                  </TableCell>
+                  <TableCell>{log.appointmentId}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        ) : (
+          <Typography variant="body2">Không có lịch sử trừ điểm</Typography>
+        )}
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Đóng</Button>
+      </DialogActions>
+    </Dialog>
+  )
+}
+
 export default function UserNewEditForm({
   currentUser,
   typeUser,
@@ -62,6 +134,7 @@ export default function UserNewEditForm({
   hospitals,
   isSettingAccount
 }: Props) {
+  console.log('updateUserPage:', updateUserPage)
   const router = useRouter()
   const { specialties } = useGetSpecialties({
     query: '',
@@ -70,6 +143,7 @@ export default function UserNewEditForm({
     sortField: 'updatedAt',
     sortOrder: 'desc'
   })
+  console.log('currentUser:', currentUser)
   const [specialtyList, setSpecialtyList] = useState<ISpecialtyItem[]>([])
   const { providerRanking: rankingData } = useGetRanking({
     query: '',
@@ -581,6 +655,8 @@ export default function UserNewEditForm({
     </Box>
   )
 
+  const [openPerformanceLogModal, setOpenPerformanceLogModal] = useState(false)
+
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
       <Grid container spacing={3}>
@@ -641,7 +717,7 @@ export default function UserNewEditForm({
                     alignItems="center"
                   >
                     <Typography
-                      hidden={currentUser?.role !== 'DOCTOR'}
+                      hidden={currentUser?.role !== 'doctor'}
                       variant="subtitle2"
                       sx={{ mb: 0.5 }}
                     >
@@ -650,18 +726,21 @@ export default function UserNewEditForm({
                     <Typography
                       variant="body2"
                       sx={{ color: 'text.secondary' }}
-                      hidden={currentUser?.role !== 'DOCTOR'}
+                      hidden={currentUser?.role !== 'doctor'}
                     >
                       <span style={{ color: 'green' }}>
                         {currentUser?.performanceScore || 0}
                       </span>
                     </Typography>
                     <Box
-                      hidden={currentUser?.role !== 'DOCTOR'}
+                      hidden={currentUser?.role !== 'doctor'}
                       sx={{ display: 'flex', alignItems: 'center' }}
                     >
                       <Tooltip title="Điểm năng suất được tính dựa trên số lượng cuộc hẹn hoàn thành và đánh giá từ bệnh nhân. Nếu điểm về 0, tài khoản sẽ bị tạm khóa.">
-                        <IconButton size="medium">
+                        <IconButton
+                          size="medium"
+                          onClick={() => setOpenPerformanceLogModal(true)}
+                        >
                           <Icon
                             icon="eva:info-outline"
                             width={20}
@@ -686,7 +765,10 @@ export default function UserNewEditForm({
                     >
                       <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         <span style={{ color: 'green' }}>
-                          {currentUser?.walletBalance?.toLocaleString() || 0}{' '}
+                          {currentUser?.role === 'patient'
+                            ? currentUser?.walletBalance?.toLocaleString()
+                            : currentUser?.wallet?.balance?.toLocaleString() ||
+                              0}{' '}
                           VNĐ
                         </span>
                         <Tooltip title="Số dư hiện tại là doanh thu đã trừ phí nền tảng. Số dư này sẽ được hệ thống tự động chốt và chuyển khoản cho bạn vào cuối mỗi tháng. Bạn không thể rút thủ công.">
@@ -785,6 +867,11 @@ export default function UserNewEditForm({
           </Card>
         </Grid>
       </Grid>
+      <PerformanceScoreLogModal
+        open={openPerformanceLogModal}
+        onClose={() => setOpenPerformanceLogModal(false)}
+        logs={currentUser?.performanceScoreLogs || []}
+      />
     </FormProvider>
   )
 }

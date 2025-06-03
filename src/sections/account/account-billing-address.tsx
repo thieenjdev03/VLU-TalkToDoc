@@ -21,6 +21,7 @@ import {
 } from '@mui/material'
 
 import Iconify from 'src/components/iconify'
+import { useSnackbar } from 'src/components/snackbar'
 
 // Types
 export type BankInfo = {
@@ -46,6 +47,7 @@ export default function AccountBankInfo({
   userProfile,
   setUserProfile
 }: Props) {
+  const { enqueueSnackbar } = useSnackbar()
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -102,8 +104,15 @@ export default function AccountBankInfo({
       const data = await getUserById(userProfile._id, userProfile.role)
       setUserProfile?.(data)
       setOpen(false)
+      enqueueSnackbar('Cập nhật thông tin ngân hàng thành công', {
+        variant: 'success'
+      })
+      setTimeout(() => {
+        window.location.reload()
+      }, 1000)
     } catch (err: any) {
       setError(err.message || 'Có lỗi xảy ra')
+      enqueueSnackbar(err.message || 'Có lỗi xảy ra', { variant: 'error' })
     } finally {
       setLoading(false)
     }

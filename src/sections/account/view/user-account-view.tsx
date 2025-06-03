@@ -121,8 +121,14 @@ export default function AccountView() {
           invoices={_userInvoices}
           addressBook={_userAddressBook}
           userProfile={userProfile}
-          walletBalance={userProfile?.walletBalance || 0}
-          walletHistory={userProfile?.walletHistory || []}
+          walletBalance={
+            userProfile?.walletBalance || userProfile?.wallet?.balance || 0
+          }
+          walletHistory={
+            userProfile?.walletHistory ||
+            userProfile?.wallet?.transactionHistory ||
+            []
+          }
         />
       )}
 

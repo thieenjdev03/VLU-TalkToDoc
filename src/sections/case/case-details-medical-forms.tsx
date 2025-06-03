@@ -118,6 +118,10 @@ export default function CaseDetailsMedicalForms({
       <Divider sx={{ my: 2 }} />
       <Stack spacing={1}>
         {renderMedicalField(
+          'Lịch hẹn',
+          medicalFormData?.appointmentId?.appointmentId
+        )}
+        {renderMedicalField(
           'Họ tên bệnh nhân',
           medicalFormData?.appointmentId?.patient?.fullName
         )}

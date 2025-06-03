@@ -93,11 +93,12 @@ export type IUserCard = {
 
 export type IUserItem = {
   id: string
+  performanceScoreLogs: any[]
   avgScore: number
   ratingDetails: any
   _id: string
   performanceScore: number
-  walletBalance: number
+  walletBalance: any
   emergencyContact: any[]
   fullName: string
   department: string

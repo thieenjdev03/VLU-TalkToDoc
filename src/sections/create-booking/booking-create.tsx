@@ -45,8 +45,7 @@ export default function BookingCreate() {
     sortField: 'createdAt',
     sortOrder: 'desc'
   })
-
-  const [formData, setFormData] = useState<FormValuesProps>({
+  const initFormData = {
     patient: null,
     doctor: null,
     specialty: null,
@@ -60,9 +59,11 @@ export default function BookingCreate() {
       paymentMethod: ''
     },
     appointmentId: ''
-  })
-
+  }
   const currentCase = JSON.parse(localStorage.getItem('currentCase') || '{}')
+  const currentCaseData = currentCase?.caseDetail?.data || initFormData
+  const [formData, setFormData] = useState<FormValuesProps>(currentCaseData)
+
   const setCurrentStep = (step: string, back?: boolean) => {
     if (back) {
       setCurrentStepState(step)
@@ -132,7 +133,8 @@ export default function BookingCreate() {
               case_id: currentCase?._id,
               action: 'save',
               patient: data.patient,
-              appointment: data.appointment
+              appointment: data.appointment,
+              doctor: data.doctor?._id
             })
             if (res?.data?._id) {
               updatedData = res?.data
@@ -297,6 +299,12 @@ function BookingPaymentCompleted({
   formData: FormValuesProps
   handleSubmit: (data: FormValuesProps) => Promise<void>
 }) {
+  const handleNewBooking = () => {
+    setCurrentStep('select-specialty')
+    localStorage.removeItem('currentCase')
+    localStorage.removeItem('booking_form_data')
+    localStorage.removeItem('booking_step')
+  }
   return (
     <div className="min-h-[70vh] flex flex-col items-center justify-center bg-white text-center p-6">
       <h2 className="text-2xl font-bold text-gray-800 mt-4">
@@ -312,7 +320,7 @@ function BookingPaymentCompleted({
         <Button
           variant="outlined"
           color="primary"
-          onClick={() => setCurrentStep('select-specialty')}
+          onClick={() => handleNewBooking()}
         >
           Đặt lịch mới
         </Button>
