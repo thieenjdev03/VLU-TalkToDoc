@@ -142,3 +142,5 @@ npm run dev
 - npm >= 6
 - React >= 18
 - Next.js >= 13
+
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/thieenjdev03/VLU-TalkToDoc)
