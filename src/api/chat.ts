@@ -19,7 +19,7 @@ const options = {
   revalidateOnReconnect: false
 }
 
-const API_URL = 'http://localhost:3000'
+const API_URL = import.meta.env.VITE_API_URL
 
 export function useGetContacts() {
   const url = [endpoints.chat, { params: { endpoint: 'contacts' } }]
