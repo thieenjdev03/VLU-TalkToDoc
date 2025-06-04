@@ -23,12 +23,13 @@ import {
 
 // ----------------------------------------------------------------------
 
+type DoctorOption = { id: string; name: string }
 type Props = {
   filters: IInvoiceTableFilters
   onFilters: (name: string, value: IInvoiceTableFilterValue) => void
   //
   dateError: boolean
-  serviceOptions: string[]
+  serviceOptions: DoctorOption[]
 }
 
 export default function InvoiceTableToolbar({
@@ -49,12 +50,11 @@ export default function InvoiceTableToolbar({
 
   const handleFilterService = useCallback(
     (event: SelectChangeEvent<string[]>) => {
-      onFilters(
-        'service',
+      const value =
         typeof event.target.value === 'string'
           ? event.target.value.split(',')
           : event.target.value
-      )
+      onFilters('service', value)
     },
     [onFilters]
   )
@@ -100,17 +100,24 @@ export default function InvoiceTableToolbar({
             value={filters.service}
             onChange={handleFilterService}
             input={<OutlinedInput label="Service" />}
-            renderValue={selected => selected.map(value => value).join(', ')}
+            renderValue={selected =>
+              (selected as string[])
+                .map(value => {
+                  const found = serviceOptions.find(opt => opt.id === value)
+                  return found ? found.name : value
+                })
+                .join(', ')
+            }
             sx={{ textTransform: 'capitalize' }}
           >
             {serviceOptions.map(option => (
-              <MenuItem key={option} value={option}>
+              <MenuItem key={option.id} value={option.id}>
                 <Checkbox
                   disableRipple
                   size="small"
-                  checked={filters.service.includes(option)}
+                  checked={filters.service.includes(option.id)}
                 />
-                {option}
+                {option.name}
               </MenuItem>
             ))}
           </Select>

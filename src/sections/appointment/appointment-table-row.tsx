@@ -231,7 +231,13 @@ export default function AppointmentTableRow({
               size="small"
               variant="outlined"
               color="success"
-              sx={{ width: '80px', whiteSpace: 'nowrap' }}
+              sx={{
+                width: '80px',
+                whiteSpace: 'nowrap',
+                textTransform: 'none', // không viết hoa, giữ đúng định dạng
+                overflow: 'hidden',
+                textOverflow: 'ellipsis' // optional: nếu text dài quá thì hiện ...
+              }}
               onClick={() => {
                 handleDoctorConfirm(true, '')
               }}
@@ -243,6 +249,13 @@ export default function AppointmentTableRow({
               size="small"
               variant="outlined"
               color="error"
+              sx={{
+                width: '80px',
+                whiteSpace: 'nowrap',
+                textTransform: 'none', // không viết hoa, giữ đúng định dạng
+                overflow: 'hidden',
+                textOverflow: 'ellipsis' // optional: nếu text dài quá thì hiện ...
+              }}
               onClick={() => {
                 handleDoctorConfirm(false, 'Bác sĩ từ chối lịch khám')
               }}
@@ -268,6 +281,11 @@ export default function AppointmentTableRow({
             {status === 'PENDING' && 'Đang chờ'}
             {status === 'CANCELLED' && 'Đã huỷ'}
             {status === 'COMPLETED' && 'Đã hoàn thành'}
+            {isOverdue && (
+              <span style={{ color: 'red', whiteSpace: 'nowrap' }}>
+                &nbsp;(Quá hạn)
+              </span>
+            )}
           </Label>
         )}
       </TableCell>
@@ -369,15 +387,7 @@ export default function AppointmentTableRow({
 
       <TableCell>{payment?.total?.toLocaleString('vi-VN') || 0}đ</TableCell>
 
-      <TableCell
-        align="center"
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 1,
-          justifyContent: 'center'
-        }}
-      >
+      <TableCell align="center">
         <Label
           variant="soft"
           color={
@@ -395,9 +405,9 @@ export default function AppointmentTableRow({
           {status === 'CANCELLED' && 'Đã huỷ'}
           {status === 'COMPLETED' && 'Đã hoàn thành'}
         </Label>
-        <span style={{ color: 'red', whiteSpace: 'nowrap' }}>
-          {isOverdue && '(Quá hạn)'}
-        </span>
+        {isOverdue && (
+          <span style={{ color: 'red', whiteSpace: 'nowrap' }}>(Quá hạn)</span>
+        )}
       </TableCell>
 
       <TableCell align="center">
@@ -432,7 +442,29 @@ export default function AppointmentTableRow({
         <Typography variant="body2">{row.reason || '-'}</Typography>
       </TableCell>
       <TableCell align="center">
-        <Typography variant="body2">{row.rating || '-'}</Typography>
+        {row?.rating?.ratingScore ? (
+          <Tooltip title={row.rating.description || '-'} arrow>
+            <Typography
+              variant="body2"
+              sx={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'help'
+              }}
+            >
+              {row.rating.ratingScore}
+              <Iconify
+                icon="solar:star-bold"
+                sx={{ fontSize: 16, ml: 0.5, color: 'warning.main' }}
+              />
+            </Typography>
+          </Tooltip>
+        ) : (
+          <Typography variant="body2" color="text.disabled">
+            –
+          </Typography>
+        )}
       </TableCell>
       <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
         {conditionEditAppointment(row?.date) && (

@@ -183,7 +183,7 @@ export default function CaseTableRow({
         </Box>
       </TableCell>
 
-      {userRole === 'DOCTOR' ? (
+      {userRole !== 'PATIENT' ? (
         // Hiển thị thông tin bệnh nhân cho bác sĩ
         <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
           <Avatar

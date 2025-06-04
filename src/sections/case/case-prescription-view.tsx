@@ -456,19 +456,6 @@ export default function PrescriptionView({
         </Grid>
       </Grid>
 
-      {/* Button xuất tất cả toa thuốc */}
-      <Box sx={{ mb: 3, mt: 2 }}>
-        <Button
-          variant="contained"
-          color="success"
-          onClick={exportAllPrescriptionsToPDF}
-          startIcon={<Iconify icon="solar:download-bold" />}
-          size="large"
-        >
-          Xuất tất cả toa thuốc (PDF)
-        </Button>
-      </Box>
-
       {visiblePrescriptions.map((offer, idx) => {
         const totalPrice = calcTotalPrice(offer.medications)
         return (

@@ -403,7 +403,7 @@ function DoctorItem({ doctor, rank }: DoctorItemProps) {
         <Rating readOnly size="small" precision={0.1} value={rating} />
 
         <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-          {fShortenNumber(totalReviews)} đánh giá
+          {fShortenNumber(totalReviews) || 0} đánh giá
         </Typography>
 
         <Stack direction="row" alignItems="center" spacing={0.5}>
@@ -416,7 +416,7 @@ function DoctorItem({ doctor, rank }: DoctorItemProps) {
             variant="caption"
             sx={{ color: 'success.main', fontWeight: 600 }}
           >
-            {fShortenNumber(totalPatients)} BN
+            {fShortenNumber(totalPatients) || 0} Bệnh nhân
           </Typography>
         </Stack>
 
@@ -430,7 +430,7 @@ function DoctorItem({ doctor, rank }: DoctorItemProps) {
             variant="caption"
             sx={{ color: 'info.main', fontWeight: 600 }}
           >
-            {fShortenNumber(totalAppointments)} lịch hẹn
+            {fShortenNumber(totalAppointments) || 0} lịch hẹn
           </Typography>
         </Stack>
 
@@ -438,7 +438,7 @@ function DoctorItem({ doctor, rank }: DoctorItemProps) {
           variant="caption"
           sx={{ color: 'warning.main', fontWeight: 600 }}
         >
-          {fShortenNumber(revenue)} VNĐ
+          {fShortenNumber(revenue) || 0} VNĐ
         </Typography>
       </Stack>
     </Stack>

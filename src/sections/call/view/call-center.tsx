@@ -49,7 +49,7 @@ export default function CallCenter({
   const stringeeClientRef = useRef<any>(null)
   const activeCallRef = useRef<any>(null)
   const streamProcessedRef = useRef<boolean>(false)
-
+  console.log('currentAppointment', currentAppointment)
   const [clientConnected, setClientConnected] = useState(false)
   const [calling, setCalling] = useState(false)
   const [incomingCall, setIncomingCall] = useState<any>(null)
@@ -171,7 +171,7 @@ export default function CallCenter({
       stringeeClientRef.current = client
 
       client.connect(stringeeAccessToken)
-
+      console.log('stringeeAccessToken', stringeeAccessToken)
       client.on('connect', () => {
         console.log('Stringee client đã kết nối')
         setClientConnected(true)
@@ -1108,7 +1108,9 @@ export default function CallCenter({
                   : currentAppointment?.doctor?._id
               }
               userInfor={userInfor}
-              appointmentId={currentAppointment?._id}
+              appointmentId={
+                currentAppointment?._id || currentAppointment?.id || ''
+              }
             />
           </Box>
         </Box>

@@ -29,13 +29,13 @@ export default function PaymentView() {
         await submitCase({
           case_id: currentCase?._id,
           action: 'submit',
-          appointment_id: currentCase?.appointmentId?._id
+          appointment_id: currentCase?.appointmentId
         })
         await updateAppointment({
-          appointmentId: currentCase?.appointmentId?._id,
+          appointmentId: currentCase?.appointmentId,
           data: {
             patient: currentCase?.patient,
-            doctor: currentCase?.doctor,
+            doctor: currentCase?.doctor?._id || currentCase?.doctor,
             slot: currentCase?.slot,
             date: currentCase?.date,
             timezone: currentCase?.timezone,
@@ -48,7 +48,7 @@ export default function PaymentView() {
       }
       if (currentCase) {
         const appointment = await getAppointmentById({
-          appointmentId: currentCase?.appointmentId?._id
+          appointmentId: currentCase?.appointmentId
         })
         setAppointmentDetails(appointment)
         submitPaid()

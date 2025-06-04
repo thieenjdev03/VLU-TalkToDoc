@@ -11,8 +11,6 @@ import ListItemText from '@mui/material/ListItemText'
 import Label from 'src/components/label'
 
 import { IInvoice } from 'src/types/invoice'
-import IconButton from '@mui/material/IconButton'
-import Iconify from 'src/components/iconify'
 
 // ----------------------------------------------------------------------
 
@@ -36,12 +34,7 @@ export default function InvoiceTableRow({
     userInfo,
     amount,
     appointmentInfo,
-    doctorInfo,
-    platformFee,
-    discount,
-    doctorFee,
-    doctorRevenue,
-    paymentMethod
+    doctorInfo
   } = row as any
 
   const renderStatus = (statusParams: string) => {
@@ -163,7 +156,7 @@ export default function InvoiceTableRow({
         <TableCell align="center">
           {amount?.toLocaleString() || 0} VNĐ
         </TableCell>
-        <TableCell align="center">{'10%'}</TableCell>
+        <TableCell align="center">10%</TableCell>
         <TableCell align="center">
           {appointmentInfo?.payment?.discount?.toLocaleString() || 0} VNĐ
         </TableCell>

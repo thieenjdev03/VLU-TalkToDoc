@@ -60,7 +60,7 @@ function CallChatBox({
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const isTablet = useMediaQuery(theme.breakpoints.down('md'))
-
+  console.log('appointmentId:', appointmentId)
   useEffect(() => {
     if (!appointmentId) return undefined
 
@@ -323,11 +323,15 @@ function CallChatBox({
             ))}
           </Box>
         )}
-        <Box display="flex" gap={1} sx={{ mt: 1 }}>
+        <Box display="flex" alignItems="center" gap={1} sx={{ mt: 1 }}>
           <IconButton
             component="label"
             disabled={isUploading || isSending}
             size={isMobile ? 'small' : 'medium'}
+            sx={{
+              width: isMobile ? 30 : 40,
+              height: isMobile ? 30 : 40
+            }}
           >
             <ImageIcon fontSize={isMobile ? 'small' : 'medium'} />
             <input

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { Button, useTheme, TextField, useMediaQuery } from '@mui/material'
 
 import PaymentMethods from '../payment/payment-methods'
-import { createPaymentURL, createAppointment } from './api'
+import { createPaymentURL, updateAppointment } from './api'
 
 export default function BookingPayment({
   setCurrentStep,
@@ -86,19 +86,18 @@ export default function BookingPayment({
         doctorFee,
         discount
       }
-      const appointmentPayload = {
-        ...formData,
-        doctor: booking.doctor,
-        date: booking.date,
-        slot: booking.slot,
-        timezone: booking.timezone,
-        paymentMethod,
-        payment: paymentPayload
-      }
       // Nếu WALLET
       if (paymentMethod === 'WALLET') {
-        const res = await createAppointment(appointmentPayload)
-        if (res?.payment?.status === 'PAID') {
+        const res = await updateAppointment({
+          appointmentId: formData?.appointmentId,
+          data: {
+            payment: {
+              ...paymentPayload,
+              status: 'PAID'
+            }
+          }
+        })
+        if (res?.data?.payment?.status === 'PAID') {
           enqueueSnackbar('Thanh toán thành công bằng ví!', {
             variant: 'success'
           })

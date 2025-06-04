@@ -1,6 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from 'axios'
+import dayjs from 'dayjs'
 import sumBy from 'lodash/sumBy'
-import { useState, useEffect, useCallback } from 'react'
+// @ts-ignore
+import { saveAs } from 'file-saver'
+import { useRef, useMemo, useState, useEffect, useCallback } from 'react'
 
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
@@ -51,8 +55,8 @@ import {
 
 import InvoiceAnalytic from '../invoice-analytic'
 import InvoiceTableRow from '../invoice-table-row'
-import InvoiceTableFiltersResult from '../invoice-table-filters-result'
 import InvoiceTableToolbar from '../invoice-table-toolbar'
+import InvoiceTableFiltersResult from '../invoice-table-filters-result'
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -94,20 +98,50 @@ export default function InvoiceListView() {
 
   const [tableData, setTableData] = useState<IInvoice[]>([])
 
-  useEffect(() => {
-    const getDataInvoices = async () => {
-      try {
-        const response = await axios.get(`${API_URL}/payment/all-orders`)
-        setTableData(response.data || []) // Ensure data is an array
-      } catch (error) {
-        console.error('Error fetching invoices:', error)
-        enqueueSnackbar('Failed to fetch invoices', { variant: 'error' })
-      }
-    }
-    getDataInvoices()
-  }, [enqueueSnackbar])
-
   const [filters, setFilters] = useState<IInvoiceTableFilters>(defaultFilters)
+  const debounceRef = useRef<NodeJS.Timeout | null>(null)
+
+  const doctorOptions = useMemo(() => {
+    const doctors = tableData
+      .map((item: any) => item.appointmentInfo?.doctor)
+      .filter(Boolean)
+    const uniqueDoctors = Array.from(
+      new Map(doctors.map(d => [d._id, d])).values()
+    )
+    return uniqueDoctors.map(d => ({ id: d._id, name: d.fullName }))
+  }, [tableData])
+
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => {
+      const getDataInvoices = async () => {
+        try {
+          const params = []
+          if (filters.name) params.push(`q=${encodeURIComponent(filters.name)}`)
+          if (filters.service && filters.service.length > 0)
+            params.push(`doctor=${filters.service[0]}`)
+          if (filters.startDate)
+            params.push(
+              `start=${dayjs(filters.startDate).format('YYYY-MM-DD')}`
+            )
+          if (filters.endDate)
+            params.push(`end=${dayjs(filters.endDate).format('YYYY-MM-DD')}`)
+          const query = params.length ? `?${params.join('&')}` : ''
+          const response = await axios.get(
+            `${API_URL}/payment/all-orders${query}`
+          )
+          setTableData(response.data || [])
+        } catch (error) {
+          console.error('Error fetching invoices:', error)
+          enqueueSnackbar('Failed to fetch invoices', { variant: 'error' })
+        }
+      }
+      getDataInvoices()
+    }, 400)
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+    }
+  }, [enqueueSnackbar, filters])
 
   const dateError = isAfter(filters.startDate, filters.endDate)
 
@@ -315,6 +349,21 @@ export default function InvoiceListView() {
         </Card>
 
         <Card>
+          <Stack
+            direction="row"
+            justifyContent="flex-end"
+            alignItems="center"
+            sx={{ px: 2, pt: 2 }}
+          >
+            <Button
+              variant="outlined"
+              startIcon={<Iconify icon="solar:export-bold" />}
+              onClick={() => exportToCSV(dataFiltered)}
+              sx={{ mb: 1 }}
+            >
+              Export CSV
+            </Button>
+          </Stack>
           <Tabs
             value={filters.status}
             onChange={handleFilterStatus}
@@ -348,7 +397,7 @@ export default function InvoiceListView() {
             filters={filters}
             onFilters={handleFilters}
             dateError={dateError}
-            serviceOptions={[]}
+            serviceOptions={doctorOptions}
           />
           {canReset && (
             <InvoiceTableFiltersResult
@@ -523,15 +572,6 @@ function applyFilter({
 
   inputData = stabilizedThis.map((el: any) => el[0])
 
-  if (name) {
-    inputData = inputData.filter(
-      (invoice: any) =>
-        invoice.orderId.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
-        invoice.userInfo.message.toLowerCase().indexOf(name.toLowerCase()) !==
-          -1
-    )
-  }
-
   if (status !== 'all') {
     inputData = inputData.filter((invoice: any) => invoice.status === status)
   }
@@ -545,4 +585,19 @@ function applyFilter({
   }
 
   return inputData
+}
+
+function exportToCSV(data: any[], filename = 'invoices.csv') {
+  if (!data.length) return
+  const header = Object.keys(data[0])
+  const csv = [
+    header.join(','),
+    ...data.map((row: any) =>
+      header
+        .map(field => `"${(row[field] ?? '').toString().replace(/"/g, '""')}"`)
+        .join(',')
+    )
+  ].join('\r\n')
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+  saveAs(blob, filename)
 }

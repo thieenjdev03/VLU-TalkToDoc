@@ -371,193 +371,198 @@ export default function OverviewAppView() {
             />
           )}
         </Grid>
-
         <Grid xs={12} md={4}>
           <AppFeatured list={_appFeatured} />
         </Grid>
+        {user?.role === 'ADMIN' && (
+          <>
+            <Grid xs={12} md={4}>
+              <AppWidgetSummary
+                title={`Tổng Bệnh Nhân Mới Năm ${currentYear}`}
+                percent={stats.patient.percent * 100 || 0}
+                total={stats.patient.total || 0}
+                chart={{
+                  series: stats.patient.series || []
+                }}
+                loading={loading}
+              />
+            </Grid>
 
-        <Grid xs={12} md={4}>
-          <AppWidgetSummary
-            title={`Tổng Bệnh Nhân Mới Năm ${currentYear}`}
-            percent={stats.patient.percent * 100 || 0}
-            total={stats.patient.total || 0}
-            chart={{
-              series: stats.patient.series || []
-            }}
-            loading={loading}
-          />
-        </Grid>
+            <Grid xs={12} md={4}>
+              <AppWidgetSummary
+                title={`Tổng Lịch Hẹn Năm ${currentYear}`}
+                percent={stats.appointment.percent * 100 || 0}
+                total={stats.appointment.total || 0}
+                chart={{
+                  colors: [theme.palette.info.light, theme.palette.info.main],
+                  series: stats.appointment.series || []
+                }}
+                loading={loading}
+              />
+            </Grid>
 
-        <Grid xs={12} md={4}>
-          <AppWidgetSummary
-            title={`Tổng Lịch Hẹn Năm ${currentYear}`}
-            percent={stats.appointment.percent * 100 || 0}
-            total={stats.appointment.total || 0}
-            chart={{
-              colors: [theme.palette.info.light, theme.palette.info.main],
-              series: stats.appointment.series || []
-            }}
-            loading={loading}
-          />
-        </Grid>
+            <Grid xs={12} md={4}>
+              <AppWidgetSummary
+                title={`Tổng Doanh Thu Năm ${currentYear}`}
+                percent={stats.revenue.percent * 100 || 0}
+                total={stats.revenue.total || 0}
+                chart={{
+                  colors: [
+                    theme.palette.warning.light,
+                    theme.palette.warning.main
+                  ],
+                  series: stats.revenue.series
+                }}
+                loading={loading}
+                formatValue={formatCurrency}
+              />
+            </Grid>
 
-        <Grid xs={12} md={4}>
-          <AppWidgetSummary
-            title={`Tổng Doanh Thu Năm ${currentYear}`}
-            percent={stats.revenue.percent * 100 || 0}
-            total={stats.revenue.total || 0}
-            chart={{
-              colors: [theme.palette.warning.light, theme.palette.warning.main],
-              series: stats.revenue.series
-            }}
-            loading={loading}
-            formatValue={formatCurrency}
-          />
-        </Grid>
-
-        <Grid xs={12} md={6} lg={6}>
-          <AppCurrentDownload
-            title="Thống Kê Trạng Thái Lịch Hẹn"
-            subheader={`Dữ liệu từ ${moment(startDate).format('DD/MM/YYYY')} đến ${moment(endDate).format('DD/MM/YYYY')}`}
-            startDate={startDate}
-            endDate={endDate}
-            enableDatePicker
-            defaultRange="month"
-          />
-        </Grid>
-        <Grid xs={12} md={6} lg={6}>
-          <AppTopDoctors
-            title="Top Bác Sĩ"
-            startDate={startDate}
-            endDate={endDate}
-            enableDatePicker
-            limit={5}
-          />
-        </Grid>
-        <Grid
-          xs={12}
-          md={12}
-          lg={12}
-          sx={{
-            backgroundColor: 'white',
-            p: 2,
-            pt: 4,
-            borderRadius: 2,
-            mt: 2,
-            boxShadow: '0 0 10px 0 rgba(0, 0, 0, 0.1)'
-          }}
-        >
-          <Stack
-            direction={{ xs: 'column', sm: 'row' }}
-            spacing={2}
-            alignItems="center"
-            sx={{ mb: 2 }}
-          >
-            <TextField
-              select
-              label="Chế độ thống kê"
-              value={statMode}
-              onChange={e =>
-                setStatMode(e.target.value as 'year' | 'month' | 'range')
-              }
-              size="small"
-              sx={{ minWidth: 160 }}
+            <Grid xs={12} md={6} lg={6}>
+              <AppCurrentDownload
+                title="Thống Kê Trạng Thái Lịch Hẹn"
+                subheader={`Dữ liệu từ ${moment(startDate).format('DD/MM/YYYY')} đến ${moment(endDate).format('DD/MM/YYYY')}`}
+                startDate={startDate}
+                endDate={endDate}
+                enableDatePicker
+                defaultRange="month"
+              />
+            </Grid>
+            <Grid xs={12} md={6} lg={6}>
+              <AppTopDoctors
+                title="Top Bác Sĩ"
+                startDate={startDate}
+                endDate={endDate}
+                enableDatePicker
+                limit={5}
+              />
+            </Grid>
+            <Grid
+              xs={12}
+              md={12}
+              lg={12}
+              sx={{
+                backgroundColor: 'white',
+                p: 2,
+                pt: 4,
+                borderRadius: 2,
+                mt: 2,
+                boxShadow: '0 0 10px 0 rgba(0, 0, 0, 0.1)'
+              }}
             >
-              <MenuItem value="year">Theo năm</MenuItem>
-              <MenuItem value="month">Theo tháng</MenuItem>
-              <MenuItem value="range">Khoảng thời gian</MenuItem>
-            </TextField>
-            {statMode === 'year' && (
-              <TextField
-                select
-                label="Năm"
-                value={selectedYear}
-                onChange={e => setSelectedYear(Number(e.target.value))}
-                size="small"
-                sx={{ minWidth: 120 }}
+              <Stack
+                direction={{ xs: 'column', sm: 'row' }}
+                spacing={2}
+                alignItems="center"
+                sx={{ mb: 2 }}
               >
-                {[2023, 2024, 2025].map(y => (
-                  <MenuItem key={y} value={y}>
-                    {y}
-                  </MenuItem>
-                ))}
-              </TextField>
-            )}
-            {statMode === 'month' && (
-              <>
                 <TextField
                   select
-                  label="Năm"
-                  value={selectedYear}
-                  onChange={e => setSelectedYear(Number(e.target.value))}
-                  size="small"
-                  sx={{ minWidth: 120 }}
-                >
-                  {[2023, 2024, 2025].map(y => (
-                    <MenuItem key={y} value={y}>
-                      {y}
-                    </MenuItem>
-                  ))}
-                </TextField>
-                <TextField
-                  select
-                  label="Tháng"
-                  value={selectedMonth}
-                  onChange={e => setSelectedMonth(Number(e.target.value))}
-                  size="small"
-                  sx={{ minWidth: 100 }}
-                >
-                  {[...Array(12)].map((_, i) => (
-                    <MenuItem
-                      key={i + 1}
-                      value={i + 1}
-                    >{`Tháng ${i + 1}`}</MenuItem>
-                  ))}
-                </TextField>
-              </>
-            )}
-            {statMode === 'range' && (
-              <>
-                <TextField
-                  type="date"
-                  label="Từ ngày"
-                  value={range.start}
+                  label="Chế độ thống kê"
+                  value={statMode}
                   onChange={e =>
-                    setRange(r => ({ ...r, start: e.target.value }))
+                    setStatMode(e.target.value as 'year' | 'month' | 'range')
                   }
                   size="small"
-                  InputLabelProps={{ shrink: true }}
+                  sx={{ minWidth: 160 }}
+                >
+                  <MenuItem value="year">Theo năm</MenuItem>
+                  <MenuItem value="month">Theo tháng</MenuItem>
+                  <MenuItem value="range">Khoảng thời gian</MenuItem>
+                </TextField>
+                {statMode === 'year' && (
+                  <TextField
+                    select
+                    label="Năm"
+                    value={selectedYear}
+                    onChange={e => setSelectedYear(Number(e.target.value))}
+                    size="small"
+                    sx={{ minWidth: 120 }}
+                  >
+                    {[2023, 2024, 2025].map(y => (
+                      <MenuItem key={y} value={y}>
+                        {y}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                )}
+                {statMode === 'month' && (
+                  <>
+                    <TextField
+                      select
+                      label="Năm"
+                      value={selectedYear}
+                      onChange={e => setSelectedYear(Number(e.target.value))}
+                      size="small"
+                      sx={{ minWidth: 120 }}
+                    >
+                      {[2023, 2024, 2025].map(y => (
+                        <MenuItem key={y} value={y}>
+                          {y}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                    <TextField
+                      select
+                      label="Tháng"
+                      value={selectedMonth}
+                      onChange={e => setSelectedMonth(Number(e.target.value))}
+                      size="small"
+                      sx={{ minWidth: 100 }}
+                    >
+                      {[...Array(12)].map((_, i) => (
+                        <MenuItem
+                          key={i + 1}
+                          value={i + 1}
+                        >{`Tháng ${i + 1}`}</MenuItem>
+                      ))}
+                    </TextField>
+                  </>
+                )}
+                {statMode === 'range' && (
+                  <>
+                    <TextField
+                      type="date"
+                      label="Từ ngày"
+                      value={range.start}
+                      onChange={e =>
+                        setRange(r => ({ ...r, start: e.target.value }))
+                      }
+                      size="small"
+                      InputLabelProps={{ shrink: true }}
+                    />
+                    <TextField
+                      type="date"
+                      label="Đến ngày"
+                      value={range.end}
+                      onChange={e =>
+                        setRange(r => ({ ...r, end: e.target.value }))
+                      }
+                      size="small"
+                      InputLabelProps={{ shrink: true }}
+                    />
+                  </>
+                )}
+              </Stack>
+              {statMode === 'month' ? (
+                <AppCurrentDownload
+                  title={`Thống kê lịch hẹn theo chuyên khoa tháng ${selectedMonth}`}
+                  chart={{
+                    series: donutData
+                  }}
+                  enableDatePicker={false}
+                  handleShowRangeMonth
                 />
-                <TextField
-                  type="date"
-                  label="Đến ngày"
-                  value={range.end}
-                  onChange={e => setRange(r => ({ ...r, end: e.target.value }))}
-                  size="small"
-                  InputLabelProps={{ shrink: true }}
+              ) : (
+                <AppAreaInstalled
+                  title="Thống kê lịch hẹn theo chuyên khoa"
+                  subheader="Biểu đồ số lượng lịch hẹn từng chuyên khoa theo tháng"
+                  chart={specialtyChart}
                 />
-              </>
-            )}
-          </Stack>
-          {statMode === 'month' ? (
-            <AppCurrentDownload
-              title={`Thống kê lịch hẹn theo chuyên khoa tháng ${selectedMonth}`}
-              chart={{
-                series: donutData
-              }}
-              enableDatePicker={false}
-              handleShowRangeMonth
-            />
-          ) : (
-            <AppAreaInstalled
-              title="Thống kê lịch hẹn theo chuyên khoa"
-              subheader="Biểu đồ số lượng lịch hẹn từng chuyên khoa theo tháng"
-              chart={specialtyChart}
-            />
-          )}
-        </Grid>
+              )}
+            </Grid>
 
-        {/* <Grid xs={12} lg={8}>
+            {/* <Grid xs={12} lg={8}>
           <AppNewInvoice
             title="New Invoice"
             tableData={_appInvoices}
@@ -570,6 +575,8 @@ export default function OverviewAppView() {
             ]}
           />
         </Grid> */}
+          </>
+        )}
       </Grid>
     </Container>
   )

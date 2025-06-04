@@ -64,7 +64,7 @@ const TABLE_HEAD = [
   {
     id: 'status',
     label: 'Trạng thái',
-    width: { xs: 120, sm: 220 },
+    width: { xs: 100, sm: 120 },
     align: 'center'
   },
   { id: 'paid', label: 'Đã thanh toán', width: { xs: 100, sm: 120 } },

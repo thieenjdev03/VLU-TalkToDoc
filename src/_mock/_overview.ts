@@ -81,7 +81,7 @@ export const _appFeatured = [
     description:
       'Chỉ với vài thao tác, bạn có thể đặt lịch khám với bác sĩ phù hợp – mọi lúc, mọi nơi.',
     coverUrl:
-      'https://res-console.cloudinary.com/dut4zlbui/thumbnails/v1/image/upload/v1748882932/YmJlM29mMHJvaWhyanJ0NjJ5eXg=/drilldown'
+      'https://res.cloudinary.com/dut4zlbui/image/upload/bbe3of0roihrjrt62yyx.webp'
   },
   {
     id: '2',
