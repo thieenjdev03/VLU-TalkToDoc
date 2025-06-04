@@ -21,7 +21,7 @@ import { useAddOffer } from 'src/api/case'
 import { useGetMedicine } from 'src/api/medicine'
 import { useGetPharmacies } from 'src/api/pharmacy'
 
-import { useSnackbar, enqueueSnackbar } from 'src/components/snackbar'
+import { enqueueSnackbar } from 'src/components/snackbar'
 
 import { CaseMedication } from 'src/types/case'
 import { IMedicineItem } from 'src/types/medicine'
@@ -69,7 +69,6 @@ export default function PrescriptionForm({
   setPhoneNumber: setExternalPhoneNumber
 }: PrescriptionFormProps) {
   const [medicines, setMedicines] = useState<IMedicineItem[]>([])
-  const { enqueueSnackbar } = useSnackbar()
   // Remove local address state, use shippingAddress prop/state instead
   // const [address, setAddress] = useState('')
   const [internalMedications, setInternalMedications] = useState<

@@ -556,6 +556,7 @@ export function useNavData() {
       //   ],
       // },
     ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [t, user?.role]
   )
 

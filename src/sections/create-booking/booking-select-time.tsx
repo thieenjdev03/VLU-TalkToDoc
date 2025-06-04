@@ -63,7 +63,7 @@ const generateTimeSlots = (timeSlots: TimeSlot[]): string[] => {
 }
 const renderStars = (rating: number) => {
   const stars = []
-  for (let i = 1; i <= 5; i++) {
+  for (let i = 1; i <= 5; i += 1) {
     if (rating >= i) {
       stars.push(<Icon key={i} icon="mdi:star" className="text-yellow-400" />)
     } else if (rating >= i - 0.5) {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 
 import { useGetHospital } from 'src/api/hospital'
 
@@ -24,19 +24,40 @@ export default function AccountGeneral({
     sortField: 'name',
     sortOrder: 'asc'
   })
+
+  // Helper lấy userProfile từ localStorage
+  const getLocalUserProfile = () => {
+    try {
+      const userProfileStr = localStorage.getItem('userProfile')
+      if (!userProfileStr) return null
+      return JSON.parse(userProfileStr)
+    } catch (err) {
+      return null
+    }
+  }
+
+  // Memoize userProfile: ưu tiên props, fallback localStorage
+  const memoUserProfile = useMemo(() => {
+    if (userProfile && userProfile._id && userProfile.role) return userProfile
+    return getLocalUserProfile()
+  }, [userProfile])
+
   useEffect(() => {
     if (hospitals?.data?.length) {
       setHospitalList(hospitals?.data)
     }
   }, [hospitals])
+
   useEffect(() => {
-    const userProfileStr = localStorage.getItem('userProfile')
-    if (!userProfileStr) return
-
-    const userProfile = JSON.parse(userProfileStr)
-    const { _id, role } = userProfile
-    if (!_id || !role) return
-
+    if (!memoUserProfile) {
+      setLoading(false)
+      return
+    }
+    const { _id, role } = memoUserProfile
+    if (!_id || !role) {
+      setLoading(false)
+      return
+    }
     const fetchUserProfile = async () => {
       try {
         const data = await getUserById(_id, role.toLowerCase())
@@ -44,15 +65,15 @@ export default function AccountGeneral({
         setUserProfile(data)
       } catch (error) {
         console.error('Lỗi khi fetch user:', error)
-        setCurrentUser({ ...userProfile, role: role.toLowerCase() })
-        setUserProfile(userProfile)
+        setCurrentUser({ ...memoUserProfile, role: role.toLowerCase() })
+        setUserProfile(memoUserProfile)
       } finally {
         setLoading(false)
       }
     }
-
     fetchUserProfile()
-  }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [memoUserProfile, setUserProfile])
 
   if (loading || !currentUser)
     return <div>Đang tải thông tin người dùng...</div>
