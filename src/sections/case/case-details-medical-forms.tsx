@@ -151,7 +151,6 @@ export default function CaseDetailsMedicalForms({
               ...field,
               type: field.type as 'text' | 'select' | 'textarea' | 'number'
             }))}
-            disabled={userProfile?.role === 'PATIENT'}
             medicalFormData={medicalFormData?.medicalForm || {}}
           />
         )}

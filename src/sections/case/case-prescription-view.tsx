@@ -64,7 +64,7 @@ export default function PrescriptionView({
 
   // Tạo nội dung PDF cho một toa thuốc
   const generatePDFContent = useCallback(
-    (offer: CaseOffer, patientInformation: any, index: number) => {
+    (offer: CaseOffer, patientInformation_: any, index: number) => {
       const totalPrice = calcTotalPrice(offer.medications)
       const currentDate = new Date().toLocaleDateString('vi-VN')
 
@@ -166,11 +166,11 @@ export default function PrescriptionView({
           {
             columns: [
               {
-                text: `Họ tên: ${patientInformation?.fullName || '_______________________'}`,
+                text: `Họ tên: ${patientInformation_?.fullName || '_______________________'}`,
                 fontSize: 12
               },
               {
-                text: `Giới tính: ${renderGender(patientInformation?.gender.toUpperCase()) || '____'} Tuổi: ${renderAge(patientInformation?.birthDate) || '____'}`,
+                text: `Giới tính: ${renderGender(patientInformation_?.gender.toUpperCase()) || '____'} Tuổi: ${renderAge(patientInformation_?.birthDate) || '____'}`,
                 fontSize: 12
               }
             ],
@@ -284,19 +284,26 @@ export default function PrescriptionView({
         pageMargins: [40, 60, 40, 60]
       }
     },
-    [calcTotalPrice, doctor_name, prescriptions.length]
+    [
+      calcTotalPrice,
+      doctor_name,
+      prescriptions.length,
+      currentCase?._id,
+      currentCase?.caseId,
+      currentCase?.medicalForm?.diagnosis
+    ]
   )
 
   // Export một toa thuốc ra PDF sử dụng dynamic import
   const exportSinglePrescriptionToPDF = useCallback(
-    async (offer: CaseOffer, patientInformation: any, index: number) => {
+    async (offer: CaseOffer, _patientInformation: any, index: number) => {
       try {
         // Setup fonts
-        pdfMake.vfs = pdfFonts?.pdfMake?.vfs // ✅ Đúng cách gán vfs
+        pdfMake.vfs = (pdfFonts as any).default.pdfMake.vfs // ✅ Đúng cách gán vfs
 
         const docDefinition = generatePDFContent(
           offer,
-          patientInformation,
+          _patientInformation,
           index
         ) as any
         const fileName = `toa-thuoc-${offer._id || `${Date.now()}`}.pdf`
@@ -315,16 +322,20 @@ export default function PrescriptionView({
     if (!prescriptions?.length) return
 
     try {
-      const pdfMake = await import('pdfmake/build/pdfmake')
-      const pdfFonts = await import('pdfmake/build/vfs_fonts')
+      const _pdfMake = (await import('pdfmake/build/pdfmake')) as any
+      const _pdfFonts = (await import('pdfmake/build/vfs_fonts')) as any
 
       // Setup fonts
-      pdfMake.default.vfs = (pdfFonts as any).default.pdfMake.vfs
+      _pdfMake.default.vfs = (_pdfFonts as any).default.pdfMake.vfs
 
       const allContent: any[] = []
 
       prescriptions.forEach((offer, index) => {
-        const prescriptionContent = generatePDFContent(offer, index)
+        const prescriptionContent = generatePDFContent(
+          offer,
+          patientInformation,
+          index
+        )
         allContent.push(...prescriptionContent.content)
 
         // Thêm page break nếu không phải là toa cuối cùng
@@ -378,12 +389,20 @@ export default function PrescriptionView({
       }
 
       const fileName = `tong-hop-toa-thuoc-${Date.now()}.pdf`
-      pdfMake.default.createPdf(docDefinition as any).download(fileName)
+      ;(pdfMake as any).default
+        .createPdf(docDefinition as any)
+        .download(fileName)
     } catch (error) {
       console.error('Error generating PDF:', error)
       alert('Có lỗi xảy ra khi xuất PDF. Vui lòng thử lại!')
     }
-  }, [prescriptions, generatePDFContent, totalAllPrescriptions, doctor_name])
+  }, [
+    prescriptions,
+    generatePDFContent,
+    totalAllPrescriptions,
+    doctor_name,
+    patientInformation
+  ])
 
   if (!prescriptions?.length) {
     return (

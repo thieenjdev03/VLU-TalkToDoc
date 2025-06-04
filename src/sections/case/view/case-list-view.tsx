@@ -90,7 +90,7 @@ const defaultFilters: CaseTableFilters = {
 export default function CaseListView() {
   const { enqueueSnackbar } = useSnackbar()
 
-  const table = useTable<any>({ defaultCaseBy: 'caseId' })
+  const table = useTable()
 
   const settings = useSettingsContext()
 

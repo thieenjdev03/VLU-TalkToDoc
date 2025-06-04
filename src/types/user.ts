@@ -101,6 +101,7 @@ export type IUserItem = {
   walletBalance: any
   emergencyContact: any[]
   fullName: string
+  walletHistory: any[]
   department: string
   registrationStatus:
     | 'pending'

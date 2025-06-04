@@ -62,10 +62,10 @@ export default function AccountGeneral({
 
   if (currentUser.role === 'doctor') {
     walletBalance = currentUser.wallet?.balance || 0
-    walletHistory = currentUser.wallet?.transactionHistory || []
+    walletHistory = (currentUser.wallet as any)?.transactionHistory || []
   } else if (currentUser.role === 'patient') {
-    walletBalance = currentUser.walletBalance || 0
-    walletHistory = currentUser.walletHistory || []
+    walletBalance = currentUser?.walletBalance || 0
+    walletHistory = currentUser?.walletHistory || []
   }
 
   return (

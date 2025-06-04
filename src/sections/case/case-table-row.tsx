@@ -95,6 +95,7 @@ interface Payment {
 
 export interface Case {
   _id: string
+  caseId: string
   patient: string
   specialty: {
     _id: string
@@ -128,6 +129,7 @@ type Props = {
   onSelectRow: VoidFunction
   onDeleteRow: (id: string) => void
   userRole?: string
+  children: React.ReactNode
 }
 
 export default function CaseTableRow({
@@ -136,7 +138,8 @@ export default function CaseTableRow({
   onViewRow,
   onSelectRow,
   onDeleteRow,
-  userRole
+  userRole,
+  children
 }: Props) {
   const confirm = useBoolean()
   const collapse = useBoolean()
@@ -179,7 +182,7 @@ export default function CaseTableRow({
             }
           }}
         >
-          {row.caseId || '-'}
+          {row?.caseId || '-'}
         </Box>
       </TableCell>
 

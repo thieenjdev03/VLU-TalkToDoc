@@ -32,7 +32,7 @@ export default function AppointmentTableToolbar({
 
   const handleFilterName = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      onFilters('name', event.target.value)
+      onFilters('name', event.target.value as any)
     },
     [onFilters]
   )
