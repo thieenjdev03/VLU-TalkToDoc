@@ -297,8 +297,10 @@ export default function PrescriptionView({
   const exportSinglePrescriptionToPDF = useCallback(
     async (offer: CaseOffer, _patientInformation: any, index: number) => {
       try {
-        // Setup fonts
-        // pdfMake.vfs = pdfFonts.default.pdfMake.vfs // ✅ Đúng cách gán vfs
+        // Dynamic import để chắc chắn có vfs
+        const _pdfMake = (await import('pdfmake/build/pdfmake')).default
+        const _pdfFonts = (await import('pdfmake/build/vfs_fonts')).default
+        _pdfMake.vfs = Object.keys(_pdfFonts)[0] as any
 
         const docDefinition = generatePDFContent(
           offer,
@@ -307,7 +309,7 @@ export default function PrescriptionView({
         ) as any
         const fileName = `toa-thuoc-${offer._id || `${Date.now()}`}.pdf`
 
-        pdfMake.createPdf(docDefinition).download(fileName)
+        _pdfMake.createPdf(docDefinition).download(fileName)
       } catch (error) {
         console.error('Error generating PDF:', error)
         alert('Có lỗi xảy ra khi xuất PDF. Vui lòng thử lại!')
@@ -315,7 +317,6 @@ export default function PrescriptionView({
     },
     [generatePDFContent]
   )
-
   // Export tất cả toa thuốc ra một file PDF
   const exportAllPrescriptionsToPDF = useCallback(async () => {
     if (!prescriptions?.length) return

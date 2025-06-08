@@ -1,24 +1,27 @@
-import { useCallback } from 'react';
+import { useCallback } from 'react'
 
-import Box from '@mui/material/Box';
-import Chip from '@mui/material/Chip';
-import Paper from '@mui/material/Paper';
-import Button from '@mui/material/Button';
-import Stack, { StackProps } from '@mui/material/Stack';
+import Box from '@mui/material/Box'
+import Chip from '@mui/material/Chip'
+import Paper from '@mui/material/Paper'
+import Button from '@mui/material/Button'
+import Stack, { StackProps } from '@mui/material/Stack'
 
-import Iconify from 'src/components/iconify';
-import { shortDateLabel } from 'src/components/custom-date-range-picker';
+import Iconify from 'src/components/iconify'
+import { shortDateLabel } from 'src/components/custom-date-range-picker'
 
-import { IInvoiceTableFilters, IInvoiceTableFilterValue } from 'src/types/invoice';
+import {
+  IInvoiceTableFilters,
+  IInvoiceTableFilterValue
+} from 'src/types/invoice'
 
 // ----------------------------------------------------------------------
 
 type Props = StackProps & {
-  filters: IInvoiceTableFilters;
-  onFilters: (name: string, value: IInvoiceTableFilterValue) => void;
-  onResetFilters: VoidFunction;
-  results: number;
-};
+  filters: IInvoiceTableFilters
+  onFilters: (name: string, value: IInvoiceTableFilterValue) => void
+  onResetFilters: VoidFunction
+  results: number
+}
 
 export default function InvoiceTableFiltersResult({
   filters,
@@ -27,44 +30,44 @@ export default function InvoiceTableFiltersResult({
   results,
   ...other
 }: Props) {
-  const shortLabel = shortDateLabel(filters.startDate, filters.endDate);
+  const shortLabel = shortDateLabel(filters.startDate, filters.endDate)
 
   const handleRemoveKeyword = useCallback(() => {
-    onFilters('name', '');
-  }, [onFilters]);
+    onFilters('name', '')
+  }, [onFilters])
 
   const handleRemoveService = useCallback(
     (inputValue: string) => {
-      const newValue = filters.service.filter((item) => item !== inputValue);
+      const newValue = filters.service.filter(item => item !== inputValue)
 
-      onFilters('service', newValue);
+      onFilters('service', newValue)
     },
     [filters.service, onFilters]
-  );
+  )
   const renderStatus = (statusParams: string) => {
     switch (statusParams) {
       case 'paid':
-        return 'Đã thanh toán';
+        return 'Đã thanh toán'
       case 'pending':
-        return 'Chưa thanh toán';
+        return 'Chưa thanh toán'
       case 'overdue':
-        return 'Quá hạn';
+        return 'Quá hạn'
       case 'canceled':
-        return 'Đã hủy';
+        return 'Đã hủy'
       case 'completed':
-        return 'Đã hoàn thành';
+        return 'Đã hoàn thành'
       default:
-        return 'Chưa xác định';
+        return 'Chưa xác định'
     }
-  };
+  }
   const handleRemoveStatus = useCallback(() => {
-    onFilters('status', 'all');
-  }, [onFilters]);
+    onFilters('status', 'all')
+  }, [onFilters])
 
   const handleRemoveDate = useCallback(() => {
-    onFilters('startDate', null);
-    onFilters('endDate', null);
-  }, [onFilters]);
+    onFilters('startDate', null)
+    onFilters('endDate', null)
+  }, [onFilters])
 
   return (
     <Stack spacing={1.5} {...other}>
@@ -75,10 +78,16 @@ export default function InvoiceTableFiltersResult({
         </Box>
       </Box>
 
-      <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
+      <Stack
+        flexGrow={1}
+        spacing={1}
+        direction="row"
+        flexWrap="wrap"
+        alignItems="center"
+      >
         {!!filters?.service?.length && (
-          <Block label="Dịch vụ:">
-            {filters?.service?.map((item) => (
+          <Block label="Bác Sĩ:">
+            {filters?.service?.map(item => (
               <Chip
                 key={item}
                 label={item}
@@ -107,7 +116,11 @@ export default function InvoiceTableFiltersResult({
 
         {!!filters.name && (
           <Block label="Từ khóa:">
-            <Chip label={filters.name} size="small" onDelete={handleRemoveKeyword} />
+            <Chip
+              label={filters.name}
+              size="small"
+              onDelete={handleRemoveKeyword}
+            />
           </Block>
         )}
 
@@ -120,14 +133,14 @@ export default function InvoiceTableFiltersResult({
         </Button>
       </Stack>
     </Stack>
-  );
+  )
 }
 
 // ----------------------------------------------------------------------
 
 type BlockProps = StackProps & {
-  label: string;
-};
+  label: string
+}
 
 function Block({ label, children, sx, ...other }: BlockProps) {
   return (
@@ -141,7 +154,7 @@ function Block({ label, children, sx, ...other }: BlockProps) {
         borderRadius: 1,
         overflow: 'hidden',
         borderStyle: 'dashed',
-        ...sx,
+        ...sx
       }}
       {...other}
     >
@@ -153,5 +166,5 @@ function Block({ label, children, sx, ...other }: BlockProps) {
         {children}
       </Stack>
     </Stack>
-  );
+  )
 }

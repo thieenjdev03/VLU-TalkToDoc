@@ -392,7 +392,7 @@ export default function CallCenter({
           callerRole: userInfor?.role
         })
 
-        const call = new window.StringeeCall(
+        const call = new (window as any).StringeeCall(
           stringeeClientRef.current,
           callFromId,
           callToId,

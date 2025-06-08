@@ -96,6 +96,15 @@ export const paths = {
       verify: `${ROOTS.AUTH_DEMO}/modern/verify`
     }
   },
+  // REPORT
+  report: {
+    root: '/report',
+    revenue_ttd: '/report/revenue-ttd',
+    revenue: '/report/revenue',
+    appointment: '/report/appointment',
+    specialty: '/report/specialty',
+    review_doctor: '/report/review-doctor'
+  },
   // DASHBOARD
   dashboard: {
     root: ROOTS.DASHBOARD,
