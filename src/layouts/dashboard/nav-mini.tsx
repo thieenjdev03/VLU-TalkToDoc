@@ -1,35 +1,32 @@
-import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
+import Box from '@mui/material/Box'
+import Stack from '@mui/material/Stack'
 
-import { useMockedUser } from 'src/hooks/use-mocked-user';
+import { hideScroll } from 'src/theme/css'
 
-import { hideScroll } from 'src/theme/css';
+import Logo from 'src/components/logo'
+import { NavSectionMini } from 'src/components/nav-section'
 
-import Logo from 'src/components/logo';
-import { NavSectionMini } from 'src/components/nav-section';
-
-import { NAV } from '../config-layout';
-import { useNavData } from './config-navigation';
-import NavToggleButton from '../common/nav-toggle-button';
+import { NAV } from '../config-layout'
+import { useNavData } from './config-navigation'
+import NavToggleButton from '../common/nav-toggle-button'
 
 // ----------------------------------------------------------------------
 
 export default function NavMini() {
-  const { user } = useMockedUser();
-
-  const navData = useNavData();
-
+  const navData = useNavData()
+  const userProfile = localStorage.getItem('userProfile')
+  const userProfileParsed = userProfile ? JSON.parse(userProfile) : {}
   return (
     <Box
       sx={{
         flexShrink: { lg: 0 },
-        width: { lg: NAV.W_MINI },
+        width: { lg: NAV.W_MINI }
       }}
     >
       <NavToggleButton
         sx={{
           top: 22,
-          left: NAV.W_MINI - 12,
+          left: NAV.W_MINI - 12
         }}
       />
 
@@ -39,8 +36,8 @@ export default function NavMini() {
           height: 1,
           position: 'fixed',
           width: NAV.W_MINI,
-          borderRight: (theme) => `dashed 1px ${theme.palette.divider}`,
-          ...hideScroll.x,
+          borderRight: theme => `dashed 1px ${theme.palette.divider}`,
+          ...hideScroll.x
         }}
       >
         <Logo sx={{ mx: 'auto', my: 2 }} />
@@ -48,10 +45,10 @@ export default function NavMini() {
         <NavSectionMini
           data={navData}
           slotProps={{
-            currentRole: user?.role,
+            currentRole: userProfileParsed?.role
           }}
         />
       </Stack>
     </Box>
-  );
+  )
 }

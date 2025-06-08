@@ -214,6 +214,7 @@ export default function CaseDetailsView({ id }: Props) {
         open={prescriptionModalOpen}
         onClose={() => setPrescriptionModalOpen(false)}
         caseId={caseData?._id}
+        allowNoPharmacyOption
       />
 
       <Grid container spacing={3}>

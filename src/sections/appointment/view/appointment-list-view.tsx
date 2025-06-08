@@ -128,12 +128,9 @@ export default function AppointmentListView() {
   const [filters, setFilters] =
     useState<IAppointmentTableFilters>(defaultFilters)
   const [openCancelDialog, setOpenCancelDialog] = useState(false)
-  const [cancelReason, setCancelReason] = useState('')
   const dateError = isAfter(filters?.startDate, filters?.endDate)
   const userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}')
   const [appointmentSelected, setAppointmentSelected] = useState('')
-
-  const denseHeight = table.dense ? 56 : 56 + 20
 
   const { users: doctorsList } = useGetUsers({
     typeUser: 'doctor',
@@ -157,6 +154,7 @@ export default function AppointmentListView() {
       })
       setTableData(appointments.data)
       setTotal(appointments.total)
+      console.log('appointments', appointments)
     }
     fetchAppointments()
   }, [page, limit, userProfile.id, userProfile.role, filters.name])

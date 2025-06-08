@@ -179,5 +179,8 @@ export const endpoints = {
     update: (id: string) => `/api/v1/users/${id}`,
     create: '/api/v1/users',
     profile: (id: string) => `/api/v1/users/${id}`
+  },
+  report: {
+    doctorReview: '/report/review-doctor'
   }
 }

@@ -6,6 +6,12 @@ import DashboardLayout from 'src/layouts/dashboard'
 
 import { LoadingScreen } from 'src/components/loading-screen'
 
+import RevenueView from 'src/sections/report/view/revenue-view'
+import RevenueTTDView from 'src/sections/report/view/revenue-ttd-view'
+import SpecialtyReportView from 'src/sections/report/view/specialty-view'
+import ReviewDoctorView from 'src/sections/report/view/review-doctor-view'
+import AppointmentReportView from 'src/sections/report/view/appointment-view'
+
 // ----------------------------------------------------------------------
 
 // OVERVIEW
@@ -312,7 +318,18 @@ export const dashboardRoutes = [
       { path: 'calendar', element: <CalendarPage /> },
       { path: 'kanban', element: <KanbanPage /> },
       { path: 'permission', element: <PermissionDeniedPage /> },
-      { path: 'blank', element: <BlankPage /> }
+      { path: 'blank', element: <BlankPage /> },
+      {
+        path: 'report',
+        children: [
+          { path: 'revenue-ttd', element: <RevenueTTDView /> },
+          { path: 'revenue', element: <RevenueView /> },
+          { path: 'appointment', element: <AppointmentReportView /> },
+          { path: 'specialty', element: <SpecialtyReportView /> },
+          { path: 'review-doctor', element: <ReviewDoctorView /> }
+          // Có thể thêm các báo cáo khác ở đây
+        ]
+      }
     ]
   }
 ]

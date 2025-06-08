@@ -23,24 +23,20 @@ export default function PaymentView() {
   useEffect(() => {
     const handleSubmitPaid = async () => {
       const currentCase = JSON.parse(
-        localStorage.getItem('currentCase') || '{}'
+        localStorage.getItem('booking_form_data') || '{}'
       )
       const submitPaid = async () => {
         await submitCase({
           case_id: currentCase?._id,
           action: 'submit',
-          appointment_id: currentCase?.appointmentId
+          appointment_id: currentCase?.appointment
         })
         await updateAppointment({
-          appointmentId: currentCase?.appointmentId,
+          appointmentId: currentCase?.appointment,
           data: {
-            patient: currentCase?.patient,
-            doctor: currentCase?.doctor?._id || currentCase?.doctor,
-            slot: currentCase?.slot,
-            date: currentCase?.date,
-            timezone: currentCase?.timezone,
             payment: {
               ...currentCase?.payment,
+              paymentMethod: 'VNPAY',
               status: 'PAID'
             }
           }
@@ -48,7 +44,7 @@ export default function PaymentView() {
       }
       if (currentCase) {
         const appointment = await getAppointmentById({
-          appointmentId: currentCase?.appointmentId
+          appointmentId: currentCase?.appointment
         })
         setAppointmentDetails(appointment)
         submitPaid()
@@ -113,7 +109,7 @@ export default function PaymentView() {
                   variant="outlined"
                   onClick={() => {
                     navigate(paths.dashboard.root)
-                    localStorage.removeItem('currentCase')
+                    localStorage.removeItem('booking_form_data')
                   }}
                 >
                   Về trang chính
@@ -122,7 +118,7 @@ export default function PaymentView() {
                   variant="contained"
                   onClick={() => {
                     navigate(paths.dashboard.appointment.list)
-                    localStorage.removeItem('currentCase')
+                    localStorage.removeItem('booking_form_data')
                   }}
                 >
                   Xem danh sách lịch hẹn
@@ -178,7 +174,7 @@ export default function PaymentView() {
                   variant="outlined"
                   onClick={() => {
                     navigate(paths.dashboard.root)
-                    localStorage.removeItem('currentCase')
+                    localStorage.removeItem('booking_form_data')
                   }}
                 >
                   Về trang chính
@@ -187,7 +183,7 @@ export default function PaymentView() {
                   variant="contained"
                   onClick={() => {
                     navigate(paths.dashboard.appointment.list)
-                    localStorage.removeItem('currentCase')
+                    localStorage.removeItem('booking_form_data')
                   }}
                 >
                   Xem danh sách lịch hẹn

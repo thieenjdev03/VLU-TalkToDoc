@@ -1,11 +1,11 @@
 import { useCallback } from 'react'
 
 import Stack from '@mui/material/Stack'
+import Button from '@mui/material/Button'
 import MenuItem from '@mui/material/MenuItem'
 import Checkbox from '@mui/material/Checkbox'
 import TextField from '@mui/material/TextField'
 import InputLabel from '@mui/material/InputLabel'
-import IconButton from '@mui/material/IconButton'
 import FormControl from '@mui/material/FormControl'
 import OutlinedInput from '@mui/material/OutlinedInput'
 import InputAdornment from '@mui/material/InputAdornment'
@@ -14,7 +14,7 @@ import Select, { SelectChangeEvent } from '@mui/material/Select'
 import { formHelperTextClasses } from '@mui/material/FormHelperText'
 
 import Iconify from 'src/components/iconify'
-import CustomPopover, { usePopover } from 'src/components/custom-popover'
+import { usePopover } from 'src/components/custom-popover'
 
 import {
   IInvoiceTableFilters,
@@ -27,6 +27,8 @@ type DoctorOption = { id: string; name: string }
 type Props = {
   filters: IInvoiceTableFilters
   onFilters: (name: string, value: IInvoiceTableFilterValue) => void
+  exportToCSV: (data: any[]) => void
+  dataFiltered: any[]
   //
   dateError: boolean
   serviceOptions: DoctorOption[]
@@ -35,6 +37,8 @@ type Props = {
 export default function InvoiceTableToolbar({
   filters,
   onFilters,
+  exportToCSV,
+  dataFiltered,
   //
   dateError,
   serviceOptions
@@ -74,148 +78,117 @@ export default function InvoiceTableToolbar({
   )
 
   return (
-    <>
-      <Stack
-        spacing={2}
-        alignItems={{ xs: 'flex-end', md: 'center' }}
-        direction={{
-          xs: 'column',
-          md: 'row'
+    <Stack
+      spacing={2}
+      alignItems={{ xs: 'flex-end', md: 'center' }}
+      direction={{
+        xs: 'column',
+        md: 'row'
+      }}
+      sx={{
+        p: 2.5,
+        pr: { xs: 2.5, md: 1 }
+      }}
+    >
+      <FormControl
+        sx={{
+          flexShrink: 0,
+          width: { xs: 1, md: 180 }
+        }}
+      >
+        <InputLabel>Bác Sĩ</InputLabel>
+
+        <Select
+          multiple
+          value={filters.service}
+          onChange={handleFilterService}
+          input={<OutlinedInput label="Service" />}
+          renderValue={selected =>
+            (selected as string[])
+              .map(value => {
+                const found = serviceOptions.find(opt => opt.id === value)
+                return found ? found.name : value
+              })
+              .join(', ')
+          }
+          sx={{ textTransform: 'capitalize' }}
+        >
+          {serviceOptions.map(option => (
+            <MenuItem key={option.id} value={option.id}>
+              <Checkbox
+                disableRipple
+                size="small"
+                checked={filters.service.includes(option.id)}
+              />
+              {option.name}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+
+      <DatePicker
+        label="Ngày bắt đầu"
+        value={filters.startDate}
+        onChange={handleFilterStartDate}
+        slotProps={{ textField: { fullWidth: true } }}
+        sx={{
+          maxWidth: { md: 180 }
+        }}
+      />
+
+      <DatePicker
+        label="Ngày kết thúc"
+        value={filters.endDate}
+        onChange={handleFilterEndDate}
+        slotProps={{
+          textField: {
+            fullWidth: true,
+            error: dateError,
+            helperText: dateError && 'Ngày kết thúc phải lớn hơn ngày bắt đầu'
+          }
         }}
         sx={{
-          p: 2.5,
-          pr: { xs: 2.5, md: 1 }
+          maxWidth: { md: 180 },
+          [`& .${formHelperTextClasses.root}`]: {
+            position: { md: 'absolute' },
+            bottom: { md: -40 }
+          }
         }}
-      >
-        <FormControl
-          sx={{
-            flexShrink: 0,
-            width: { xs: 1, md: 180 }
-          }}
-        >
-          <InputLabel>Bác Sĩ</InputLabel>
+      />
 
-          <Select
-            multiple
-            value={filters.service}
-            onChange={handleFilterService}
-            input={<OutlinedInput label="Service" />}
-            renderValue={selected =>
-              (selected as string[])
-                .map(value => {
-                  const found = serviceOptions.find(opt => opt.id === value)
-                  return found ? found.name : value
-                })
-                .join(', ')
-            }
-            sx={{ textTransform: 'capitalize' }}
-          >
-            {serviceOptions.map(option => (
-              <MenuItem key={option.id} value={option.id}>
-                <Checkbox
-                  disableRipple
-                  size="small"
-                  checked={filters.service.includes(option.id)}
+      <Stack
+        direction="row"
+        alignItems="center"
+        spacing={2}
+        flexGrow={1}
+        sx={{ width: 1 }}
+      >
+        <TextField
+          fullWidth
+          value={filters.name}
+          onChange={handleFilterName}
+          placeholder="Tìm kiếm theo mã thanh toán, lịch hẹn, tên bệnh nhân, bác sĩ"
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Iconify
+                  icon="eva:search-fill"
+                  sx={{ color: 'text.disabled' }}
                 />
-                {option.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
-        <DatePicker
-          label="Ngày bắt đầu"
-          value={filters.startDate}
-          onChange={handleFilterStartDate}
-          slotProps={{ textField: { fullWidth: true } }}
-          sx={{
-            maxWidth: { md: 180 }
+              </InputAdornment>
+            )
           }}
         />
-
-        <DatePicker
-          label="Ngày kết thúc"
-          value={filters.endDate}
-          onChange={handleFilterEndDate}
-          slotProps={{
-            textField: {
-              fullWidth: true,
-              error: dateError,
-              helperText: dateError && 'Ngày kết thúc phải lớn hơn ngày bắt đầu'
-            }
-          }}
-          sx={{
-            maxWidth: { md: 180 },
-            [`& .${formHelperTextClasses.root}`]: {
-              position: { md: 'absolute' },
-              bottom: { md: -40 }
-            }
-          }}
-        />
-
-        <Stack
-          direction="row"
-          alignItems="center"
-          spacing={2}
-          flexGrow={1}
-          sx={{ width: 1 }}
+        <Button
+          variant="contained"
+          color="primary"
+          startIcon={<Iconify icon="solar:export-bold" />}
+          onClick={() => exportToCSV(dataFiltered)}
+          sx={{ mb: 1, minWidth: 120, py: 1 }}
         >
-          <TextField
-            fullWidth
-            value={filters.name}
-            onChange={handleFilterName}
-            placeholder="Tìm kiếm theo mã thanh toán, lịch hẹn, tên bệnh nhân, bác sĩ"
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Iconify
-                    icon="eva:search-fill"
-                    sx={{ color: 'text.disabled' }}
-                  />
-                </InputAdornment>
-              )
-            }}
-          />
-
-          <IconButton onClick={popover.onOpen}>
-            <Iconify icon="eva:more-vertical-fill" />
-          </IconButton>
-        </Stack>
+          Xuất CSV
+        </Button>
       </Stack>
-
-      <CustomPopover
-        open={popover.open}
-        onClose={popover.onClose}
-        arrow="right-top"
-        sx={{ width: 140 }}
-      >
-        <MenuItem
-          onClick={() => {
-            popover.onClose()
-          }}
-        >
-          <Iconify icon="solar:printer-minimalistic-bold" />
-          Print
-        </MenuItem>
-
-        <MenuItem
-          onClick={() => {
-            popover.onClose()
-          }}
-        >
-          <Iconify icon="solar:import-bold" />
-          Import
-        </MenuItem>
-
-        <MenuItem
-          onClick={() => {
-            popover.onClose()
-          }}
-        >
-          <Iconify icon="solar:export-bold" />
-          Export
-        </MenuItem>
-      </CustomPopover>
-    </>
+    </Stack>
   )
 }

@@ -1,4 +1,5 @@
 import { m } from 'framer-motion'
+import { useState, useEffect } from 'react'
 
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
@@ -13,6 +14,7 @@ import { paths } from 'src/routes/paths'
 import { useRouter } from 'src/routes/hooks'
 
 import { useAuthContext } from 'src/auth/hooks'
+import { getUserProfileFromToken } from 'src/api/auth'
 
 import { varHover } from 'src/components/animate'
 import { useSnackbar } from 'src/components/snackbar'
@@ -52,15 +54,40 @@ const OPTIONS_ADMIN = [
 
 export default function AccountPopover() {
   const router = useRouter()
-
-  const userProfile = localStorage.getItem('userProfile')
-  const user = JSON.parse(userProfile || '{}')
-
   const { logout } = useAuthContext()
-
   const { enqueueSnackbar } = useSnackbar()
-
   const popover = usePopover()
+
+  // State userProfile realtime
+  const [user, setUser] = useState(() => {
+    const userProfile = localStorage.getItem('userProfile')
+    return userProfile ? JSON.parse(userProfile) : {}
+  })
+
+  // Refetch userProfile khi popover mở
+  useEffect(() => {
+    if (popover.open) {
+      getUserProfileFromToken()
+        .then(res => {
+          console.log('res', res)
+          if (res?.data) {
+            const formattedData = {
+              ...res.data,
+              role: res?.data?.role?.toUpperCase()
+            }
+            localStorage.setItem('userProfile', JSON.stringify(formattedData))
+            setUser(formattedData)
+          }
+        })
+        .catch(err => {
+          if (err?.response?.status === 401) {
+            localStorage.removeItem('userProfile')
+            localStorage.removeItem('accessToken')
+            setUser({})
+          }
+        })
+    }
+  }, [popover.open])
 
   const handleLogout = async () => {
     try {
@@ -91,7 +118,7 @@ export default function AccountPopover() {
         return role
     }
   }
-
+  console.log('user', user)
   return (
     <>
       <IconButton
@@ -119,7 +146,7 @@ export default function AccountPopover() {
             border: theme => `solid 2px ${theme.palette.background.default}`
           }}
         >
-          {user?.name?.charAt(0).toUpperCase()}
+          {user?.name?.charAt(0)?.toUpperCase()}
         </Avatar>
       </IconButton>
       <Divider sx={{ borderStyle: 'dashed' }} />
@@ -146,7 +173,7 @@ export default function AccountPopover() {
                 fontSize: '14px'
               }}
             >
-              Vai Trò: {handleShowRoleName(user?.role.toLowerCase())}
+              Vai Trò: {handleShowRoleName(user?.role?.toLowerCase?.())}
             </div>
           </Typography>
         </Box>
@@ -164,7 +191,10 @@ export default function AccountPopover() {
             >
               Số dư:{' '}
               <span style={{ color: 'green' }}>
-                {user?.walletBalance?.toLocaleString() || 0} VNĐ
+                {user?.walletBalance?.toLocaleString() ||
+                  user?.wallet?.balance?.toLocaleString() ||
+                  0}
+                VNĐ
               </span>
             </div>
           </Typography>

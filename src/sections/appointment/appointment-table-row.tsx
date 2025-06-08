@@ -299,17 +299,17 @@ export default function AppointmentTableRow({
         />
       </TableCell>
       <TableCell>
-        {row?.status === 'CONFIRMED' && (
-          <Button
-            sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
-            variant="contained"
-            color="primary"
-            onClick={handleOpenCall}
-          >
-            <Iconify icon="ic:outline-phone-forwarded" />
-            <span>Gọi</span>
-          </Button>
-        )}
+        {/* {row?.status === 'CONFIRMED' && ( */}
+        <Button
+          sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+          variant="contained"
+          color="primary"
+          onClick={handleOpenCall}
+        >
+          <Iconify icon="ic:outline-phone-forwarded" />
+          <span>Gọi</span>
+        </Button>
+        {/* )} */}
       </TableCell>
       <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
         {conditionEditAppointment(row?.date) && (
@@ -420,22 +420,22 @@ export default function AppointmentTableRow({
       </TableCell>
 
       <TableCell align="center">
-        {row?.status === 'CONFIRMED' && !isOverdue && (
-          <Button
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 1
-            }}
-            variant="contained"
-            color="primary"
-            onClick={handleOpenCall}
-          >
-            <Iconify icon="ic:outline-phone-forwarded" />
-            <span>Gọi</span>
-          </Button>
-        )}
+        {/* {row?.status === 'CONFIRMED' && !isOverdue && ( */}
+        <Button
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 1
+          }}
+          variant="contained"
+          color="primary"
+          onClick={handleOpenCall}
+        >
+          <Iconify icon="ic:outline-phone-forwarded" />
+          <span>Gọi</span>
+        </Button>
+        {/* )} */}
       </TableCell>
 
       <TableCell align="center">

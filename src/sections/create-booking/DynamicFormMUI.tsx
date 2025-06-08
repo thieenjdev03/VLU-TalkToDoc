@@ -4,6 +4,8 @@ import { yupResolver } from '@hookform/resolvers/yup'
 
 import { Box, Button, MenuItem, TextField } from '@mui/material'
 
+import { useBookingStore } from 'src/store/booking'
+
 import { ISpecialtyItem } from 'src/types/specialties'
 
 type Question = {
@@ -19,16 +21,16 @@ export default function DynamicFormMUI({
   setCurrentStep,
   onSelect,
   specialty,
-  formData,
   handleSubmit
 }: {
   config: Question[]
   setCurrentStep: (step: string, back?: boolean) => void
   onSelect: (key: ISpecialtyItem) => void
   specialty: ISpecialtyItem
-  formData: any
   handleSubmit: (data: any, step: string) => void
 }) {
+  const { formData, updateFormData } = useBookingStore()
+
   const schemaFields = config.reduce(
     (acc, item) => {
       const base = Yup.string()
@@ -70,21 +72,15 @@ export default function DynamicFormMUI({
         specialty: specialty._id,
         patient: userPatient
       }
-      localStorage.setItem('booking_form_data_1', JSON.stringify(caseData))
-      formData.answers = data
+      updateFormData({ medical_form: data })
     }
-    const currentCase = JSON.parse(localStorage.getItem('currentCase') || '{}')
     handleSubmit(
       {
-        ...currentCase,
-        medical_form: {
-          ...currentCase.medicalForm,
-          ...data
-        }
+        ...formData,
+        medical_form: data
       },
       'medical-form'
     )
-
     setCurrentStep('select-time-booking')
   }
 

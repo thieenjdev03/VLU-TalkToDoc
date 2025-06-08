@@ -14,6 +14,7 @@ import {
 
 import { RouterLink } from 'src/routes/components'
 
+import { useBookingStore } from 'src/store/booking'
 import { useGetSpecialties } from 'src/api/specialty'
 
 import { ISpecialtyItem } from 'src/types/specialties'
@@ -21,16 +22,15 @@ import { ISpecialtyItem } from 'src/types/specialties'
 export default function SelectSpecialty({
   onSelect,
   handleSelectCurrentStep,
-  formData,
   setCurrentStep,
   handleSubmit
 }: {
   onSelect: (key: ISpecialtyItem) => void
   handleSelectCurrentStep: (step: string) => void
-  formData: any
   setCurrentStep: (step: string) => void
   handleSubmit: (data: any, step: string) => void
 }) {
+  const { formData, updateFormData } = useBookingStore()
   const [selected, setSelected] = useState<ISpecialtyItem | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
   const [preview, setPreview] = useState<ISpecialtyItem | null>(null)
@@ -58,7 +58,7 @@ export default function SelectSpecialty({
     if (preview) {
       setSelected(preview)
       setModalOpen(false)
-      formData.specialty_id = preview.id
+      updateFormData({ specialty: preview })
     }
   }
 
@@ -125,11 +125,11 @@ export default function SelectSpecialty({
             setCurrentStep('medical-form')
             if (selected) {
               onSelect(selected)
+              updateFormData({ specialty: selected })
               handleSubmit(
                 {
-                  case_id: formData.case_id,
-                  specialty: selected,
-                  patient: userProfile
+                  ...formData,
+                  specialty: selected
                 },
                 'select-specialty'
               )

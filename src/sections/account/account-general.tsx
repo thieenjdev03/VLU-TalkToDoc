@@ -40,7 +40,8 @@ export default function AccountGeneral({
   const memoUserProfile = useMemo(() => {
     if (userProfile && userProfile._id && userProfile.role) return userProfile
     return getLocalUserProfile()
-  }, [userProfile])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userProfile._id, userProfile.role])
 
   useEffect(() => {
     if (hospitals?.data?.length) {
@@ -73,7 +74,7 @@ export default function AccountGeneral({
     }
     fetchUserProfile()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [memoUserProfile, setUserProfile])
+  }, [memoUserProfile])
 
   if (loading || !currentUser)
     return <div>Đang tải thông tin người dùng...</div>

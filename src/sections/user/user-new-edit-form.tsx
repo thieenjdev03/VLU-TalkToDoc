@@ -663,7 +663,7 @@ export default function UserNewEditForm({
         {(typeUser === 'doctor' || typeUser === 'patient') && (
           <Grid xs={12} md={4}>
             <Card sx={{ pt: 10, pb: 5, px: 3 }}>
-              {currentUser && (
+              {currentUser && typeUser === 'doctor' && (
                 <Label
                   color={
                     (currentUser.registrationStatus === 'approved' &&
@@ -771,12 +771,18 @@ export default function UserNewEditForm({
                               0}{' '}
                           VNĐ
                         </span>
-                        <Tooltip title="Số dư hiện tại là doanh thu đã trừ phí nền tảng. Số dư này sẽ được hệ thống tự động chốt và chuyển khoản cho bạn vào cuối mỗi tháng. Bạn không thể rút thủ công.">
-                          <IconButton size="medium">
+                        <Tooltip
+                          title={
+                            currentUser?.role === 'doctor'
+                              ? 'Số dư hiện tại là doanh thu đã trừ phí nền tảng. Số dư này sẽ được hệ thống tự động chốt và chuyển khoản cho bạn vào cuối mỗi tháng. Bạn không thể rút thủ công.'
+                              : 'Số dư ví của bạn có thể được dùng để thanh toán lịch hẹn. Bạn không thể nạp thêm hay rút thủ công.'
+                          }
+                        >
+                          <IconButton size="small">
                             <Icon
                               icon="eva:info-outline"
-                              width={20}
-                              height={20}
+                              width={18}
+                              height={18}
                             />
                           </IconButton>
                         </Tooltip>

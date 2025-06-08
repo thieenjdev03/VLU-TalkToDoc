@@ -1,6 +1,7 @@
 import { useMemo, useState, useEffect } from 'react'
 
 import Dialog from '@mui/material/Dialog'
+import Switch from '@mui/material/Switch'
 import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/Delete'
 import DialogTitle from '@mui/material/DialogTitle'
@@ -14,7 +15,8 @@ import {
   TextField,
   Typography,
   IconButton,
-  Autocomplete
+  Autocomplete,
+  FormControlLabel
 } from '@mui/material'
 
 import { useAddOffer } from 'src/api/case'
@@ -51,6 +53,9 @@ type PrescriptionFormProps = {
   setShippingAddress?: React.Dispatch<React.SetStateAction<string>>
   phoneNumber?: string
   setPhoneNumber?: React.Dispatch<React.SetStateAction<string>>
+  isShipping?: boolean
+  setIsShipping?: React.Dispatch<React.SetStateAction<boolean>>
+  allowNoPharmacyOption?: boolean
 }
 
 export default function PrescriptionForm({
@@ -66,7 +71,10 @@ export default function PrescriptionForm({
   shippingAddress: externalShippingAddress,
   setShippingAddress: setExternalShippingAddress,
   phoneNumber: externalPhoneNumber,
-  setPhoneNumber: setExternalPhoneNumber
+  setPhoneNumber: setExternalPhoneNumber,
+  isShipping: externalIsShipping,
+  setIsShipping: setExternalIsShipping,
+  allowNoPharmacyOption = false
 }: PrescriptionFormProps) {
   const [medicines, setMedicines] = useState<IMedicineItem[]>([])
   // Remove local address state, use shippingAddress prop/state instead
@@ -88,6 +96,7 @@ export default function PrescriptionForm({
   const [internalPharmacyId, setInternalPharmacyId] = useState('')
   const [internalShippingAddress, setInternalShippingAddress] = useState('')
   const [internalPhoneNumber, setInternalPhoneNumber] = useState('')
+  const [internalIsShipping, setInternalIsShipping] = useState(false)
   const medications =
     externalMedications !== undefined
       ? externalMedications
@@ -115,6 +124,12 @@ export default function PrescriptionForm({
   const note = externalNote !== undefined ? externalNote : internalNote
   const setNote =
     setExternalNote !== undefined ? setExternalNote : setInternalNote
+  const isShipping =
+    externalIsShipping !== undefined ? externalIsShipping : internalIsShipping
+  const setIsShipping =
+    setExternalIsShipping !== undefined
+      ? setExternalIsShipping
+      : setInternalIsShipping
 
   const pharmacyId =
     externalPharmacyId !== undefined ? externalPharmacyId : internalPharmacyId
@@ -132,12 +147,7 @@ export default function PrescriptionForm({
       sortOrder: 'asc'
     })
 
-  const {
-    pharmacies,
-    pharmaciesLoading,
-    pharmaciesError,
-    pharmaciesValidating
-  } = useGetPharmacies({
+  const { pharmacies, pharmaciesLoading } = useGetPharmacies({
     query: '',
     page: 1,
     limit: 10,
@@ -163,8 +173,8 @@ export default function PrescriptionForm({
           sum +
           (Number.isNaN(price) || Number.isNaN(quantity) ? 0 : price * quantity)
         )
-      }, 0),
-    [medications]
+      }, 0) + (isShipping ? 30 : 0),
+    [medications, isShipping]
   )
 
   // Xử lý thay đổi thuốc
@@ -229,16 +239,27 @@ export default function PrescriptionForm({
 
       <Box mb={3} display="flex" flexDirection="column" gap={2}>
         <Autocomplete
-          options={pharmacies?.data || []}
+          options={
+            allowNoPharmacyOption
+              ? [...(pharmacies?.data || [])]
+              : pharmacies?.data || []
+          }
           getOptionLabel={(option: IPharmacyItem) =>
             `${option.name} - ${option.address}`
           }
           value={
-            pharmacies?.data?.find(
-              (pharmacy: IPharmacyItem) => pharmacy._id === pharmacyId
+            (allowNoPharmacyOption
+              ? [
+                  ...(pharmacies?.data || []),
+                  { _id: '0', name: 'Không chọn nhà thuốc', address: '' }
+                ]
+              : pharmacies?.data || []
+            ).find(
+              (pharmacy: IPharmacyItem) =>
+                String(pharmacy._id) === String(pharmacyId)
             ) || null
           }
-          onChange={(_, value) => setPharmacyId(value?._id || '')}
+          onChange={(_, value) => setPharmacyId(value?._id || '0')}
           renderInput={params => (
             <TextField
               {...params}
@@ -250,23 +271,38 @@ export default function PrescriptionForm({
               }
             />
           )}
-          isOptionEqualToValue={(option, value) => option._id === value._id}
+          isOptionEqualToValue={(option, value) =>
+            String(option._id) === String(value._id)
+          }
           loading={pharmaciesLoading}
         />
-        <TextField
-          label="Địa chỉ"
-          value={shippingAddress}
-          onChange={e => setShippingAddress(e.target.value)}
-          fullWidth
-          multiline
+        <FormControlLabel
+          control={
+            <Switch
+              checked={isShipping}
+              onChange={e => setIsShipping(e.target.checked)}
+            />
+          }
+          label="Giao hàng tận nơi"
         />
-        <TextField
-          label="Số điện thoại"
-          value={phoneNumber}
-          onChange={e => setPhoneNumber(e.target.value)}
-          fullWidth
-          multiline
-        />
+        {isShipping && (
+          <>
+            <TextField
+              label="Địa chỉ"
+              value={shippingAddress}
+              onChange={e => setShippingAddress(e.target.value)}
+              fullWidth
+              multiline
+            />
+            <TextField
+              label="Số điện thoại"
+              value={phoneNumber}
+              onChange={e => setPhoneNumber(e.target.value)}
+              fullWidth
+              multiline
+            />
+          </>
+        )}
       </Box>
 
       <Divider />
@@ -389,11 +425,12 @@ export default function PrescriptionForm({
             rows={2}
           />
           <Typography variant="body1" color="grey" mt={1}>
-            Phí vận chuyển: 30.000 VNĐ
+            {isShipping
+              ? 'Phí vận chuyển: 30.000 VNĐ'
+              : 'Không giao hàng tận nơi'}
           </Typography>
           <Typography variant="subtitle1" color="primary" mt={1}>
-            Tạm tính tổng: {((totalPrice + 30) * 1000).toLocaleString('vi-VN')}{' '}
-            VNĐ
+            Tạm tính tổng: {(totalPrice * 1000).toLocaleString('vi-VN')} VNĐ
           </Typography>
         </Stack>
       </form>
@@ -405,12 +442,14 @@ export function PrescriptionModal({
   open,
   onClose,
   caseId,
-  onSuccess
+  onSuccess,
+  allowNoPharmacyOption = false
 }: {
   open: boolean
   onClose: () => void
   caseId: string
   onSuccess?: () => void
+  allowNoPharmacyOption?: boolean
 }) {
   const [medications, setMedications] = useState<
     (CaseMedication & { price?: number; quantity?: number })[]
@@ -426,9 +465,10 @@ export function PrescriptionModal({
     }
   ])
   const [note, setNote] = useState('')
-  const [pharmacyId, setPharmacyId] = useState('')
+  const [pharmacyId, setPharmacyId] = useState('0')
   const [shippingAddress, setShippingAddress] = useState('')
   const [phoneNumber, setPhoneNumber] = useState('')
+  const [isShipping, setIsShipping] = useState(false)
   const { addOffer = async () => {}, isAdding } = useAddOffer(caseId) || {}
   const [error, setError] = useState('')
 
@@ -466,8 +506,15 @@ export function PrescriptionModal({
       return
     }
 
-    // Validate shippingAddress and phoneNumber if needed
-    // (Optional: add validation here if required)
+    // Validate shippingAddress and phoneNumber nếu chọn giao hàng tận nơi
+    if (isShipping) {
+      if (!shippingAddress || !phoneNumber) {
+        enqueueSnackbar('Vui lòng nhập địa chỉ và số điện thoại giao hàng', {
+          variant: 'error'
+        })
+        return
+      }
+    }
 
     try {
       const res = await addOffer({
@@ -492,8 +539,9 @@ export function PrescriptionModal({
         ),
         note,
         pharmacyId,
-        shippingAddress,
-        shippingPhone: phoneNumber
+        shippingAddress: isShipping ? shippingAddress : undefined,
+        shippingPhone: isShipping ? phoneNumber : undefined,
+        isShipping
       } as any)
       if (res?.data) {
         enqueueSnackbar('Kê toa thuốc thành công', {
@@ -528,6 +576,9 @@ export function PrescriptionModal({
           setShippingAddress={setShippingAddress}
           phoneNumber={phoneNumber}
           setPhoneNumber={setPhoneNumber}
+          isShipping={isShipping}
+          setIsShipping={setIsShipping}
+          allowNoPharmacyOption={allowNoPharmacyOption}
         />
         {error && (
           <Typography color="error" mt={2}>

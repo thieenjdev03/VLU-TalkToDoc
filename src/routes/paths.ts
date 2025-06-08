@@ -100,10 +100,12 @@ export const paths = {
   dashboard: {
     root: ROOTS.DASHBOARD,
     report: {
-      root: `${ROOTS.DASHBOARD}/report`,
-      user: `${ROOTS.DASHBOARD}/report/user`,
-      case: `${ROOTS.DASHBOARD}/report/case`,
-      revenue: `${ROOTS.DASHBOARD}/report/revenue`
+      root: '/dashboard/report',
+      revenue_ttd: '/dashboard/report/revenue-ttd',
+      revenue: '/dashboard/report/revenue',
+      appointment: '/dashboard/report/appointment',
+      specialty: '/dashboard/report/specialty',
+      review_doctor: '/dashboard/report/review-doctor'
     },
     config: {
       root: `${ROOTS.DASHBOARD}/config`

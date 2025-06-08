@@ -39,8 +39,10 @@ export default function App() {
   `
 
   console.info(`%c${charAt}`, 'color: #5BE49B')
+
   const userProfile = localStorage.getItem('userProfile')
-  const userRole = userProfile ? JSON.parse(userProfile).role : ''
+  const userProfileParsed = userProfile ? JSON.parse(userProfile) : {}
+  const userRole = userProfileParsed?.role
   useScrollToTop()
   const renderThemeColorPresets = (role: string) => {
     console.log('render theme color presets', role)
@@ -56,6 +58,7 @@ export default function App() {
     }
     return 'cyan'
   }
+
   return (
     <AuthProvider>
       <LocalizationProvider>
@@ -65,7 +68,7 @@ export default function App() {
             themeDirection: 'ltr', //  'rtl' | 'ltr'
             themeContrast: 'default', // 'default' | 'bold'
             themeLayout: 'vertical', // 'vertical' | 'horizontal' | 'mini'
-            themeColorPresets: renderThemeColorPresets(userRole), // 'default' | 'cyan' | 'purple' | 'blue' | 'orange' | 'red'
+            themeColorPresets: renderThemeColorPresets(userRole || ''), // 'default' | 'cyan' | 'purple' | 'blue' | 'orange' | 'red'
             themeStretch: true
           }}
         >

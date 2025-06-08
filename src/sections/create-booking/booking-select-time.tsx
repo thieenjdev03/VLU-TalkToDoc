@@ -11,6 +11,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { DateCalendar, LocalizationProvider } from '@mui/x-date-pickers'
 
 import { getUserById } from 'src/api/user'
+import { useBookingStore } from 'src/store/booking'
 import { createAppointment } from 'src/api/appointment'
 
 import { IUserItem } from 'src/types/user'
@@ -20,7 +21,6 @@ import DoctorModal from '../user/detail-doctor'
 type Props = {
   doctors: IUserItem[]
   setCurrentStep: (step: string, back?: boolean) => void
-  formData: any
   handleSubmit: (data: any, step: string) => void
 }
 
@@ -131,9 +131,9 @@ const CustomSingleValue = (props: any) => {
 export default function BookingSelectTime({
   doctors,
   setCurrentStep,
-  formData,
   handleSubmit
 }: Props) {
+  const { formData, updateFormData } = useBookingStore()
   const [selectedDoctor, setSelectedDoctor] = useState<IUserItem | null>(
     doctors[0] || null
   )
@@ -196,15 +196,6 @@ export default function BookingSelectTime({
   }
 
   const { slots: availableTimeSlots, isDefault } = getAvailableSlots()
-
-  useEffect(() => {
-    const rawJson = {
-      doctor: selectedDoctor,
-      date: selectedDate?.format('YYYY-MM-DD'),
-      slot: selectedSlot
-    }
-    localStorage.setItem('booking_form_data_2', JSON.stringify(rawJson))
-  }, [selectedDoctor, selectedDate, selectedSlot])
 
   useEffect(() => {
     if (filteredDoctors.length) {

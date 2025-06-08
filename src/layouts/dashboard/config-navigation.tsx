@@ -54,8 +54,7 @@ const ICONS = {
 export function useNavData() {
   const { t } = useTranslate()
   const userProfile = localStorage.getItem('userProfile')
-  const user = JSON.parse(userProfile || '{}')
-  console.log('user', user)
+  const user = userProfile ? JSON.parse(userProfile) : {}
 
   const data = useMemo(
     () => [
@@ -113,17 +112,29 @@ export function useNavData() {
                 title: t('Thống Kê Chung'),
                 path: paths.dashboard.root
               },
-              // {
-              //   title: t('Thống Kê Người Dùng'),
-              //   path: paths.dashboard.report.user
-              // },
-              // {
-              //   title: t('Thống Kê Bệnh Án'),
-              //   path: paths.dashboard.report.case
-              // },
               {
-                title: t('Thống Kê Doanh Thu'),
+                title: t('Giao Dịch'),
                 path: paths.dashboard.invoice.root
+              },
+              {
+                title: t('Doanh Thu Bác Sĩ'),
+                path: paths.dashboard.report.revenue
+              },
+              {
+                title: t('Báo cáo đánh giá'),
+                path: paths.dashboard.report.review_doctor
+              },
+              {
+                title: t('Doanh Thu TalkToDoc'),
+                path: paths.dashboard.report.revenue_ttd
+              },
+              {
+                title: t('Lịch hẹn'),
+                path: paths.dashboard.report.appointment
+              },
+              {
+                title: t('Chuyên khoa'),
+                path: paths.dashboard.report.specialty
               }
             ]
           }

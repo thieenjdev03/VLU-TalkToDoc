@@ -1,3 +1,4 @@
+import moment from 'moment'
 import { useMemo, useState } from 'react'
 
 import Paper from '@mui/material/Paper'
@@ -13,7 +14,6 @@ import {
   InputAdornment
 } from '@mui/material'
 
-import { fDate } from 'src/utils/format-time'
 import { fCurrency } from 'src/utils/format-number'
 
 import Iconify from 'src/components/iconify'
@@ -42,15 +42,20 @@ export function WalletHistory({
 
   const filteredTransactions = useMemo(
     () =>
-      walletHistory.filter(tx => {
-        const matchesSearch = tx.description
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase())
-        const txDate = new Date(tx.createdAt)
-        const afterStart = startDate ? txDate >= new Date(startDate) : true
-        const beforeEnd = endDate ? txDate <= new Date(endDate) : true
-        return matchesSearch && afterStart && beforeEnd
-      }),
+      walletHistory
+        .filter(tx => {
+          const matchesSearch = tx.description
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase())
+          const txDate = new Date(tx.createdAt)
+          const afterStart = startDate ? txDate >= new Date(startDate) : true
+          const beforeEnd = endDate ? txDate <= new Date(endDate) : true
+          return matchesSearch && afterStart && beforeEnd
+        })
+        .sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        ),
     [walletHistory, searchTerm, startDate, endDate]
   )
 
@@ -146,7 +151,7 @@ export function WalletHistory({
                           {fCurrency(tx.amount)}
                         </Typography>
                         <Typography variant="caption" color="text.secondary">
-                          {fDate(tx.createdAt)}
+                          {moment(tx.createdAt).format('DD/MM/YYYY HH:mm')}
                         </Typography>
                       </Stack>
                     </Paper>

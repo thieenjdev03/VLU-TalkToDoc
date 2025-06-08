@@ -1,5 +1,4 @@
 import pdfMake from 'pdfmake/build/pdfmake'
-import pdfFonts from 'pdfmake/build/vfs_fonts'
 import { useMemo, useState, useCallback } from 'react'
 
 import {
@@ -299,7 +298,7 @@ export default function PrescriptionView({
     async (offer: CaseOffer, _patientInformation: any, index: number) => {
       try {
         // Setup fonts
-        pdfMake.vfs = (pdfFonts as any).default.pdfMake.vfs // ✅ Đúng cách gán vfs
+        // pdfMake.vfs = pdfFonts.default.pdfMake.vfs // ✅ Đúng cách gán vfs
 
         const docDefinition = generatePDFContent(
           offer,

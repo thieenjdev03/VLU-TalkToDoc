@@ -3,46 +3,46 @@ import { useState, useEffect } from 'react'
 
 import { Button, useTheme, TextField, useMediaQuery } from '@mui/material'
 
+import { useBookingStore } from 'src/store/booking'
+
 import PaymentMethods from '../payment/payment-methods'
 import { createPaymentURL, updateAppointment } from './api'
 
 export default function BookingPayment({
   setCurrentStep,
   specialty,
-  formData,
   handleSubmit
 }: {
   setCurrentStep: any
   specialty: any
-  formData: any
   handleSubmit: any
 }) {
-  console.log('formData', formData)
+  const { formData, updateFormData } = useBookingStore()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const isTablet = useMediaQuery(theme.breakpoints.down('md'))
   const { enqueueSnackbar } = useSnackbar()
-  const data2 = localStorage.getItem('booking_form_data_2')
-  const data1 = localStorage.getItem('booking_form_data_1')
-  const parsedData2 = JSON.parse(data2 || '{}')
-  const parsedData1 = JSON.parse(data1 || '{}')
-  const [paymentMethod, setPaymentMethod] = useState<string>('')
-  const booking = {
-    ...parsedData2,
-    ...parsedData1
-  }
-
+  const booking = formData
+  console.log('formData', formData)
   const doctorFee = booking?.doctor?.rank?.base_price || 0
   const totalFee = doctorFee
   const [coupon, setCoupon] = useState<string>('')
   const [discount, setDiscount] = useState<number>(0)
   const [generalSettings, setGeneralSettings] = useState<any>(null)
+  const [paymentMethod, setPaymentMethodState] = useState<string>('')
+
   useEffect(() => {
     setGeneralSettings(
       JSON.parse(localStorage.getItem('generalSettings') || '{}')
     )
   }, [])
   console.log(generalSettings)
+
+  const handleSetPaymentMethod = (method: string) => {
+    setPaymentMethodState(method)
+    updateFormData({ paymentMethod: method })
+  }
+
   const handleApplyCoupon = () => {
     const validCoupons = generalSettings?.general_setting?.COUPON_CODE
 
@@ -86,14 +86,26 @@ export default function BookingPayment({
         doctorFee,
         discount
       }
+      // Chuẩn bị payload chỉ gồm các trường hợp hợp lệ cho API
+      const appointmentPayload: any = {
+        doctor: formData.doctor?._id || formData.doctor,
+        specialty: formData.specialty?._id || formData.specialty,
+        date: formData.date,
+        slot: formData.slot,
+        timezone: formData.timezone || 'Asia/Ho_Chi_Minh',
+        patient: formData.patient,
+        appointmentId: formData.appointmentId
+      }
       // Nếu WALLET
       if (paymentMethod === 'WALLET') {
+        console.log('formData', formData)
         const res = await updateAppointment({
-          appointmentId: formData?.appointmentId,
+          appointmentId: formData.appointment,
           data: {
             payment: {
               ...paymentPayload,
-              status: 'PAID'
+              status: 'PAID',
+              paymentMethod: 'WALLET'
             }
           }
         })
@@ -110,17 +122,24 @@ export default function BookingPayment({
       }
       // Nếu VNPAY
       else if (paymentMethod === 'VNPAY') {
-        const res = await createPaymentURL({
-          patient: formData?.patient,
-          amount: finalTotalFee,
-          appointmentId: formData.appointmentId
+        const resAppointment = await updateAppointment({
+          appointmentId: formData.appointment,
+          data: {
+            payment: {
+              ...paymentPayload,
+              paymentMethod: 'VNPAY'
+            }
+          }
         })
-        if (res?.paymentUrl) {
-          window.location.href = res.paymentUrl
-        } else {
-          enqueueSnackbar('Không lấy được link thanh toán VNPAY', {
-            variant: 'error'
+        if (resAppointment?.data) {
+          const paymentRes = await createPaymentURL({
+            patient: formData.patient,
+            amount: finalTotalFee,
+            appointmentId: formData.appointment
           })
+          if (paymentRes?.paymentUrl) {
+            window.location.href = paymentRes.paymentUrl
+          }
         }
       }
     } catch (err: any) {
@@ -142,12 +161,10 @@ export default function BookingPayment({
         Xác nhận thông tin lịch hẹn
       </h2>
       <div
-        className={`grid grid-cols-1 ${isTablet ? 'lg:grid-cols-1' : 'lg:grid-cols-2'} gap-${
-          isMobile ? '4' : '10'
-        } items-start bg-white shadow rounded-lg p-${isMobile ? '4' : '6'}`}
+        className={`grid grid-cols-1 ${isTablet ? 'lg:grid-cols-1' : 'lg:grid-cols-2'} items-start  gap-2`}
       >
         {/* Left Section */}
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4  shadow rounded-lg">
           <div className="bg-amber border border-gray-200 rounded-lg p-4 space-y-4">
             <p className="text-sm text-gray-500">
               Mã lịch hẹn:{' '}
@@ -244,7 +261,7 @@ export default function BookingPayment({
         </div>
         {/* Right Section */}
         <div
-          className={`flex flex-col justify-between h-full w-full p-${
+          className={`flex flex-col shadow rounded-lg justify-between h-full w-full p-${
             isMobile ? '4' : '6'
           } border border-gray-200 rounded-lg bg-white shadow-sm`}
         >
@@ -257,7 +274,7 @@ export default function BookingPayment({
               className={`mx-auto mb-4 ${isMobile ? 'h-14' : 'h-20'}`}
             />
 
-            <PaymentMethods setPaymentMethod={setPaymentMethod} />
+            <PaymentMethods setPaymentMethod={handleSetPaymentMethod} />
             <p className="text-sm text-gray-600 text-center mt-4">
               Vui lòng kiểm tra lại thanh toán và bấm tiếp tục để thanh toán.
             </p>

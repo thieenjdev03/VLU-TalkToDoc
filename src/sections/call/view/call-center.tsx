@@ -57,6 +57,9 @@ export default function CallCenter({
   const [isVideoEnabled, setIsVideoEnabled] = useState(true)
   const [callStatus, setCallStatus] = useState('Chưa bắt đầu')
   const [isVideoCall, setIsVideoCall] = useState(false)
+  const [pendingCall, setPendingCall] = useState<null | { video: boolean }>(
+    null
+  )
 
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
@@ -337,7 +340,8 @@ export default function CallCenter({
   const makeCall = useCallback(
     (video = true) => {
       if (!clientConnected) {
-        setCallStatus('Chưa kết nối Stringee')
+        setCallStatus('Đang kết nối tới máy chủ, vui lòng chờ...')
+        setPendingCall({ video })
         return
       }
 
@@ -360,6 +364,7 @@ export default function CallCenter({
       setIsVideoCall(video)
       console.log(`Đang gọi từ ${callFromId} đến ${callToId}`)
 
+      setPendingCall(null)
       try {
         // Chuẩn bị dữ liệu appointment để gửi đi
         // Tạo phiên bản nhẹ của appointment để tránh dữ liệu quá lớn
@@ -387,7 +392,7 @@ export default function CallCenter({
           callerRole: userInfor?.role
         })
 
-        const call = new (window as any).StringeeCall(
+        const call = new window.StringeeCall(
           stringeeClientRef.current,
           callFromId,
           callToId,
@@ -1047,7 +1052,7 @@ export default function CallCenter({
               <Button
                 variant="contained"
                 onClick={() => makeCall(true)}
-                disabled={calling}
+                disabled={calling || !clientConnected}
                 sx={{
                   backgroundColor: 'success.main',
                   '&:hover': {

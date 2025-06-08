@@ -279,13 +279,13 @@ export default function InvoiceListView() {
             }
           ]}
           sx={{
-            mb: { xs: 1, md: 2 }
+            mb: { xs: 1, md: 1 }
           }}
         />
 
         <Card
           sx={{
-            mb: { xs: 1, md: 2 }
+            mb: { xs: 1, md: 1 }
           }}
         >
           <Scrollbar>
@@ -298,7 +298,7 @@ export default function InvoiceListView() {
                   sx={{ borderStyle: 'dashed' }}
                 />
               }
-              sx={{ py: 2 }}
+              sx={{ py: 1 }}
             >
               <InvoiceAnalytic
                 title="Tổng cộng"
@@ -353,17 +353,8 @@ export default function InvoiceListView() {
             direction="row"
             justifyContent="flex-end"
             alignItems="center"
-            sx={{ px: 2, pt: 2 }}
-          >
-            <Button
-              variant="outlined"
-              startIcon={<Iconify icon="solar:export-bold" />}
-              onClick={() => exportToCSV(dataFiltered)}
-              sx={{ mb: 1 }}
-            >
-              Export CSV
-            </Button>
-          </Stack>
+            sx={{ px: 1, pt: 1 }}
+          />
           <Tabs
             value={filters.status}
             onChange={handleFilterStatus}
@@ -397,6 +388,8 @@ export default function InvoiceListView() {
             filters={filters}
             onFilters={handleFilters}
             dateError={dateError}
+            exportToCSV={exportToCSV}
+            dataFiltered={dataFiltered}
             serviceOptions={doctorOptions}
           />
           {canReset && (

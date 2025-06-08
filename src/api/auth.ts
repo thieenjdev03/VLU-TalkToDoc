@@ -100,3 +100,29 @@ export const useForgotPassword = () => {
     verifyOTP
   }
 }
+
+export const getUserProfileFromToken = async (token?: string) => {
+  try {
+    const accessToken = token || localStorage.getItem('accessToken')
+    if (!accessToken) throw new Error('No access token')
+    const response = await axiosInstanceV2.get('/api/v1/auth/me', {
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    })
+
+    // Lấy dữ liệu gốc
+    const { data } = response
+
+    // Gán role thành uppercase nếu có, nếu không thì null hoặc undefined
+    const formattedResponse = {
+      ...data,
+      role: data.role ? data.role.toUpperCase() : data.role
+    }
+
+    return formattedResponse
+  } catch (error) {
+    console.error('Lỗi khi lấy user profile:', error)
+    throw error
+  }
+}

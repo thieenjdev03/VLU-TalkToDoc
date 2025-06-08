@@ -79,7 +79,7 @@ export default function CancelReasonDialog({
   }
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth>
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle sx={{ display: 'flex', alignItems: 'center', pb: 1 }}>
         <span style={{ flex: 1 }}>Huỷ lịch hẹn</span>
         <IconButton onClick={onClose} size="small" disabled={isSubmitting}>

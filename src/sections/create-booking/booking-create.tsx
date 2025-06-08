@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { Button } from '@mui/material'
 
 import { useGetUsers } from 'src/api/user'
+import { useBookingStore } from 'src/store/booking'
 import { submitCase, getCaseDetail } from 'src/api/case'
 
 import { ISpecialtyItem } from 'src/types/specialties'
@@ -35,7 +36,6 @@ export default function BookingCreate() {
     () => localStorage.getItem('booking_step') || 'select-specialty'
   )
   const [generalSettings, setGeneralSettings] = useState<any>(null)
-  console.log(generalSettings)
   const [medicalFormConfig, setMedicalFormConfig] = useState<any>(null)
   const { users: doctors } = useGetUsers({
     typeUser: 'doctor',
@@ -45,42 +45,27 @@ export default function BookingCreate() {
     sortField: 'createdAt',
     sortOrder: 'desc'
   })
-  const initFormData = {
-    patient: null,
-    doctor: null,
-    specialty: null,
-    appointment: { date: '', slot: '', timezone: '', appointmentId: '' },
-    medical_form: { symptoms: '', pain_level: '' },
-    payment: {
-      platformFee: 0,
-      doctorFee: 0,
-      discount: 0,
-      total: 0,
-      paymentMethod: ''
-    },
-    appointmentId: ''
-  }
-  const currentCase = JSON.parse(localStorage.getItem('currentCase') || '{}')
-  const currentCaseData = currentCase?.caseDetail?.data || initFormData
-  const [formData, setFormData] = useState<FormValuesProps>(currentCaseData)
+  const { formData, setFormData, updateFormData, resetFormData } =
+    useBookingStore()
 
   const setCurrentStep = (step: string, back?: boolean) => {
-    if (back) {
-      setCurrentStepState(step)
-      localStorage.setItem('booking_step', step)
-    } else {
-      setCurrentStepState(step)
-      localStorage.setItem('booking_step', step)
-    }
+    setCurrentStepState(step)
+    localStorage.setItem('booking_step', step)
   }
+
   useEffect(() => {
     localStorage.setItem('booking_form_data', JSON.stringify(formData))
-    console.log('formData', formData)
   }, [formData])
 
   useEffect(() => {
-    console.log('current step', currentStep)
-  }, [currentStep])
+    const settings = JSON.parse(localStorage.getItem('generalSettings') || '{}')
+    setGeneralSettings(settings)
+    const medicalForm = JSON.parse(
+      localStorage.getItem('generalSettings') || '{}'
+    )
+    setMedicalFormConfig(medicalForm?.general_setting?.form_json)
+  }, [])
+
   const handleSelect = (key: ISpecialtyItem) => {
     setSelected(key)
   }
@@ -88,12 +73,13 @@ export default function BookingCreate() {
   const handleSelectCurrentStep = (step: string) => {
     setCurrentStep(step)
   }
+
   const handleSubmit = async (data: FormValuesProps, step: string) => {
     let updatedData = data
 
     switch (step) {
       case 'select-specialty': {
-        if (data.specialty && !currentCase?._id) {
+        if (data.specialty && !formData.caseDetail?._id) {
           try {
             const res = await submitCase({
               specialty: data.specialty._id,
@@ -101,7 +87,10 @@ export default function BookingCreate() {
               patient: data.patient
             })
             updatedData = res?.data || data
-            localStorage.setItem('currentCase', JSON.stringify(res?.data))
+            if (res?.data) {
+              console.log('Updated data in specialty', res?.data)
+              updateFormData(res?.data)
+            }
           } catch (err) {
             // Xử lý lỗi nếu cần
           }
@@ -109,17 +98,20 @@ export default function BookingCreate() {
         break
       }
       case 'medical-form': {
-        if (currentCase?._id) {
+        if (formData.caseDetail?._id) {
           try {
             const res = await submitCase({
-              case_id: currentCase?._id,
+              case_id: formData.caseDetail._id,
               action: 'save',
               patient: data.patient,
               specialty: data.specialty,
               medical_form: data.medical_form
             })
             updatedData = res?.data || data
-            localStorage.setItem('currentCase', JSON.stringify(res?.data))
+            if (res?.data) {
+              console.log('Updated data in medical-form', res?.data)
+              updateFormData(res?.data)
+            }
           } catch (err) {
             // Xử lý lỗi nếu cần
           }
@@ -127,18 +119,19 @@ export default function BookingCreate() {
         break
       }
       case 'select-time-booking': {
-        if (currentCase?._id) {
+        if (formData.caseDetail?._id) {
           try {
             const res = await submitCase({
-              case_id: currentCase?._id,
+              case_id: formData.caseDetail._id,
               action: 'save',
               patient: data.patient,
               appointment: data.appointment,
               doctor: data.doctor?._id
             })
-            if (res?.data?._id) {
+            if (res?.data) {
+              console.log('Updated data in select-time-booking', res?.data)
               updatedData = res?.data
-              localStorage.setItem('currentCase', JSON.stringify(res?.data))
+              updateFormData(res?.data)
             }
           } catch (err) {
             // Xử lý lỗi nếu cần
@@ -154,13 +147,17 @@ export default function BookingCreate() {
               payment: data.payment
             }
           })
-          const getLastedCaseRes = await getCaseDetail(currentCase?._id)
-          updatedData = getLastedCaseRes?.caseDetail?.data || data
-          localStorage.setItem(
-            'currentCase',
-            JSON.stringify(getLastedCaseRes?.caseDetail?.data)
-          )
-          console.log('updatedData', updatedData)
+          const getLastedCaseRes = await getCaseDetail(formData.caseDetail._id)
+          if (getLastedCaseRes?.caseDetail?.data) {
+            console.log(
+              'updated data in confirm-payment-step',
+              getLastedCaseRes?.caseDetail?.data
+            )
+            updatedData = getLastedCaseRes?.caseDetail?.data || data
+            updateFormData(getLastedCaseRes?.caseDetail?.data)
+          } else {
+            updatedData = data
+          }
         } catch (err) {
           // Xử lý lỗi nếu cần
         }
@@ -179,20 +176,8 @@ export default function BookingCreate() {
         break
       }
     }
-    setFormData(updatedData)
+    updateFormData(updatedData)
   }
-  useEffect(() => {
-    console.log('formData', formData)
-  }, [formData])
-
-  useEffect(() => {
-    const settings = JSON.parse(localStorage.getItem('generalSettings') || '{}')
-    setGeneralSettings(settings)
-    const medicalForm = JSON.parse(
-      localStorage.getItem('generalSettings') || '{}'
-    )
-    setMedicalFormConfig(medicalForm?.general_setting?.form_json)
-  }, [])
 
   return (
     <>
@@ -200,7 +185,6 @@ export default function BookingCreate() {
         <SelectSpecialty
           handleSelectCurrentStep={handleSelectCurrentStep}
           onSelect={handleSelect}
-          formData={formData}
           setCurrentStep={setCurrentStep}
           handleSubmit={handleSubmit}
         />
@@ -218,7 +202,6 @@ export default function BookingCreate() {
                 type: field.type as 'text' | 'select' | 'textarea' | 'number'
               })) || []
           }
-          formData={formData}
           handleSubmit={handleSubmit}
         />
       )}
@@ -230,80 +213,45 @@ export default function BookingCreate() {
             setCurrentStep(step, true)
           }}
           handleSubmit={handleSubmit}
-          formData={formData}
         />
       )}
       {currentStep === 'confirm-payment-step' && (
         <BookingPayment
           setCurrentStep={setCurrentStep}
           specialty={selected as ISpecialtyItem}
-          formData={formData}
           handleSubmit={handleSubmit}
         />
       )}
-      {/* {currentStep === 'payment-step' && (
-        <BookingConfirmPayment
-          setCurrentStep={setCurrentStep}
-          specialty={selected as ISpecialtyItem}
-          formData={formData}
-          handleSubmit={handleSubmit}
-        />
-      )} */}
       {currentStep === 'payment-completed' && (
         <BookingPaymentCompleted
           setCurrentStep={setCurrentStep}
-          formData={formData}
           handleSubmit={handleSubmit as any}
         />
       )}
     </>
   )
 }
-// function BookingConfirmPayment({
-//   setCurrentStep,
-//   specialty,
-//   formData,
-//   handleSubmit
-// }: {
-//   setCurrentStep: any
-//   specialty: ISpecialtyItem
-//   formData: FormValuesProps
-//   handleSubmit: (data: FormValuesProps, step: any) => Promise<void>
-// }) {
-//   return (
-//     <div className="max-w-6xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
-//       {/* LEFT: Payment Gateway */}
-//       <div className="col-span-1 lg:col-span-2 flex justify-between mt-6">
-//         <Button
-//           variant="outlined"
-//           onClick={() => setCurrentStep('select-time-booking', true)}
-//         >
-//           Trở về
-//         </Button>
-//         <Button
-//           variant="contained"
-//           onClick={() => setCurrentStep('payment-completed')}
-//         >
-//           Thanh Toán
-//         </Button>
-//       </div>
-//     </div>
-//   )
-// }
+
 function BookingPaymentCompleted({
   setCurrentStep,
-  formData,
   handleSubmit
 }: {
   setCurrentStep: any
-  formData: FormValuesProps
   handleSubmit: (data: FormValuesProps) => Promise<void>
 }) {
+  const { resetFormData } = useBookingStore()
   const handleNewBooking = () => {
     setCurrentStep('select-specialty')
-    localStorage.removeItem('currentCase')
-    localStorage.removeItem('booking_form_data')
+    resetFormData()
     localStorage.removeItem('booking_step')
+    localStorage.removeItem('booking_form_data')
+  }
+  const handleGoToDashboard = () => {
+    setCurrentStep('select-specialty')
+    resetFormData()
+    localStorage.removeItem('booking_step')
+    localStorage.removeItem('booking_form_data')
+    window.location.href = '/dashboard'
   }
   return (
     <div className="min-h-[70vh] flex flex-col items-center justify-center bg-white text-center p-6">
@@ -327,6 +275,7 @@ function BookingPaymentCompleted({
         <Button
           variant="contained"
           color="primary"
+          onClick={() => handleGoToDashboard()}
           href="/dashboard" // hoặc thay bằng route thật của bạn
         >
           Về trang chính
