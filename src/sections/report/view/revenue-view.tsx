@@ -42,6 +42,12 @@ import InvoiceTableRow from 'src/sections/invoice/invoice-table-row'
 import InvoiceTableToolbar from 'src/sections/invoice/invoice-table-toolbar'
 import InvoiceTableFiltersResult from 'src/sections/invoice/invoice-table-filters-result'
 
+import {
+  IInvoice,
+  IInvoiceTableFilters,
+  IInvoiceTableFilterValue
+} from 'src/types/invoice'
+
 const TABLE_HEAD = [
   { id: 'orderId', label: 'Mã Thanh Toán', minWidth: 100 },
   { id: 'appointmentId', label: 'Mã Lịch Hẹn', minWidth: 100 },
@@ -56,7 +62,7 @@ const TABLE_HEAD = [
   { id: 'status', label: 'Trạng Thái', minWidth: 120, align: 'center' }
 ]
 
-const defaultFilters = {
+const defaultFilters: IInvoiceTableFilters = {
   name: '',
   status: 'all',
   startDate: null,
@@ -71,19 +77,19 @@ export default function RevenueView() {
   const router = useRouter()
   const table = useTable({ defaultOrderBy: 'createdAt' })
   const confirm = useBoolean()
-  const [tableData, setTableData] = useState([])
-  const [filters, setFilters] = useState(defaultFilters)
-  const debounceRef = useRef(null)
+  const [tableData, setTableData] = useState<IInvoice[]>([])
+  const [filters, setFilters] = useState<IInvoiceTableFilters>(defaultFilters)
+  const debounceRef = useRef<NodeJS.Timeout | null>(null)
 
   // Mock doctor options
   const doctorOptions = useMemo(() => {
     const doctors = tableData
-      .map(item => item.appointmentInfo?.doctor)
+      .map(item => (item as any).appointmentInfo?.doctor)
       .filter(Boolean)
     const uniqueDoctors = Array.from(
-      new Map(doctors.map(d => [d._id, d])).values()
+      new Map(doctors.map((d: any) => [d._id, d])).values()
     )
-    return uniqueDoctors.map(d => ({ id: d._id, name: d.fullName }))
+    return uniqueDoctors.map((d: any) => ({ id: d._id, name: d.fullName }))
   }, [tableData])
 
   // Mock fetch data
@@ -114,16 +120,16 @@ export default function RevenueView() {
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length
 
-  const getInvoiceLength = status =>
+  const getInvoiceLength = (status: string) =>
     tableData.filter(item => item.status === status).length
 
-  const getTotalAmount = status =>
+  const getTotalAmount = (status: string) =>
     sumBy(
       tableData.filter(item => item.status === status),
       'amount'
     )
 
-  const getPercentByStatus = status =>
+  const getPercentByStatus = (status: string) =>
     (getInvoiceLength(status) / (tableData.length || 1)) * 100
 
   const TABS = [
@@ -160,7 +166,7 @@ export default function RevenueView() {
   ]
 
   const handleFilters = useCallback(
-    (name, value) => {
+    (name: string, value: IInvoiceTableFilterValue) => {
       table.onResetPage()
       setFilters(prev => ({ ...prev, [name]: value }))
     },
@@ -173,7 +179,7 @@ export default function RevenueView() {
 
   const handleDeleteRows = useCallback(() => {
     const deleteRows = tableData.filter(
-      row => !table.selected.includes(row._id)
+      (row: any) => !table.selected.includes(row._id)
     )
     enqueueSnackbar('Delete success!')
     setTableData(deleteRows)
@@ -189,10 +195,10 @@ export default function RevenueView() {
     tableData
   ])
 
-  const handleViewRow = useCallback(id => {}, [])
+  const handleViewRow = useCallback((id: string) => {}, [])
 
   const handleFilterStatus = useCallback(
-    (event, newValue) => {
+    (event: React.SyntheticEvent, newValue: string) => {
       handleFilters('status', newValue)
     },
     [handleFilters]
@@ -293,7 +299,7 @@ export default function RevenueView() {
                       'filled') ||
                     'soft'
                   }
-                  color={tab.color}
+                  color={tab.color as any}
                 >
                   {tab.count}
                 </Label>
@@ -326,7 +332,7 @@ export default function RevenueView() {
             onSelectAllRows={checked => {
               table.onSelectAllRows(
                 checked,
-                dataFiltered.map(row => row._id)
+                dataFiltered.map((row: IInvoice) => row._id)
               )
             }}
             action={null}
@@ -346,7 +352,7 @@ export default function RevenueView() {
                 onSelectAllRows={checked =>
                   table.onSelectAllRows(
                     checked,
-                    dataFiltered?.map(row => row._id)
+                    dataFiltered?.map((row: IInvoice) => row._id)
                   )
                 }
               />
@@ -356,7 +362,7 @@ export default function RevenueView() {
                     table.page * table.rowsPerPage,
                     table.page * table.rowsPerPage + table.rowsPerPage
                   )
-                  .map(row => (
+                  .map((row: IInvoice) => (
                     <InvoiceTableRow
                       key={row.id}
                       row={row}
@@ -417,27 +423,47 @@ export default function RevenueView() {
   )
 }
 
-function applyFilter({ inputData, comparator, filters, dateError }) {
+function applyFilter({
+  inputData,
+  comparator,
+  filters,
+  dateError
+}: {
+  inputData: IInvoice[]
+  comparator: (
+    a: { [key: string]: string | number },
+    b: { [key: string]: string | number }
+  ) => number
+  filters: IInvoiceTableFilters
+  dateError: boolean
+}): IInvoice[] {
   const {
     name = '',
     status = 'all',
     startDate = null,
     endDate = null
   } = filters || {}
-  const stabilizedThis = inputData.map((el, index) => [el, index])
+  const stabilizedThis = inputData.map(
+    (el, index) => [el, index] as [IInvoice, number]
+  )
   stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0])
+    const order = comparator(
+      a[0] as unknown as { [key: string]: string | number },
+      b[0] as unknown as { [key: string]: string | number }
+    )
     if (order !== 0) return order
     return a[1] - b[1]
   })
   inputData = stabilizedThis.map(el => el[0])
   if (status !== 'all') {
-    inputData = inputData.filter(invoice => invoice.status === status)
+    inputData = inputData.filter(
+      (invoice: IInvoice) => invoice.status === status
+    )
   }
   if (!dateError) {
     if (startDate && endDate) {
-      inputData = inputData.filter(invoice =>
-        isBetween(invoice.createdAt, startDate, endDate)
+      inputData = inputData.filter((invoice: IInvoice) =>
+        isBetween(invoice.createDate, startDate, endDate)
       )
     }
   }
