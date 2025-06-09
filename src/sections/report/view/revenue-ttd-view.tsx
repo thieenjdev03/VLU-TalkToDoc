@@ -39,6 +39,7 @@ import {
   IInvoiceTableFilterValue
 } from 'src/types/invoice'
 
+import RevenueTableToolbar from '../components/revenue-ttd-toolbar'
 import RevenuePlatformTableRow from '../components/revenue-platform-table-row'
 
 const TABLE_HEAD = [
@@ -193,6 +194,14 @@ export default function RevenueTTDView() {
     setFilters(defaultFilters)
   }, [])
 
+  // Thêm hàm exportToCSV đơn giản
+  const exportToCSV = data => {
+    // Chỉ xuất ra console, bạn có thể thay bằng logic thực tế
+    console.log('Export CSV:', data)
+  }
+  const serviceOptions = [] // Nếu có danh sách bác sĩ thì truyền vào
+  const dateError = false // Nếu muốn validate ngày thì cập nhật logic
+
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
       <CustomBreadcrumbs
@@ -204,6 +213,7 @@ export default function RevenueTTDView() {
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />
+
       <Card sx={{ mb: { xs: 1, md: 1 } }}>
         <Scrollbar>
           <Stack
@@ -247,6 +257,15 @@ export default function RevenueTTDView() {
             />
           ))}
         </Tabs>
+        <RevenueTableToolbar
+          filters={filters}
+          onFilters={handleFilters}
+          exportToCSV={exportToCSV}
+          dataFiltered={dataFiltered}
+          dateError={dateError}
+          serviceOptions={serviceOptions}
+          selected={table.selected}
+        />
         <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
           <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 800 }}>
             <TableHeadCustom
