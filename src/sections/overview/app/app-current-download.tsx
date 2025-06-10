@@ -32,7 +32,7 @@ const StyledChart = styled(Chart)(({ theme }) => ({
   },
   '& .apexcharts-legend': {
     height: LEGEND_HEIGHT,
-    borderTop: `dashed 1px ${theme.palette.divider}`,
+    borderTop: `dashed 0.5px ${theme.palette.divider}`,
     top: `calc(${CHART_HEIGHT - LEGEND_HEIGHT}px) !important`
   }
 }))
@@ -249,13 +249,14 @@ export default function AppCurrentDownload({
     plotOptions: {
       pie: {
         donut: {
-          size: '90%',
+          size: '80%',
           labels: {
             value: {
               formatter: (value: number | string) =>
                 `${fNumber(value)} Lịch hẹn`
             },
             total: {
+              label: 'Tất cả',
               formatter: (w: { globals: { seriesTotals: number[] } }) => {
                 const sum = w.globals.seriesTotals.reduce((a, b) => a + b, 0)
                 return `${fNumber(sum)} Lịch hẹn`

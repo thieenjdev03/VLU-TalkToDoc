@@ -388,7 +388,7 @@ export default function InvoiceListView() {
             filters={filters}
             onFilters={handleFilters}
             dateError={dateError}
-            exportToCSV={exportToCSV}
+            exportToCSV={() => exportToCSV(dataFiltered)}
             dataFiltered={dataFiltered}
             serviceOptions={doctorOptions}
           />
@@ -582,12 +582,79 @@ function applyFilter({
 
 function exportToCSV(data: any[], filename = 'invoices.csv') {
   if (!data.length) return
-  const header = Object.keys(data[0])
+  const header = TABLE_HEAD.map(col => col.id)
   const csv = [
-    header.join(','),
+    TABLE_HEAD.map(col => col.label).join(','),
     ...data.map((row: any) =>
       header
-        .map(field => `"${(row[field] ?? '').toString().replace(/"/g, '""')}"`)
+        .map(field => {
+          let value = ''
+          switch (field) {
+            case 'orderId':
+              value = row.orderId || row.order_id || ''
+              break
+            case 'appointmentId':
+              value = row.appointmentId || row.appointment_id || ''
+              break
+            case 'patient':
+              value =
+                row.appointmentInfo?.patient?.fullName ||
+                row.appointmentInfo?.patient?.full_name ||
+                ''
+              break
+            case 'doctor':
+              value =
+                row.appointmentInfo?.doctor?.fullName ||
+                row.appointmentInfo?.doctor?.full_name ||
+                ''
+              break
+            case 'createdAt':
+              if (row.createdAt) {
+                value = dayjs(row.createdAt).format('DD/MM/YYYY HH:mm')
+              } else if (row.created_at) {
+                value = dayjs(row.created_at).format('DD/MM/YYYY HH:mm')
+              } else {
+                value = ''
+              }
+              break
+            case 'paymentMethod':
+              value = row.paymentMethod || row.payment_method || ''
+              break
+            case 'amount':
+              value = row.amount ?? row.total_amount ?? ''
+              break
+            case 'platformFee':
+              value = row.platformFee ?? row.platform_fee ?? ''
+              break
+            case 'discount':
+              value = row.discount ?? row.discount_amount ?? ''
+              break
+            case 'doctorRevenue':
+              value = row.doctorRevenue ?? row.doctor_revenue ?? ''
+              break
+            case 'status':
+              switch (row.status || row.status_text) {
+                case 'completed':
+                  value = 'Đã thanh toán'
+                  break
+                case 'pending':
+                  value = 'Chưa thanh toán'
+                  break
+                case 'overdue':
+                  value = 'Quá hạn'
+                  break
+                case 'draft':
+                  value = 'Nháp'
+                  break
+                default:
+                  value = row.status || row.status_text || ''
+              }
+              break
+            default:
+              value = row[field] ?? row[field?.toLowerCase()] ?? ''
+          }
+          return `"${(value ?? '').toString().replace(/"/g, '""')}"`
+        })
         .join(',')
     )
   ].join('\r\n')

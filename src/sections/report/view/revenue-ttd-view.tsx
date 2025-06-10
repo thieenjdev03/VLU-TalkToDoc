@@ -71,6 +71,29 @@ const defaultFilters: IInvoiceTableFilters = {
   service: []
 }
 
+// Map trạng thái sang tiếng Việt
+const STATUS_LABELS: Record<string, string> = {
+  completed: 'Đã hoàn thành',
+  pending: 'Đang chờ'
+  // Có thể bổ sung thêm các trạng thái khác nếu cần
+}
+
+// Hàm lấy giá trị đúng cho từng field export
+const getFieldValue = (row: any, field: string) => {
+  switch (field) {
+    case 'doctorRevenue':
+      // Lấy doanh thu bác sĩ từ nested object
+      return row.appointmentInfo?.payment?.doctorFee ?? row.doctorRevenue ?? ''
+    case 'discount':
+      // Lấy giảm giá từ nested object
+      return row.appointmentInfo?.payment?.discount ?? row.discount ?? ''
+    case 'status':
+      return STATUS_LABELS[row.status] || row.status || ''
+    default:
+      return row[field] ?? ''
+  }
+}
+
 export default function RevenueTTDView() {
   const { enqueueSnackbar } = useSnackbar()
   const theme = useTheme()
@@ -188,11 +211,54 @@ export default function RevenueTTDView() {
     setFilters(defaultFilters)
   }, [])
 
-  // Thêm hàm exportToCSV đơn giản
-  const exportToCSV = data => {
-    // Chỉ xuất ra console, bạn có thể thay bằng logic thực tế
-    console.log('Export CSV:', data)
+  // Thêm hàm chuyển data sang CSV string, chỉ lấy field trong TABLE_HEAD
+  const convertToCSV = (
+    data: any[],
+    columns: { id: string; label: string }[]
+  ) => {
+    if (!data.length) return ''
+    const header = columns.map(col => col.label)
+    const fields = columns.map(col => col.id)
+    const csvRows = [
+      header.join(','), // header row
+      ...data.map(row =>
+        fields
+          .map(fieldName => {
+            let value = getFieldValue(row, fieldName)
+            if (typeof value === 'object' && value !== null)
+              value = JSON.stringify(value)
+            if (typeof value === 'string' && value.includes(','))
+              value = `"${value}"`
+            return value ?? ''
+          })
+          .join(',')
+      )
+    ]
+    return csvRows.join('\n')
   }
+
+  // Hàm trigger download file CSV
+  const downloadCSV = (csv: string, filename = 'revenue.csv') => {
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = filename
+    a.click()
+    window.URL.revokeObjectURL(url)
+  }
+
+  // Sửa hàm exportToCSV để chỉ export field trong TABLE_HEAD
+  const exportToCSV = (data: any[]) => {
+    if (!data || !data.length) {
+      enqueueSnackbar('Không có dữ liệu để xuất', { variant: 'warning' })
+      return
+    }
+    const csv = convertToCSV(data, TABLE_HEAD)
+    downloadCSV(csv, 'revenue.csv')
+    enqueueSnackbar('Xuất file CSV thành công!', { variant: 'success' })
+  }
+
   const serviceOptions = [] // Nếu có danh sách bác sĩ thì truyền vào
   const dateError = false // Nếu muốn validate ngày thì cập nhật logic
 

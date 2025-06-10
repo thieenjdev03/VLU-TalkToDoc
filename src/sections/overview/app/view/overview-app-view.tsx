@@ -1,3 +1,4 @@
+import dayjs from 'dayjs'
 import moment from 'moment'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -49,7 +50,7 @@ interface SpecialtyChartData {
 }
 
 // Custom hook để quản lý thống kê
-const useSummaryStats = () => {
+const useSummaryStats = (summaryStart: string, summaryEnd: string) => {
   const [stats, setStats] = useState({
     patient: {
       percent: 0,
@@ -105,13 +106,11 @@ const useSummaryStats = () => {
   useEffect(() => {
     const loadAllStats = async () => {
       setLoading(true)
-      const startDate = moment().startOf('year').format('YYYY-MM-DD')
-      const endDate = moment().endOf('year').format('YYYY-MM-DD')
       try {
         const [patientData, appointmentData, revenueData] = await Promise.all([
-          fetchSummaryData('patient', startDate, endDate),
-          fetchSummaryData('appointment', startDate, endDate),
-          fetchSummaryData('revenue', startDate, endDate)
+          fetchSummaryData('patient', summaryStart, summaryEnd),
+          fetchSummaryData('appointment', summaryStart, summaryEnd),
+          fetchSummaryData('revenue', summaryStart, summaryEnd)
         ])
 
         setStats(prev => ({
@@ -127,7 +126,7 @@ const useSummaryStats = () => {
     }
 
     loadAllStats()
-  }, [])
+  }, [summaryStart, summaryEnd])
 
   return { stats, loading }
 }
@@ -139,13 +138,44 @@ export default function OverviewAppView() {
   const navigate = useNavigate()
   const settings = useSettingsContext()
 
-  // Sử dụng custom hook
-  const { stats, loading } = useSummaryStats()
+  // Filter chung cho 3 widget
+  const [statRangeType, setStatRangeType] = useState<
+    'week' | 'month' | 'quarter' | 'year'
+  >('year')
 
-  // Tính toán time range cho thống kê
-  const currentYear = new Date().getFullYear()
-  const startDate = moment().startOf('year').format('YYYY-MM-DD')
-  const endDate = moment().endOf('year').format('YYYY-MM-DD')
+  // Tính toán startDate, endDate theo filter
+  const getRange = () => {
+    const now = dayjs()
+    switch (statRangeType) {
+      case 'week':
+        return {
+          start: now.startOf('week').format('YYYY-MM-DD'),
+          end: now.endOf('week').format('YYYY-MM-DD')
+        }
+      case 'month':
+        return {
+          start: now.startOf('month').format('YYYY-MM-DD'),
+          end: now.endOf('month').format('YYYY-MM-DD')
+        }
+      case 'quarter':
+        return {
+          start: now
+            .startOf('quarter' as dayjs.OpUnitType)
+            .format('YYYY-MM-DD'),
+          end: now.endOf('quarter' as dayjs.OpUnitType).format('YYYY-MM-DD')
+        }
+      case 'year':
+      default:
+        return {
+          start: now.startOf('year').format('YYYY-MM-DD'),
+          end: now.endOf('year').format('YYYY-MM-DD')
+        }
+    }
+  }
+  const { start: statStartDate, end: statEndDate } = getRange()
+
+  // Sử dụng custom hook
+  const { stats, loading } = useSummaryStats(statStartDate, statEndDate)
 
   // Helper function để format số tiền
   const formatCurrency = (amount: number) =>
@@ -310,6 +340,26 @@ export default function OverviewAppView() {
     fetchSpecialtyStats()
   }, [statMode, selectedYear, selectedMonth, range])
 
+  // Tính toán time range cho thống kê
+  const currentYear = new Date().getFullYear()
+  const startDate = statStartDate
+  const endDate = statEndDate
+
+  // Helper function để lấy label cho filter
+  const getStatLabel = () => {
+    switch (statRangeType) {
+      case 'week':
+        return 'Tuần này'
+      case 'month':
+        return 'Tháng này'
+      case 'quarter':
+        return 'Quý này'
+      case 'year':
+      default:
+        return `Năm ${currentYear}`
+    }
+  }
+
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
       <Grid container spacing={3}>
@@ -376,9 +426,26 @@ export default function OverviewAppView() {
         </Grid>
         {user?.role === 'ADMIN' && (
           <>
+            <Grid xs={12} md={12}>
+              <Stack direction="row" spacing={2} alignItems="center" mb={2}>
+                <TextField
+                  select
+                  label="Chọn khoảng"
+                  value={statRangeType}
+                  onChange={e => setStatRangeType(e.target.value as any)}
+                  size="small"
+                  sx={{ minWidth: 120 }}
+                >
+                  <MenuItem value="week">Tuần này</MenuItem>
+                  <MenuItem value="month">Tháng này</MenuItem>
+                  <MenuItem value="quarter">Quý này</MenuItem>
+                  <MenuItem value="year">Năm nay</MenuItem>
+                </TextField>
+              </Stack>
+            </Grid>
             <Grid xs={12} md={4}>
               <AppWidgetSummary
-                title={`Tổng Bệnh Nhân Mới Năm ${currentYear}`}
+                title={`Tổng Bệnh Nhân Mới (${getStatLabel()})`}
                 percent={stats.patient.percent * 100 || 0}
                 total={stats.patient.total || 0}
                 chart={{
@@ -390,7 +457,7 @@ export default function OverviewAppView() {
 
             <Grid xs={12} md={4}>
               <AppWidgetSummary
-                title={`Tổng Lịch Hẹn Năm ${currentYear}`}
+                title={`Tổng Lịch Hẹn (${getStatLabel()})`}
                 percent={stats.appointment.percent * 100 || 0}
                 total={stats.appointment.total || 0}
                 chart={{
@@ -403,7 +470,7 @@ export default function OverviewAppView() {
 
             <Grid xs={12} md={4}>
               <AppWidgetSummary
-                title={`Tổng Doanh Thu Năm ${currentYear}`}
+                title={`Tổng Doanh Thu (${getStatLabel()})`}
                 percent={stats.revenue.percent * 100 || 0}
                 total={stats.revenue.total || 0}
                 chart={{

@@ -182,6 +182,7 @@ export const endpoints = {
   },
   report: {
     doctorReview: '/report/review-doctor',
-    specialtyStatistics: '/report/specialty-statistics'
+    specialtyStatistics: '/report/specialty-statistics',
+    doctorAppointment: '/report/doctor-appointments'
   }
 }

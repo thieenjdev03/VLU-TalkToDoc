@@ -54,3 +54,36 @@ export const getSpecialtyReport = async ({
   )
   return response.data
 }
+
+// Lấy báo cáo lịch hẹn bác sĩ
+export const getDoctorAppointmentReport = async ({
+  from_date,
+  to_date,
+  doctor_ids = [],
+  status = 'all',
+  search = '',
+  page = 1,
+  pageSize = 20
+}: {
+  from_date?: string
+  to_date?: string
+  doctor_ids?: string[]
+  status?: string
+  search?: string
+  page?: number
+  pageSize?: number
+} = {}) => {
+  const params = new URLSearchParams()
+  if (from_date) params.append('from_date', from_date)
+  if (to_date) params.append('to_date', to_date)
+  if (doctor_ids && doctor_ids.length)
+    doctor_ids.forEach(id => params.append('doctor_ids[]', id))
+  if (status) params.append('status', status)
+  if (search) params.append('search', search)
+  params.append('page', page.toString())
+  params.append('pageSize', pageSize.toString())
+  const response = await axiosInstanceV2.get(
+    `${endpoints.report.doctorAppointment}?${params.toString()}`
+  )
+  return response.data
+}
