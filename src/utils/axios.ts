@@ -181,6 +181,7 @@ export const endpoints = {
     profile: (id: string) => `/api/v1/users/${id}`
   },
   report: {
-    doctorReview: '/report/review-doctor'
+    doctorReview: '/report/review-doctor',
+    specialtyStatistics: '/report/specialty-statistics'
   }
 }

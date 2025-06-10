@@ -146,8 +146,14 @@ export default function RevenueTTDView() {
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length
   console.log('dataFiltered check', dataFiltered)
-  // Tổng doanh thu nền tảng
   const getTotalPlatformRevenue = () => sumBy(dataFiltered, 'platformRevenue')
+
+  // Hàm tính tổng doanh thu nền tảng theo trạng thái
+  const getTotalPlatformRevenueByStatus = (status: string) =>
+    sumBy(
+      dataFiltered.filter(item => item.status === status),
+      'platformRevenue'
+    )
 
   const TABS = [
     {
@@ -167,18 +173,6 @@ export default function RevenueTTDView() {
       label: 'Đang chờ',
       color: 'warning',
       count: dataFiltered.filter(item => item.status === 'pending').length
-    },
-    {
-      value: 'overdue',
-      label: 'Quá hạn',
-      color: 'error',
-      count: dataFiltered.filter(item => item.status === 'overdue').length
-    },
-    {
-      value: 'draft',
-      label: 'Nháp',
-      color: 'default',
-      count: dataFiltered.filter(item => item.status === 'draft').length
     }
   ]
 
@@ -207,7 +201,7 @@ export default function RevenueTTDView() {
       <CustomBreadcrumbs
         heading="Báo cáo doanh thu TalkToDoc"
         links={[
-          { name: 'Dashboard', href: paths.dashboard.root },
+          { name: 'Quản trị', href: paths.dashboard.root },
           { name: 'Báo cáo', href: paths.dashboard.report.root },
           { name: 'Doanh thu TalkToDoc' }
         ]}
@@ -217,24 +211,58 @@ export default function RevenueTTDView() {
       <Card sx={{ mb: { xs: 1, md: 1 } }}>
         <Scrollbar>
           <Stack
-            direction="row"
+            direction={{ xs: 'column', md: 'row' }}
+            justifyContent="space-between"
+            alignItems="stretch"
             divider={
               <Divider
-                orientation="vertical"
+                orientation={
+                  typeof window !== 'undefined' && window.innerWidth < 900
+                    ? 'horizontal'
+                    : 'vertical'
+                }
                 flexItem
                 sx={{ borderStyle: 'dashed' }}
               />
             }
-            sx={{ py: 1 }}
+            sx={{ py: 1, px: 1 }}
+            spacing={{ xs: 2, md: 2 }}
           >
-            <InvoiceAnalytic
-              title="Tổng doanh thu nền tảng"
-              total={dataFiltered.length}
-              percent={100}
-              price={getTotalPlatformRevenue()}
-              icon="solar:bill-list-bold-duotone"
-              color={theme.palette.info.main}
-            />
+            <Stack flex={1}>
+              <InvoiceAnalytic
+                title="Tổng doanh thu nền tảng"
+                total={dataFiltered.length}
+                percent={100}
+                price={getTotalPlatformRevenue()}
+                icon="solar:bill-list-bold-duotone"
+                color={theme.palette.info.main}
+              />
+            </Stack>
+            <Stack flex={1}>
+              <InvoiceAnalytic
+                title="Đã hoàn thành"
+                total={
+                  dataFiltered.filter(item => item.status === 'completed')
+                    .length
+                }
+                percent={100}
+                price={getTotalPlatformRevenueByStatus('completed')}
+                icon="solar:check-circle-bold-duotone"
+                color={theme.palette.success.main}
+              />
+            </Stack>
+            <Stack flex={1}>
+              <InvoiceAnalytic
+                title="Đang chờ"
+                total={
+                  dataFiltered.filter(item => item.status === 'pending').length
+                }
+                percent={100}
+                price={getTotalPlatformRevenueByStatus('pending')}
+                icon="solar:clock-circle-bold-duotone"
+                color={theme.palette.warning.main}
+              />
+            </Stack>
           </Stack>
         </Scrollbar>
       </Card>
@@ -263,7 +291,6 @@ export default function RevenueTTDView() {
           exportToCSV={exportToCSV}
           dataFiltered={dataFiltered}
           dateError={dateError}
-          serviceOptions={serviceOptions}
           selected={table.selected}
         />
         <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>

@@ -150,7 +150,7 @@ export default function ReviewDoctorView() {
           { name: 'Báo cáo', href: paths.dashboard.report.root },
           { name: 'Đánh giá bác sĩ' }
         ]}
-        sx={{ mb: { xs: 3, md: 5 } }}
+        sx={{ mb: { xs: 1, md: 2 } }}
       />
       <Card>
         <Stack
@@ -273,7 +273,14 @@ export default function ReviewDoctorView() {
                   '/assets/icons/app/avatar-default.svg'
                 }
                 alt={selectedDoctor.name}
-                style={{ width: 80, height: 80, borderRadius: '50%' }}
+                style={{
+                  borderRadius: '50%',
+                  height: 100,
+                  width: 100,
+                  objectFit: 'cover',
+                  aspectRatio: '1/1',
+                  boxShadow: '0 0 10px 0 rgba(0, 0, 0, 0.1)'
+                }}
               />
               <Typography variant="subtitle1" gutterBottom>
                 {selectedDoctor.name} ({selectedDoctor.doctorId})

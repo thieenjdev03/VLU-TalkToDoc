@@ -522,7 +522,7 @@ export default function UserQuickEditForm({
                     )}
                   />
                 }
-                label="Kích hoạt"
+                label="Công khai hồ sơ"
               />
             </Grid>
           </Box>

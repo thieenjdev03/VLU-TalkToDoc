@@ -12,7 +12,6 @@ import Select, { SelectChangeEvent } from '@mui/material/Select'
 import { formHelperTextClasses } from '@mui/material/FormHelperText'
 
 import Iconify from 'src/components/iconify'
-import { usePopover } from 'src/components/custom-popover'
 
 import {
   IInvoiceTableFilters,
@@ -21,7 +20,6 @@ import {
 
 // ----------------------------------------------------------------------
 
-type DoctorOption = { id: string; name: string }
 type Props = {
   filters: IInvoiceTableFilters
   onFilters: (name: string, value: IInvoiceTableFilterValue) => void
@@ -29,7 +27,6 @@ type Props = {
   dataFiltered: any[]
   //
   dateError: boolean
-  serviceOptions: DoctorOption[]
   selected: string[]
   onPaySalary?: () => void
 }
@@ -41,26 +38,12 @@ export default function RevenueTTDTableToolbar({
   dataFiltered,
   //
   dateError,
-  serviceOptions,
   selected: selectedRows = [],
   onPaySalary
 }: Props) {
-  const popover = usePopover()
-
   const handleFilterName = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       onFilters('name', event.target.value)
-    },
-    [onFilters]
-  )
-
-  const handleFilterService = useCallback(
-    (event: SelectChangeEvent<string[]>) => {
-      const value =
-        typeof event.target.value === 'string'
-          ? event.target.value.split(',')
-          : event.target.value
-      onFilters('service', value)
     },
     [onFilters]
   )

@@ -385,7 +385,7 @@ export default function RevenueView() {
           { name: 'Báo cáo', href: paths.dashboard.report.root },
           { name: 'Doanh thu tổng' }
         ]}
-        sx={{ mb: { xs: 3, md: 5 } }}
+        sx={{ mb: { xs: 1, md: 2 } }}
       />
 
       <Card sx={{ mb: { xs: 1, md: 1 } }}>

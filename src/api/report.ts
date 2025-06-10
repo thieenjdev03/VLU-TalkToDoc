@@ -22,3 +22,35 @@ export const getDoctorReviewReport = async ({
   )
   return response.data
 }
+
+// Lấy báo cáo chuyên khoa
+export const getSpecialtyReport = async ({
+  timeRange,
+  startDate,
+  endDate,
+  specialty = 'all',
+  hospital = 'all',
+  page = 1,
+  pageSize = 20
+}: {
+  timeRange: string
+  startDate?: string
+  endDate?: string
+  specialty?: string
+  hospital?: string
+  page?: number
+  pageSize?: number
+}) => {
+  const params = new URLSearchParams()
+  params.append('timeRange', timeRange)
+  if (startDate) params.append('startDate', startDate)
+  if (endDate) params.append('endDate', endDate)
+  if (specialty) params.append('specialty', specialty)
+  if (hospital) params.append('hospital', hospital)
+  params.append('page', page.toString())
+  params.append('pageSize', pageSize.toString())
+  const response = await axiosInstanceV2.get(
+    `${endpoints.report.specialtyStatistics}?${params.toString()}`
+  )
+  return response.data
+}

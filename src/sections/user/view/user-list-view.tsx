@@ -68,7 +68,7 @@ const TABLE_HEAD_PATIENT = [
   { id: 'gender', label: 'Giới Tính', width: 120 },
   { id: 'address', label: 'Địa Chỉ', width: 250 },
   { id: 'medicalHistory', label: 'Bệnh Án', width: 180 },
-  { id: 'status', label: 'Kích hoạt', width: 100 },
+  { id: 'status', label: 'Công khai', width: 100 },
   { id: '', width: 88 }
 ]
 
@@ -82,7 +82,7 @@ const TABLE_HEAD_DOCTOR = [
   { id: 'phoneNumber', label: 'SĐT', minWidth: 140 },
   { id: 'experienceYears', label: 'Kinh Nghiệm (Năm)', minWidth: 100 },
   { id: 'licenseNo', label: 'Mã Giấy Phép', minWidth: 100 },
-  { id: 'status', label: 'Kích hoạt', minWidth: 80 },
+  { id: 'status', label: 'Công khai', minWidth: 80 },
   { id: 'registrationStatus', label: 'Trạng thái đăng ký', minWidth: 240 },
   { id: 'lastLogin', label: 'Lần đăng nhập cuối', minWidth: 240 },
   { id: '', width: 72 } // nút hành động (edit/delete)
@@ -96,7 +96,7 @@ const TABLE_HEAD_EMPLOYEE = [
   { id: 'department', label: 'Bộ Phận', width: 220 },
   { id: 'role', label: 'Vai Trò', width: 180 },
   { id: 'salary', label: 'Lương / Tháng', width: 220 },
-  { id: 'status', label: 'Kích hoạt', width: 100 },
+  { id: 'status', label: 'Công khai', width: 100 },
   { id: '', width: 88 }
 ]
 

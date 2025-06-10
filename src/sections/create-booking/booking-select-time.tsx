@@ -145,23 +145,46 @@ export default function BookingSelectTime({
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null)
   const [openModal, setOpenModal] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(false)
-
   const selectedDayOfWeek = selectedDate?.day() ?? 0
-  const filteredDoctors = formData?.specialty?.id
-    ? doctors.filter(doc =>
-        doc.specialty?.some(s => s.id === formData.specialty.id)
-      )
+
+  // Lấy id chuyên khoa đã chọn (object hoặc string)
+  const selectedSpecialtyId =
+    typeof formData?.specialty === 'object'
+      ? formData.specialty._id || formData.specialty.id
+      : formData?.specialty
+
+  // Lọc bác sĩ theo specialty (hỗ trợ cả mảng id string hoặc object)
+  const filteredDoctors = selectedSpecialtyId
+    ? doctors.filter(doc => {
+        if (!Array.isArray(doc.specialty)) return false
+        if (typeof doc.specialty[0] === 'string') {
+          return doc.specialty.includes(selectedSpecialtyId)
+        }
+        if (typeof doc.specialty[0] === 'object') {
+          return doc.specialty.some(
+            s => s._id === selectedSpecialtyId || s.id === selectedSpecialtyId
+          )
+        }
+        return false
+      })
     : doctors
 
-  const doctorOptions = filteredDoctors.map(doc => ({
-    value: doc.id,
-    label: doc.fullName,
-    avatarUrl: doc.avatarUrl,
-    hospital: doc.hospital?.name,
-    base_price: doc.rank?.base_price,
-    rating: doc.avgScore,
-    ratingDetails: doc.ratingDetails
-  }))
+  // Chỉ set doctor khi id thực sự khác hoặc không còn trong danh sách
+  useEffect(() => {
+    if (filteredDoctors.length) {
+      // Nếu chưa chọn bác sĩ, hoặc bác sĩ hiện tại không còn trong danh sách lọc
+      if (
+        !selectedDoctor ||
+        !filteredDoctors.some(doc => doc._id === selectedDoctor._id)
+      ) {
+        setSelectedDoctor(filteredDoctors[0])
+        if (filteredDoctors[0]?._id) {
+          fetchDoctorDetails(filteredDoctors[0]._id)
+        }
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filteredDoctors])
 
   // Lấy thông tin chi tiết của bác sĩ khi được chọn
   const fetchDoctorDetails = async (doctorId: string) => {
@@ -196,16 +219,6 @@ export default function BookingSelectTime({
   }
 
   const { slots: availableTimeSlots, isDefault } = getAvailableSlots()
-
-  useEffect(() => {
-    if (filteredDoctors.length) {
-      const firstDoctor = filteredDoctors[0]
-      setSelectedDoctor(firstDoctor)
-      if (firstDoctor?._id) {
-        fetchDoctorDetails(firstDoctor._id)
-      }
-    }
-  }, [filteredDoctors])
 
   // Reset selected slot when changing date
   useEffect(() => {
@@ -267,8 +280,28 @@ export default function BookingSelectTime({
           </Typography>
           <Select
             className="w-full"
-            options={doctorOptions}
-            value={doctorOptions.find(opt => opt.value === selectedDoctor?.id)}
+            options={filteredDoctors.map(doc => ({
+              value: doc.id,
+              label: doc.fullName,
+              avatarUrl: doc.avatarUrl,
+              hospital: doc.hospital?.name,
+              base_price: doc.rank?.base_price,
+              rating: doc.avgScore,
+              ratingDetails: doc.ratingDetails
+            }))}
+            value={
+              filteredDoctors.length
+                ? {
+                    value: selectedDoctor?.id,
+                    label: selectedDoctor?.fullName,
+                    avatarUrl: selectedDoctor?.avatarUrl,
+                    hospital: selectedDoctor?.hospital?.name,
+                    base_price: selectedDoctor?.rank?.base_price,
+                    rating: selectedDoctor?.avgScore,
+                    ratingDetails: selectedDoctor?.ratingDetails
+                  }
+                : null
+            }
             onChange={handleDoctorChange}
             components={{
               Option: CustomOption,
