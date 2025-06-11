@@ -1,4 +1,5 @@
 import dayjs from 'dayjs'
+import axios from 'axios'
 import moment from 'moment'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -23,6 +24,7 @@ import AppTopDoctors from '../app-top-doctors'
 import AppWidgetSummary from '../app-widget-summary'
 import AppAreaInstalled from '../app-area-installed'
 import AppCurrentDownload from '../app-current-download'
+import EcommerceSalesOverview from '../../e-commerce/ecommerce-sales-overview'
 
 // ----------------------------------------------------------------------
 
@@ -222,6 +224,13 @@ export default function OverviewAppView() {
     { label: string; value: number }[]
   >([])
 
+  // Thêm state cho dữ liệu doanh thu thực tế
+  const [revenueOverview, setRevenueOverview] = useState([
+    { label: 'Doanh Thu Tổng Nhận', totalAmount: 0, value: 0 },
+    { label: 'Phí Bác Sĩ', totalAmount: 0, value: 0 },
+    { label: 'Thực Nhận', totalAmount: 0, value: 0 }
+  ])
+
   useEffect(() => {
     const fetchSpecialtyStats = async () => {
       setLoadingSpecialty(true)
@@ -339,6 +348,60 @@ export default function OverviewAppView() {
     }
     fetchSpecialtyStats()
   }, [statMode, selectedYear, selectedMonth, range])
+
+  useEffect(() => {
+    const fetchRevenueData = async () => {
+      try {
+        const token = localStorage.getItem('accessToken')
+        const res = await axios.get(`${API_URL}/payment/all-orders`, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        const orders = res.data || []
+        // Tính toán tổng doanh thu, phí bác sĩ, thực nhận
+        let totalRevenue = 0
+        let doctorFee = 0
+        let platformRevenue = 0
+        orders.forEach((order: any) => {
+          const total = order.appointmentInfo?.payment?.total || 0
+          const doctor = order.appointmentInfo?.payment?.doctorFee || 0
+          const discount = order.appointmentInfo?.payment?.discount || 0
+          // Doanh thu tổng nhận là tổng tiền user trả (total)
+          totalRevenue += total
+          // Phí bác sĩ
+          doctorFee += doctor
+          // Thực nhận nền tảng = (total * 0.1 - discount)
+          platformRevenue += total * 0.1 - discount
+        })
+        // Tính phần trăm
+        const percent = (amount: number) =>
+          totalRevenue > 0 ? Math.round((amount / totalRevenue) * 100) : 0
+        setRevenueOverview([
+          {
+            label: 'Doanh Thu Tổng Nhận',
+            totalAmount: totalRevenue,
+            value: 100 // luôn là 100%
+          },
+          {
+            label: 'Phí Bác Sĩ',
+            totalAmount: doctorFee,
+            value: percent(doctorFee)
+          },
+          {
+            label: 'Lãi Nền Tảng Thực Nhận',
+            totalAmount: platformRevenue,
+            value: percent(platformRevenue)
+          }
+        ])
+      } catch (err) {
+        setRevenueOverview([
+          { label: 'Doanh Thu Tổng Nhận', totalAmount: 0, value: 0 },
+          { label: 'Phí Bác Sĩ', totalAmount: 0, value: 0 },
+          { label: 'Thực Nhận', totalAmount: 0, value: 0 }
+        ])
+      }
+    }
+    fetchRevenueData()
+  }, [])
 
   // Tính toán time range cho thống kê
   const currentYear = new Date().getFullYear()
@@ -486,6 +549,10 @@ export default function OverviewAppView() {
             </Grid>
 
             <Grid xs={12} md={6} lg={6}>
+              <EcommerceSalesOverview
+                title="Thống Kê Doanh Thu"
+                data={revenueOverview}
+              />
               <AppCurrentDownload
                 title="Thống Kê Trạng Thái Lịch Hẹn"
                 subheader={`Dữ liệu từ ${moment(startDate).format('DD/MM/YYYY')} đến ${moment(endDate).format('DD/MM/YYYY')}`}
@@ -495,6 +562,7 @@ export default function OverviewAppView() {
                 defaultRange="month"
               />
             </Grid>
+
             <Grid xs={12} md={6} lg={6}>
               <AppTopDoctors
                 title="Top Bác Sĩ"

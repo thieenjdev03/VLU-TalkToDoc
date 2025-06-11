@@ -165,9 +165,9 @@ export const _analyticTraffic = [
 // ----------------------------------------------------------------------
 
 export const _ecommerceSalesOverview = [
-  'Total Profit',
-  'Total Income',
-  'Total Expenses'
+  'Doanh Thu Tổng Nhận',
+  'Phí Bác Sĩ',
+  'Thực Nhận'
 ].map((label, index) => ({
   label,
   totalAmount: _mock.number.price(index) * 100,

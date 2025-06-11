@@ -71,6 +71,7 @@ export default function AppointmentTableToolbar({
     <Stack
       spacing={2}
       alignItems={{ xs: 'flex-end', md: 'center' }}
+      justifyContent={{ xs: 'flex-end', md: 'space-between' }}
       direction={{ xs: 'column', md: 'row' }}
       sx={{ p: 2.5, pr: { xs: 2.5, md: 1 } }}
     >
@@ -108,25 +109,25 @@ export default function AppointmentTableToolbar({
         }}
         sx={{ minWidth: 220 }}
       />
-      <Button
-        variant="contained"
-        color="primary"
-        startIcon={<Iconify icon="solar:export-bold" />}
-        onClick={exportToCSV}
-        sx={{ mb: 1, minWidth: 120, py: 1 }}
-      >
-        Xuất CSV
-      </Button>
       {onReset && (
         <Button
           variant="outlined"
           color="secondary"
           onClick={onReset}
-          sx={{ height: 40, whiteSpace: 'nowrap' }}
+          sx={{ whiteSpace: 'nowrap' }}
         >
           Đặt lại
         </Button>
       )}
+      <Button
+        variant="contained"
+        color="primary"
+        startIcon={<Iconify icon="solar:export-bold" />}
+        onClick={exportToCSV}
+        sx={{ minWidth: 120 }}
+      >
+        Xuất CSV
+      </Button>
     </Stack>
   )
 }

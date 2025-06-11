@@ -215,7 +215,7 @@ export default function AppointmentReportView() {
       <CustomBreadcrumbs
         heading="Báo cáo lịch hẹn bác sĩ"
         links={[
-          { name: 'Dashboard', href: paths.dashboard.root },
+          { name: 'Quản trị', href: paths.dashboard.root },
           { name: 'Báo cáo', href: paths.dashboard.report.root },
           { name: 'Lịch hẹn bác sĩ' }
         ]}
