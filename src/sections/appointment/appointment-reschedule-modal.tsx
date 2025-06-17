@@ -313,7 +313,6 @@ export default function BookingTimeModal({
             </div>
           </div>
         </DialogContent>
-
         <DialogActions>
           <Button onClick={onClose} color="inherit">
             Hủy
