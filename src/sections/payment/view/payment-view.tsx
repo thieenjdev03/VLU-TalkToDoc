@@ -41,6 +41,8 @@ export default function PaymentView() {
             }
           }
         })
+        localStorage.removeItem('booking_form_data')
+        localStorage.removeItem('booking_step')
       }
       if (currentCase) {
         const appointment = await getAppointmentById({

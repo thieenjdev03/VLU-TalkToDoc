@@ -64,14 +64,6 @@ export default function DynamicFormMUI({
   const userPatient = localStorage.getItem('userProfile')
   const onSubmit = (data: any) => {
     if (JSON.parse(userPatient || '{}')?.role === 'PATIENT') {
-      const caseData = {
-        ...data,
-        rawJson: {
-          answers: data
-        },
-        specialty: specialty._id,
-        patient: userPatient
-      }
       updateFormData({ medical_form: data })
     }
     handleSubmit(

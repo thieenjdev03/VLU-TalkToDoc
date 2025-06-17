@@ -366,12 +366,15 @@ export default function OverviewAppView() {
           const doctor = order.appointmentInfo?.payment?.doctorFee || 0
           const discount = order.appointmentInfo?.payment?.discount || 0
           // Doanh thu tổng nhận là tổng tiền user trả (total)
-          totalRevenue += total
-          // Phí bác sĩ
-          doctorFee += doctor
-          // Thực nhận nền tảng = (total * 0.1 - discount)
-          platformRevenue += total * 0.1 - discount
+          if (order.appointmentInfo?.payment?.status.toLowerCase() === 'paid') {
+            totalRevenue += total
+            // Phí bác sĩ
+            doctorFee += doctor
+            // Thực nhận nền tảng = (total * 0.1 - discount)
+            platformRevenue += total * 0.1 - discount
+          }
         })
+
         // Tính phần trăm
         const percent = (amount: number) =>
           totalRevenue > 0 ? Math.round((amount / totalRevenue) * 100) : 0
@@ -490,7 +493,7 @@ export default function OverviewAppView() {
         {user?.role === 'ADMIN' && (
           <>
             <Grid xs={12} md={12}>
-              <Stack direction="row" spacing={2} alignItems="center" mb={2}>
+              <Stack direction="row" spacing={2} alignItems="center">
                 <TextField
                   select
                   label="Chọn khoảng"
@@ -548,11 +551,12 @@ export default function OverviewAppView() {
               />
             </Grid>
 
-            <Grid xs={12} md={6} lg={6}>
-              <EcommerceSalesOverview
-                title="Thống Kê Doanh Thu"
-                data={revenueOverview}
-              />
+            <Grid
+              xs={12}
+              md={6}
+              lg={6}
+              sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
+            >
               <AppCurrentDownload
                 title="Thống Kê Trạng Thái Lịch Hẹn"
                 subheader={`Dữ liệu từ ${moment(startDate).format('DD/MM/YYYY')} đến ${moment(endDate).format('DD/MM/YYYY')}`}
@@ -560,6 +564,10 @@ export default function OverviewAppView() {
                 endDate={endDate}
                 enableDatePicker
                 defaultRange="month"
+              />
+              <EcommerceSalesOverview
+                title="Thống Kê Doanh Thu"
+                data={revenueOverview}
               />
             </Grid>
 

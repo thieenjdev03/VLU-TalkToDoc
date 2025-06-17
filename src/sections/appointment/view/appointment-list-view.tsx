@@ -325,8 +325,6 @@ export default function AppointmentListView() {
                       row={row}
                       typeUser={userProfile.role}
                       selected={table.selected.includes(row._id)}
-                      onSelectRow={() => table.onSelectRow(row._id)}
-                      onDeleteRow={() => handleDeleteRow(row._id)}
                       onViewRow={() => handleViewRow(row._id)}
                       onCancelAppointment={() => {
                         handleCancelAppointment(row._id)

@@ -23,7 +23,6 @@ import {
   DialogContent,
   useMediaQuery
 } from '@mui/material'
-
 import { db } from 'src/firebase/firebase-config'
 
 interface Message {
@@ -68,7 +67,6 @@ function CallChatBox({
       collection(db, 'conversations', appointmentId, 'messages'),
       orderBy('timestamp', 'asc')
     )
-
     const unsubscribe = onSnapshot(q, snapshot => {
       const msgs: Message[] = snapshot.docs.map(doc => {
         const data = doc.data()

@@ -146,7 +146,7 @@ export default function BookingPayment({
       if (err?.response?.data?.message?.includes('số dư')) {
         enqueueSnackbar('Số dư ví không đủ!', { variant: 'error' })
       } else {
-        enqueueSnackbar('Có lỗi khi tạo lịch hẹn', { variant: 'error' })
+        enqueueSnackbar(err?.response?.data?.message, { variant: 'error' })
       }
     }
   }

@@ -14,7 +14,6 @@ import { useBoolean } from 'src/hooks/use-boolean'
 
 import { useCallStore } from 'src/store/call-store'
 import {
-  deleteAppointment,
   rescheduleAppointment,
   doctorRejectAppointment,
   doctorConfirmAppointment
@@ -33,9 +32,7 @@ type Props = {
   row: any
   selected: boolean
   onViewRow: VoidFunction
-  onSelectRow: VoidFunction
   typeUser: string
-  onDeleteRow: VoidFunction
   user: any
   doctorsList: any[]
   onCancelAppointment: VoidFunction
@@ -45,8 +42,6 @@ export default function AppointmentTableRow({
   row,
   selected,
   onViewRow,
-  onSelectRow,
-  onDeleteRow,
   typeUser,
   doctorsList,
   user,
@@ -131,48 +126,6 @@ export default function AppointmentTableRow({
   const isOverdue =
     moment(row?.date).isBefore(moment(), 'day') &&
     (status === 'CONFIRMED' || status === 'PENDING')
-
-  const handleDeleteAppointment = async () => {
-    if (user?.role !== 'ADMIN') {
-      enqueueSnackbar('Bạn không có quyền xoá lịch hẹn.', { variant: 'error' })
-      return
-    }
-    if (!row?._id) {
-      enqueueSnackbar('Không tìm thấy ID lịch hẹn để xoá.', {
-        variant: 'error'
-      })
-      return
-    }
-    setDeleting(true)
-    try {
-      const token =
-        user?.accessToken || localStorage.getItem('accessToken') || ''
-      if (!token) {
-        enqueueSnackbar('Không tìm thấy token xác thực.', { variant: 'error' })
-        setDeleting(false)
-        return
-      }
-
-      const res = await deleteAppointment(row._id)
-
-      if (res.ok) {
-        enqueueSnackbar('Xoá lịch hẹn thành công!', { variant: 'success' })
-        setDeleting(false)
-        setTimeout(() => {
-          window.location.reload()
-        }, 1000)
-      } else {
-        const data = await res.json().catch(() => ({}))
-        enqueueSnackbar(data?.message || 'Có lỗi xảy ra khi xoá lịch hẹn.', {
-          variant: 'error'
-        })
-        setDeleting(false)
-      }
-    } catch (err) {
-      enqueueSnackbar('Có lỗi xảy ra khi xoá lịch hẹn.', { variant: 'error' })
-      setDeleting(false)
-    }
-  }
 
   const doctorField = (
     <TableRow hover selected={selected}>
@@ -299,17 +252,17 @@ export default function AppointmentTableRow({
         />
       </TableCell>
       <TableCell>
-        {/* {row?.status === 'CONFIRMED' && ( */}
-        <Button
-          sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
-          variant="contained"
-          color="primary"
-          onClick={handleOpenCall}
-        >
-          <Iconify icon="ic:outline-phone-forwarded" />
-          <span>Gọi</span>
-        </Button>
-        {/* )} */}
+        {row?.status === 'CONFIRMED' && !isOverdue && (
+          <Button
+            sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+            variant="contained"
+            color="primary"
+            onClick={handleOpenCall}
+          >
+            <Iconify icon="ic:outline-phone-forwarded" />
+            <span>Gọi</span>
+          </Button>
+        )}
       </TableCell>
       <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
         {conditionEditAppointment(row?.date) && (
@@ -420,22 +373,22 @@ export default function AppointmentTableRow({
       </TableCell>
 
       <TableCell align="center">
-        {/* {row?.status === 'CONFIRMED' && !isOverdue && ( */}
-        <Button
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 1
-          }}
-          variant="contained"
-          color="primary"
-          onClick={handleOpenCall}
-        >
-          <Iconify icon="ic:outline-phone-forwarded" />
-          <span>Gọi</span>
-        </Button>
-        {/* )} */}
+        {row?.status === 'CONFIRMED' && !isOverdue && (
+          <Button
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 1
+            }}
+            variant="contained"
+            color="primary"
+            onClick={handleOpenCall}
+          >
+            <Iconify icon="ic:outline-phone-forwarded" />
+            <span>Gọi</span>
+          </Button>
+        )}
       </TableCell>
 
       <TableCell align="center">
@@ -527,22 +480,6 @@ export default function AppointmentTableRow({
           quickEdit.onFalse()
         }}
       />
-      {/* <ConfirmDialog
-        open={confirm.value || false}
-        onClose={confirm.onFalse}
-        title="Xoá lịch hẹn"
-        content="Bạn có chắc chắn muốn xoá chứ?"
-        action={
-          <Button
-            variant="contained"
-            color="error"
-            onClick={handleDeleteAppointment}
-            disabled={deleting}
-          >
-            {deleting ? 'Đang xoá...' : 'Xoá'}
-          </Button>
-        }
-      /> */}
     </>
   )
 }

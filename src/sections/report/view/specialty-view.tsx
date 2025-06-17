@@ -1,3 +1,4 @@
+import { saveAs } from 'file-saver'
 import { useState, useEffect } from 'react'
 
 import Card from '@mui/material/Card'
@@ -81,7 +82,40 @@ export default function SpecialtyReportView() {
   }
 
   const exportToCSV = () => {
-    // TODO: xuất CSV từ rows
+    if (!rows.length) return
+    // Header tiếng Việt đúng thứ tự table
+    const header = [
+      'STT',
+      'Chuyên khoa',
+      'Số lượt khám',
+      'Doanh thu (VNĐ)',
+      'Số bác sĩ',
+      '% Tăng/Giảm'
+    ]
+    // Format số tiền VNĐ
+    const formatVND = (n: number | undefined) =>
+      n?.toLocaleString('vi-VN', {
+        style: 'currency',
+        currency: 'VND',
+        maximumFractionDigits: 0
+      })
+    // Map data
+    const csvRows = [
+      header.join(','),
+      ...rows.map((row, idx) =>
+        [
+          idx + 1,
+          row.specialty,
+          row.visits,
+          formatVND(row.revenue),
+          row.doctorCount,
+          `${(row.percentChange > 0 ? '+' : '') + (row.percentChange ?? 0)}%`
+        ].join(',')
+      )
+    ]
+    const csvString = csvRows.join('\n')
+    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8' })
+    saveAs(blob, 'bao-cao-chuyen-khoa.csv')
   }
 
   // Sắp xếp theo doanh thu giảm dần
@@ -94,7 +128,7 @@ export default function SpecialtyReportView() {
       <CustomBreadcrumbs
         heading="Báo cáo chuyên khoa"
         links={[
-          { name: 'Dashboard', href: paths.dashboard.root },
+          { name: 'Quản trị', href: paths.dashboard.root },
           { name: 'Báo cáo', href: paths.dashboard.report.root },
           { name: 'Chuyên khoa' }
         ]}

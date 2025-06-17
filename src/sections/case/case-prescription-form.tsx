@@ -248,15 +248,8 @@ export default function PrescriptionForm({
             `${option.name} - ${option.address}`
           }
           value={
-            (allowNoPharmacyOption
-              ? [
-                  ...(pharmacies?.data || []),
-                  { _id: '0', name: 'Không chọn nhà thuốc', address: '' }
-                ]
-              : pharmacies?.data || []
-            ).find(
-              (pharmacy: IPharmacyItem) =>
-                String(pharmacy._id) === String(pharmacyId)
+            pharmacies?.data?.find(
+              (item: IPharmacyItem) => item._id === pharmacyId
             ) || null
           }
           onChange={(_, value) => setPharmacyId(value?._id || '0')}

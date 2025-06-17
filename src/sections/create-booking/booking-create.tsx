@@ -98,10 +98,10 @@ export default function BookingCreate() {
         break
       }
       case 'medical-form': {
-        if (formData.caseDetail?._id) {
+        if (formData?.case_id) {
           try {
             const res = await submitCase({
-              case_id: formData.caseDetail._id,
+              case_id: formData.case_id,
               action: 'save',
               patient: data.patient,
               specialty: data.specialty,
