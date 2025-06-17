@@ -1,3 +1,4 @@
+// @ts-ignore
 import { saveAs } from 'file-saver'
 import { useState, useEffect } from 'react'
 

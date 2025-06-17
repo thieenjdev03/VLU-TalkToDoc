@@ -57,6 +57,7 @@
     "date-fns": "^2.30.0",
     "dayjs": "^1.11.13",
     "file-saver": "^2.0.5",
+    "@types/file-saver": "^2.0.5",
     "firebase": "^10.14.1",
     "framer-motion": "^10.16.16",
     "highlight.js": "^11.9.0",
