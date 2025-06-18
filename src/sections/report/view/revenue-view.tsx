@@ -467,10 +467,10 @@ export default function RevenueView() {
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
       <CustomBreadcrumbs
-        heading="Báo cáo doanh thu bác sĩ"
+        heading="Thống kê doanh thu bác sĩ"
         links={[
           { name: 'Quản trị', href: paths.dashboard.root },
-          { name: 'Báo cáo', href: paths.dashboard.report.root },
+          { name: 'Thống kê', href: paths.dashboard.report.root },
           { name: 'Doanh thu bác sĩ' }
         ]}
         sx={{ mb: { xs: 1, md: 2 } }}

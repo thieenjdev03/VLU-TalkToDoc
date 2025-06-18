@@ -265,10 +265,10 @@ export default function RevenueTTDView() {
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
       <CustomBreadcrumbs
-        heading="Báo cáo doanh thu TalkToDoc"
+        heading="Thống kê doanh thu TalkToDoc"
         links={[
           { name: 'Quản trị', href: paths.dashboard.root },
-          { name: 'Báo cáo', href: paths.dashboard.report.root },
+          { name: 'Thống kê', href: paths.dashboard.report.root },
           { name: 'Doanh thu TalkToDoc' }
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}

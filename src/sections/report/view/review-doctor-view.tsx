@@ -147,7 +147,7 @@ export default function ReviewDoctorView() {
         heading="Thống kê đánh giá bác sĩ"
         links={[
           { name: 'Quản trị', href: paths.dashboard.root },
-          { name: 'Báo cáo', href: paths.dashboard.report.root },
+          { name: 'Thống kê', href: paths.dashboard.report.root },
           { name: 'Đánh giá bác sĩ' }
         ]}
         sx={{ mb: { xs: 1, md: 2 } }}

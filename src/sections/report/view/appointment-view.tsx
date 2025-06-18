@@ -213,10 +213,10 @@ export default function AppointmentReportView() {
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
       <CustomBreadcrumbs
-        heading="Báo cáo lịch hẹn bác sĩ"
+        heading="Thống kê lịch hẹn bác sĩ"
         links={[
           { name: 'Quản trị', href: paths.dashboard.root },
-          { name: 'Báo cáo', href: paths.dashboard.report.root },
+          { name: 'Thống kê', href: paths.dashboard.report.root },
           { name: 'Lịch hẹn bác sĩ' }
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}

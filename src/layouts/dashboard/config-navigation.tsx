@@ -121,7 +121,7 @@ export function useNavData() {
                 path: paths.dashboard.report.revenue
               },
               {
-                title: t('Báo cáo đánh giá'),
+                title: t('Đánh giá bác sĩ'),
                 path: paths.dashboard.report.review_doctor
               },
               {

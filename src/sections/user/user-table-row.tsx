@@ -69,7 +69,8 @@ export default function UserTableRow({
     isActive,
     salary,
     registrationStatus,
-    _id
+    _id, 
+    files
   } = row
 
   const confirm = useBoolean()
@@ -133,6 +134,17 @@ export default function UserTableRow({
             <TableCell>
               <Checkbox checked={isActive} disabled />
             </TableCell>
+            {/* <TableCell 
+            onClick={() => {
+              if (files && files?.length !== 0) {
+                window.open(files[0]?.url, '_blank')
+              }
+            }}
+            sx={{ textDecoration: 'underline', cursor: 'pointer' }}>
+              {files && files?.length !== 0
+                ? `${files?.length} File hồ sơ`
+                : `Không có`}
+            </TableCell> */}
             <TableCell>
               <StatusOption
                 value={currentValueStatus || registrationStatus}

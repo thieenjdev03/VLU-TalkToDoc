@@ -127,10 +127,10 @@ export default function SpecialtyReportView() {
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
       <CustomBreadcrumbs
-        heading="Báo cáo chuyên khoa"
+        heading="Thống kê chuyên khoa"
         links={[
           { name: 'Quản trị', href: paths.dashboard.root },
-          { name: 'Báo cáo', href: paths.dashboard.report.root },
+          { name: 'Thống kê', href: paths.dashboard.report.root },
           { name: 'Chuyên khoa' }
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
