@@ -67,7 +67,6 @@ const TABLE_HEAD_PATIENT = [
   { id: 'birthDate', label: 'Ngày Sinh', width: 160 },
   { id: 'gender', label: 'Giới Tính', width: 120 },
   { id: 'address', label: 'Địa Chỉ', width: 250 },
-  { id: 'medicalHistory', label: 'Bệnh Án', width: 180 },
   { id: 'status', label: 'Công khai', width: 100 },
   { id: '', width: 88 }
 ]

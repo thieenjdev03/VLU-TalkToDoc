@@ -1,6 +1,6 @@
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from 'react-helmet-async'
 
-import { MailView } from 'src/sections/mail/view';
+import { MailView } from 'src/sections/mail/view'
 
 // ----------------------------------------------------------------------
 
@@ -8,10 +8,10 @@ export default function MailPage() {
   return (
     <>
       <Helmet>
-        <title> Dashboard: Mail</title>
+        <title> Trang quản trị: Mail</title>
       </Helmet>
 
       <MailView />
     </>
-  );
+  )
 }

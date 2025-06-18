@@ -1,6 +1,6 @@
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from 'react-helmet-async'
 
-import { UserCardsView } from 'src/sections/user/view';
+import { UserCardsView } from 'src/sections/user/view'
 
 // ----------------------------------------------------------------------
 
@@ -8,10 +8,10 @@ export default function UserCardsPage() {
   return (
     <>
       <Helmet>
-        <title> Dashboard: User Cards</title>
+        <title> Trang quản trị: User Cards</title>
       </Helmet>
 
       <UserCardsView />
     </>
-  );
+  )
 }

@@ -10,7 +10,6 @@ import TableRow from '@mui/material/TableRow'
 import Checkbox from '@mui/material/Checkbox'
 import TableCell from '@mui/material/TableCell'
 import IconButton from '@mui/material/IconButton'
-import Typography from '@mui/material/Typography'
 import ListItemText from '@mui/material/ListItemText'
 
 import { useBoolean } from 'src/hooks/use-boolean'
@@ -212,29 +211,6 @@ export default function UserTableRow({
             </TableCell>
             <TableCell>{address}</TableCell>
 
-            {/* Hiển thị lịch sử bệnh án */}
-            <TableCell>
-              {medicalHistory?.length > 0 ? (
-                <Tooltip
-                  title={medicalHistory
-                    .map(
-                      (item: any) => `${item.condition} (${item.diagnosisDate})`
-                    )
-                    .join(', ')}
-                >
-                  <Typography
-                    variant="body2"
-                    sx={{ cursor: 'pointer', textDecoration: 'underline' }}
-                  >
-                    {medicalHistory.length} bệnh án
-                  </Typography>
-                </Tooltip>
-              ) : (
-                <Typography variant="body2" color="text.secondary">
-                  Không có
-                </Typography>
-              )}
-            </TableCell>
             {/* Hiển thị trạng thái tài khoản */}
             <TableCell>
               <Checkbox checked={isActive} disabled />

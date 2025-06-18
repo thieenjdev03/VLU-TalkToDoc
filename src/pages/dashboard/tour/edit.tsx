@@ -1,23 +1,23 @@
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from 'react-helmet-async'
 
-import { useParams } from 'src/routes/hooks';
+import { useParams } from 'src/routes/hooks'
 
-import { TourEditView } from 'src/sections/tour/view';
+import { TourEditView } from 'src/sections/tour/view'
 
 // ----------------------------------------------------------------------
 
 export default function TourEditPage() {
-  const params = useParams();
+  const params = useParams()
 
-  const { id } = params;
+  const { id } = params
 
   return (
     <>
       <Helmet>
-        <title> Dashboard: Tour Edit</title>
+        <title> Trang quản trị: Tour Edit</title>
       </Helmet>
 
       <TourEditView id={`${id}`} />
     </>
-  );
+  )
 }

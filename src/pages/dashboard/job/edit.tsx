@@ -1,23 +1,23 @@
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from 'react-helmet-async'
 
-import { useParams } from 'src/routes/hooks';
+import { useParams } from 'src/routes/hooks'
 
-import { JobEditView } from 'src/sections/job/view';
+import { JobEditView } from 'src/sections/job/view'
 
 // ----------------------------------------------------------------------
 
 export default function JobEditPage() {
-  const params = useParams();
+  const params = useParams()
 
-  const { id } = params;
+  const { id } = params
 
   return (
     <>
       <Helmet>
-        <title> Dashboard: Dashboard: Job Edit</title>
+        <title> Trang quản trị: Trang quản trị: Job Edit</title>
       </Helmet>
 
       <JobEditView id={`${id}`} />
     </>
-  );
+  )
 }

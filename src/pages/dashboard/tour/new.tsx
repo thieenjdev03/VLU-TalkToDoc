@@ -1,6 +1,6 @@
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from 'react-helmet-async'
 
-import { TourCreateView } from 'src/sections/tour/view';
+import { TourCreateView } from 'src/sections/tour/view'
 
 // ----------------------------------------------------------------------
 
@@ -8,10 +8,10 @@ export default function TourCreatePage() {
   return (
     <>
       <Helmet>
-        <title> Dashboard: Create a new tour</title>
+        <title> Trang quản trị: Create a new tour</title>
       </Helmet>
 
       <TourCreateView />
     </>
-  );
+  )
 }

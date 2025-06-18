@@ -505,16 +505,28 @@ export default function UserNewEditForm({
               { value: 'female', label: 'Nữ' },
               { value: 'other', label: 'Khác' }
             ]}
-            getOptionLabel={option =>
-              typeof option === 'string' ? option : option.label
-            }
+            getOptionLabel={(option: any) => {
+              if (typeof option === 'string') {
+                switch (option) {
+                  case 'male':
+                    return 'Nam'
+                  case 'female':
+                    return 'Nữ'
+                  case 'other':
+                    return 'Khác'
+                  default:
+                    return option
+                }
+              }
+              return option.label
+            }}
             isOptionEqualToValue={(option, value: any) =>
               typeof option === 'string'
                 ? option === value
                 : option.value === value
             }
             onChange={(event, newValue: any) =>
-              setValue('gender', newValue.value, { shouldValidate: true })
+              setValue('gender', newValue?.value, { shouldValidate: true })
             }
           />
         </Box>

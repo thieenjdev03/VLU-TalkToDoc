@@ -7,7 +7,7 @@ export default function SpecialtyCreatePage() {
   return (
     <>
       <Helmet>
-        <title> Dashboard: Tạo chuyên khoa mới</title>
+        <title> Trang quản trị: Tạo chuyên khoa mới</title>
       </Helmet>
 
       <SpecialtyCreateView />

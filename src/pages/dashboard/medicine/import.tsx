@@ -1,16 +1,16 @@
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from 'react-helmet-async'
 
-import ImportMedicineCSV from './import-new';
+import ImportMedicineCSV from './import-new'
 // ----------------------------------------------------------------------
 
 export default function SpecialtyCreatePage() {
   return (
     <>
       <Helmet>
-        <title> Dashboard: Thêm Danh Sách Thuốc</title>
+        <title> Trang quản trị: Thêm Danh Sách Thuốc</title>
       </Helmet>
 
       <ImportMedicineCSV />
     </>
-  );
+  )
 }

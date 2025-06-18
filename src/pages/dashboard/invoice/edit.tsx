@@ -1,23 +1,23 @@
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from 'react-helmet-async'
 
-import { useParams } from 'src/routes/hooks';
+import { useParams } from 'src/routes/hooks'
 
-import { InvoiceEditView } from 'src/sections/invoice/view';
+import { InvoiceEditView } from 'src/sections/invoice/view'
 
 // ----------------------------------------------------------------------
 
 export default function InvoiceEditPage() {
-  const params = useParams();
+  const params = useParams()
 
-  const { id } = params;
+  const { id } = params
 
   return (
     <>
       <Helmet>
-        <title> Dashboard: Invoice Edit</title>
+        <title> Trang quản trị: Invoice Edit</title>
       </Helmet>
 
       <InvoiceEditView id={`${id}`} />
     </>
-  );
+  )
 }

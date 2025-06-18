@@ -1,6 +1,6 @@
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from 'react-helmet-async'
 
-import { UserListView } from 'src/sections/user/view';
+import { UserListView } from 'src/sections/user/view'
 
 // ----------------------------------------------------------------------
 
@@ -8,10 +8,10 @@ export default function UserDoctorListPage() {
   return (
     <>
       <Helmet>
-        <title> Dashboard: Danh sách Bác Sĩ</title>
+        <title> Trang quản trị: Danh sách Bác Sĩ</title>
       </Helmet>
 
       <UserListView typeUser="doctor" />
     </>
-  );
+  )
 }

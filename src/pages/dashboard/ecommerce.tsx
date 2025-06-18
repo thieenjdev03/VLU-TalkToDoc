@@ -1,6 +1,6 @@
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from 'react-helmet-async'
 
-import { OverviewEcommerceView } from 'src/sections/overview/e-commerce/view';
+import { OverviewEcommerceView } from 'src/sections/overview/e-commerce/view'
 
 // ----------------------------------------------------------------------
 
@@ -8,10 +8,10 @@ export default function OverviewEcommercePage() {
   return (
     <>
       <Helmet>
-        <title> Dashboard: E-Commerce</title>
+        <title> Trang quản trị: E-Commerce</title>
       </Helmet>
 
       <OverviewEcommerceView />
     </>
-  );
+  )
 }

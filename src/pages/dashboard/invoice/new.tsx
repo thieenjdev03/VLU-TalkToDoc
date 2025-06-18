@@ -1,6 +1,6 @@
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from 'react-helmet-async'
 
-import { InvoiceCreateView } from 'src/sections/invoice/view';
+import { InvoiceCreateView } from 'src/sections/invoice/view'
 
 // ----------------------------------------------------------------------
 
@@ -8,10 +8,10 @@ export default function InvoiceCreatePage() {
   return (
     <>
       <Helmet>
-        <title> Dashboard: Create a new invoice</title>
+        <title> Trang quản trị: Create a new invoice</title>
       </Helmet>
 
       <InvoiceCreateView />
     </>
-  );
+  )
 }
