@@ -69,8 +69,7 @@ export default function UserTableRow({
     isActive,
     salary,
     registrationStatus,
-    _id, 
-    files
+    _id
   } = row
 
   const confirm = useBoolean()
