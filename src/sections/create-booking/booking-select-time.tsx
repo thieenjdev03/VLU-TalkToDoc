@@ -1,5 +1,6 @@
 'use client'
 
+import 'dayjs/locale/vi'
 import dayjs from 'dayjs'
 import { Icon } from '@iconify/react'
 import { useSnackbar } from 'notistack'
@@ -18,6 +19,7 @@ import { IUserItem } from 'src/types/user'
 
 import DoctorModal from '../user/detail-doctor'
 
+dayjs.locale('vi')
 type Props = {
   doctors: IUserItem[]
   setCurrentStep: (step: string, back?: boolean) => void
@@ -40,15 +42,14 @@ const DEFAULT_WORKING_HOURS: TimeSlot[] = [
   { index: 1, timeStart: '13:30', timeEnd: '17:00' }
 ]
 
-// Trả về mảng giờ mặc định cho tất cả các ngày
 const getDefaultSlotsForDay = () => generateTimeSlots(DEFAULT_WORKING_HOURS)
 const generateTimeSlots = (timeSlots: TimeSlot[]): string[] => {
   const slots: string[] = []
   const excludeBreakTime = ['12:00', '12:30', '13:00', '13:30']
 
   timeSlots.forEach(slot => {
-    let current = dayjs(`2025-04-08T${slot.timeStart}`)
-    const endTime = dayjs(`2025-04-08T${slot.timeEnd}`)
+    let current = dayjs(`2025-04-08T${slot.timeStart}`, 'YYYY-MM-DD HH:mm')
+    const endTime = dayjs(`2025-04-08T${slot.timeEnd}`, 'YYYY-MM-DD HH:mm')
 
     while (current.isBefore(endTime)) {
       const timeStr = current.format('HH:mm')
@@ -257,7 +258,9 @@ export default function BookingSelectTime({
           {
             ...formData,
             doctor: selectedDoctor,
-            appointment: appointmentId
+            appointment: appointmentId,
+            date: selectedDate?.format('YYYY-MM-DD'),
+            slot: selectedSlot
           },
           'select-time-booking'
         )
@@ -272,7 +275,7 @@ export default function BookingSelectTime({
   }
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
+    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="vi">
       <div className="bg-white p-6 rounded-xl shadow max-w-screen-lg mx-auto space-y-8">
         <div>
           <Typography variant="h6" gutterBottom>
@@ -334,6 +337,36 @@ export default function BookingSelectTime({
                 setSelectedSlot(null)
               }}
               disablePast
+              dayOfWeekFormatter={() =>
+                // Return empty string first, then use CSS to override
+                ''
+              }
+              slotProps={{
+                calendarHeader: {
+                  sx: {
+                    '& .MuiPickersCalendarHeader-labelContainer': {
+                      '& .MuiPickersCalendarHeader-label': {
+                        // Custom styling nếu cần
+                      }
+                    }
+                  }
+                }
+              }}
+              sx={{
+                '& .MuiDayCalendar-weekDayLabel': {
+                  '&:nth-of-type(1)::after': { content: '"S"' },
+                  '&:nth-of-type(2)::after': { content: '"M"' },
+                  '&:nth-of-type(3)::after': { content: '"T"' },
+                  '&:nth-of-type(4)::after': { content: '"W"' },
+                  '&:nth-of-type(5)::after': { content: '"T"' },
+                  '&:nth-of-type(6)::after': { content: '"F"' },
+                  '&:nth-of-type(7)::after': { content: '"S"' },
+                  fontSize: 0,
+                  '&::after': {
+                    fontSize: '0.875rem'
+                  }
+                }
+              }}
               className="w-full max-w-md border border-gray-300 rounded-md"
             />
           </div>
@@ -358,8 +391,8 @@ export default function BookingSelectTime({
                         onClick={() => setSelectedSlot(slot)}
                         className={`px-4 py-2 rounded-md border text-sm transition duration-150 ${
                           selectedSlot === slot
-                            ? 'bg-blue-600 text-white border-blue-600'
-                            : 'border-gray-300 hover:border-blue-500 hover:bg-blue-100'
+                            ? 'bg-[#2065D1] text-white border-[#2065D1]'
+                            : 'border-gray-300 hover:border-[#2065D1] hover:bg-[#2065D1]/10'
                         }`}
                       >
                         {slot}

@@ -966,7 +966,7 @@ export default function CallCenter({
             </Box>
 
             {/* Call Status */}
-            {callStatus && (
+            {/* {callStatus && (
               <Box
                 sx={{
                   fontSize: { xs: 14, sm: 16 },
@@ -981,7 +981,7 @@ export default function CallCenter({
               >
                 {callStatus}
               </Box>
-            )}
+            )} */}
 
             {/* Control Buttons */}
             <Stack
