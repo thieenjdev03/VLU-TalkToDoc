@@ -100,11 +100,11 @@ export function useNavData() {
       // ----------------------------------------------------------------------
       {
         hidden: user?.role !== 'ADMIN',
-        subheader: t('Thống kê chung - Quản Trị Viên'),
+        subheader: t('Thống kê chung'),
         items: [
           {
             hidden: user?.role !== 'ADMIN',
-            title: t('Thống Kê'),
+            title: t('Quản lý thống kê'),
             path: paths.dashboard.invoice.root,
             icon: ICONS.analytics,
             children: [
@@ -142,7 +142,7 @@ export function useNavData() {
       },
       {
         hidden: user?.role !== 'ADMIN',
-        subheader: t('Quản lý hệ thống - Quản Trị Viên'),
+        subheader: t('Quản lý hệ thống'),
         items: [
           // Patient Role
           {
@@ -211,7 +211,7 @@ export function useNavData() {
           // Specialties
           {
             hidden: user?.role !== 'ADMIN',
-            title: t('Danh Mục'),
+            title: t('Quản Lý Danh Mục'),
             path: paths.dashboard.specialties.root,
             icon: ICONS.medical,
             children: [
@@ -278,7 +278,7 @@ export function useNavData() {
             children: [
               { title: t('Danh Sách'), path: paths.dashboard.case.list }
             ]
-          },
+          }
 
           // // INVOICE
           // {
@@ -296,11 +296,6 @@ export function useNavData() {
           //     // { title: t('edit'), path: paths.dashboard.invoice.demo.edit },
           //   ]
           // },
-          {
-            title: t('chat'),
-            path: paths.dashboard.chat,
-            icon: ICONS.chat
-          }
           // // // BLOG
           // {
           //   title: t('blog'),
@@ -368,7 +363,7 @@ export function useNavData() {
       // BÁC SĨ Navigation
       {
         hidden: user?.role !== 'DOCTOR',
-        subheader: t('Quản lý hệ thống - Bác Sĩ'),
+        subheader: t('Quản lý hệ thống'),
         items: [
           // Patient Role
 
@@ -422,7 +417,7 @@ export function useNavData() {
       // BỆNH NHÂN Navigation
       {
         hidden: user?.role !== 'PATIENT',
-        subheader: t('Quản lý hệ thống - Bệnh Nhân'),
+        subheader: t('Quản lý hệ thống'),
         items: [
           // Patient Role
           {
