@@ -1,28 +1,42 @@
-import { lazy, Suspense } from 'react';
-import { Outlet } from 'react-router-dom';
+import { lazy, Suspense } from 'react'
+import { Outlet } from 'react-router-dom'
 
-import CompactLayout from 'src/layouts/compact';
-import AuthModernLayout from 'src/layouts/auth/modern';
-import AuthClassicLayout from 'src/layouts/auth/classic';
-import AuthModernCompactLayout from 'src/layouts/auth/modern-compact';
+import CompactLayout from 'src/layouts/compact'
+import AuthModernLayout from 'src/layouts/auth/modern'
+import AuthClassicLayout from 'src/layouts/auth/classic'
+import AuthModernCompactLayout from 'src/layouts/auth/modern-compact'
 
-import { SplashScreen } from 'src/components/loading-screen';
+import { SplashScreen } from 'src/components/loading-screen'
 
 // ----------------------------------------------------------------------
 
 // CLASSIC
-const LoginClassicPage = lazy(() => import('src/pages/auth-demo/classic/login'));
-const RegisterClassicPage = lazy(() => import('src/pages/auth-demo/classic/register'));
-const ForgotPasswordClassicPage = lazy(() => import('src/pages/auth-demo/classic/forgot-password'));
-const VerifyClassicPage = lazy(() => import('src/pages/auth-demo/classic/verify'));
-const NewPasswordClassicPage = lazy(() => import('src/pages/auth-demo/classic/new-password'));
+const LoginClassicPage = lazy(() => import('src/pages/auth-demo/classic/login'))
+const RegisterClassicPage = lazy(
+  () => import('src/pages/auth-demo/classic/register')
+)
+const ForgotPasswordClassicPage = lazy(
+  () => import('src/pages/auth-demo/classic/forgot-password')
+)
+const VerifyClassicPage = lazy(
+  () => import('src/pages/auth-demo/classic/verify')
+)
+const NewPasswordClassicPage = lazy(
+  () => import('src/pages/auth-demo/classic/new-password')
+)
 
 // MODERN
-const LoginModernPage = lazy(() => import('src/pages/auth-demo/modern/login'));
-const RegisterModernPage = lazy(() => import('src/pages/auth-demo/modern/register'));
-const ForgotPasswordModernPage = lazy(() => import('src/pages/auth-demo/modern/forgot-password'));
-const VerifyModernPage = lazy(() => import('src/pages/auth-demo/modern/verify'));
-const NewPasswordModernPage = lazy(() => import('src/pages/auth-demo/modern/new-password'));
+const LoginModernPage = lazy(() => import('src/pages/auth-demo/modern/login'))
+const RegisterModernPage = lazy(
+  () => import('src/pages/auth-demo/modern/register')
+)
+const ForgotPasswordModernPage = lazy(
+  () => import('src/pages/auth-demo/modern/forgot-password')
+)
+const VerifyModernPage = lazy(() => import('src/pages/auth-demo/modern/verify'))
+const NewPasswordModernPage = lazy(
+  () => import('src/pages/auth-demo/modern/new-password')
+)
 
 // ----------------------------------------------------------------------
 
@@ -40,15 +54,15 @@ const authClassic = {
         <AuthClassicLayout>
           <LoginClassicPage />
         </AuthClassicLayout>
-      ),
+      )
     },
     {
       path: 'register',
       element: (
-        <AuthClassicLayout title="Manage the job more effectively with Minimal">
+        <AuthClassicLayout title="Manage the job more effectively with Talk To Doc">
           <RegisterClassicPage />
         </AuthClassicLayout>
-      ),
+      )
     },
     {
       element: (
@@ -59,11 +73,11 @@ const authClassic = {
       children: [
         { path: 'forgot-password', element: <ForgotPasswordClassicPage /> },
         { path: 'new-password', element: <NewPasswordClassicPage /> },
-        { path: 'verify', element: <VerifyClassicPage /> },
-      ],
-    },
-  ],
-};
+        { path: 'verify', element: <VerifyClassicPage /> }
+      ]
+    }
+  ]
+}
 
 const authModern = {
   path: 'modern',
@@ -79,7 +93,7 @@ const authModern = {
         <AuthModernLayout>
           <LoginModernPage />
         </AuthModernLayout>
-      ),
+      )
     },
     {
       path: 'register',
@@ -87,7 +101,7 @@ const authModern = {
         <AuthModernLayout>
           <RegisterModernPage />
         </AuthModernLayout>
-      ),
+      )
     },
     {
       element: (
@@ -98,15 +112,15 @@ const authModern = {
       children: [
         { path: 'forgot-password', element: <ForgotPasswordModernPage /> },
         { path: 'new-password', element: <NewPasswordModernPage /> },
-        { path: 'verify', element: <VerifyModernPage /> },
-      ],
-    },
-  ],
-};
+        { path: 'verify', element: <VerifyModernPage /> }
+      ]
+    }
+  ]
+}
 
 export const authDemoRoutes = [
   {
     path: 'auth-demo',
-    children: [authClassic, authModern],
-  },
-];
+    children: [authClassic, authModern]
+  }
+]

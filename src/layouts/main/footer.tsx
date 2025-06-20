@@ -1,52 +1,52 @@
-import Box from '@mui/material/Box';
-import Link from '@mui/material/Link';
-import Stack from '@mui/material/Stack';
-import Divider from '@mui/material/Divider';
-import { alpha } from '@mui/material/styles';
-import Container from '@mui/material/Container';
-import Grid from '@mui/material/Unstable_Grid2';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box'
+import Link from '@mui/material/Link'
+import Stack from '@mui/material/Stack'
+import Divider from '@mui/material/Divider'
+import { alpha } from '@mui/material/styles'
+import Container from '@mui/material/Container'
+import Grid from '@mui/material/Unstable_Grid2'
+import IconButton from '@mui/material/IconButton'
+import Typography from '@mui/material/Typography'
 
-import { paths } from 'src/routes/paths';
-import { usePathname } from 'src/routes/hooks';
-import { RouterLink } from 'src/routes/components';
+import { paths } from 'src/routes/paths'
+import { usePathname } from 'src/routes/hooks'
+import { RouterLink } from 'src/routes/components'
 
-import { _socials } from 'src/_mock';
+import { _socials } from 'src/_mock'
 
-import Logo from 'src/components/logo';
-import Iconify from 'src/components/iconify';
+import Logo from 'src/components/logo'
+import Iconify from 'src/components/iconify'
 
 // ----------------------------------------------------------------------
 
 const LINKS = [
   {
-    headline: 'Minimal',
+    headline: 'Talk To Doc',
     children: [
       { name: 'About us', href: paths.about },
       { name: 'Contact us', href: paths.contact },
-      { name: 'FAQs', href: paths.faqs },
-    ],
+      { name: 'FAQs', href: paths.faqs }
+    ]
   },
   {
     headline: 'Legal',
     children: [
       { name: 'Terms and Condition', href: '#' },
-      { name: 'Privacy Policy', href: '#' },
-    ],
+      { name: 'Privacy Policy', href: '#' }
+    ]
   },
   {
     headline: 'Contact',
-    children: [{ name: 'support@minimals.cc', href: '#' }],
-  },
-];
+    children: [{ name: 'support@minimals.cc', href: '#' }]
+  }
+]
 
 // ----------------------------------------------------------------------
 
 export default function Footer() {
-  const pathname = usePathname();
+  const pathname = usePathname()
 
-  const homePage = pathname === '/';
+  const homePage = pathname === '/'
 
   const simpleFooter = (
     <Box
@@ -55,7 +55,7 @@ export default function Footer() {
         py: 5,
         textAlign: 'center',
         position: 'relative',
-        bgcolor: 'background.default',
+        bgcolor: 'background.default'
       }}
     >
       <Container>
@@ -68,14 +68,14 @@ export default function Footer() {
         </Typography>
       </Container>
     </Box>
-  );
+  )
 
   const mainFooter = (
     <Box
       component="footer"
       sx={{
         position: 'relative',
-        bgcolor: 'background.default',
+        bgcolor: 'background.default'
       }}
     >
       <Divider />
@@ -84,7 +84,7 @@ export default function Footer() {
         sx={{
           pt: 10,
           pb: 5,
-          textAlign: { xs: 'center', md: 'unset' },
+          textAlign: { xs: 'center', md: 'unset' }
         }}
       >
         <Logo sx={{ mb: 3 }} />
@@ -93,7 +93,7 @@ export default function Footer() {
           container
           justifyContent={{
             xs: 'center',
-            md: 'space-between',
+            md: 'space-between'
           }}
         >
           <Grid xs={8} md={3}>
@@ -101,11 +101,12 @@ export default function Footer() {
               variant="body2"
               sx={{
                 maxWidth: 270,
-                mx: { xs: 'auto', md: 'unset' },
+                mx: { xs: 'auto', md: 'unset' }
               }}
             >
-              The starting point for your next project with Minimal UI Kit, built on the newest
-              version of Material-UI ©, ready to be customized to your style.
+              The starting point for your next project with Minimal UI Kit,
+              built on the newest version of Material-UI ©, ready to be
+              customized to your style.
             </Typography>
 
             <Stack
@@ -113,16 +114,16 @@ export default function Footer() {
               justifyContent={{ xs: 'center', md: 'flex-start' }}
               sx={{
                 mt: 3,
-                mb: { xs: 5, md: 0 },
+                mb: { xs: 5, md: 0 }
               }}
             >
-              {_socials.map((social) => (
+              {_socials.map(social => (
                 <IconButton
                   key={social.name}
                   sx={{
                     '&:hover': {
-                      bgcolor: alpha(social.color, 0.08),
-                    },
+                      bgcolor: alpha(social.color, 0.08)
+                    }
                   }}
                 >
                   <Iconify color={social.color} icon={social.icon} />
@@ -133,7 +134,7 @@ export default function Footer() {
 
           <Grid xs={12} md={6}>
             <Stack spacing={5} direction={{ xs: 'column', md: 'row' }}>
-              {LINKS.map((list) => (
+              {LINKS.map(list => (
                 <Stack
                   key={list.headline}
                   spacing={2}
@@ -144,7 +145,7 @@ export default function Footer() {
                     {list.headline}
                   </Typography>
 
-                  {list.children.map((link) => (
+                  {list.children.map(link => (
                     <Link
                       key={link.name}
                       component={RouterLink}
@@ -166,7 +167,7 @@ export default function Footer() {
         </Typography>
       </Container>
     </Box>
-  );
+  )
 
-  return homePage ? simpleFooter : mainFooter;
+  return homePage ? simpleFooter : mainFooter
 }
