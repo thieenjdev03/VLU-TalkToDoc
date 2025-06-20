@@ -126,7 +126,7 @@ export default function AppointmentTableToolbar({
         onClick={exportToCSV}
         sx={{ minWidth: 120 }}
       >
-        Xuất CSV
+        Xuất File
       </Button>
     </Stack>
   )

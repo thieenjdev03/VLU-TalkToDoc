@@ -186,7 +186,7 @@ export default function InvoiceTableToolbar({
           onClick={() => exportToCSV(dataFiltered)}
           sx={{ mb: 1, minWidth: 120, py: 1 }}
         >
-          Xuất CSV
+          Xuất File
         </Button>
       </Stack>
     </Stack>

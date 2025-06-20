@@ -138,7 +138,7 @@ export default function SpecialtyReportToolbar({
         onClick={() => exportToCSV(dataFiltered)}
         sx={{ mb: 1, minWidth: 120, py: 1 }}
       >
-        Xuất Excel
+        Xuất File
       </Button>
     </Stack>
   )
