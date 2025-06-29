@@ -8,6 +8,7 @@ import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
 import LoadingButton from '@mui/lab/LoadingButton'
 import InputAdornment from '@mui/material/InputAdornment'
+import Button from '@mui/material/Button'
 
 import { paths } from 'src/routes/paths'
 import { RouterLink } from 'src/routes/components'
@@ -58,11 +59,11 @@ export default function ModernLoginView() {
       <Typography variant="h4">Đăng nhập ngay!</Typography>
 
       <Stack direction="row" spacing={0.5}>
-        {/* <Typography variant="body2">Người dùng mới?</Typography> */}
+        <Typography variant="body2">Người dùng mới?</Typography>
 
-        {/* <Link component={RouterLink} href={paths.authDemo.classic.register} variant="subtitle2">
-          Create an account
-        </Link> */}
+        <Link component={RouterLink} href={paths.authDemo.modern.register} variant="subtitle2">
+          Tạo tài khoản
+        </Link>
       </Stack>
     </Stack>
   )
@@ -113,6 +114,17 @@ export default function ModernLoginView() {
       >
         Login
       </LoadingButton>
+
+      <Button
+        component={RouterLink}
+        href="/dashboard"
+        size="large"
+        variant="outlined"
+        fullWidth
+        startIcon={<Iconify icon="eva:arrow-ios-back-fill" />}
+      >
+        Về trang chủ
+      </Button>
     </Stack>
   )
 

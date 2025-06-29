@@ -2,6 +2,7 @@ import { m } from 'framer-motion';
 
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
+import Stack from '@mui/material/Stack';
 
 import { RouterLink } from 'src/routes/components';
 
@@ -16,14 +17,14 @@ export default function NotFoundView() {
     <MotionContainer>
       <m.div variants={varBounce().in}>
         <Typography variant="h3" sx={{ mb: 2 }}>
-          Xin lỗi bạn, không tìm thấy trang này
+          Oops! Trang này không tồn tại
         </Typography>
       </m.div>
 
       <m.div variants={varBounce().in}>
-        <Typography sx={{ color: 'text.secondary' }}>
-          Xin lỗi, chúng tôi không tìm thấy trang bạn đang tìm kiếm. Có lẽ bạn đã nhập sai URL? Hãy
-          kiểm tra lỗi chính tả của bạn.
+        <Typography sx={{ color: 'text.secondary', mb: 3 }}>
+          Có vẻ như trang bạn đang tìm kiếm đã được di chuyển hoặc không còn tồn tại. 
+          Đừng lo lắng, hãy thử một trong những tùy chọn bên dưới để tiếp tục khám phá.
         </Typography>
       </m.div>
 
@@ -36,9 +37,18 @@ export default function NotFoundView() {
         />
       </m.div>
 
-      <Button component={RouterLink} href="/dashboard" size="large" variant="contained">
-        Về trang chủ
-      </Button>
+      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mt: 3 }}>
+        <Button 
+          component={RouterLink} 
+          href="/dashboard" 
+          size="large" 
+          variant="contained"
+          fullWidth={false}
+        >
+          Về trang chủ
+        </Button>
+        
+      </Stack>
     </MotionContainer>
   );
 }

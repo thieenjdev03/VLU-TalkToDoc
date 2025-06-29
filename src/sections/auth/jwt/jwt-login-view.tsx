@@ -7,6 +7,7 @@ import Box from '@mui/material/Box'
 import Link from '@mui/material/Link'
 import Alert from '@mui/material/Alert'
 import Stack from '@mui/material/Stack'
+import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
 import LoadingButton from '@mui/lab/LoadingButton'
@@ -109,7 +110,27 @@ export default function JwtLoginView() {
         >
           Đăng nhập ngay!
         </Typography>
-        <Stack direction="row" spacing={0.5} />
+        <Stack direction="row" spacing={0.5}>
+          <Typography variant="body2" color="text.secondary">
+            Chưa có tài khoản?
+          </Typography>
+          <Link
+            component="button"
+            variant="subtitle2"
+            color="primary"
+            underline="always"
+            onClick={() => window.location.href = import.meta.env.VITE_PROD_REDIRECT_URL}
+            sx={{ 
+              border: 'none', 
+              background: 'none', 
+              cursor: 'pointer',
+              fontSize: isMobile ? 14 : 16,
+              fontWeight: 600
+            }}
+          >
+            Đăng ký ngay
+          </Link>
+        </Stack>
       </Stack>
     </Box>
   )
@@ -176,6 +197,20 @@ export default function JwtLoginView() {
       }}
       className="login-page-wrapper"
     >
+      <Button
+        variant="outlined"
+        color="primary"
+        onClick={() => router.push('/')}
+        sx={{
+          alignSelf: 'flex-start',
+          mb: 2,
+          fontSize: isMobile ? 14 : 16
+        }}
+        startIcon={<Iconify icon="eva:arrow-back-fill" />}
+      >
+        Về trang chủ
+      </Button>
+      
       {renderHead}
       {!!errorMsg && (
         <Alert severity="error" sx={{ mb: 3 }}>
