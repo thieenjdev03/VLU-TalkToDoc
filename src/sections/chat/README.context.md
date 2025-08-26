@@ -1,84 +1,173 @@
-# Chat Bot Service Context API - Hướng dẫn cho Frontend
+# 📚 Chat Bot Service API Documentation
 
-## Tổng quan
+## 1. Tổng quan
 
-Dịch vụ chat bot hỗ trợ gửi tin nhắn dạng text và hình ảnh (qua URL). API backend sẽ tự động nhận diện, phân tích và trả lời phù hợp.
+Dịch vụ Chat Bot hỗ trợ hội thoại giữa người dùng và AI, nhận diện và trả lời thông minh dựa trên text và hình ảnh (qua URL). API hỗ trợ:
 
----
-
-## 1. Endpoint API gửi tin nhắn
-
-### **Endpoint chung**
-
-- **Method:** `POST`
-- **Path:** `/chat-bot-service/:conversationId/send-message`
-  - `:conversationId` là ID của cuộc hội thoại (lấy từ API tạo mới hoặc danh sách hội thoại).
-- **Content-Type:** `application/json`
+- Tạo cuộc hội thoại và chọn model AI ngay từ frontend
+- Gửi tin nhắn (text/ảnh) và có thể đổi model ngay khi đang chat
+- Đổi model cho một cuộc hội thoại qua endpoint riêng
 
 ---
 
-## 2. Gửi tin nhắn (text + ảnh)
+## 2. Endpoint
 
-### **Phương án 1: Gửi ảnh qua URL trong chuỗi message**
+- Tạo cuộc hội thoại: `POST /chat`
+- Lấy chi tiết cuộc hội thoại: `GET /chat/:conversationId`
+- Gửi tin nhắn: `POST /chat/:conversationId`
+- Đổi model: `PATCH /chat/:conversationId/model`
 
-- **Text**: Gửi như bình thường.
-- **Ảnh**: Gửi dưới dạng URL ảnh hợp lệ (jpg, png, webp, ...), chèn trực tiếp vào chuỗi `message` (có thể nhiều URL, cách nhau bởi dấu cách hoặc xuống dòng).
-- **Ưu điểm**: Đơn giản, không cần đổi API, tương thích mọi client.
-- **Nhược điểm**: Frontend phải tự nối URL ảnh vào chuỗi text.
+Tất cả sử dụng `Content-Type: application/json`.
 
-#### Ví dụ message hợp lệ
+---
 
-```
-Tôi bị nổi mẩn đỏ, đây là ảnh:
-https://example.com/image1.jpg https://example.com/image2.png
-```
+## 3. Tạo cuộc hội thoại (chọn model từ frontend)
 
-#### Request mẫu
-
+### Request
 ```json
 {
-  "message": "Tôi bị đau bụng nhiều ngày\nhttps://example.com/image.jpg",
-  "user_id": "user_123"
+  "user_id": "user_123",
+  "model_used": "gpt-4o-mini", // Optional - nếu thiếu sẽ dùng mặc định "gpt-3.5-turbo"
+  "context": { "locale": "vi-VN" } // Optional
 }
 ```
 
-#### Ví dụ curl:
-
-```bash
-curl -X POST 'http://localhost:3000/chat-bot-service/6824d208e2f12cad7d54c0c6/send-message' \
-  -H 'Content-Type: application/json' \
-  --data-raw '{
-    "message": "Tôi bị đau bụng nhiều ngày\nhttps://example.com/image.jpg",
-    "user_id": "user_123"
-  }'
+### Response (rút gọn)
+```json
+{
+  "_id": "<conversationId>",
+  "user_id": "user_123",
+  "model_used": "gpt-4o-mini",
+  "messages": [],
+  "context": { "locale": "vi-VN" }
+}
 ```
 
 ---
 
-### **Phương án 2: Gửi ảnh qua trường imageUrls (mảng URL)**
+## 4. Gửi tin nhắn (có thể đổi model ngay trong request)
 
-- **Text**: Gửi trong trường `message`.
-- **Ảnh**: Gửi mảng URL ảnh trong trường `imageUrls` (kiểu: string[]).
-- **Ưu điểm**: Frontend dễ tách biệt text và ảnh, backend xử lý rõ ràng.
-- **Nhược điểm**: Cần cập nhật API, controller, DTO, tài liệu.
+### 4.1. Gửi text + ảnh qua URL trong message
 
-#### Request mẫu
+- Gửi ảnh bằng cách chèn URL ảnh vào chuỗi `message`.
+
+Ví dụ:
+```json
+{
+  "message": "Tôi bị nổi mẩn đỏ, đây là ảnh:\nhttps://example.com/image1.jpg https://example.com/image2.png",
+  "user_id": "user_123",
+  "model": "gpt-4o" // Optional - nếu truyền sẽ đổi model của cuộc hội thoại trước khi trả lời
+}
+```
+
+### 4.2. Gửi text + ảnh qua trường `imageUrls` (Khuyến nghị)
 
 ```json
 {
   "message": "Tôi bị đau bụng nhiều ngày",
   "user_id": "user_123",
-  "imageUrls": [
-    "https://example.com/image1.jpg",
-    "https://example.com/image2.png"
+  "imageUrls": ["https://example.com/image1.jpg", "https://example.com/image2.png"],
+  "model": "gpt-4o-mini" // Optional
+}
+```
+
+Lưu ý:
+- Có thể gửi đồng thời URL ảnh trong `message` và trong `imageUrls`, backend sẽ gộp lại.
+- Trường `message` có thể để trống nếu chỉ gửi ảnh.
+- Nếu request có ảnh và không chỉ định `model`, backend sẽ dùng model vision mặc định `gpt-4o`.
+
+### 4.3. Response mẫu
+```json
+{
+  "reply": "AI trả lời phân tích cả text và ảnh...",
+  "messages": [
+    { "role": "user", "content": "Tôi bị đau bụng nhiều ngày https://example.com/image1.jpg" },
+    { "role": "assistant", "content": "AI trả lời phân tích cả text và ảnh..." }
   ]
 }
 ```
 
-#### Ví dụ curl:
+---
 
+## 5. Đổi model cho cuộc hội thoại (endpoint riêng)
+
+### Request
+`PATCH /chat/:conversationId/model`
+```json
+{ "model": "gpt-3.5-turbo" }
+```
+
+### Response (rút gọn)
+```json
+{
+  "_id": "<conversationId>",
+  "model_used": "gpt-3.5-turbo"
+}
+```
+
+---
+
+## 6. Hướng dẫn frontend
+
+- Khi tạo hội thoại, truyền `model_used` nếu muốn chọn model ngay từ đầu.
+- Trong khi chat, có 2 cách đổi model:
+  - Truyền `model` trong body của `POST /chat/:conversationId`
+  - Hoặc gọi `PATCH /chat/:conversationId/model` để đổi trước, rồi gửi tin nhắn
+- Với ảnh: nếu không truyền `model`, backend mặc định dùng `gpt-4o` (vision-capable).
+- Hãy đảm bảo URL ảnh là public.
+
+---
+
+## 7. Lưu ý
+
+- Có thể gửi nhiều ảnh cùng lúc, AI sẽ phân tích tổng thể.
+- Nếu chỉ có text, AI trả lời như bình thường với `model_used` hiện tại.
+- Nếu chỉ có ảnh, AI sẽ phân tích ảnh (ưu tiên model vision).
+- Đảm bảo URL ảnh truy cập được từ internet.
+
+---
+
+## 8. Xử lý lỗi
+
+- Ảnh không hợp lệ/không truy cập được: trả về thông báo lỗi thân thiện.
+- API AI lỗi: trả về thông báo lỗi cho người dùng.
+
+---
+
+## 9. Ví dụ curl
+
+Tạo hội thoại với model:
 ```bash
-curl -X POST 'http://localhost:3000/chat-bot-service/6824d208e2f12cad7d54c0c6/send-message' \
+curl -X POST 'http://localhost:3000/chat' \
+  -H 'Content-Type: application/json' \
+  --data-raw '{
+    "user_id": "user_123",
+    "model_used": "gpt-4o-mini",
+    "context": {"locale": "vi-VN"}
+  }'
+```
+
+Gửi tin nhắn và đổi model ngay trong request:
+```bash
+curl -X POST 'http://localhost:3000/chat/<conversationId>' \
+  -H 'Content-Type: application/json' \
+  --data-raw '{
+    "message": "Tôi bị đau bụng nhiều ngày",
+    "user_id": "user_123",
+    "model": "gpt-4o-mini"
+  }'
+```
+
+Đổi model qua endpoint riêng:
+```bash
+curl -X PATCH 'http://localhost:3000/chat/<conversationId>/model' \
+  -H 'Content-Type: application/json' \
+  --data-raw '{"model": "gpt-3.5-turbo"}'
+```
+
+Gửi tin nhắn kèm ảnh (không chỉ định model → mặc định vision `gpt-4o`):
+```bash
+curl -X POST 'http://localhost:3000/chat/<conversationId>' \
   -H 'Content-Type: application/json' \
   --data-raw '{
     "message": "Tôi bị đau bụng nhiều ngày",
@@ -87,57 +176,99 @@ curl -X POST 'http://localhost:3000/chat-bot-service/6824d208e2f12cad7d54c0c6/se
   }'
 ```
 
-#### Lưu ý:
+---
 
-- Nếu gửi cả URL ảnh trong `message` và trong `imageUrls`, backend sẽ gộp lại và phân tích tất cả.
-- Nếu chỉ gửi `message` (không có `imageUrls`), backend vẫn hoạt động bình thường.
+**Nếu cần hỗ trợ thêm (upload ảnh, danh sách model hỗ trợ, giới hạn token...), vui lòng liên hệ backend để mở rộng API.**
+
 
 ---
 
-## 3. Response mẫu
+## 10. UI chọn model (giống dropdown góc phải của ChatGPT)
 
-```json
-{
-  "reply": "AI trả lời phân tích cả text và ảnh...",
-  "messages": [
-    {
-      "role": "user",
-      "content": "Tôi bị đau bụng nhiều ngày https://example.com/image1.jpg"
-    },
-    { "role": "assistant", "content": "AI trả lời phân tích cả text và ảnh..." }
-  ]
+### 10.1. Mục tiêu UX
+
+- **Hiển thị model đang dùng** cho cuộc hội thoại (ví dụ: `gpt-4o`, `gpt-4o-mini`, `gpt-3.5-turbo`).
+- **Cho phép đổi model nhanh** bằng dropdown ở góc phải thanh tiêu đề khung chat.
+- **Lưu theo từng cuộc hội thoại**: khi đổi, model mới gắn với `conversationId` hiện tại.
+- **Có thể override theo từng tin nhắn**: trong input gửi tin nhắn có thể đính kèm `model` để đổi tạm thời cho lần gửi đó.
+
+### 10.2. Danh sách model khuyến nghị (frontend)
+
+```ts
+// src/constants/chat-models.ts
+export const SUPPORTED_CHAT_MODELS = [
+  { id: 'gpt-4o', label: 'GPT‑4o (Vision)' },
+  { id: 'gpt-4o-mini', label: 'GPT‑4o mini' },
+  { id: 'gpt-3.5-turbo', label: 'GPT‑3.5 Turbo' }
+]
+```
+
+### 10.3. Dropdown chọn model trên thanh tiêu đề chat
+
+```tsx
+// Ví dụ đơn giản: đặt ở Header của khung chat
+import { useState } from 'react'
+import axios from 'axios'
+
+type ModelOption = { id: string; label: string }
+
+function ModelPicker({
+  conversationId,
+  currentModel,
+  models,
+  onChanged
+}: {
+  conversationId: string
+  currentModel: string
+  models: ModelOption[]
+  onChanged?: (modelId: string) => void
+}) {
+  const [value, setValue] = useState(currentModel)
+
+  const handleChange = async (modelId: string) => {
+    setValue(modelId)
+    // Gọi endpoint đổi model của cuộc hội thoại
+    await axios.patch(`${import.meta.env.VITE_API_URL}/chat/${conversationId}/model`, {
+      model: modelId
+    })
+    onChanged?.(modelId)
+  }
+
+  return (
+    <select value={value} onChange={(e) => handleChange(e.target.value)}>
+      {models.map((m) => (
+        <option key={m.id} value={m.id}>
+          {m.label}
+        </option>
+      ))}
+    </select>
+  )
 }
 ```
 
----
+Gợi ý UI: đặt ở góc phải header, kèm tooltip “Change model”. Khi đang xử lý request, có thể disabled dropdown.
 
-## 4. Hướng dẫn frontend tweak logic
+### 10.4. Gửi tin nhắn với override theo từng lần gửi (tùy chọn)
 
-- **Khuyến nghị:**
-  - Nếu backend đã hỗ trợ trường `imageUrls`, frontend nên tách riêng text và mảng URL ảnh, gửi đúng 2 trường này.
-  - Nếu backend chỉ hỗ trợ `message`, hãy nối các URL ảnh vào chuỗi text, cách nhau bằng dấu cách hoặc xuống dòng.
-- **Khi upload file ảnh:**
-  1. Upload file lên dịch vụ lưu trữ (Cloudinary, Imgur, S3, ...).
-  2. Lấy URL trả về, đưa vào mảng `imageUrls` (nếu dùng phương án 2) hoặc nối vào chuỗi `message` (nếu dùng phương án 1).
-- **Luôn đảm bảo URL ảnh là public và hợp lệ.**
+```ts
+// Nếu muốn override model cho 1 lần gửi
+await axios.post(`${API_URL}/chat/${conversationId}`, {
+  message: input,
+  user_id: userId,
+  model: 'gpt-4o-mini' // chỉ áp dụng cho request này
+})
+```
 
----
+### 10.5. Tích hợp nhanh với layer API hiện có
 
-## 5. Lưu ý khi tích hợp
+- Đổi model toàn cục cho cuộc hội thoại: gọi `PATCH /chat/:conversationId/model` với `{ model }`.
+- Gửi tin nhắn bình thường: `POST /chat/:conversationId` với `{ message, user_id }`.
+- Gửi tin nhắn kèm ảnh: thêm `imageUrls: string[]`.
+- Override model tạm thời: thêm trường `model` trong body của `POST`.
 
-- Có thể gửi nhiều ảnh cùng lúc, AI sẽ phân tích tổng thể.
-- Nếu chỉ có text, AI sẽ trả lời như bình thường.
-- Nếu chỉ có ảnh, AI sẽ phân tích ảnh.
-- Nếu gửi cả text và ảnh, AI sẽ phân tích tổng thể.
-- Đảm bảo URL ảnh truy cập được từ internet (không dùng local file).
+### 10.6. Lưu ý triển khai
 
----
+- Persist model đã chọn vào state cuộc hội thoại để hiển thị lại khi reload.
+- Nếu request chỉ có ảnh và không truyền `model`, backend tự dùng vision mặc định `gpt-4o`.
+- Nên validate model trong danh sách hỗ trợ trước khi gửi request.
 
-## 6. Xử lý lỗi
-
-- Nếu ảnh không hợp lệ hoặc không truy cập được, AI sẽ trả về thông báo lỗi thân thiện.
-- Nếu API OpenAI Vision lỗi, backend sẽ trả về thông báo lỗi cho người dùng.
-
----
-
-Nếu cần hỗ trợ thêm về upload file ảnh hoặc các format khác, liên hệ backend để mở rộng API.
