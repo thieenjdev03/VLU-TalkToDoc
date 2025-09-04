@@ -14,10 +14,14 @@ import { CloseIcon } from 'src/components/lightbox'
 
 import { IChatMessage } from 'src/types/chat'
 
+import ChatAppointmentSuggestion from './chat-appointment-suggestion'
+
 interface Props {
   message: IChatMessage & { imageUrls?: string[] }
   isCurrentUser: boolean
   userProfile: any
+  onAppointmentAccept?: (appointmentId: string) => void
+  onAppointmentReject?: () => void
 }
 
 // Hàm kiểm tra xem chuỗi có phải là URL hình ảnh không
@@ -109,7 +113,9 @@ function ImagePreviewDialog({
 export default function ChatMessageItem({
   message,
   isCurrentUser,
-  userProfile
+  userProfile,
+  onAppointmentAccept,
+  onAppointmentReject
 }: Props) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
 
@@ -246,6 +252,17 @@ export default function ChatMessageItem({
                 alt="chat-img"
                 style={{ maxWidth: '100%', borderRadius: 8, display: 'block' }}
                 loading="lazy"
+              />
+            </Box>
+          )}
+          
+          {/* Hiển thị appointment suggestion nếu có */}
+          {!isCurrentUser && message.appointmentSuggestion && (
+            <Box sx={{ mt: 1.5 }}>
+              <ChatAppointmentSuggestion
+                suggestion={message.appointmentSuggestion}
+                onAccept={onAppointmentAccept}
+                onReject={onAppointmentReject}
               />
             </Box>
           )}

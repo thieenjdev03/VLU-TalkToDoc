@@ -22,6 +22,24 @@ export interface IChatMessage {
   senderId: string
   role: string
   imageUrls: string[]
+  appointmentSuggestion?: {
+    type?: 'new_appointment' | 'follow_up' | 'emergency'
+    doctorId: string
+    doctorName: string
+    doctorAvatar?: string
+    doctorSpecialty: string
+    suggestedDate: string
+    suggestedTime: string
+    reason: string
+    estimatedDuration: number
+    isFollowUp?: boolean
+    lastAppointmentId?: string
+    followUpReason?: string
+    location?: string
+    price?: number
+    confirmationRequired?: boolean
+    confirmationMessage?: string
+  }
 }
 
 export interface IChatParticipant {
@@ -52,4 +70,22 @@ export interface IChatConversations {
 export interface IChatResponse {
   reply: string
   messages: IChatMessage[]
+  appointmentSuggestion?: {
+    type?: 'new_appointment' | 'follow_up' | 'emergency'
+    doctorId: string
+    doctorName: string
+    doctorAvatar?: string
+    doctorSpecialty: string
+    suggestedDate: string
+    suggestedTime: string
+    reason: string
+    estimatedDuration: number
+    isFollowUp?: boolean
+    lastAppointmentId?: string
+    followUpReason?: string
+    location?: string
+    price?: number
+    confirmationRequired?: boolean
+    confirmationMessage?: string
+  }
 }

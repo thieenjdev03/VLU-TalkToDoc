@@ -14,6 +14,8 @@ interface Props {
   messages: IChatMessage[]
   userProfile: any
   isBotReplying?: boolean
+  onAppointmentAccept?: (appointmentId: string) => void
+  onAppointmentReject?: () => void
 }
 
 export function BotTypingIndicator() {
@@ -68,13 +70,15 @@ function Dot({ delay = 0 }: { delay?: number }) {
 export default function ChatMessageList({
   messages,
   userProfile,
-  isBotReplying
+  isBotReplying,
+  onAppointmentAccept,
+  onAppointmentReject
 }: Props) {
-  const showBotTyping = useMemo(() => {
-    if (typeof isBotReplying === 'boolean') return isBotReplying
-    if (!messages || messages.length === 0) return false
-    return messages[messages.length - 1].role === 'user'
-  }, [messages, isBotReplying])
+  // const showBotTyping = useMemo(() => {
+  //   if (typeof isBotReplying === 'boolean') return isBotReplying
+  //   if (!messages || messages.length === 0) return false
+  //   return messages[messages.length - 1].role === 'user'
+  // }, [messages, isBotReplying])
 
   return (
     <Box sx={{ flexGrow: 1, overflow: 'hidden', px: 2 }}>
@@ -86,6 +90,8 @@ export default function ChatMessageList({
               message={message}
               isCurrentUser={message.role === 'user'}
               userProfile={userProfile}
+              onAppointmentAccept={onAppointmentAccept}
+              onAppointmentReject={onAppointmentReject}
             />
           ))}
         </Stack>

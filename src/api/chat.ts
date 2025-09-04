@@ -13,7 +13,7 @@ import {
   IChatConversations
 } from 'src/types/chat'
 
-const options = {
+const swrOptions = {
   revalidateIfStale: false,
   revalidateOnFocus: false,
   revalidateOnReconnect: false
@@ -23,7 +23,7 @@ const API_URL = import.meta.env.VITE_API_URL
 
 export function useGetContacts() {
   const url = [endpoints.chat, { params: { endpoint: 'contacts' } }]
-  const { data, isLoading, error, isValidating } = useSWR(url, fetcher, options)
+  const { data, isLoading, error, isValidating } = useSWR(url, fetcher, swrOptions)
 
   const memoizedValue = useMemo(
     () => ({
@@ -41,7 +41,7 @@ export function useGetContacts() {
 
 export function useGetConversations() {
   const url = [endpoints.chat, { params: { endpoint: 'conversations' } }]
-  const { data, isLoading, error, isValidating } = useSWR(url, fetcher, options)
+  const { data, isLoading, error, isValidating } = useSWR(url, fetcher, swrOptions)
 
   const memoizedValue = useMemo(() => {
     const byId = keyBy(data?.conversations, 'id') || {}
@@ -66,7 +66,7 @@ export function useGetConversation(conversationId: string) {
     ? [endpoints.chat, { params: { conversationId, endpoint: 'conversation' } }]
     : ''
 
-  const { data, isLoading, error, isValidating } = useSWR(url, fetcher, options)
+  const { data, isLoading, error, isValidating } = useSWR(url, fetcher, swrOptions)
 
   const memoizedValue = useMemo(
     () => ({
@@ -188,15 +188,33 @@ export async function sendMessageToAI(
   chatId: string,
   message: string,
   userId: string,
-  imageUrls?: string[]
+  imageUrls?: string[],
+  options?: {
+    suggestAppointment?: boolean
+    isFollowUpAppointment?: boolean
+    userSymptoms?: string[]
+    urgency?: 'normal' | 'urgent' | 'emergency'
+    preferredSpecialty?: string
+    lastAppointmentId?: string
+    preferredDate?: string
+    preferredTime?: string
+    location?: string
+    budget?: number
+  }
 ): Promise<IChatResponse> {
   const payload: any = {
     message,
     user_id: userId
   }
+  
   if (imageUrls && imageUrls.length > 0) {
     payload.imageUrls = imageUrls
   }
+  
+  if (options) {
+    payload.options = options
+  }
+  
   const response = await axios.post(`${API_URL}/chat/${chatId}`, payload)
   return response.data
 }

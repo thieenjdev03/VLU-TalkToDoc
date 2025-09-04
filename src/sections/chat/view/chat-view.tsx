@@ -13,6 +13,13 @@ import { paths } from 'src/routes/paths'
 import { useRouter, useSearchParams } from 'src/routes/hooks'
 
 import { createChat, useGetChat, sendMessageToAI } from 'src/api/chat'
+import { 
+  addConversationToCache,
+  markConversationAsRead, 
+  refreshConversations,
+  updateConversationInCache,
+  useGetConversations
+} from 'src/api/conversation'
 
 import { useSettingsContext } from 'src/components/settings'
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs/custom-breadcrumbs'
@@ -20,6 +27,7 @@ import CustomBreadcrumbs from 'src/components/custom-breadcrumbs/custom-breadcru
 import ChatMessageInput from '../chat-message-input'
 import ChatHeaderDetail from '../chat-header-detail'
 import { useChatHistory } from '../hooks/use-chat-history'
+import ChatConversationSidebar from '../chat-conversation-sidebar'
 import ChatMessageList, { BotTypingIndicator } from '../chat-message-list'
 
 // ----------------------------------------------------------------------
@@ -254,15 +262,32 @@ export default function ChatView() {
   const [startingChat, setStartingChat] = useState(false)
 
   const { conversationError } = useGetChat(selectedConversationId)
-  const { messages, addMessages, clearHistory } = useChatHistory(
+  const { messages, addMessages } = useChatHistory(
     selectedConversationId
   )
+  const [currentPage, setCurrentPage] = useState(1)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [conversationType] = useState<string | undefined>()
+  
+  const { 
+    conversations, 
+    conversationsLoading, 
+    pagination,
+    conversationsError 
+  } = useGetConversations(user?._id, currentPage, 20, conversationType, searchQuery)
   console.log('messages', messages)
   useEffect(() => {
     if (conversationError) {
       router.push(paths.dashboard.chat)
     }
   }, [conversationError, router])
+
+  // Refresh conversations khi user thay đổi
+  useEffect(() => {
+    if (user?._id) {
+      refreshConversations(user._id, currentPage, 20, conversationType, searchQuery)
+    }
+  }, [user?._id, currentPage, conversationType, searchQuery])
 
   // Hàm khởi tạo chat và gửi tin nhắn đầu tiên
   const handleStartChat = useCallback(async () => {
@@ -289,9 +314,95 @@ export default function ChatView() {
     }
   }, [router, user, addMessages])
 
+  // Function to detect appointment keywords
+  const shouldTriggerAppointmentSuggestion = (message: string): boolean => {
+    const appointmentKeywords = [
+      'test',           // Test keyword
+      'khám',           // Khám bệnh
+      'lịch hẹn',       // Đặt lịch hẹn
+      'đặt lịch',       // Đặt lịch
+      'bác sĩ',         // Tìm bác sĩ
+      'tư vấn',         // Tư vấn y tế
+      'triệu chứng',    // Có triệu chứng
+      'đau',            // Đau đớn
+      'sốt',            // Sốt
+      'ho',             // Ho
+      'mệt mỏi',        // Mệt mỏi
+      'tái khám',       // Tái khám
+      'khám lại',       // Khám lại
+      'hẹn lại',        // Hẹn lại
+      'lịch tái khám',  // Lịch tái khám
+      'khi nào khám',   // Hỏi lịch khám
+      'bao giờ khám',   // Hỏi thời gian khám
+      'có cần khám',    // Hỏi có cần khám không
+      'có nên khám'     // Hỏi có nên khám không
+    ]
+    
+    const lowerMessage = message.toLowerCase()
+    return appointmentKeywords.some(keyword => lowerMessage.includes(keyword))
+  }
+
+  // Function to detect follow-up appointment keywords
+  const shouldTriggerFollowUpSuggestion = (message: string): boolean => {
+    const followUpKeywords = [
+      'tái khám', 'khám lại', 'hẹn lại', 'lịch tái khám',
+      'khi nào khám', 'bao giờ khám', 'có cần khám', 'có nên khám'
+    ]
+    const lowerMessage = message.toLowerCase()
+    return followUpKeywords.some(keyword => lowerMessage.includes(keyword))
+  }
+
+  // Function to detect urgency level
+  const detectUrgency = (message: string): 'normal' | 'urgent' | 'emergency' => {
+    const urgentKeywords = ['khẩn cấp', 'gấp', 'ngay', 'cấp cứu']
+    const emergencyKeywords = ['cấp cứu', 'nguy hiểm', 'tình trạng xấu']
+    
+    const lowerMessage = message.toLowerCase()
+    
+    if (emergencyKeywords.some(keyword => lowerMessage.includes(keyword))) {
+      return 'emergency'
+    }
+    
+    if (urgentKeywords.some(keyword => lowerMessage.includes(keyword))) {
+      return 'urgent'
+    }
+    
+    return 'normal'
+  }
+
+  // Function to extract symptoms from message
+  const extractSymptoms = (message: string): string[] => {
+    const symptoms: string[] = []
+    const lowerMessage = message.toLowerCase()
+    
+    const symptomKeywords = {
+      'đau đầu': ['đau đầu', 'nhức đầu'],
+      'sốt': ['sốt', 'nóng'],
+      'ho': ['ho', 'cough'],
+      'mệt mỏi': ['mệt mỏi', 'mệt', 'yếu'],
+      'đau bụng': ['đau bụng', 'đau dạ dày'],
+      'khó thở': ['khó thở', 'thở khó'],
+      'chóng mặt': ['chóng mặt', 'hoa mắt']
+    }
+    
+    Object.entries(symptomKeywords).forEach(([symptom, keywords]) => {
+      if (keywords.some(keyword => lowerMessage.includes(keyword))) {
+        symptoms.push(symptom)
+      }
+    })
+    
+    return symptoms
+  }
+
   const handleSendMessage = async (message: string, imageUrls?: string[]) => {
     try {
       setError(null)
+
+      // Detect if should suggest appointment
+      const shouldSuggest = shouldTriggerAppointmentSuggestion(message)
+      const isFollowUp = shouldTriggerFollowUpSuggestion(message)
+      const symptoms = extractSymptoms(message)
+      const urgency = detectUrgency(message)
 
       if (!selectedConversationId) {
         setStartingChat(true)
@@ -306,21 +417,49 @@ export default function ChatView() {
               imageUrls: imageUrls || []
             }
           ] as any)
+          
+          // Gửi với options để trigger appointment suggestion
           const response = await sendMessageToAI(
             newChat._id,
             message,
             user?.id || '',
-            imageUrls
+            imageUrls,
+            {
+              suggestAppointment: shouldSuggest,
+              isFollowUpAppointment: isFollowUp,
+              userSymptoms: symptoms,
+              urgency: urgency
+            }
           )
+          
           // Thêm tin nhắn assistant vào state
           addMessages([
             {
               _id: `${Date.now()?.toString()}_bot`,
               role: 'assistant',
               content: response.reply,
-              imageUrls: []
+              imageUrls: [],
+              appointmentSuggestion: response.appointmentSuggestion
             }
           ] as any)
+          
+          // Cập nhật sidebar với conversation mới
+          if (user?._id) {
+            const newConversation = {
+              id: newChat._id,
+              title: (newChat as any).title || 'Cuộc trò chuyện mới',
+              lastMessage: response.reply,
+              updatedAt: new Date().toISOString(),
+              unread: false,
+              model_used: (newChat as any).model_used || 'gpt-4o-mini',
+              type: 'ai' as const,
+              unread_count: 0,
+              created_at: new Date().toISOString(),
+              user_id: user._id
+            }
+            addConversationToCache(user._id, newConversation)
+          }
+          
           router.push(`${paths.dashboard.chat}?id=${newChat._id}`)
         } catch (err) {
           setError('Không thể bắt đầu cuộc trò chuyện. Vui lòng thử lại.')
@@ -341,22 +480,40 @@ export default function ChatView() {
           imageUrls: imageUrls || []
         }
       ] as any)
-      // Gửi lên API, chỉ nhận reply
+      
+      // Gửi lên API với options để trigger appointment suggestion
       const response = await sendMessageToAI(
         selectedConversationId,
         message,
         user?._id || '',
-        imageUrls
+        imageUrls,
+        {
+          suggestAppointment: shouldSuggest,
+          isFollowUpAppointment: isFollowUp,
+          userSymptoms: symptoms,
+          urgency: urgency
+        }
       )
+      
       // Thêm tin nhắn assistant vào state
       addMessages([
         {
           _id: `${Date.now()?.toString()}_bot`,
           role: 'assistant',
           content: response.reply,
-          imageUrls: []
+          imageUrls: [],
+          appointmentSuggestion: response.appointmentSuggestion
         }
       ] as any)
+      
+      // Cập nhật sidebar với tin nhắn mới
+      if (user?._id) {
+        updateConversationInCache(user._id, selectedConversationId, {
+          lastMessage: response.reply,
+          updatedAt: new Date().toISOString(),
+          unread: false // Không unread vì user đang chat
+        })
+      }
     } catch (err) {
       console.error('Error sending message:', err)
       setError('Có lỗi xảy ra khi gửi tin nhắn. Vui lòng thử lại.')
@@ -364,6 +521,57 @@ export default function ChatView() {
       setIsBotTyping(false)
     }
   }
+
+  const handleAppointmentAccept = (appointmentId: string) => {
+    console.log('Appointment accepted:', appointmentId)
+    // Có thể thêm logic thông báo thành công hoặc chuyển hướng
+  }
+
+  const handleAppointmentReject = () => {
+    console.log('Appointment rejected')
+    // Có thể thêm logic thông báo từ chối
+  }
+
+  const handleConversationSelect = async (conversationId: string) => {
+    try {
+      // Đánh dấu đã đọc
+      await markConversationAsRead(conversationId)
+      
+      // Cập nhật cache để đánh dấu đã đọc
+      if (user?._id) {
+        updateConversationInCache(user._id, conversationId, {
+          unread: false,
+          unread_count: 0,
+          updatedAt: new Date().toISOString()
+        })
+      }
+      
+      // Chuyển đến conversation
+      router.push(`${paths.dashboard.chat}?id=${conversationId}`)
+    } catch (err) {
+      console.error('Error selecting conversation:', err)
+    }
+  }
+
+  const handleNewChat = () => {
+    router.push(paths.dashboard.chat)
+  }
+
+  const handleLoadMore = () => {
+    if (pagination && currentPage < pagination.totalPages) {
+      setCurrentPage(prev => prev + 1)
+    }
+  }
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query)
+    setCurrentPage(1) // Reset to first page when searching
+  }
+
+  // const handleTypeFilter = (type: string | undefined) => {
+  //   setConversationType(type)
+  //   setCurrentPage(1) // Reset to first page when filtering
+  // }
 
   const renderHead = (
     <Stack
@@ -398,7 +606,18 @@ export default function ChatView() {
         </Alert>
       )}
 
-      <ChatMessageList messages={messages} userProfile={user} />
+      {conversationsError && (
+        <Alert severity="error" sx={{ mx: 2, mt: 2 }}>
+          Không thể tải danh sách cuộc trò chuyện. Vui lòng thử lại.
+        </Alert>
+      )}
+
+      <ChatMessageList 
+        messages={messages} 
+        userProfile={user}
+        onAppointmentAccept={handleAppointmentAccept}
+        onAppointmentReject={handleAppointmentReject}
+      />
 
       {isBotTyping && (
         <Box sx={{ px: 2, py: 1 }}>
@@ -432,42 +651,61 @@ export default function ChatView() {
         component={Card}
         sx={{ height: '80vh', position: 'relative', overflow: 'hidden' }}
       >
-        {renderHead}
+        <Stack direction="row" sx={{ height: 1 }}>
+          {/* Sidebar */}
+          <ChatConversationSidebar
+            conversations={conversations}
+            selectedId={selectedConversationId}
+            onSelect={handleConversationSelect}
+            onNewChat={handleNewChat}
+            loading={conversationsLoading}
+            pagination={pagination}
+            onLoadMore={handleLoadMore}
+            hasMore={pagination ? currentPage < pagination.totalPages : false}
+            onSearch={handleSearch}
+            searchQuery={searchQuery}
+          />
 
-        <Stack
-          sx={{
-            width: 1,
-            height: 1,
-            overflow: 'hidden',
-            borderTop: theme => `solid 1px ${theme.palette.divider}`,
-            position: 'relative'
-          }}
-        >
-          {!selectedConversationId ? (
-            <EmptyChatStart
-              onStart={handleStartChat}
-              isLoading={startingChat}
-            />
-          ) : (
-            renderMessages
-          )}
-          {/* Bỏ loading overlay, chỉ giữ trạng thái khởi tạo chat */}
-          {startingChat && (
+          {/* Main Chat Area */}
+          <Stack sx={{ flex: 1, height: 1 }}>
+            {renderHead}
+
             <Stack
-              alignItems="center"
-              justifyContent="center"
               sx={{
-                position: 'absolute',
-                inset: 0,
-                zIndex: 10,
-                background: 'rgba(255,255,255,0.7)'
+                width: 1,
+                height: 1,
+                overflow: 'hidden',
+                borderTop: theme => `solid 1px ${theme.palette.divider}`,
+                position: 'relative'
               }}
             >
-              <Typography variant="body2" color="text.secondary" mt={2}>
-                Đang khởi tạo cuộc trò chuyện...
-              </Typography>
+              {!selectedConversationId ? (
+                <EmptyChatStart
+                  onStart={handleStartChat}
+                  isLoading={startingChat}
+                />
+              ) : (
+                renderMessages
+              )}
+              {/* Bỏ loading overlay, chỉ giữ trạng thái khởi tạo chat */}
+              {startingChat && (
+                <Stack
+                  alignItems="center"
+                  justifyContent="center"
+                  sx={{
+                    position: 'absolute',
+                    inset: 0,
+                    zIndex: 10,
+                    background: 'rgba(255,255,255,0.7)'
+                  }}
+                >
+                  <Typography variant="body2" color="text.secondary" mt={2}>
+                    Đang khởi tạo cuộc trò chuyện...
+                  </Typography>
+                </Stack>
+              )}
             </Stack>
-          )}
+          </Stack>
         </Stack>
       </Stack>
     </Container>

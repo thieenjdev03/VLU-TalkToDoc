@@ -11,7 +11,8 @@ const MOCK_TITLE = _postTitles[2]
 const ROOTS = {
   AUTH: '/auth',
   AUTH_DEMO: '/auth-demo',
-  DASHBOARD: '/dashboard'
+  DASHBOARD: '/dashboard',
+  DEMO: '/demo'
 }
 
 // ----------------------------------------------------------------------
@@ -279,5 +280,12 @@ export const paths = {
         edit: `${ROOTS.DASHBOARD}/tour/${MOCK_ID}/edit`
       }
     }
+  },
+  // DEMO
+  demo: {
+    root: ROOTS.DEMO,
+    chatSidebar: `${ROOTS.DEMO}/chat-sidebar-demo`,
+    chatAppointment: `${ROOTS.DEMO}/chat-appointment-demo`,
+    chatKeyword: `${ROOTS.DEMO}/chat-keyword-demo`
   }
 }

@@ -9,6 +9,7 @@ import { authRoutes } from './auth';
 import { authDemoRoutes } from './auth-demo';
 import { HomePage, mainRoutes } from './main';
 import { dashboardRoutes } from './dashboard';
+import { demoRoutes } from './demo';
 import { componentsRoutes } from './components';
 
 // ----------------------------------------------------------------------
@@ -56,6 +57,10 @@ export default function Router() {
 
     // Components routes
     ...componentsRoutes,
+
+    // Demo routes
+    ...demoRoutes,
+
     // No match 404
     { path: '*', element: <Navigate to="/404" replace /> },
   ]);
