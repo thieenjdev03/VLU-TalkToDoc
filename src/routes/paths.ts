@@ -183,6 +183,7 @@ export const paths = {
     },
     mail: `${ROOTS.DASHBOARD}/mail`,
     chat: `${ROOTS.DASHBOARD}/chat`,
+    voiceChat: `${ROOTS.DASHBOARD}/voice-chat`,
     blank: `${ROOTS.DASHBOARD}/blank`,
     kanban: `${ROOTS.DASHBOARD}/kanban`,
     walktour: `${ROOTS.DASHBOARD}/walktour`,
@@ -286,6 +287,7 @@ export const paths = {
     root: ROOTS.DEMO,
     chatSidebar: `${ROOTS.DEMO}/chat-sidebar-demo`,
     chatAppointment: `${ROOTS.DEMO}/chat-appointment-demo`,
-    chatKeyword: `${ROOTS.DEMO}/chat-keyword-demo`
+    chatKeyword: `${ROOTS.DEMO}/chat-keyword-demo`,
+    chatJson: `${ROOTS.DEMO}/chat-json-demo`
   }
 }

@@ -314,6 +314,7 @@ export default function ChatAppointmentSuggestion({
           }
           sx={{ flex: 1 }}
         >
+          {/* eslint-disable-next-line no-nested-ternary */}
           {isProcessing ? 'Đang xử lý...' : (suggestion.isFollowUp ? 'Đặt tái khám' : 'Chấp nhận')}
         </Button>
 

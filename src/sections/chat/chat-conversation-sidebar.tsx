@@ -21,7 +21,7 @@ import Iconify from 'src/components/iconify'
 
 // ----------------------------------------------------------------------
 
-export interface ConversationItem {
+export interface IConversationItem {
   id: string
   title: string
   lastMessage: string
@@ -37,7 +37,7 @@ export interface ConversationItem {
 }
 
 interface Props {
-  conversations: ConversationItem[]
+  conversations: IConversationItem[]
   selectedId?: string
   onSelect: (conversationId: string) => void
   onNewChat?: () => void
@@ -66,7 +66,6 @@ export default function ChatConversationSidebar({
   onSearch,
   searchQuery = ''
 }: Props) {
-  const isDesktop = useResponsive('up', 'md')
   const [localSearch, setLocalSearch] = useState(searchQuery)
 
   // Use backend search if onSearch is provided, otherwise use local filtering
@@ -110,7 +109,7 @@ export default function ChatConversationSidebar({
     return model
   }
 
-  const getAvatarSrc = (conversation: ConversationItem) => {
+  const getAvatarSrc = (conversation: IConversationItem) => {
     if (conversation.avatar) return conversation.avatar
     if (conversation.type === 'doctor') {
       return 'https://res.cloudinary.com/dut4zlbui/image/upload/v1747243574/talktodoc/doctor_avatar.jpg'
@@ -121,26 +120,36 @@ export default function ChatConversationSidebar({
   return (
     <Box
       sx={{
-        width: isDesktop ? 320 : '100%',
+        width: { xs: '100%', sm: 280, md: 320 },
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        borderRight: (theme) => `1px solid ${theme.palette.divider}`,
-        backgroundColor: 'background.paper'
+        backgroundColor: 'background.paper',
+        overflow: 'hidden'
       }}
     >
       {/* Header */}
-      <Box sx={{ p: 2, borderBottom: (theme) => `1px solid ${theme.palette.divider}` }}>
-        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
-          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+      <Box sx={{ 
+        p: { xs: 1.5, sm: 2 }, 
+        borderBottom: (theme) => `1px solid ${theme.palette.divider}` 
+      }}>
+        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: { xs: 1.5, sm: 2 } }}>
+          <Typography 
+            variant="h6" 
+            sx={{ 
+              fontWeight: 600,
+              fontSize: { xs: '1rem', sm: '1.25rem' }
+            }}
+          >
             Cuộc trò chuyện
           </Typography>
           <Tooltip title="Tạo cuộc trò chuyện mới">
             <IconButton
               onClick={onNewChat}
+              size="small"
               sx={{
-                width: 36,
-                height: 36,
+                width: { xs: 32, sm: 36 },
+                height: { xs: 32, sm: 36 },
                 backgroundColor: 'primary.main',
                 color: 'primary.contrastText',
                 '&:hover': {
@@ -148,7 +157,7 @@ export default function ChatConversationSidebar({
                 }
               }}
             >
-              <Iconify icon="eva:plus-fill" width={20} />
+              <Iconify icon="eva:plus-fill" width={18} />
             </IconButton>
           </Tooltip>
         </Stack>
@@ -163,7 +172,7 @@ export default function ChatConversationSidebar({
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" width={20} sx={{ color: 'text.secondary' }} />
+                <Iconify icon="eva:search-fill" width={18} sx={{ color: 'text.secondary' }} />
               </InputAdornment>
             ),
             endAdornment: localSearch && (
@@ -171,9 +180,9 @@ export default function ChatConversationSidebar({
                 <IconButton
                   size="small"
                   onClick={() => handleSearchChange('')}
-                  sx={{ width: 24, height: 24 }}
+                  sx={{ width: 20, height: 20 }}
                 >
-                  <Iconify icon="eva:close-fill" width={16} />
+                  <Iconify icon="eva:close-fill" width={14} />
                 </IconButton>
               </InputAdornment>
             )
@@ -181,6 +190,7 @@ export default function ChatConversationSidebar({
           sx={{
             '& .MuiOutlinedInput-root': {
               backgroundColor: 'background.neutral',
+              fontSize: { xs: '0.875rem', sm: '0.9rem' },
               '&:hover': {
                 backgroundColor: 'background.neutral'
               },
@@ -194,13 +204,15 @@ export default function ChatConversationSidebar({
 
       {/* Conversations List */}
       <Box sx={{ flex: 1, overflow: 'hidden' }}>
-        {loading ? (
+        {loading && (
           <Box sx={{ p: 2 }}>
             {[...Array(5)].map((_, index) => (
               <ConversationItemSkeleton key={index} />
             ))}
           </Box>
-        ) : filteredConversations.length === 0 ? (
+        )}
+
+        {!loading && filteredConversations.length === 0 && (
           <Box
             sx={{
               display: 'flex',
@@ -231,7 +243,9 @@ export default function ChatConversationSidebar({
               </Typography>
             )}
           </Box>
-        ) : (
+        )}
+
+        {!loading && filteredConversations.length > 0 && (
           <Box sx={{ overflow: 'auto', height: '100%' }}>
             {filteredConversations.map((conversation, index) => (
               <ConversationItem
@@ -244,7 +258,7 @@ export default function ChatConversationSidebar({
                 getAvatarSrc={getAvatarSrc}
               />
             ))}
-            
+
             {/* Load More Button */}
             {hasMore && onLoadMore && (
               <Box sx={{ p: 2, textAlign: 'center' }}>
@@ -262,32 +276,6 @@ export default function ChatConversationSidebar({
           </Box>
         )}
       </Box>
-
-      {/* Footer */}
-      <Box sx={{ p: 2, borderTop: (theme) => `1px solid ${theme.palette.divider}` }}>
-        <Stack direction="row" alignItems="center" spacing={1}>
-          <Avatar
-            src="https://res.cloudinary.com/dut4zlbui/image/upload/v1747243574/talktodoc/avatar_default.jpg"
-            sx={{ width: 32, height: 32 }}
-          />
-          <Box sx={{ flex: 1, minWidth: 0 }}>
-            <Typography 
-              variant="body2" 
-              sx={{ 
-                fontWeight: 500, 
-                overflow: 'hidden', 
-                textOverflow: 'ellipsis', 
-                whiteSpace: 'nowrap' 
-              }}
-            >
-              Bệnh nhân
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              Đang hoạt động
-            </Typography>
-          </Box>
-        </Stack>
-      </Box>
     </Box>
   )
 }
@@ -295,12 +283,12 @@ export default function ChatConversationSidebar({
 // ----------------------------------------------------------------------
 
 interface ConversationItemComponentProps {
-  conversation: ConversationItem
+  conversation: IConversationItem
   isSelected: boolean
   onClick: () => void
   getModelChipColor: (model: string, type: string) => 'success' | 'primary' | 'secondary' | 'default'
   getModelLabel: (model: string, type: string) => string
-  getAvatarSrc: (conversation: ConversationItem) => string
+  getAvatarSrc: (conversation: IConversationItem) => string
 }
 
 function ConversationItem({
@@ -315,11 +303,11 @@ function ConversationItem({
     <Box
       onClick={onClick}
       sx={{
-        p: 2,
+        p: { xs: 1.5, sm: 2 },
         cursor: 'pointer',
         borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
         backgroundColor: isSelected ? 'primary.lighter' : 'transparent',
-        borderLeft: conversation.unread ? '4px solid' : '4px solid transparent',
+        borderLeft: conversation.unread ? '3px solid' : '3px solid transparent',
         borderLeftColor: conversation.unread ? 'primary.main' : 'transparent',
         transition: 'all 0.2s ease',
         '&:hover': {
@@ -327,15 +315,15 @@ function ConversationItem({
         }
       }}
     >
-      <Stack direction="row" spacing={2} alignItems="flex-start">
+      <Stack direction="row" spacing={{ xs: 1.5, sm: 2 }} alignItems="flex-start">
         <Badge
           overlap="circular"
           anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
           badgeContent={
             <Box
               sx={{
-                width: 12,
-                height: 12,
+                width: { xs: 10, sm: 12 },
+                height: { xs: 10, sm: 12 },
                 borderRadius: '50%',
                 backgroundColor: conversation.type === 'doctor' ? 'success.main' : 'primary.main',
                 border: '2px solid',
@@ -345,9 +333,8 @@ function ConversationItem({
           }
         >
           <Avatar
-            src={getAvatarSrc(conversation)}
-            alt={conversation.title}
-            sx={{ width: 48, height: 48 }}
+            src='https://res.cloudinary.com/dut4zlbui/image/upload/v1747243574/talktodoc/owwf4irzl8hu1dm2e3ux.png'            alt={conversation.title}
+            sx={{ width: { xs: 40, sm: 48 }, height: { xs: 40, sm: 48 } }}
           />
         </Badge>
 
@@ -360,7 +347,8 @@ function ConversationItem({
                 color: isSelected ? 'primary.darker' : 'text.primary',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap'
+                whiteSpace: 'nowrap',
+                fontSize: { xs: '0.875rem', sm: '0.9rem' }
               }}
             >
               {conversation.title}
@@ -368,8 +356,8 @@ function ConversationItem({
             {conversation.unread && (
               <Box
                 sx={{
-                  width: 8,
-                  height: 8,
+                  width: { xs: 6, sm: 8 },
+                  height: { xs: 6, sm: 8 },
                   borderRadius: '50%',
                   backgroundColor: 'primary.main',
                   flexShrink: 0
@@ -383,7 +371,11 @@ function ConversationItem({
             size="small"
             color={getModelChipColor(conversation.model_used, conversation.type)}
             variant="outlined"
-            sx={{ mb: 1, height: 20, fontSize: '0.75rem' }}
+            sx={{ 
+              mb: 1, 
+              height: { xs: 18, sm: 20 }, 
+              fontSize: { xs: '0.7rem', sm: '0.75rem' }
+            }}
           />
 
           <Typography
@@ -392,16 +384,21 @@ function ConversationItem({
             sx={{
               mb: 0.5,
               display: '-webkit-box',
-              WebkitLineClamp: 2,
+              WebkitLineClamp: { xs: 1, sm: 2 },
               WebkitBoxOrient: 'vertical',
               overflow: 'hidden',
-              lineHeight: 1.4
+              lineHeight: 1.4,
+              fontSize: { xs: '0.8rem', sm: '0.875rem' }
             }}
           >
             {conversation.lastMessage}
           </Typography>
 
-          <Typography variant="caption" color="text.disabled">
+          <Typography 
+            variant="caption" 
+            color="text.disabled"
+            sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem' } }}
+          >
             {fDateTime(conversation.updatedAt)}
           </Typography>
         </Box>

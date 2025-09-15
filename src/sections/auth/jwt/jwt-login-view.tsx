@@ -119,7 +119,7 @@ export default function JwtLoginView() {
             variant="subtitle2"
             color="primary"
             underline="always"
-            onClick={() => window.location.href = import.meta.env.VITE_PROD_REDIRECT_URL}
+            onClick={() => {window.location.href = import.meta.env.VITE_PROD_REDIRECT_URL}}
             sx={{ 
               border: 'none', 
               background: 'none', 

@@ -544,6 +544,7 @@ export default function CallCenter({
             )
 
             try {
+              // eslint-disable-next-line prefer-destructuring
               remoteVideo.srcObject = possibleRemoteStreams[0]
               remoteVideo.onloadedmetadata = () => {
                 console.log('Remote video metadata loaded thủ công, playing...')
@@ -565,6 +566,7 @@ export default function CallCenter({
             )
 
             try {
+              // eslint-disable-next-line prefer-destructuring
               localVideo.srcObject = possibleLocalStreams[0]
               localVideo.onloadedmetadata = () => {
                 console.log('Local video metadata loaded thủ công, playing...')

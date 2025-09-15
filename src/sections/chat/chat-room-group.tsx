@@ -76,7 +76,7 @@ export default function ChatRoomGroup({ participants }: Props) {
             variant={participant.status === 'online' ? 'dot' : 'standard'}
             anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
           >
-            <Avatar alt={participant.name} src={participant.avatarUrl} />
+            <Avatar alt={participant.name} src='https://res.cloudinary.com/dut4zlbui/image/upload/v1747243574/talktodoc/owwf4irzl8hu1dm2e3ux.png' />
           </Badge>
 
           <ListItemText

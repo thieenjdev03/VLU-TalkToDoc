@@ -291,9 +291,9 @@ export default function ChatKeywordDemo() {
         <Typography variant="body2">
           <strong>How it works:</strong>
           <br />
-          • Type a message and click "Test Message" to see if it will trigger appointment suggestion
+          • Type a message and click &quot;Test Message&quot; to see if it will trigger appointment suggestion
           <br />
-          • Keywords like &ldquo;test&rdquo;, &ldquo;khám&rdquo;, &ldquo;lịch hẹn&rdquo;, &ldquo;bác sĩ&rdquo;, &ldquo;đau&rdquo;, &ldquo;sốt&rdquo; will trigger suggestions
+          • Keywords like &quot;test&quot;, &quot;khám&quot;, &quot;lịch hẹn&quot;, &quot;bác sĩ&quot;, &quot;đau&quot;, &quot;sốt&quot; will trigger suggestions
           <br />
           • Symptoms are automatically extracted from the message
           <br />

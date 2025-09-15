@@ -10,7 +10,8 @@ import {
   IChatResponse,
   IChatParticipant,
   IChatConversation,
-  IChatConversations
+  IChatConversations,
+  Doctor
 } from 'src/types/chat'
 
 const swrOptions = {
@@ -219,6 +220,32 @@ export async function sendMessageToAI(
   return response.data
 }
 
+// New function for JSON response
+export async function sendJsonMessageToAI(
+  chatId: string,
+  message: string,
+  userId: string,
+  imageUrls?: string[],
+  jsonResponseType?: string
+): Promise<any> {
+  const payload: any = {
+    message,
+    user_id: userId,
+    requireJsonResponse: true
+  }
+  
+  if (imageUrls && imageUrls.length > 0) {
+    payload.imageUrls = imageUrls
+  }
+  
+  if (jsonResponseType) {
+    payload.jsonResponseType = jsonResponseType
+  }
+  
+  const response = await axios.post(`${API_URL}/chat/${chatId}/json`, payload)
+  return response.data
+}
+
 export function useGetChat(chatId: string) {
   // Chưa implement, trả về null để tránh lỗi
   return {
@@ -232,5 +259,33 @@ export function useGetChats() {
   return {
     conversations: [],
     conversationsLoading: false
+  }
+}
+
+// Get all doctors API
+export async function getAllDoctors(): Promise<Doctor[]> {
+  try {
+    const response = await axiosInstance.get(`${API_URL}/api/v1/doctors`)
+    return response.data.doctors || response.data || []
+  } catch (error) {
+    console.error('Error fetching doctors:', error)
+    throw error
+  }
+}
+
+// Search doctors API
+export async function searchDoctors(query: string, specialty?: string): Promise<Doctor[]> {
+  try {
+    const params = new URLSearchParams()
+    params.append('q', query)
+    if (specialty) params.append('specialty', specialty)
+    
+    const response = await axiosInstance.get(
+      `${API_URL}/api/v1/doctors/search?${params.toString()}`
+    )
+    return response.data.doctors || response.data || []
+  } catch (error) {
+    console.error('Error searching doctors:', error)
+    throw error
   }
 }

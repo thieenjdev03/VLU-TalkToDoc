@@ -4,7 +4,7 @@ import useSWR, { mutate } from 'swr'
 
 import { fetcher, axiosInstance } from 'src/utils/axios'
 
-import { ConversationItem } from 'src/sections/chat/chat-conversation-sidebar'
+import { IConversationItem } from 'src/sections/chat/chat-conversation-sidebar'
 
 // ----------------------------------------------------------------------
 
@@ -32,7 +32,7 @@ export function useGetConversations(userId?: string, page = 1, limit = 20, type?
 
   const memoizedValue = useMemo(
     () => ({
-      conversations: (data?.data as ConversationItem[]) || [],
+      conversations: (data?.data as IConversationItem[]) || [],
       pagination: data?.pagination || null,
       conversationsLoading: isLoading,
       conversationsError: error,
@@ -149,7 +149,7 @@ export function refreshConversation(conversationId?: string) {
 }
 
 // Utility function to add new conversation to cache
-export function addConversationToCache(userId: string, newConversation: ConversationItem) {
+export function addConversationToCache(userId: string, newConversation: IConversationItem) {
   const params = new URLSearchParams()
   params.append('user_id', userId)
   params.append('page', '1')
@@ -168,7 +168,7 @@ export function addConversationToCache(userId: string, newConversation: Conversa
 }
 
 // Utility function to update conversation in cache
-export function updateConversationInCache(userId: string, conversationId: string, updates: Partial<ConversationItem>) {
+export function updateConversationInCache(userId: string, conversationId: string, updates: Partial<IConversationItem>) {
   const params = new URLSearchParams()
   params.append('user_id', userId)
   params.append('page', '1')
@@ -181,7 +181,7 @@ export function updateConversationInCache(userId: string, conversationId: string
     
     return {
       ...currentData,
-      data: currentData.data.map((conv: ConversationItem) => 
+      data: currentData.data.map((conv: IConversationItem) => 
         conv.id === conversationId ? { ...conv, ...updates } : conv
       )
     }

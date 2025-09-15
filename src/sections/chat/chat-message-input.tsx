@@ -1,9 +1,10 @@
 import PropTypes from 'prop-types'
 import { useRef, useState, ChangeEvent } from 'react'
 
-import SendIcon from '@mui/icons-material/Send'
-import ImageIcon from '@mui/icons-material/Image'
 import CloseIcon from '@mui/icons-material/Close'
+import MicIcon from '@mui/icons-material/Mic'
+import ImageIcon from '@mui/icons-material/Image'
+import SendIcon from '@mui/icons-material/Send'
 import {
   Box,
   Paper,
@@ -15,6 +16,7 @@ import {
 interface Props {
   onSendMessage: (message: string, imageUrls?: string[]) => void
   onUploadImage?: (file: File) => void
+  onVoiceChat?: () => void
   disabled?: boolean
 }
 
@@ -39,6 +41,7 @@ async function uploadImageToCloudinary(file: File): Promise<string | null> {
 export default function ChatMessageInput({
   onSendMessage,
   onUploadImage,
+  onVoiceChat,
   disabled
 }: Props) {
   const [message, setMessage] = useState('')
@@ -93,15 +96,25 @@ export default function ChatMessageInput({
     <Paper
       elevation={3}
       sx={{
-        p: '8px 12px',
+        p: { xs: '4px 6px', sm: '6px 8px', md: '8px 12px' },
         display: 'flex',
         alignItems: 'center',
-        borderRadius: '32px',
-        m: 2
+        borderRadius: { xs: '24px', sm: '28px', md: '32px' },
+        m: { xs: 0.5, sm: 1, md: 2 },
+        minHeight: { xs: 44, sm: 48, md: 56 }
       }}
     >
-      <IconButton component="label" disabled={disabled || isUploading}>
-        <ImageIcon />
+      <IconButton 
+        component="label" 
+        disabled={disabled || isUploading}
+        size="small"
+        sx={{ 
+          display: { xs: 'none', sm: 'flex' },
+          width: { xs: 32, sm: 36, md: 40 },
+          height: { xs: 32, sm: 36, md: 40 }
+        }}
+      >
+        <ImageIcon sx={{ fontSize: { xs: 16, sm: 18, md: 20 } }} />
         <input
           type="file"
           accept="image/*"
@@ -113,9 +126,18 @@ export default function ChatMessageInput({
         />
       </IconButton>
 
-      <Box sx={{ ml: 1, flex: 1, display: 'flex', flexDirection: 'column' }}>
+      <Box sx={{ 
+        ml: { xs: 0.5, sm: 1 }, 
+        flex: 1, 
+        display: 'flex', 
+        flexDirection: 'column' 
+      }}>
         <InputBase
-          sx={{ flex: 1, minWidth: 0 }}
+          sx={{ 
+            flex: 1, 
+            minWidth: 0,
+            fontSize: { xs: '0.875rem', sm: '1rem' }
+          }}
           placeholder="Nhập tin nhắn..."
           value={message}
           onChange={e => setMessage(e.target.value)}
@@ -171,15 +193,40 @@ export default function ChatMessageInput({
         )}
       </Box>
 
+      {onVoiceChat && (
+        <IconButton
+          onClick={onVoiceChat}
+          disabled={disabled || isUploading}
+          size="small"
+          sx={{ 
+            ml: { xs: 0.5, sm: 1 },
+            color: 'primary.main',
+            width: { xs: 32, sm: 36, md: 40 },
+            height: { xs: 32, sm: 36, md: 40 },
+            '&:hover': {
+              backgroundColor: 'primary.lighter'
+            }
+          }}
+          title="Voice Chat"
+        >
+          <MicIcon sx={{ fontSize: { xs: 16, sm: 18, md: 20 } }} />
+        </IconButton>
+      )}
+      
       <IconButton
         color="primary"
         onClick={handleSend}
         disabled={
           (!message.trim() && imageUrls.length === 0) || disabled || isUploading
         }
-        sx={{ ml: 1 }}
+        size="small"
+        sx={{ 
+          ml: { xs: 0.5, sm: 1 },
+          width: { xs: 32, sm: 36, md: 40 },
+          height: { xs: 32, sm: 36, md: 40 }
+        }}
       >
-        <SendIcon />
+        <SendIcon sx={{ fontSize: { xs: 16, sm: 18, md: 20 } }} />
       </IconButton>
     </Paper>
   )
@@ -188,5 +235,6 @@ export default function ChatMessageInput({
 ChatMessageInput.propTypes = {
   onSendMessage: PropTypes.func.isRequired,
   onUploadImage: PropTypes.func,
+  onVoiceChat: PropTypes.func,
   disabled: PropTypes.bool
 }

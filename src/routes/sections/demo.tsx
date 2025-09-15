@@ -11,6 +11,7 @@ import { SplashScreen } from 'src/components/loading-screen';
 const ChatSidebarDemoPage = lazy(() => import('src/pages/demo/chat-sidebar-demo'));
 const ChatAppointmentDemoPage = lazy(() => import('src/pages/demo/chat-appointment-demo'));
 const ChatKeywordDemoPage = lazy(() => import('src/pages/demo/chat-keyword-demo'));
+const ChatJsonDemoPage = lazy(() => import('src/pages/demo/chat-json-demo'));
 
 // ----------------------------------------------------------------------
 
@@ -30,6 +31,7 @@ export const demoRoutes = [
           { path: 'chat-sidebar-demo', element: <ChatSidebarDemoPage /> },
           { path: 'chat-appointment-demo', element: <ChatAppointmentDemoPage /> },
           { path: 'chat-keyword-demo', element: <ChatKeywordDemoPage /> },
+          { path: 'chat-json-demo', element: <ChatJsonDemoPage /> },
         ],
       },
     ],

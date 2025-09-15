@@ -20,20 +20,20 @@ interface Props {
 
 export function BotTypingIndicator() {
   return (
-    <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 2 }}>
+    <Stack direction="row" alignItems="center" spacing={{ xs: 1, sm: 1.5 }} sx={{ mb: { xs: 1.5, sm: 2 } }}>
       <Avatar
         src="https://res.cloudinary.com/dut4zlbui/image/upload/v1747243574/talktodoc/owwf4irzl8hu1dm2e3ux.png"
         alt="TalkToDoc A.I"
-        sx={{ width: 36, height: 36 }}
+        sx={{ width: { xs: 32, sm: 36 }, height: { xs: 32, sm: 36 } }}
       />
       <Box
         sx={{
-          px: 2,
-          py: 1,
+          px: { xs: 1.5, sm: 2 },
+          py: { xs: 0.75, sm: 1 },
           bgcolor: 'background.neutral',
-          borderRadius: 2,
-          maxWidth: 320,
-          minHeight: 32,
+          borderRadius: { xs: 1.5, sm: 2 },
+          maxWidth: { xs: 280, sm: 320 },
+          minHeight: { xs: 28, sm: 32 },
           display: 'flex',
           alignItems: 'center'
         }}
@@ -52,8 +52,8 @@ function Dot({ delay = 0 }: { delay?: number }) {
   return (
     <Box
       sx={{
-        width: 8,
-        height: 8,
+        width: { xs: 6, sm: 8 },
+        height: { xs: 6, sm: 8 },
         borderRadius: '50%',
         bgcolor: 'text.secondary',
         animation: 'botTypingBlink 1.2s infinite',
@@ -81,9 +81,16 @@ export default function ChatMessageList({
   // }, [messages, isBotReplying])
 
   return (
-    <Box sx={{ flexGrow: 1, overflow: 'hidden', px: 2 }}>
+    <Box sx={{ 
+      flexGrow: 1, 
+      overflow: 'hidden', 
+      px: { xs: 1, sm: 2 } 
+    }}>
       <Scrollbar sx={{ height: 1 }}>
-        <Stack spacing={2} sx={{ py: 3, minHeight: 1 }}>
+        <Stack spacing={{ xs: 1.5, sm: 2 }} sx={{ 
+          py: { xs: 2, sm: 3 }, 
+          minHeight: 1 
+        }}>
           {messages.map(message => (
             <ChatMessageItem
               key={message._id}

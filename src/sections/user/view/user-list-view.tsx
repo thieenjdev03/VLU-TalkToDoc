@@ -332,9 +332,7 @@ export default function UserListView(props: {
           <UserTableToolbar
             filters={filters}
             onFilters={handleFilters} // ✅ Cho phép user nhập query tìm kiếm
-            roleOptions={specialtyList.map(item => item.name)}
             onSearchChange={debouncedSearch}
-            typeUser={typeUser}
           />
           {canReset && (
             <UserTableFiltersResult

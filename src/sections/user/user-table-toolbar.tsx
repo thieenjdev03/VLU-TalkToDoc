@@ -16,19 +16,15 @@ import { IUserTableFilters, IUserTableFilterValue } from 'src/types/user';
 type Props = {
   filters: IUserTableFilters;
   onFilters: (name: string, value: IUserTableFilterValue) => void;
-  roleOptions: string[];
   searchValue?: string;
   onSearchChange?: (query: string) => void;
-  typeUser: 'user' | 'doctor' | 'employee' | 'patient';
 };
 
 export default function UserTableToolbar({
   filters,
   onFilters,
-  roleOptions,
   searchValue = '',
   onSearchChange,
-  typeUser,
 }: Props) {
   const popover = usePopover();
 

@@ -97,6 +97,7 @@ const TourEditPage = lazy(() => import('src/pages/dashboard/tour/edit'))
 const FileManagerPage = lazy(() => import('src/pages/dashboard/file-manager'))
 // APP
 const ChatPage = lazy(() => import('src/pages/dashboard/chat'))
+const VoiceChatPage = lazy(() => import('src/pages/dashboard/voice-chat'))
 const MailPage = lazy(() => import('src/pages/dashboard/mail'))
 const CalendarPage = lazy(() => import('src/pages/dashboard/calendar'))
 const KanbanPage = lazy(() => import('src/pages/dashboard/kanban'))
@@ -315,6 +316,7 @@ export const dashboardRoutes = [
       { path: 'file-manager', element: <FileManagerPage /> },
       { path: 'mail', element: <MailPage /> },
       { path: 'chat', element: <ChatPage /> },
+      { path: 'voice-chat', element: <VoiceChatPage /> },
       { path: 'calendar', element: <CalendarPage /> },
       { path: 'kanban', element: <KanbanPage /> },
       { path: 'permission', element: <PermissionDeniedPage /> },

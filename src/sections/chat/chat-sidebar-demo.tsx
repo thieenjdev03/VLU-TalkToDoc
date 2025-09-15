@@ -4,11 +4,11 @@ import {
   Box,
   Card,
   Stack,
-  Typography,
   Button,
   Switch,
+  Divider,
+  Typography,
   FormControlLabel,
-  Divider
 } from '@mui/material'
 
 import { 
@@ -17,11 +17,11 @@ import {
   updateConversationInCache 
 } from 'src/api/conversation'
 
-import ChatConversationSidebar, { ConversationItem } from './chat-conversation-sidebar'
+import ChatConversationSidebar, { IConversationItem } from './chat-conversation-sidebar'
 
 // ----------------------------------------------------------------------
 
-const mockConversations: ConversationItem[] = [
+const mockConversations: IConversationItem[] = [
   {
     id: 'conv_001',
     title: 'AI - gpt-4o-mini',
@@ -134,7 +134,7 @@ export default function ChatSidebarDemo() {
   }
 
   const handleAddMockConversation = () => {
-    const newConversation: ConversationItem = {
+    const newConversation: IConversationItem = {
       id: `conv_mock_${Date.now()}`,
       title: 'AI - gpt-4o (Mock)',
       lastMessage: 'Đây là tin nhắn mới được thêm vào sidebar!',
@@ -172,6 +172,7 @@ export default function ChatSidebarDemo() {
     }
   }
 
+  // eslint-disable-next-line no-nested-ternary
   const conversations = showEmpty 
     ? [] 
     : (useRealAPI ? realConversations : mockConversations)
@@ -245,6 +246,7 @@ export default function ChatSidebarDemo() {
             loading={isLoading}
             pagination={useRealAPI ? pagination : undefined}
             onLoadMore={useRealAPI ? handleLoadMore : undefined}
+            // eslint-disable-next-line no-nested-ternary
             hasMore={useRealAPI 
               ? (pagination ? currentPage < pagination.totalPages : false) 
               : false}

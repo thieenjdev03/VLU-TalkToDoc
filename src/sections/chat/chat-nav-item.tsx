@@ -83,7 +83,7 @@ export default function ChatNavItem({
           <Avatar
             key={participant.id}
             alt={participant.name}
-            src={participant.avatarUrl}
+            src='https://res.cloudinary.com/dut4zlbui/image/upload/v1747243574/talktodoc/owwf4irzl8hu1dm2e3ux.png'
           />
         ))}
       </AvatarGroup>
@@ -96,7 +96,7 @@ export default function ChatNavItem({
       variant={status === 'online' ? 'dot' : 'standard'}
       anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
     >
-      <Avatar alt={name} src={avatarUrl} sx={{ width: 48, height: 48 }} />
+      <Avatar alt={name} src='https://res.cloudinary.com/dut4zlbui/image/upload/v1747243574/talktodoc/owwf4irzl8hu1dm2e3ux.png' sx={{ width: 48, height: 48 }} />
     </Badge>
   )
 

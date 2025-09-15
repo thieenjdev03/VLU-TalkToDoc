@@ -12,12 +12,16 @@ import {
 
 import { CloseIcon } from 'src/components/lightbox'
 
-import { IChatMessage } from 'src/types/chat'
+import { IChatMessage, ChatJsonData } from 'src/types/chat'
 
 import ChatAppointmentSuggestion from './chat-appointment-suggestion'
+import { ChatJsonRenderer } from './components/chat-json-components'
 
 interface Props {
-  message: IChatMessage & { imageUrls?: string[] }
+  message: IChatMessage & { 
+    imageUrls?: string[]
+    jsonData?: ChatJsonData
+  }
   isCurrentUser: boolean
   userProfile: any
   onAppointmentAccept?: (appointmentId: string) => void
@@ -263,6 +267,17 @@ export default function ChatMessageItem({
                 suggestion={message.appointmentSuggestion}
                 onAccept={onAppointmentAccept}
                 onReject={onAppointmentReject}
+              />
+            </Box>
+          )}
+
+          {/* Hiển thị JSON data nếu có */}
+          {!isCurrentUser && message.jsonData && (
+            <Box sx={{ mt: 1.5 }}>
+              <ChatJsonRenderer
+                jsonData={message.jsonData}
+                onAppointmentAccept={() => onAppointmentAccept?.('')}
+                onAppointmentDecline={onAppointmentReject}
               />
             </Box>
           )}

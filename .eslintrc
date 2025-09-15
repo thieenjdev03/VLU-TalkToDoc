@@ -48,13 +48,13 @@
         "allowExpressions": true
       }
     ],
-    "prefer-destructuring": [
-      1,
-      {
-        "object": true,
-        "array": false
-      }
-    ],
+    // "prefer-destructuring": [
+    //   1,
+    //   {
+    //     "object": true,
+    //     "array": false
+    //   }
+    // ],
     "react/no-unstable-nested-components": [
       1,
       {
@@ -75,7 +75,7 @@
     ],
     // unused-imports
     // https://www.npmjs.com/package/eslint-plugin-unused-imports
-    "unused-imports/no-unused-imports": 1,
+    // "unused-imports/no-unused-imports": 1,
     "unused-imports/no-unused-vars": [
       0,
       {
@@ -87,13 +87,13 @@
     ],
     // perfectionist
     // https://eslint-plugin-perfectionist.azat.io/
-    "perfectionist/sort-named-imports": [
-      1,
-      {
-        "order": "asc",
-        "type": "line-length"
-      }
-    ],
+    // "perfectionist/sort-named-imports": [
+    //   1,
+    //   {
+    //     "order": "asc",
+    //     "type": "line-length"
+    //   }
+    // ],
     "perfectionist/sort-named-exports": [
       1,
       {
